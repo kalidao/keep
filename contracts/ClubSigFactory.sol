@@ -81,13 +81,9 @@ abstract contract ERC721initializable {
     mapping(address => mapping(address => bool)) public isApprovedForAll;
 
     /// -----------------------------------------------------------------------
-    /// EIP-2612 Storage
+    /// EIP-2612-like Storage
     /// -----------------------------------------------------------------------
     
-    bytes32 public constant PERMIT_TYPEHASH =
-        keccak256('Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)');
-    bytes32 public constant PERMIT_ALL_TYPEHASH = 
-        keccak256('Permit(address owner,address spender,uint256 nonce,uint256 deadline)');
     uint256 internal INITIAL_CHAIN_ID;
     bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
@@ -245,7 +241,9 @@ abstract contract ERC721initializable {
                 abi.encodePacked(
                     '\x19\x01',
                     DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(PERMIT_TYPEHASH, spender, tokenId, nonces[tokenId]++, deadline))
+                    keccak256(abi.encode(keccak256(
+                        'Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)'), 
+                        spender, tokenId, nonces[tokenId]++, deadline))
                 )
             );
 
@@ -276,7 +274,9 @@ abstract contract ERC721initializable {
                 abi.encodePacked(
                     '\x19\x01',
                     DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(PERMIT_ALL_TYPEHASH, owner, operator, noncesForAll[owner]++, deadline))
+                    keccak256(abi.encode(keccak256(
+                        'Permit(address owner,address spender,uint256 nonce,uint256 deadline)'), 
+                        owner, operator, noncesForAll[owner]++, deadline))
                 )
             );
 
@@ -311,8 +311,8 @@ abstract contract ERC721initializable {
     /// -----------------------------------------------------------------------
     /// Internal Mint/Burn Logic
     /// -----------------------------------------------------------------------
-    
-    function _mint(address to, uint256 tokenId) internal virtual { 
+
+    function _safeMint(address to, uint256 tokenId) internal virtual {
         if (to == address(0)) revert InvalidRecipient();
         if (ownerOf[tokenId] != address(0)) revert AlreadyMinted();
   
@@ -325,8 +325,13 @@ abstract contract ERC721initializable {
         ownerOf[tokenId] = to;
         
         emit Transfer(address(0), to, tokenId); 
+
+        if (to.code.length != 0 
+            && ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), tokenId, '') 
+            != ERC721TokenReceiver.onERC721Received.selector
+        ) revert InvalidRecipient();
     }
-    
+
     function _burn(uint256 tokenId) internal virtual { 
         address owner = ownerOf[tokenId];
 
@@ -342,32 +347,6 @@ abstract contract ERC721initializable {
         delete getApproved[tokenId];
         
         emit Transfer(owner, address(0), tokenId); 
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Internal Safe Mint Logic
-    /// -----------------------------------------------------------------------
-
-    function _safeMint(address to, uint256 tokenId) internal virtual {
-        _mint(to, tokenId);
-
-        if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), tokenId, '') 
-            != ERC721TokenReceiver.onERC721Received.selector
-        ) revert InvalidRecipient();
-    }
-
-    function _safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
-        _mint(to, tokenId);
-
-        if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), tokenId, data) 
-            != ERC721TokenReceiver.onERC721Received.selector
-        ) revert InvalidRecipient();
     }
 
     /// -----------------------------------------------------------------------
@@ -390,12 +369,12 @@ library Base64 {
     /// @dev encodes some bytes to the base64 representation
     function encode(bytes memory data) internal pure returns (string memory) {
         uint256 len = data.length;
-        if (len == 0) return "";
+        if (len == 0) return '';
 
         // multiply by 4/3 rounded up
         uint256 encodedLen = 4 * ((len + 2) / 3);
 
-        // Add some extra buffer at the end
+        // add some extra buffer at the end
         bytes memory result = new bytes(encodedLen + 32);
 
         bytes memory table = TABLE;
@@ -407,7 +386,6 @@ library Base64 {
             for {
                 let i := 0
             } lt(i, len) {
-
             } {
                 i := add(i, 3)
                 let input := and(mload(add(data, i)), 0xffffff)
@@ -444,7 +422,7 @@ library Base64 {
 /// @notice Helper utility that enables calling multiple local methods in a single call.
 /// @author Modified from Uniswap (https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol)
 abstract contract Multicall {
-    function multicall(bytes[] calldata data) public payable virtual returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data) public payable returns (bytes[] memory results) {
         results = new bytes[](data.length);
         
         // cannot realistically overflow on human timescales
@@ -461,6 +439,7 @@ abstract contract Multicall {
                     
                     revert(abi.decode(result, (string)));
                 }
+
                 results[i] = result;
             }
         }
@@ -544,10 +523,10 @@ contract ClubSig is ERC721initializable, Multicall {
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
     uint256 public quorum;
+    /// @dev optional metadata to signify contract
+    string public baseURI;
     /// @dev total ragequittable units minted
     uint256 public totalLoot;
-    /// @dev counter for signers minted
-    uint256 private signerCount;
     /// @dev ragequittable units per account
     mapping(address => uint256) public loot;
     /// @dev administrative account tracking
@@ -557,7 +536,7 @@ contract ClubSig is ERC721initializable, Multicall {
         address target; 
         uint256 value;
         bytes payload;
-        bool deleg; // whether delegate call
+        bool std; // whether delegate call
     }
 
     /// -----------------------------------------------------------------------
@@ -579,9 +558,10 @@ contract ClubSig is ERC721initializable, Multicall {
         uint256[] calldata tokenIds_, 
         uint256[] calldata loots_, 
         uint256 quorum_,
-        bool paused_
-    ) public payable virtual {
-        if (nonce == 1) revert Initialized();
+        bool paused_,
+        string memory baseURI_
+    ) public payable {
+        if (nonce != 0) revert Initialized();
 
         ERC721initializable._init(paused_);
 
@@ -590,52 +570,63 @@ contract ClubSig is ERC721initializable, Multicall {
         if (length != loots_.length || length != tokenIds_.length) revert NoArrayParity();
         if (quorum_ > length) revert SigBounds();
 
+        uint256 nftSupply;
+        uint256 lootSupply;
+
         // cannot realistically overflow on human timescales
         unchecked {
             for (uint256 i = 0; i < length; i++) {
-                // hash `tokenId` to signer address
                 _safeMint(signers_[i], tokenIds_[i]);
-                totalSupply++;
+                nftSupply++;
                 loot[signers_[i]] = loots_[i];
-                totalLoot += loots_[i];
+                lootSupply += loots_[i];
             }
         }
 
-        quorum = quorum_;
+        totalSupply = nftSupply;
+        totalLoot = lootSupply;
+
         nonce = 1;
+        quorum = quorum_;
+        baseURI = baseURI_;
     }
 
     /// -----------------------------------------------------------------------
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
-    function tokenURI(uint256 tokenId) public view override virtual returns (string memory) {
-        return _constructTokenURI(tokenId);
+    function tokenURI(uint256 id) public view override returns (string memory) {
+        bytes memory base = bytes(baseURI);
+        return base.length != 0 ? baseURI : _buildTokenURI(id);
     }
 
-    function _constructTokenURI(uint256 tokenId) internal view returns (string memory) {
-        address owner = ownerOf[tokenId];
+    function _buildTokenURI(uint256 id) internal view returns (string memory) {
+        address owner = ownerOf[id];
 
         string memory metaSVG = string(
             abi.encodePacked(
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="90px">',
-                _toString(loot[owner]),
-                " Loot",
-                "</text>"
+                '0x',
+                _addressToString(owner),
+                '</text>',
+                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="100%" y="180px">',
+                _uintToString(loot[owner]),
+                ' Loot',
+                '</text>'
             )
         );
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" style="font:14px serif"><rect width="400" height="400" fill="black" />',
             metaSVG,
-            "</svg>"
+            '</svg>'
         );
         bytes memory image = abi.encodePacked(
-            "data:image/svg+xml;base64,",
+            'data:image/svg+xml;base64,',
             Base64.encode(bytes(svg))
         );
         return string(
             abi.encodePacked(
-                "data:application/json;base64,",
+                'data:application/json;base64,',
                 Base64.encode(
                     bytes(
                         abi.encodePacked(
@@ -651,7 +642,24 @@ contract ClubSig is ERC721initializable, Multicall {
         );
     }
 
-    function _toString(uint256 value) internal pure returns (string memory) {
+    function _addressToString(address addr) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint(uint160(addr)) / (2**(8*(19 - i)))));
+            bytes1 hi = bytes1(uint8(b) / 16);
+            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            s[2*i] = _char(hi);
+            s[2*i+1] = _char(lo);            
+        }
+        return string(s);
+    }
+
+    function _char(bytes1 b) internal pure returns (bytes1 c) {
+        if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+        else return bytes1(uint8(b) + 0x57);
+    }
+
+    function _uintToString(uint256 value) internal pure returns (string memory) {
         if (value == 0) {
             return '0';
         }
@@ -674,37 +682,36 @@ contract ClubSig is ERC721initializable, Multicall {
     /// Operations
     /// -----------------------------------------------------------------------
 
-    function execute(Call calldata call, Signature[] calldata sigs) public payable virtual returns (bool success, bytes memory result) {
+    function execute(Call calldata call, Signature[] calldata sigs) public payable returns (bool success, bytes memory result) {
         // cannot realistically overflow on human timescales
         unchecked {
             bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
                 keccak256(abi.encode(keccak256(
-                    'Exec(address target,uint256 value,bytes payload,bool deleg,uint256 nonce)'),
-                    call.target, call.value, call.payload, call.deleg, nonce++)))
+                    'Exec(address target,uint256 value,bytes payload,bool std,uint256 nonce)'),
+                    call.target, call.value, call.payload, call.std, nonce++)))
                 );
 
             address prevAddr;
 
             for (uint256 i = 0; i < quorum; i++) {
-                address sigAddr = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
+                address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
 
                 // check for conformant contract signature
-                if (sigAddr.code.length != 0 && IERC1271(sigAddr).isValidSignature(
+                if (signer.code.length != 0 && IERC1271(signer).isValidSignature(
                         digest, abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)) != 0x1626ba7e
-                    ) 
-                    revert InvalidSigner();
+                    ) revert InvalidSigner();
 
                 // check for NFT balance and duplicates
-                if (balanceOf[sigAddr] == 0 || prevAddr >= sigAddr) revert InvalidSigner();
+                if (balanceOf[signer] == 0 || prevAddr >= signer) revert InvalidSigner();
 
-                prevAddr = sigAddr;
+                prevAddr = signer;
             }
         }
        
-        if (!call.deleg) {
+        if (call.std) {
             (success, result) = call.target.call{value: call.value}(call.payload);
             if (!success) revert ExecuteFailed();
-        } else {
+        } else { // delegate call
             (success, result) = call.target.delegatecall(call.payload);
             if (!success) revert ExecuteFailed();
         }
@@ -718,24 +725,31 @@ contract ClubSig is ERC721initializable, Multicall {
         uint256[] calldata loots,
         bool[] calldata mints,
         uint256 quorum_
-    ) public payable virtual {
+    ) public payable {
         if (msg.sender != address(this) || !governor[msg.sender]) revert Forbidden();
 
         uint256 length = signers.length;
 
-        if (length != tokenIds.length || length != mints.length) revert NoArrayParity();
+        if (length != tokenIds.length || length != loots.length || length != mints.length) revert NoArrayParity();
 
         // cannot realistically overflow on human timescales
         unchecked {
+            uint256 nftSupply;
+            uint256 lootSupply;
             for (uint256 i = 0; i < length; i++) {
                 if (mints[i]) {
                     _safeMint(signers[i], tokenIds[i]);
-                    totalSupply++;
+                    nftSupply++;
                 } else {
                     _burn(tokenIds[i]);
-                    totalSupply--;
+                    if (nftSupply != 0) nftSupply--;
                 }
-                if (loots[i] != 0) loot[signers[i]] += loots[i];
+                if (loots[i] != 0) {
+                    loot[signers[i]] += loots[i];
+                    lootSupply += loots[i];
+                }
+                if (nftSupply != 0) totalSupply += nftSupply;
+                if (lootSupply != 0) totalLoot += lootSupply;
             }
         }
 
@@ -746,13 +760,13 @@ contract ClubSig is ERC721initializable, Multicall {
         emit Govern(signers, quorum_);
     }
     
-    function flipGovernor(address account) public payable virtual {
+    function flipGovernor(address account) public payable {
         if (msg.sender != address(this) || !governor[msg.sender]) revert Forbidden();
 
         governor[account] = !governor[account];
     }
 
-    function flipPause() public payable virtual {
+    function flipPause() public payable {
         if (msg.sender != address(this) || !governor[msg.sender]) revert Forbidden();
 
         ERC721initializable._flipPause();
@@ -761,7 +775,7 @@ contract ClubSig is ERC721initializable, Multicall {
     function governorExecute(Call calldata call) public payable returns (bool success, bytes memory result) {
         if (!governor[msg.sender]) revert Forbidden();
 
-        if (!call.deleg) {
+        if (call.std) {
             (success, result) = call.target.call{value: call.value}(call.payload);
             if (!success) revert ExecuteFailed();
         } else {
@@ -776,7 +790,7 @@ contract ClubSig is ERC721initializable, Multicall {
 
     receive() external payable {}
 
-    function ragequit(address[] calldata assets, uint256 lootToBurn) public payable virtual {
+    function ragequit(address[] calldata assets, uint256 lootToBurn) public payable {
         uint256 length = assets.length;
 
         // cannot realistically overflow on human timescales
@@ -1023,7 +1037,8 @@ contract ClubSigFactory is Multicall {
         uint256 quorum, 
         bytes32 name, 
         bytes32 symbol, 
-        bool paused
+        bool paused,
+        string baseURI
     );
 
     /// -----------------------------------------------------------------------
@@ -1057,7 +1072,8 @@ contract ClubSigFactory is Multicall {
         uint256 quorum_,
         bytes32 name_,
         bytes32 symbol_,
-        bool paused_
+        bool paused_,
+        string calldata baseURI_
     ) public payable virtual returns (ClubSig clubSig) {
         bytes memory data = abi.encodePacked(name_, symbol_);
 
@@ -1068,9 +1084,10 @@ contract ClubSigFactory is Multicall {
             tokenIds_,
             loots_, 
             quorum_,
-            paused_
+            paused_,
+            baseURI_
         );
 
-        emit SigDeployed(clubSig, signers_, loots_, quorum_, name_, symbol_, paused_);
+        emit SigDeployed(clubSig, signers_, loots_, quorum_, name_, symbol_, paused_, baseURI_);
     }
 }
