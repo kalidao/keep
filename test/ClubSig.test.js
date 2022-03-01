@@ -35,6 +35,7 @@ describe("ClubSig", function () {
         getBigNumber(1000)
       )
       await token0.deployed()
+    })
     
     it("Should initialize multi-sig", async function () { 
         clubSig.init(
