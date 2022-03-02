@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.4;
 
-/// @notice A generic interface for a contract which properly accepts ERC721 tokens.
+/// @notice A generic interface for a contract which properly accepts ERC721 tokens
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
 /// License-Identifier: AGPL-3.0-only
 interface ERC721TokenReceiver {
@@ -14,15 +14,15 @@ interface ERC721TokenReceiver {
     ) external returns (bytes4);
 }
 
-/// @notice Modern and gas efficient ERC-721 + ERC-20/EIP-2612-like implementation.
+/// @notice Modern and gas efficient ERC-721 + ERC-20/EIP-2612-like implementation
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
 abstract contract ERC721initializable {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-    event Approval(address indexed owner, address indexed spender, uint256 indexed tokenId);
+    event Transfer(address indexed from, address indexed to, uint256 indexed id);
+    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
     event PauseFlipped(bool paused);
 
@@ -139,7 +139,7 @@ abstract contract ERC721initializable {
     /// ERC-721 Logic
     /// -----------------------------------------------------------------------
     
-    function approve(address spender, uint256 tokenId) public virtual {
+    function approve(address spender, uint256 tokenId) public payable virtual {
         address owner = ownerOf[tokenId];
 
         if (msg.sender != owner && !isApprovedForAll[owner][msg.sender]) revert NotApproved();
@@ -149,7 +149,7 @@ abstract contract ERC721initializable {
         emit Approval(owner, spender, tokenId); 
     }
     
-    function setApprovalForAll(address operator, bool approved) public virtual {
+    function setApprovalForAll(address operator, bool approved) public payable virtual {
         isApprovedForAll[msg.sender][operator] = approved;
         
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -159,7 +159,7 @@ abstract contract ERC721initializable {
         address from, 
         address to, 
         uint256 tokenId
-    ) public notPaused virtual {
+    ) public payable notPaused virtual {
         if (from != ownerOf[tokenId]) revert NotOwner();
         if (to == address(0)) revert InvalidRecipient();
         if (msg.sender != from 
@@ -185,7 +185,7 @@ abstract contract ERC721initializable {
         address from, 
         address to, 
         uint256 tokenId
-    ) public notPaused virtual {
+    ) public payable notPaused virtual {
         transferFrom(from, to, tokenId); 
 
         if (to.code.length != 0 
@@ -199,7 +199,7 @@ abstract contract ERC721initializable {
         address to, 
         uint256 tokenId, 
         bytes memory data
-    ) public notPaused virtual {
+    ) public payable notPaused virtual {
         transferFrom(from, to, tokenId); 
         
         if (to.code.length != 0 
@@ -230,7 +230,7 @@ abstract contract ERC721initializable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public payable virtual {
         if (block.timestamp > deadline) revert SignatureExpired();
         
         address owner = ownerOf[tokenId];
@@ -265,7 +265,7 @@ abstract contract ERC721initializable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public payable virtual {
         if (block.timestamp > deadline) revert SignatureExpired();
         
         // cannot realistically overflow on human timescales
