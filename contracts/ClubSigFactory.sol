@@ -16,7 +16,8 @@ interface ERC721TokenReceiver {
 
 /// @notice Modern and gas efficient ERC-721 + ERC-20/EIP-2612-like implementation
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
-abstract contract ERC721initializable {
+/// License-Identifier: AGPL-3.0-only
+abstract contract ClubNFT {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -31,8 +32,8 @@ abstract contract ERC721initializable {
     /// -----------------------------------------------------------------------
 
     error Paused();
-    error NotApproved();
     error NotOwner();
+    error Forbidden();
     error InvalidRecipient();
     error SignatureExpired();
     error InvalidSignature();
@@ -43,24 +44,22 @@ abstract contract ERC721initializable {
     /// Metadata Storage/Logic
     /// -----------------------------------------------------------------------
 
-    function tokenURI(uint256 tokenId) public view virtual returns (string memory);
-
-    function name() public pure virtual returns (string memory) {
+    function name() public pure returns (string memory) {
         return string(abi.encodePacked(_getArgUint256(0)));
     }
 
-    function symbol() public pure virtual returns (string memory) {
+    function symbol() public pure returns (string memory) {
         return string(abi.encodePacked(_getArgUint256(0x20)));
     }
 
-    function _getArgUint256(uint256 argOffset) internal pure virtual returns (uint256 arg) {
+    function _getArgUint256(uint256 argOffset) internal pure returns (uint256 arg) {
         uint256 offset = _getImmutableArgsOffset();
         assembly {
             arg := calldataload(add(offset, argOffset))
         }
     }
 
-    function _getImmutableArgsOffset() internal pure virtual returns (uint256 offset) {
+    function _getImmutableArgsOffset() internal pure returns (uint256 offset) {
         assembly {
             offset := sub(
                 calldatasize(),
@@ -70,18 +69,7 @@ abstract contract ERC721initializable {
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-721 Storage
-    /// -----------------------------------------------------------------------
-    
-    uint256 public totalSupply;
-    
-    mapping(address => uint256) public balanceOf;
-    mapping(uint256 => address) public ownerOf;
-    mapping(uint256 => address) public getApproved;
-    mapping(address => mapping(address => bool)) public isApprovedForAll;
-
-    /// -----------------------------------------------------------------------
-    /// EIP-2612-like Storage
+    /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
     
     uint256 internal INITIAL_CHAIN_ID;
@@ -89,6 +77,38 @@ abstract contract ERC721initializable {
 
     mapping(uint256 => uint256) public nonces;
     mapping(address => uint256) public noncesForAll;
+
+    struct Signature {
+	    uint8 v;
+	    bytes32 r;
+        bytes32 s;
+    }
+
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
+    }
+
+    function _computeDomainSeparator() internal view returns (bytes32) {
+        return 
+            keccak256(
+                abi.encode(
+                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                    keccak256(bytes(name())),
+                    keccak256('1'),
+                    block.chainid,
+                    address(this)
+                )
+            );
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC-721 Storage
+    /// -----------------------------------------------------------------------
+    
+    mapping(address => uint256) public balanceOf;
+    mapping(uint256 => address) public ownerOf;
+    mapping(uint256 => address) public getApproved;
+    mapping(address => mapping(address => bool)) public isApprovedForAll;
 
     /// -----------------------------------------------------------------------
     /// Pause Storage/Logic
@@ -105,7 +125,7 @@ abstract contract ERC721initializable {
     /// Initializer
     /// -----------------------------------------------------------------------
     
-    function _init(bool paused_) internal virtual {
+    function _init(bool paused_) internal {
         paused = paused_;
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
@@ -115,8 +135,8 @@ abstract contract ERC721initializable {
     /// ERC-20-like Logic (EIP-4521)
     /// -----------------------------------------------------------------------
     
-    function transfer(address to, uint256 tokenId) public notPaused virtual returns (bool) {
-        if (msg.sender != ownerOf[tokenId]) revert NotOwner();
+    function transfer(address to, uint256 id) public payable notPaused returns (bool) {
+        if (msg.sender != ownerOf[id]) revert NotOwner();
         if (to == address(0)) revert InvalidRecipient();
         
         // underflow of the sender's balance is impossible because we check for
@@ -126,11 +146,11 @@ abstract contract ERC721initializable {
             balanceOf[to]++;
         }
         
-        delete getApproved[tokenId];
+        delete getApproved[id];
         
-        ownerOf[tokenId] = to;
+        ownerOf[id] = to;
         
-        emit Transfer(msg.sender, to, tokenId); 
+        emit Transfer(msg.sender, to, id); 
         
         return true;
     }
@@ -139,17 +159,17 @@ abstract contract ERC721initializable {
     /// ERC-721 Logic
     /// -----------------------------------------------------------------------
     
-    function approve(address spender, uint256 tokenId) public payable virtual {
-        address owner = ownerOf[tokenId];
+    function approve(address spender, uint256 id) public payable {
+        address owner = ownerOf[id];
 
-        if (msg.sender != owner && !isApprovedForAll[owner][msg.sender]) revert NotApproved();
+        if (msg.sender != owner && !isApprovedForAll[owner][msg.sender]) revert Forbidden();
         
-        getApproved[tokenId] = spender;
+        getApproved[id] = spender;
         
-        emit Approval(owner, spender, tokenId); 
+        emit Approval(owner, spender, id); 
     }
     
-    function setApprovalForAll(address operator, bool approved) public payable virtual {
+    function setApprovalForAll(address operator, bool approved) public payable {
         isApprovedForAll[msg.sender][operator] = approved;
         
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -158,14 +178,14 @@ abstract contract ERC721initializable {
     function transferFrom(
         address from, 
         address to, 
-        uint256 tokenId
-    ) public payable notPaused virtual {
-        if (from != ownerOf[tokenId]) revert NotOwner();
+        uint256 id
+    ) public payable notPaused {
+        if (from != ownerOf[id]) revert NotOwner();
         if (to == address(0)) revert InvalidRecipient();
         if (msg.sender != from 
-            && msg.sender != getApproved[tokenId]
+            && msg.sender != getApproved[id]
             && !isApprovedForAll[from][msg.sender]
-        ) revert NotApproved();  
+        ) revert Forbidden();  
         
         // underflow of the sender's balance is impossible because we check for
         // ownership above and the recipient's balance can't realistically overflow
@@ -174,22 +194,22 @@ abstract contract ERC721initializable {
             balanceOf[to]++;
         }
         
-        delete getApproved[tokenId];
+        delete getApproved[id];
         
-        ownerOf[tokenId] = to;
+        ownerOf[id] = to;
         
-        emit Transfer(from, to, tokenId); 
+        emit Transfer(from, to, id); 
     }
     
     function safeTransferFrom(
         address from, 
         address to, 
-        uint256 tokenId
-    ) public payable notPaused virtual {
-        transferFrom(from, to, tokenId); 
+        uint256 id
+    ) public payable notPaused {
+        transferFrom(from, to, id); 
 
         if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, tokenId, '') 
+            && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, '') 
             != ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
     }
@@ -197,13 +217,13 @@ abstract contract ERC721initializable {
     function safeTransferFrom(
         address from, 
         address to, 
-        uint256 tokenId, 
-        bytes memory data
-    ) public payable notPaused virtual {
-        transferFrom(from, to, tokenId); 
+        uint256 id, 
+        bytes calldata data
+    ) public payable notPaused {
+        transferFrom(from, to, id); 
         
         if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, tokenId, data) 
+            && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, data) 
             != ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
     }
@@ -212,7 +232,7 @@ abstract contract ERC721initializable {
     /// ERC-165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
         return
             interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
             interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
@@ -220,20 +240,18 @@ abstract contract ERC721initializable {
     }
 
     /// -----------------------------------------------------------------------
-    /// EIP-2612 Logic
+    /// EIP-2612-like Logic
     /// -----------------------------------------------------------------------
     
     function permit(
         address spender,
-        uint256 tokenId,
+        uint256 id,
         uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public payable virtual {
+        Signature calldata sig
+    ) public payable {
         if (block.timestamp > deadline) revert SignatureExpired();
         
-        address owner = ownerOf[tokenId];
+        address owner = ownerOf[id];
         
         // cannot realistically overflow on human timescales
         unchecked {
@@ -242,30 +260,28 @@ abstract contract ERC721initializable {
                     '\x19\x01',
                     DOMAIN_SEPARATOR(),
                     keccak256(abi.encode(keccak256(
-                        'Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)'), 
-                        spender, tokenId, nonces[tokenId]++, deadline))
+                        'Permit(address spender,uint256 id,uint256 nonce,uint256 deadline)'), 
+                        spender, id, nonces[id]++, deadline))
                 )
             );
 
-            address recoveredAddress = ecrecover(digest, v, r, s);
+            address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
 
             if (recoveredAddress == address(0)) revert InvalidSignature();
             if (recoveredAddress != owner && !isApprovedForAll[owner][recoveredAddress]) revert InvalidSignature(); 
         }
         
-        getApproved[tokenId] = spender;
+        getApproved[id] = spender;
 
-        emit Approval(owner, spender, tokenId);
+        emit Approval(owner, spender, id);
     }
     
     function permitAll(
         address owner,
         address operator,
         uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public payable virtual {
+        Signature calldata sig
+    ) public payable {
         if (block.timestamp > deadline) revert SignatureExpired();
         
         // cannot realistically overflow on human timescales
@@ -275,12 +291,12 @@ abstract contract ERC721initializable {
                     '\x19\x01',
                     DOMAIN_SEPARATOR(),
                     keccak256(abi.encode(keccak256(
-                        'Permit(address owner,address spender,uint256 nonce,uint256 deadline)'), 
+                        'Permit(address owner,address operator,uint256 nonce,uint256 deadline)'), 
                         owner, operator, noncesForAll[owner]++, deadline))
                 )
             );
 
-            address recoveredAddress = ecrecover(digest, v, r, s);
+            address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
 
             if (recoveredAddress == address(0)) revert InvalidSignature();
             if (recoveredAddress != owner && !isApprovedForAll[owner][recoveredAddress]) revert InvalidSignature();
@@ -291,80 +307,61 @@ abstract contract ERC721initializable {
         emit ApprovalForAll(owner, operator, true);
     }
 
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() internal view virtual returns (bytes32) {
-        return 
-            keccak256(
-                abi.encode(
-                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
-                    keccak256(bytes(name())),
-                    keccak256('1'),
-                    block.chainid,
-                    address(this)
-                )
-            );
-    }
-
     /// -----------------------------------------------------------------------
     /// Internal Mint/Burn Logic
     /// -----------------------------------------------------------------------
 
-    function _safeMint(address to, uint256 tokenId) internal virtual {
+    function _safeMint(address to, uint256 id) internal {
         if (to == address(0)) revert InvalidRecipient();
-        if (ownerOf[tokenId] != address(0)) revert AlreadyMinted();
+        if (ownerOf[id] != address(0)) revert AlreadyMinted();
   
         // cannot realistically overflow on human timescales
         unchecked {
-            totalSupply++;
             balanceOf[to]++;
         }
         
-        ownerOf[tokenId] = to;
+        ownerOf[id] = to;
         
-        emit Transfer(address(0), to, tokenId); 
+        emit Transfer(address(0), to, id); 
 
         if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), tokenId, '') 
+            && ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, '') 
             != ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
     }
 
-    function _burn(uint256 tokenId) internal virtual { 
-        address owner = ownerOf[tokenId];
+    function _burn(uint256 id) internal { 
+        address owner = ownerOf[id];
 
-        if (ownerOf[tokenId] == address(0)) revert NotMinted();
+        if (ownerOf[id] == address(0)) revert NotMinted();
         
         // ownership check ensures no underflow
         unchecked {
-            totalSupply--;
             balanceOf[owner]--;
         }
         
-        delete ownerOf[tokenId];
-        delete getApproved[tokenId];
+        delete ownerOf[id];
+        delete getApproved[id];
         
-        emit Transfer(owner, address(0), tokenId); 
+        emit Transfer(owner, address(0), id); 
     }
 
     /// -----------------------------------------------------------------------
     /// Internal Pause Logic
     /// -----------------------------------------------------------------------
 
-    function _flipPause() internal virtual {
+    function _flipPause() internal {
         paused = !paused;
 
         emit PauseFlipped(paused);
     }
 }
 
-/// @notice Provides a function for encoding some bytes in base64.
+/// @notice Provides a function for encoding some bytes in base64
 /// @author Modified from Brecht Devos (https://github.com/Brechtpd/base64/blob/main/base64.sol)
 /// License-Identifier: MIT
 library Base64 {
-    bytes internal constant TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    bytes internal constant TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
     /// @dev encodes some bytes to the base64 representation
     function encode(bytes memory data) internal pure returns (string memory) {
@@ -376,7 +373,7 @@ library Base64 {
 
         // add some extra buffer at the end
         bytes memory result = new bytes(encodedLen + 32);
-
+        
         bytes memory table = TABLE;
 
         assembly {
@@ -405,9 +402,11 @@ library Base64 {
             }
 
             switch mod(len, 3)
+
             case 1 {
                 mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
             }
+
             case 2 {
                 mstore(sub(resultPtr, 1), shl(248, 0x3d))
             }
@@ -419,8 +418,66 @@ library Base64 {
     }
 }
 
-/// @notice Helper utility that enables calling multiple local methods in a single call.
+/// @notice Safe ERC20 transfer library that gracefully handles missing return values
+/// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
+/// License-Identifier: AGPL-3.0-only
+library SafeTransferTokenLib {
+    error TransferFailed();
+
+    function _safeTransfer(
+        address token,
+        address to,
+        uint256 amount
+    ) internal {
+        bool callStatus;
+        assembly {
+            // get a pointer to some free memory
+            let freeMemoryPointer := mload(0x40)
+            // write the abi-encoded calldata to memory piece by piece:
+            mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000) // begin with the function selector
+            mstore(add(freeMemoryPointer, 4), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // mask and append the "to" argument
+            mstore(add(freeMemoryPointer, 36), amount) // finally append the "amount" argument - no mask as it's a full 32 byte value
+            // call the token and store if it succeeded or not
+            // we use 68 because the calldata length is 4 + 32 * 2
+            callStatus := call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)
+        }
+        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert TransferFailed();
+    }
+
+    function _didLastOptionalReturnCallSucceed(bool callStatus) private pure returns (bool success) {
+        assembly {
+            // if the call reverted:
+            if iszero(callStatus) {
+                // copy the revert message into memory
+                returndatacopy(0, 0, returndatasize())
+
+                // revert with the same message.
+                revert(0, returndatasize())
+            }
+
+            switch returndatasize()
+            case 32 {
+                // copy the return data into memory
+                returndatacopy(0, 0, returndatasize())
+
+                // set success to whether it returned true
+                success := iszero(iszero(mload(0)))
+            }
+            case 0 {
+                // there was no return data
+                success := 1
+            }
+            default {
+                // it returned some malformed output
+                success := 0
+            }
+        }
+    }
+}
+
+/// @notice Helper utility that enables calling multiple local methods in a single call
 /// @author Modified from Uniswap (https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol)
+/// License-Identifier: GPL-2.0-or-later
 abstract contract Multicall {
     function multicall(bytes[] calldata data) public payable returns (bytes[] memory results) {
         results = new bytes[](data.length);
@@ -446,15 +503,15 @@ abstract contract Multicall {
     }
 }
 
-/// @notice Helper utility for NFT 'safe' transfers.
+/// @notice Helper utility for NFT 'safe' transfers
 abstract contract NFThelper {
     function onERC721Received(
         address,
         address,
         uint256,
         bytes calldata
-    ) external pure returns (bytes4 sig) {
-        sig = 0x150b7a02; // 'onERC721Received(address,address,uint256,bytes)'
+    ) external pure returns (bytes4) {
+        return 0x150b7a02; // 'onERC721Received(address,address,uint256,bytes)'
     }
 
     function onERC1155Received(
@@ -463,8 +520,8 @@ abstract contract NFThelper {
         uint256,
         uint256,
         bytes calldata
-    ) external pure returns (bytes4 sig) {
-        sig = 0xf23a6e61; // 'onERC1155Received(address,address,uint256,uint256,bytes)'
+    ) external pure returns (bytes4) {
+        return 0xf23a6e61; // 'onERC1155Received(address,address,uint256,uint256,bytes)'
     }
     
     function onERC1155BatchReceived(
@@ -473,33 +530,38 @@ abstract contract NFThelper {
         uint256[] calldata,
         uint256[] calldata,
         bytes calldata
-    ) external pure returns (bytes4 sig) {
-        sig = 0xbc197c81; // 'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'
+    ) external pure returns (bytes4) {
+        return 0xbc197c81; // 'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'
     }
 }
 
-/// @notice Minimal ERC-20 interface.
+/// @notice Minimal ERC-20 interface
 interface IERC20minimal { 
     function balanceOf(address account) external view returns (uint256);
 }
 
-/// @notice ERC-1271 interface.
+/// @notice ERC-1271 interface
 interface IERC1271 {
-    function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4);
+    function isValidSignature(bytes32 hash, bytes calldata signature) external view returns (bytes4);
 }
 
-/// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit.
+/// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
-contract ClubSig is ERC721initializable, Multicall {
+contract ClubSig is ClubNFT, Multicall {
+    /// -----------------------------------------------------------------------
+    /// Library usage
+    /// -----------------------------------------------------------------------
+    using SafeTransferTokenLib for address;
+
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Execute(address target, uint256 value, bytes payload);
-    event Govern(address[] signers, uint256 quorum);
+    event Execute(address indexed target, uint256 value, bytes payload);
+    event Govern(Club[] club, bool[] mints, uint256 quorum);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -510,10 +572,8 @@ contract ClubSig is ERC721initializable, Multicall {
     error SigBounds();
     error InvalidSigner();
     error ExecuteFailed();
-    error Forbidden();
     error NotSigner();
     error AssetOrder();
-    error TransferFailed();
 
     /// -----------------------------------------------------------------------
     /// Club Storage
@@ -525,6 +585,8 @@ contract ClubSig is ERC721initializable, Multicall {
     uint256 public quorum;
     /// @dev optional metadata to signify contract
     string public baseURI;
+    /// @dev total signer units minted
+    uint256 public totalSupply;
     /// @dev total ragequittable units minted
     uint256 public totalLoot;
     /// @dev ragequittable units per account
@@ -536,50 +598,45 @@ contract ClubSig is ERC721initializable, Multicall {
         address target; 
         uint256 value;
         bytes payload;
-        bool std; // whether delegate call
-    }
-
-    /// -----------------------------------------------------------------------
-    /// EIP-712 Storage
-    /// -----------------------------------------------------------------------
-
-    struct Signature {
-	    uint8 v;
-	    bytes32 r;
-        bytes32 s;
+        bool std; // if not, delegate call
     }
 
     /// -----------------------------------------------------------------------
     /// Initializer
     /// -----------------------------------------------------------------------
 
+    struct Club {
+        address signer;
+        uint256 id;
+        uint256 loot;
+    }
+
     function init(
-        address[] calldata signers_, 
-        uint256[] calldata tokenIds_, 
-        uint256[] calldata loots_, 
+        Club[] calldata club_,
         uint256 quorum_,
         bool paused_,
         string memory baseURI_
     ) public payable {
         if (nonce != 0) revert Initialized();
 
-        ERC721initializable._init(paused_);
+        ClubNFT._init(paused_);
 
-        uint256 length = signers_.length;
+        uint256 length = club_.length;
 
-        if (length != loots_.length || length != tokenIds_.length) revert NoArrayParity();
         if (quorum_ > length) revert SigBounds();
 
         uint256 nftSupply;
         uint256 lootSupply;
 
-        // cannot realistically overflow on human timescales
-        unchecked {
-            for (uint256 i = 0; i < length; i++) {
-                _safeMint(signers_[i], tokenIds_[i]);
+        for (uint256 i = 0; i < length;) {
+            _safeMint(club_[i].signer, club_[i].id);
+            loot[club_[i].signer] = club_[i].loot;
+            lootSupply += club_[i].loot;
+            
+            // cannot realistically overflow on human timescales
+            unchecked {
+                i++;
                 nftSupply++;
-                loot[signers_[i]] = loots_[i];
-                lootSupply += loots_[i];
             }
         }
 
@@ -595,7 +652,7 @@ contract ClubSig is ERC721initializable, Multicall {
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
-    function tokenURI(uint256 id) public view override returns (string memory) {
+    function tokenURI(uint256 id) public view returns (string memory) {
         bytes memory base = bytes(baseURI);
         return base.length != 0 ? baseURI : _buildTokenURI(id);
     }
@@ -660,9 +717,7 @@ contract ClubSig is ERC721initializable, Multicall {
     }
 
     function _uintToString(uint256 value) internal pure returns (string memory) {
-        if (value == 0) {
-            return '0';
-        }
+        if (value == 0) return '0';
         uint256 temp = value;
         uint256 digits;
         while (temp != 0) {
@@ -720,33 +775,31 @@ contract ClubSig is ERC721initializable, Multicall {
     }
 
     function govern(
-        address[] calldata signers,
-        uint256[] calldata tokenIds, 
-        uint256[] calldata loots,
-        bool[] calldata mints,
+        Club[] calldata club_,
+        bool[] calldata mints_,
         uint256 quorum_
     ) public payable {
-        if (msg.sender != address(this) || !governor[msg.sender]) revert Forbidden();
+        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
-        uint256 length = signers.length;
+        uint256 length = club_.length;
 
-        if (length != tokenIds.length || length != loots.length || length != mints.length) revert NoArrayParity();
+        if (length != mints_.length) revert NoArrayParity();
 
         // cannot realistically overflow on human timescales
         unchecked {
             uint256 nftSupply;
             uint256 lootSupply;
             for (uint256 i = 0; i < length; i++) {
-                if (mints[i]) {
-                    _safeMint(signers[i], tokenIds[i]);
+                if (mints_[i]) {
+                    _safeMint(club_[i].signer, club_[i].id);
                     nftSupply++;
                 } else {
-                    _burn(tokenIds[i]);
+                    _burn(club_[i].id);
                     if (nftSupply != 0) nftSupply--;
                 }
-                if (loots[i] != 0) {
-                    loot[signers[i]] += loots[i];
-                    lootSupply += loots[i];
+                if (club_[i].loot != 0) {
+                    loot[club_[i].signer] += club_[i].loot;
+                    lootSupply += club_[i].loot;
                 }
                 if (nftSupply != 0) totalSupply += nftSupply;
                 if (lootSupply != 0) totalLoot += lootSupply;
@@ -757,21 +810,9 @@ contract ClubSig is ERC721initializable, Multicall {
 
         quorum = quorum_;
 
-        emit Govern(signers, quorum_);
+        emit Govern(club_, mints_, quorum_);
     }
     
-    function flipGovernor(address account) public payable {
-        if (msg.sender != address(this) || !governor[msg.sender]) revert Forbidden();
-
-        governor[account] = !governor[account];
-    }
-
-    function flipPause() public payable {
-        if (msg.sender != address(this) || !governor[msg.sender]) revert Forbidden();
-
-        ERC721initializable._flipPause();
-    }
-
     function governorExecute(Call calldata call) public payable returns (bool success, bytes memory result) {
         if (!governor[msg.sender]) revert Forbidden();
 
@@ -782,6 +823,18 @@ contract ClubSig is ERC721initializable, Multicall {
             (success, result) = call.target.delegatecall(call.payload);
             if (!success) revert ExecuteFailed();
         }
+    }
+
+    function flipGovernor(address account) public payable {
+        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
+
+        governor[account] = !governor[account];
+    }
+
+    function flipPause() public payable {
+        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
+
+        ClubNFT._flipPause();
     }
 
     /// -----------------------------------------------------------------------
@@ -816,59 +869,10 @@ contract ClubSig is ERC721initializable, Multicall {
                 lootTotal;
             // transfer to redeemer
             if (amountToRedeem != 0)
-                _safeTransfer(assets[i], msg.sender, amountToRedeem);
+                assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
                 i++;
-            }
-        }
-    }
-
-    function _safeTransfer(
-        address token,
-        address to,
-        uint256 amount
-    ) internal {
-        bool callStatus;
-        assembly {
-            // get a pointer to some free memory
-            let freeMemoryPointer := mload(0x40)
-            // write the abi-encoded calldata to memory piece by piece:
-            mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000) // begin with the function selector
-            mstore(add(freeMemoryPointer, 4), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // mask and append the "to" argument
-            mstore(add(freeMemoryPointer, 36), amount) // finally append the "amount" argument - no mask as it's a full 32 byte value
-            // call the token and store if it succeeded or not
-            // we use 68 because the calldata length is 4 + 32 * 2
-            callStatus := call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)
-        }
-        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert TransferFailed();
-    }
-
-    function _didLastOptionalReturnCallSucceed(bool callStatus) internal pure returns (bool success) {
-        assembly {
-            // get how many bytes the call returned
-            let returnDataSize := returndatasize()
-            // if the call reverted:
-            if iszero(callStatus) {
-                // copy the revert message into memory
-                returndatacopy(0, 0, returnDataSize)
-                // revert with the same message
-                revert(0, returnDataSize)
-            }
-            switch returnDataSize
-            case 32 {
-                // copy the return data into memory
-                returndatacopy(0, 0, returnDataSize)
-                // set success to whether it returned true
-                success := iszero(iszero(mload(0)))
-            }
-            case 0 {
-                // there was no return data
-                success := 1
-            }
-            default {
-                // it returned some malformed input
-                success := 0
             }
         }
     }
@@ -1019,7 +1023,7 @@ library ClonesWithImmutableArgs {
 }
 
 /// @notice ClubSig Factory.
-contract ClubSigFactory is Multicall {
+contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Library usage
     /// -----------------------------------------------------------------------
@@ -1032,8 +1036,7 @@ contract ClubSigFactory is Multicall {
 
     event SigDeployed(
         ClubSig indexed clubSig, 
-        address[] signers, 
-        uint256[] loots, 
+        Club[] club_, 
         uint256 quorum, 
         bytes32 name, 
         bytes32 symbol, 
@@ -1066,9 +1069,7 @@ contract ClubSigFactory is Multicall {
     /// -----------------------------------------------------------------------
     
     function deployClubSig(
-        address[] calldata signers_, 
-        uint256[] calldata tokenIds_,
-        uint256[] calldata loots_, 
+        Club[] calldata club_,
         uint256 quorum_,
         bytes32 name_,
         bytes32 symbol_,
@@ -1080,14 +1081,12 @@ contract ClubSigFactory is Multicall {
         clubSig = ClubSig(address(clubMaster).clone(data));
 
         clubSig.init(
-            signers_, 
-            tokenIds_,
-            loots_, 
+            club_,
             quorum_,
             paused_,
             baseURI_
         );
 
-        emit SigDeployed(clubSig, signers_, loots_, quorum_, name_, symbol_, paused_, baseURI_);
+        emit SigDeployed(clubSig, club_, quorum_, name_, symbol_, paused_, baseURI_);
     }
 }
