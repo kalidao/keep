@@ -39,9 +39,7 @@ describe("ClubSig", function () {
     
     it("Should initialize multi-sig", async function () { 
         clubSig.init(
-            [alice.address, bob.address],
-            [0, 1],
-            [100, 100],
+            [[alice.address, 0, 100][bob.address, 1, 100]],
             2,
             false,
             "BASE"
