@@ -264,11 +264,11 @@ abstract contract ClubNFT {
                 )
             );
 
-            address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+            address signer = ecrecover(digest, sig.v, sig.r, sig.s);
 
-            if (recoveredAddress != owner 
-                && !isApprovedForAll[owner][recoveredAddress]
-                || recoveredAddress == address(0)
+            if (signer != owner 
+                && !isApprovedForAll[owner][signer]
+                || signer == address(0)
             ) revert InvalidSignature(); 
         }
         
@@ -297,10 +297,12 @@ abstract contract ClubNFT {
                 )
             );
 
-            address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+            address signer = ecrecover(digest, sig.v, sig.r, sig.s);
 
-            if (recoveredAddress == address(0)) revert InvalidSignature();
-            if (recoveredAddress != owner && !isApprovedForAll[owner][recoveredAddress]) revert InvalidSignature();
+            if (signer != owner 
+                && !isApprovedForAll[owner][signer]
+                || signer == address(0)
+            ) revert InvalidSignature(); 
         }
         
         isApprovedForAll[owner][operator] = true;
