@@ -78,8 +78,8 @@ abstract contract ClubNFT {
     mapping(address => uint256) public noncesForAll;
 
     struct Signature {
-	    uint8 v;
-	    bytes32 r;
+	uint8 v;
+	bytes32 r;
         bytes32 s;
     }
 
