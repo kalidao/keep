@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.4;
 
-/// @notice A generic interface for a contract which properly accepts ERC721 tokens
+/// @notice A generic interface for a contract which properly accepts ERC-721 tokens
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
 /// License-Identifier: AGPL-3.0-only
 interface ERC721TokenReceiver {
@@ -53,18 +53,17 @@ abstract contract ClubNFT {
     }
 
     function _getArgUint256(uint256 argOffset) internal pure returns (uint256 arg) {
-        uint256 offset = _getImmutableArgsOffset();
-        assembly {
-            arg := calldataload(add(offset, argOffset))
-        }
-    }
-
-    function _getImmutableArgsOffset() internal pure returns (uint256 offset) {
+        uint256 offset;
+        
         assembly {
             offset := sub(
                 calldatasize(),
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
+        }
+
+        assembly {
+            arg := calldataload(add(offset, argOffset))
         }
     }
 
@@ -129,6 +128,17 @@ abstract contract ClubNFT {
         paused = paused_;
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC-165 Logic
+    /// -----------------------------------------------------------------------
+
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+        return
+            interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
+            interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
+            interfaceId == 0x5b5e139f; // ERC-165 Interface ID for ERC721Metadata
     }
     
     /// -----------------------------------------------------------------------
@@ -229,17 +239,6 @@ abstract contract ClubNFT {
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-165 Logic
-    /// -----------------------------------------------------------------------
-
-    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
-        return
-            interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
-            interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
-            interfaceId == 0x5b5e139f; // ERC-165 Interface ID for ERC721Metadata
-    }
-
-    /// -----------------------------------------------------------------------
     /// EIP-2612-like Logic
     /// -----------------------------------------------------------------------
     
@@ -267,8 +266,10 @@ abstract contract ClubNFT {
 
             address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
 
-            if (recoveredAddress == address(0)) revert InvalidSignature();
-            if (recoveredAddress != owner && !isApprovedForAll[owner][recoveredAddress]) revert InvalidSignature(); 
+            if (recoveredAddress != owner 
+                && !isApprovedForAll[owner][recoveredAddress]
+                || recoveredAddress == address(0)
+            ) revert InvalidSignature(); 
         }
         
         getApproved[id] = spender;
@@ -562,6 +563,8 @@ contract ClubSig is ClubNFT, Multicall {
 
     event Execute(address indexed target, uint256 value, bytes payload);
     event Govern(Club[] club, bool[] mints, uint256 quorum);
+    event GovernorFlipped(address indexed account);
+    event URIupdated(string uri);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -785,34 +788,42 @@ contract ClubSig is ClubNFT, Multicall {
 
         if (length != mints_.length) revert NoArrayParity();
 
-        // cannot realistically overflow on human timescales
-        unchecked {
-            uint256 nftSupply;
-            uint256 lootSupply;
-            for (uint256 i = 0; i < length; i++) {
-                if (mints_[i]) {
-                    _safeMint(club_[i].signer, club_[i].id);
+        uint256 nftSupply;
+        uint256 lootSupply;
+        for (uint256 i = 0; i < length;) {
+            if (mints_[i]) {
+                _safeMint(club_[i].signer, club_[i].id);
+
+                // cannot realistically overflow on human timescales
+                unchecked {
                     nftSupply++;
-                } else {
-                    _burn(club_[i].id);
-                    if (nftSupply != 0) nftSupply--;
                 }
-                if (club_[i].loot != 0) {
-                    loot[club_[i].signer] += club_[i].loot;
-                    lootSupply += club_[i].loot;
-                }
-                if (nftSupply != 0) totalSupply += nftSupply;
-                if (lootSupply != 0) totalLoot += lootSupply;
+            } else {
+                _burn(club_[i].id);
+                nftSupply--;
+            }
+            if (club_[i].loot != 0) {
+                loot[club_[i].signer] += club_[i].loot;
+                lootSupply += club_[i].loot;
+            }
+
+            // cannot realistically overflow on human timescales
+            unchecked {
+                i++;
             }
         }
 
+        if (nftSupply != 0) totalSupply += nftSupply;
+        if (lootSupply != 0) totalLoot += lootSupply;
+        // note: also make sure that signers don't concentrate NFTs,
+        // since this could cause issues in reaching quorum
         if (quorum_ > totalSupply) revert SigBounds();
 
         quorum = quorum_;
 
         emit Govern(club_, mints_, quorum_);
     }
-    
+
     function governorExecute(Call calldata call) public payable returns (bool success, bytes memory result) {
         if (!governor[msg.sender]) revert Forbidden();
 
@@ -829,12 +840,22 @@ contract ClubSig is ClubNFT, Multicall {
         if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
         governor[account] = !governor[account];
+
+        emit GovernorFlipped(account);
     }
 
     function flipPause() public payable {
         if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
         ClubNFT._flipPause();
+    }
+
+    function updateURI(string calldata baseURI_) public payable {
+        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
+
+        baseURI = baseURI_;
+
+        emit URIupdated(baseURI_);
     }
 
     /// -----------------------------------------------------------------------
