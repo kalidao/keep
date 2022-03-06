@@ -2,13 +2,16 @@
 
 pragma solidity >=0.8.4;
 
-import './ClubNFT.sol';
-import './libraries/Base64.sol';
-import './libraries/SafeTransferTokenLib.sol';
-import './utils/Multicall.sol';
-import './utils/NFTreceiver.sol';
-import './interfaces/IERC20minimal.sol';
-import './interfaces/IERC1271.sol';
+import {ClubNFT} from './ClubNFT.sol';
+
+import {Multicall} from './utils/Multicall.sol';
+import {NFTreceiver} from './utils/NFTreceiver.sol';
+
+import {IERC1271} from './interfaces/IERC1271.sol';
+import {IERC20minimal} from './interfaces/IERC20minimal.sol';
+
+import {Base64} from './libraries/Base64.sol';
+import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
 
 /// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
@@ -69,11 +72,12 @@ contract ClubSig is ClubNFT, Multicall {
         uint256 loot;
     }
 
+    /// @dev Pack address+bool into one slot
     struct Call {
         address target;
+        bool call;
         uint256 value;
         bytes payload;
-        bool call; // if not, delegate call
     }
 
     /// -----------------------------------------------------------------------
@@ -97,15 +101,15 @@ contract ClubSig is ClubNFT, Multicall {
         uint256 nftSupply;
         uint256 lootSupply;
 
-        for (uint256 i = 0; i < length;) {
+        for (uint256 i; i < length;) {
             _safeMint(club_[i].signer, club_[i].id);
             loot[club_[i].signer] = club_[i].loot;
             lootSupply += club_[i].loot;
-            
+
             // cannot realistically overflow on human timescales
             unchecked {
-                i++;
-                nftSupply++;
+                ++i;
+                ++nftSupply;
             }
         }
 
@@ -170,12 +174,13 @@ contract ClubSig is ClubNFT, Multicall {
 
     function _addressToString(address addr) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
-        for (uint i = 0; i < 20; i++) {
+        for (uint i; i < 20;) {
             bytes1 b = bytes1(uint8(uint(uint160(addr)) / (2**(8*(19 - i)))));
             bytes1 hi = bytes1(uint8(b) / 16);
             bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
             s[2*i] = _char(hi);
-            s[2*i+1] = _char(lo);            
+            s[2*i+1] = _char(lo);
+            unchecked { ++i; }
         }
         return string(s);
     }
@@ -217,7 +222,7 @@ contract ClubSig is ClubNFT, Multicall {
 
             address prevAddr;
 
-            for (uint256 i = 0; i < quorum; i++) {
+            for (uint256 i; i < quorum;) {
                 address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
 
                 // check for conformant contract signature
@@ -229,9 +234,11 @@ contract ClubSig is ClubNFT, Multicall {
                 if (balanceOf[signer] == 0 || prevAddr >= signer) revert InvalidSigner();
 
                 prevAddr = signer;
+
+                ++i;
             }
         }
-       
+
         if (call.call) {
             (success, result) = call.target.call{value: call.value}(call.payload);
             if (!success) revert ExecuteFailed();
@@ -256,7 +263,7 @@ contract ClubSig is ClubNFT, Multicall {
 
         uint256 totalSupply_ = totalSupply;
         uint256 lootSupply;
-        for (uint256 i = 0; i < length;) {
+        for (uint256 i; i < length;) {
             if (mints_[i]) {
                 _safeMint(club_[i].signer, club_[i].id);
 
@@ -335,10 +342,9 @@ contract ClubSig is ClubNFT, Multicall {
 
         // cannot realistically overflow on human timescales
         unchecked {
-            for (uint256 i; i < length; i++) {
-                if (i != 0) {
-                    if (assets[i] <= assets[i - 1]) revert AssetOrder();
-                }
+            for (uint256 i; i < length;) {
+                if (i != 0 && assets[i] <= assets[i-1]) revert AssetOrder();
+                ++i;
             }
         }
 
@@ -359,7 +365,7 @@ contract ClubSig is ClubNFT, Multicall {
                 assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
-                i++;
+                ++i;
             }
         }
     }

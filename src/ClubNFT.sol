@@ -54,7 +54,7 @@ abstract contract ClubNFT {
 
     function _getArgUint256(uint256 argOffset) internal pure returns (uint256 arg) {
         uint256 offset;
-        
+
         assembly {
             offset := sub(
                 calldatasize(),
@@ -70,7 +70,7 @@ abstract contract ClubNFT {
     /// -----------------------------------------------------------------------
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
-    
+
     uint256 internal INITIAL_CHAIN_ID;
     bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
@@ -88,7 +88,7 @@ abstract contract ClubNFT {
     }
 
     function _computeDomainSeparator() internal view returns (bytes32) {
-        return 
+        return
             keccak256(
                 abi.encode(
                     keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
@@ -103,7 +103,7 @@ abstract contract ClubNFT {
     /// -----------------------------------------------------------------------
     /// ERC-721 Storage
     /// -----------------------------------------------------------------------
-    
+
     mapping(address => uint256) public balanceOf;
     mapping(uint256 => address) public ownerOf;
     mapping(uint256 => address) public getApproved;
@@ -119,11 +119,11 @@ abstract contract ClubNFT {
         if (paused) revert Paused();
         _;
     }
-    
+
     /// -----------------------------------------------------------------------
     /// Initializer
     /// -----------------------------------------------------------------------
-    
+
     function _init(bool paused_) internal {
         paused = paused_;
         INITIAL_CHAIN_ID = block.chainid;

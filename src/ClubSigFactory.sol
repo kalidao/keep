@@ -10,7 +10,7 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Library usage
     /// -----------------------------------------------------------------------
-    
+
     using ClonesWithImmutableArgs for address;
 
     /// -----------------------------------------------------------------------
@@ -18,11 +18,11 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
 
     event SigDeployed(
-        ClubSig indexed clubSig, 
-        Club[] club_, 
-        uint256 quorum, 
-        bytes32 name, 
-        bytes32 symbol, 
+        ClubSig indexed clubSig,
+        Club[] club_,
+        uint256 quorum,
+        bytes32 name,
+        bytes32 symbol,
         bool paused,
         string baseURI
     );
@@ -50,7 +50,7 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Deployment
     /// -----------------------------------------------------------------------
-    
+
     function deployClubSig(
         Club[] calldata club_,
         uint256 quorum_,
