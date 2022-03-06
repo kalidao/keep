@@ -279,12 +279,13 @@ contract ClubSig is ClubNFT, Multicall {
             }
         }
 
-        if (nftSupply != 0) totalSupply += nftSupply;
+        uint256 totalSupply_ = totalSupply + nftSupply;
         if (lootSupply != 0) totalLoot += lootSupply;
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply) revert SigBounds();
+        if (quorum_ > totalSupply_) revert SigBounds();
 
+        if (nftSupply != 0) totalSupply = totalSupply_;
         quorum = quorum_;
 
         emit Govern(club_, mints_, quorum_);
