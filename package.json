@@ -1,11 +1,18 @@
 {
-  "name": "Multi-sig",
-  "version": "0.0.1",
+  "name": "multi-sig",
+  "version": "1.0.1",
   "main": "index.js",
   "repository": "https://github.com/kalidao/multi-sig",
   "author": "Ross Campbell <rosscampbell9@gmail.com>",
   "license": "AGPL-3",
   "private": false,
+  "scripts": {
+    "clean": "forge clean",
+    "setup": "forge clean && forge build --optimize --optimize-runs 1000000",
+    "sync": "forge update",
+    "test": "forge clean && forge test --optimize --optimize-runs 1000000 -v",
+    "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 1000000"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
     "hardhat": "^2.5.0",
