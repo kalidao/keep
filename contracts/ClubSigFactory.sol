@@ -3,7 +3,7 @@
 pragma solidity >=0.8.4;
 
 import './ClubSig.sol';
-import '../libraries/ClonesWithImmutableArgs.sol';
+import './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Factory.
 contract ClubSigFactory is Multicall, ClubSig {
