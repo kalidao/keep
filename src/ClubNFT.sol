@@ -14,7 +14,7 @@ interface ERC721TokenReceiver {
     ) external returns (bytes4);
 }
 
-/// @notice Modern and gas efficient ERC-721 + ERC-20/EIP-2612-like implementation
+/// @notice Modern, minimalist, and gas efficient ERC-721 implementation
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
 /// License-Identifier: AGPL-3.0-only
 abstract contract ClubNFT {
