@@ -32,11 +32,9 @@ abstract contract ClubNFT {
     /// -----------------------------------------------------------------------
 
     error Paused();
-    error NotOwner();
     error Forbidden();
+    error NotOwner();
     error InvalidRecipient();
-    error SignatureExpired();
-    error InvalidSignature();
     error AlreadyMinted();
     error NotMinted();
 
@@ -68,39 +66,6 @@ abstract contract ClubNFT {
     }
 
     /// -----------------------------------------------------------------------
-    /// EIP-712 Storage/Logic
-    /// -----------------------------------------------------------------------
-
-    uint256 internal INITIAL_CHAIN_ID;
-    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
-
-    mapping(uint256 => uint256) public nonces;
-    mapping(address => uint256) public noncesForAll;
-
-    struct Signature {
-	uint8 v;
-	bytes32 r;
-        bytes32 s;
-    }
-
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() internal view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
-                    keccak256(bytes(name())),
-                    keccak256('1'),
-                    block.chainid,
-                    address(this)
-                )
-            );
-    }
-
-    /// -----------------------------------------------------------------------
     /// ERC-721 Storage
     /// -----------------------------------------------------------------------
 
@@ -126,8 +91,6 @@ abstract contract ClubNFT {
 
     function _init(bool paused_) internal {
         paused = paused_;
-        INITIAL_CHAIN_ID = block.chainid;
-        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
@@ -139,30 +102,6 @@ abstract contract ClubNFT {
             interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
             interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
             interfaceId == 0x5b5e139f; // ERC-165 Interface ID for ERC721Metadata
-    }
-    
-    /// -----------------------------------------------------------------------
-    /// ERC-20-like Logic (EIP-4521)
-    /// -----------------------------------------------------------------------
-    
-    function transfer(address to, uint256 id) public payable notPaused returns (bool) {
-        if (msg.sender != ownerOf[id]) revert NotOwner();
-        if (to == address(0)) revert InvalidRecipient();
-        
-        // underflow of the sender's balance is impossible because we check for
-        // ownership above and the recipient's balance can't realistically overflow
-        unchecked {
-            balanceOf[msg.sender]--; 
-            balanceOf[to]++;
-        }
-        
-        delete getApproved[id];
-        
-        ownerOf[id] = to;
-        
-        emit Transfer(msg.sender, to, id); 
-        
-        return true;
     }
 
     /// -----------------------------------------------------------------------
@@ -236,78 +175,6 @@ abstract contract ClubNFT {
             && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, data) 
             != ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
-    }
-
-    /// -----------------------------------------------------------------------
-    /// EIP-2612-like Logic
-    /// -----------------------------------------------------------------------
-    
-    function permit(
-        address spender,
-        uint256 id,
-        uint256 deadline,
-        Signature calldata sig
-    ) public payable {
-        if (block.timestamp > deadline) revert SignatureExpired();
-        
-        address owner = ownerOf[id];
-        
-        // cannot realistically overflow on human timescales
-        unchecked {
-            bytes32 digest = keccak256(
-                abi.encodePacked(
-                    '\x19\x01',
-                    DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(keccak256(
-                        'Permit(address spender,uint256 id,uint256 nonce,uint256 deadline)'), 
-                        spender, id, nonces[id]++, deadline))
-                )
-            );
-
-            address signer = ecrecover(digest, sig.v, sig.r, sig.s);
-
-            if (signer != owner 
-                && !isApprovedForAll[owner][signer]
-                || signer == address(0)
-            ) revert InvalidSignature(); 
-        }
-        
-        getApproved[id] = spender;
-
-        emit Approval(owner, spender, id);
-    }
-    
-    function permitAll(
-        address owner,
-        address operator,
-        uint256 deadline,
-        Signature calldata sig
-    ) public payable {
-        if (block.timestamp > deadline) revert SignatureExpired();
-        
-        // cannot realistically overflow on human timescales
-        unchecked {
-            bytes32 digest = keccak256(
-                abi.encodePacked(
-                    '\x19\x01',
-                    DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(keccak256(
-                        'Permit(address owner,address operator,uint256 nonce,uint256 deadline)'), 
-                        owner, operator, noncesForAll[owner]++, deadline))
-                )
-            );
-
-            address signer = ecrecover(digest, sig.v, sig.r, sig.s);
-
-            if (signer != owner 
-                && !isApprovedForAll[owner][signer]
-                || signer == address(0)
-            ) revert InvalidSignature(); 
-        }
-        
-        isApprovedForAll[owner][operator] = true;
-
-        emit ApprovalForAll(owner, operator, true);
     }
 
     /// -----------------------------------------------------------------------
