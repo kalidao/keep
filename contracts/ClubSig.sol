@@ -62,6 +62,12 @@ contract ClubSig is ClubNFT, Multicall {
     mapping(address => uint256) public lastClaim;
     /// @dev administrative account tracking
     mapping(address => bool) public governor;
+    
+    struct Club {
+        address signer;
+        uint256 id;
+        uint256 loot;
+    }
 
     struct Call {
         address target; 
@@ -69,16 +75,10 @@ contract ClubSig is ClubNFT, Multicall {
         bytes payload;
         bool std; // if not, delegate call
     }
-
+    
     /// -----------------------------------------------------------------------
     /// Initializer
     /// -----------------------------------------------------------------------
-
-    struct Club {
-        address signer;
-        uint256 id;
-        uint256 loot;
-    }
 
     function init(
         Club[] calldata club_,
