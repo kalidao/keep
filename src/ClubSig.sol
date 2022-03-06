@@ -229,7 +229,8 @@ contract ClubSig is ClubNFT, Multicall {
                 if (balanceOf[signer] == 0 || prevAddr >= signer) revert InvalidSigner();
 
                 prevAddr = signer;
-
+                
+                // cannot realistically overflow on human timescales
                 unchecked {
                     i++;
                 }
