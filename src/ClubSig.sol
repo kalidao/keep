@@ -73,7 +73,7 @@ contract ClubSig is ClubNFT, Multicall {
         address target;
         uint256 value;
         bytes payload;
-        bool std; // if not, delegate call
+        bool call; // if not, delegate call
     }
 
     /// -----------------------------------------------------------------------
@@ -212,7 +212,7 @@ contract ClubSig is ClubNFT, Multicall {
             bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
                 keccak256(abi.encode(keccak256(
                     'Exec(address target,uint256 value,bytes payload,bool std,uint256 nonce)'),
-                    call.target, call.value, call.payload, call.std, nonce++)))
+                    call.target, call.value, call.payload, call.call, nonce++)))
                 );
 
             address prevAddr;
@@ -232,7 +232,7 @@ contract ClubSig is ClubNFT, Multicall {
             }
         }
        
-        if (call.std) {
+        if (call.call) {
             (success, result) = call.target.call{value: call.value}(call.payload);
             if (!success) revert ExecuteFailed();
         } else { // delegate call
@@ -293,7 +293,7 @@ contract ClubSig is ClubNFT, Multicall {
     function governorExecute(Call calldata call) public payable returns (bool success, bytes memory result) {
         if (!governor[msg.sender]) revert Forbidden();
 
-        if (call.std) {
+        if (call.call) {
             (success, result) = call.target.call{value: call.value}(call.payload);
             if (!success) revert ExecuteFailed();
         } else {
