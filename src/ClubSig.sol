@@ -254,7 +254,7 @@ contract ClubSig is ClubNFT, Multicall {
 
         if (length != mints_.length) revert NoArrayParity();
 
-        uint256 nftSupply;
+        uint256 totalSupply_ = totalSupply;
         uint256 lootSupply;
         for (uint256 i = 0; i < length;) {
             if (mints_[i]) {
@@ -262,11 +262,11 @@ contract ClubSig is ClubNFT, Multicall {
 
                 // cannot realistically overflow on human timescales
                 unchecked {
-                    nftSupply++;
+                    totalSupply_++;
                 }
             } else {
                 _burn(club_[i].id);
-                nftSupply--;
+                totalSupply_--;
             }
             if (club_[i].loot != 0) {
                 loot[club_[i].signer] += club_[i].loot;
@@ -279,12 +279,12 @@ contract ClubSig is ClubNFT, Multicall {
             }
         }
 
-        if (nftSupply != 0) totalSupply += nftSupply;
         if (lootSupply != 0) totalLoot += lootSupply;
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply) revert SigBounds();
+        if (quorum_ > totalSupply_) revert SigBounds();
 
+        totalSupply = totalSupply_;
         quorum = quorum_;
 
         emit Govern(club_, mints_, quorum_);

@@ -40,4 +40,40 @@ contract ClubSigTest is DSTestPlus {
       vm.expectRevert(bytes4(keccak256("Forbidden()")));
       clubSig.flipGovernor(charlie);
     }
+
+    function testGovernAlreadyMinted() public {
+      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
+      clubs[0] = ClubSig.Club(alice, 0, 100);
+
+      bool[] memory mints = new bool[](1);
+      mints[0] = true;
+
+      vm.expectRevert(bytes4(keccak256("AlreadyMinted()")));
+      vm.prank(address(clubSig));
+      clubSig.govern(clubs, mints, 3);
+    }
+
+    function testGovernMint() public {
+      address db = address(0xdeadbeef);
+
+      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
+      clubs[0] = ClubSig.Club(db, 2, 100);
+
+      bool[] memory mints = new bool[](1);
+      mints[0] = true;
+
+      vm.prank(address(clubSig));
+      clubSig.govern(clubs, mints, 3);
+    }
+
+    function testGovernBurn() public {
+      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
+      clubs[0] = ClubSig.Club(alice, 1, 100);
+
+      bool[] memory mints = new bool[](1);
+      mints[0] = false;
+
+      vm.prank(address(clubSig));
+      clubSig.govern(clubs, mints, 1);
+    }
 }
