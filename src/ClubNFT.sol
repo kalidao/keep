@@ -215,7 +215,7 @@ abstract contract ClubNFT {
         address from, 
         address to, 
         uint256 id
-    ) public payable notPaused {
+    ) public payable {
         transferFrom(from, to, id); 
 
         if (to.code.length != 0 
@@ -229,7 +229,7 @@ abstract contract ClubNFT {
         address to, 
         uint256 id, 
         bytes calldata data
-    ) public payable notPaused {
+    ) public payable {
         transferFrom(from, to, id); 
         
         if (to.code.length != 0 
