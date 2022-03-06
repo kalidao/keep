@@ -2,10 +2,11 @@
 
 pragma solidity >=0.8.4;
 
-import './ClubSig.sol';
-import './libraries/ClonesWithImmutableArgs.sol';
+import {ClubSig} from './ClubSig.sol';
+import {Multicall} from './utils/Multicall.sol';
+import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
-/// @notice ClubSig Factory.
+/// @notice ClubSig Contract Factory
 contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Library usage

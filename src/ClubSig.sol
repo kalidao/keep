@@ -13,7 +13,8 @@ import {IERC20minimal} from './interfaces/IERC20minimal.sol';
 import {Base64} from './libraries/Base64.sol';
 import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
 
-/// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit
+/// @title ClubSig
+/// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
