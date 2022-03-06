@@ -196,7 +196,7 @@ contract ClubSig is ClubNFT, Multicall {
         uint256 temp = value;
         uint256 digits;
         while (temp != 0) {
-            digits++;
+            ++digits;
             temp /= 10;
         }
         bytes memory buffer = new bytes(digits);
@@ -270,11 +270,11 @@ contract ClubSig is ClubNFT, Multicall {
 
                 // cannot realistically overflow on human timescales
                 unchecked {
-                    totalSupply_++;
+                    ++totalSupply_;
                 }
             } else {
                 _burn(club_[i].id);
-                totalSupply_--;
+                --totalSupply_;
             }
             if (club_[i].loot != 0) {
                 loot[club_[i].signer] += club_[i].loot;
@@ -283,7 +283,7 @@ contract ClubSig is ClubNFT, Multicall {
 
             // cannot realistically overflow on human timescales
             unchecked {
-                i++;
+                ++i;
             }
         }
 
