@@ -82,6 +82,36 @@ contract ClubSig is ClubNFT, Multicall {
     }
 
     /// -----------------------------------------------------------------------
+    /// EIP-712 Storage/Logic
+    /// -----------------------------------------------------------------------
+
+    uint256 internal INITIAL_CHAIN_ID;
+    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
+
+    struct Signature {
+	    uint8 v;
+	    bytes32 r;
+        bytes32 s;
+    }
+
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
+    }
+
+    function _computeDomainSeparator() internal view returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                    keccak256(bytes(name())),
+                    keccak256('1'),
+                    block.chainid,
+                    address(this)
+                )
+            );
+    }
+
+    /// -----------------------------------------------------------------------
     /// Initializer
     /// -----------------------------------------------------------------------
 
@@ -99,27 +129,30 @@ contract ClubSig is ClubNFT, Multicall {
 
         if (quorum_ > length) revert SigBounds();
 
-        uint256 nftSupply;
-        uint256 lootSupply;
+        uint256 totalSupply_;
+        uint256 totalLoot_;
 
         for (uint256 i; i < length;) {
             _safeMint(club_[i].signer, club_[i].id);
             loot[club_[i].signer] = club_[i].loot;
-            lootSupply += club_[i].loot;
+            totalLoot_ += club_[i].loot;
 
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
-                ++nftSupply;
+                ++totalSupply_;
             }
         }
 
-        totalSupply = nftSupply;
-        totalLoot = lootSupply;
+        totalSupply = totalSupply_;
+        totalLoot = totalLoot_;
 
         nonce = 1;
         quorum = quorum_;
         baseURI = baseURI_;
+
+        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
@@ -181,7 +214,10 @@ contract ClubSig is ClubNFT, Multicall {
             bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
             s[2*i] = _char(hi);
             s[2*i+1] = _char(lo);
-            unchecked { ++i; }
+            // cannot realistically overflow on human timescales
+            unchecked { 
+                ++i; 
+            }
         }
         return string(s);
     }
@@ -228,7 +264,7 @@ contract ClubSig is ClubNFT, Multicall {
 
                 // check for conformant contract signature
                 if (signer.code.length != 0 && IERC1271(signer).isValidSignature(
-                        digest, abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)) != 0x1626ba7e
+                        digest, abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)) != 0x1626ba7e // magic value
                     ) revert InvalidSigner();
 
                 // check for NFT balance and duplicates
@@ -263,7 +299,7 @@ contract ClubSig is ClubNFT, Multicall {
         if (length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
-        uint256 lootSupply;
+        uint256 totalLoot_;
         for (uint256 i; i < length;) {
             if (mints_[i]) {
                 _safeMint(club_[i].signer, club_[i].id);
@@ -278,7 +314,7 @@ contract ClubSig is ClubNFT, Multicall {
             }
             if (club_[i].loot != 0) {
                 loot[club_[i].signer] += club_[i].loot;
-                lootSupply += club_[i].loot;
+                totalLoot_ += club_[i].loot;
             }
 
             // cannot realistically overflow on human timescales
@@ -287,7 +323,7 @@ contract ClubSig is ClubNFT, Multicall {
             }
         }
 
-        if (lootSupply != 0) totalLoot += lootSupply;
+        if (totalLoot_ != 0) totalLoot += totalLoot_;
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
         if (quorum_ > totalSupply_) revert SigBounds();
