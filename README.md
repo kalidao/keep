@@ -15,7 +15,7 @@ lib
 src
 ├─ tests
 │  └─ ...
-├─ ClubNFT — "A Modern and gas efficient ERC-721 + ERC-20/EIP-2612-like implementation"
+├─ ClubNFT — "Modern, minimalist, and gas efficient ERC-721 implementation designed for governance"
 ├─ ClubSig — "EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers"
 └─ ClubSigFactory — "ClubSig Contract Factory"
 ```
