@@ -3,12 +3,12 @@
 pragma solidity >=0.8.4;
 
 import './ClubNFT.sol';
-import '../libraries/Base64.sol';
-import '../libraries/SafeTransferTokenLib.sol';
-import '../utils/Multicall.sol';
-import '../utils/NFTreceiver.sol';
-import '../interfaces/IERC20minimal.sol';
-import '../interfaces/IERC1271.sol';
+import './libraries/Base64.sol';
+import './libraries/SafeTransferTokenLib.sol';
+import './utils/Multicall.sol';
+import './utils/NFTreceiver.sol';
+import './interfaces/IERC20minimal.sol';
+import './interfaces/IERC1271.sol';
 
 /// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
@@ -58,6 +58,8 @@ contract ClubSig is ClubNFT, Multicall {
     uint256 public totalLoot;
     /// @dev ragequittable units per account
     mapping(address => uint256) public loot;
+    /// @dev last daily allowance claim
+    mapping(address => uint256) public lastClaim;
     /// @dev administrative account tracking
     mapping(address => bool) public governor;
 
