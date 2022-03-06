@@ -3,14 +3,49 @@
 # multi-sig • [![tests](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/multi-sig)  ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/multi-sig)
 
 
-EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit
+EIP-712 signed multi-signature contract with ragequit and NFT identifiers for signers.
 
 
-## Configure Foundry
+## Blueprint
+
+```ml
+lib
+├─ ds-test — https://github.com/dapphub/ds-test
+├─ forge-std — https://github.com/brockelmore/forge-std
+src
+├─ tests
+│  └─ ...
+├─ ClubNFT — "A Modern and gas efficient ERC-721 + ERC-20/EIP-2612-like implementation"
+├─ ClubSig — "EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers"
+└─ ClubSigFactory — "ClubSig Contract Factory"
+```
+
+
+## Development
+
+[multi-sig](https://github.com/kalidao/multi-sig) is built with [Foundry](https://github.com/gakonst/foundry).
+
+**Setup**
+```bash
+forge install
+```
+
+**Building**
+```bash
+forge build
+```
+
+**Testing**
+```bash
+forge test
+```
+
+**Configure Foundry**
 
 Using [foundry.toml](./foundry.toml), Foundry is easily configurable.
 
 For a full list of configuration options, see the Foundry [configuration documentation](https://github.com/gakonst/foundry/blob/master/config/README.md#all-options).
+
 
 ## License
 

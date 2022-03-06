@@ -10,7 +10,8 @@ import './utils/NFTreceiver.sol';
 import './interfaces/IERC20minimal.sol';
 import './interfaces/IERC1271.sol';
 
-/// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers and ragequit
+/// @title ClubSig
+/// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)

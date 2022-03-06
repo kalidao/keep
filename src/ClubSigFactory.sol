@@ -2,15 +2,16 @@
 
 pragma solidity >=0.8.4;
 
-import './ClubSig.sol';
-import './libraries/ClonesWithImmutableArgs.sol';
+import {ClubSig} from './ClubSig.sol';
+import {Multicall} from './utils/Multicall.sol';
+import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
-/// @notice ClubSig Factory.
+/// @notice ClubSig Contract Factory
 contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Library usage
     /// -----------------------------------------------------------------------
-    
+
     using ClonesWithImmutableArgs for address;
 
     /// -----------------------------------------------------------------------
@@ -18,11 +19,11 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
 
     event SigDeployed(
-        ClubSig indexed clubSig, 
-        Club[] club_, 
-        uint256 quorum, 
-        bytes32 name, 
-        bytes32 symbol, 
+        ClubSig indexed clubSig,
+        Club[] club_,
+        uint256 quorum,
+        bytes32 name,
+        bytes32 symbol,
         bool paused,
         string baseURI
     );
@@ -50,7 +51,7 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Deployment
     /// -----------------------------------------------------------------------
-    
+
     function deployClubSig(
         Club[] calldata club_,
         uint256 quorum_,
