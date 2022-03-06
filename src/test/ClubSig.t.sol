@@ -53,7 +53,7 @@ contract ClubSigTest is DSTestPlus {
       clubSig.govern(clubs, mints, 3);
     }
 
-    function testGovern() public {
+    function testGovernMint() public {
       address db = address(0xdeadbeef);
 
       ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
@@ -64,5 +64,16 @@ contract ClubSigTest is DSTestPlus {
 
       vm.prank(address(clubSig));
       clubSig.govern(clubs, mints, 3);
+    }
+
+    function testGovernBurn() public {
+      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
+      clubs[0] = ClubSig.Club(alice, 1, 100);
+
+      bool[] memory mints = new bool[](1);
+      mints[0] = false;
+
+      vm.prank(address(clubSig));
+      clubSig.govern(clubs, mints, 1);
     }
 }
