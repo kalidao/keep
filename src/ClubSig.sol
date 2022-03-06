@@ -39,11 +39,10 @@ contract ClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
 
     error Initialized();
-    error NoArrayParity();
-    error SigBounds();
-    error InvalidSigner();
-    error ExecuteFailed();
     error NotSigner();
+    error ExecuteFailed();
+    error NoArrayParity();
+    error SigsBounded();
     error AssetOrder();
 
     /// -----------------------------------------------------------------------
@@ -89,8 +88,8 @@ contract ClubSig is ClubNFT, Multicall {
     bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
     struct Signature {
-	    uint8 v;
-	    bytes32 r;
+	uint8 v;
+	bytes32 r;
         bytes32 s;
     }
 
@@ -127,7 +126,7 @@ contract ClubSig is ClubNFT, Multicall {
 
         uint256 length = club_.length;
 
-        if (quorum_ > length) revert SigBounds();
+        if (quorum_ > length) revert SigsBounded();
 
         uint256 totalSupply_;
         uint256 totalLoot_;
@@ -265,10 +264,10 @@ contract ClubSig is ClubNFT, Multicall {
                 // check for conformant contract signature
                 if (signer.code.length != 0 && IERC1271(signer).isValidSignature(
                         digest, abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)) != 0x1626ba7e // magic value
-                    ) revert InvalidSigner();
+                    ) revert NotSigner();
 
                 // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer) revert InvalidSigner();
+                if (balanceOf[signer] == 0 || prevAddr >= signer) revert NotSigner();
 
                 prevAddr = signer;
 
@@ -326,7 +325,7 @@ contract ClubSig is ClubNFT, Multicall {
         if (totalLoot_ != 0) totalLoot += totalLoot_;
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply_) revert SigBounds();
+        if (quorum_ > totalSupply_) revert SigsBounded();
 
         totalSupply = totalSupply_;
         quorum = quorum_;
