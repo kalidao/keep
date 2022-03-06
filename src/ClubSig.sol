@@ -217,7 +217,7 @@ contract ClubSig is ClubNFT, Multicall {
 
             address prevAddr;
 
-            for (uint256 i = 0; i < quorum; i++) {
+            for (uint256 i = 0; i < quorum;) {
                 address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
 
                 // check for conformant contract signature
@@ -229,6 +229,10 @@ contract ClubSig is ClubNFT, Multicall {
                 if (balanceOf[signer] == 0 || prevAddr >= signer) revert InvalidSigner();
 
                 prevAddr = signer;
+
+                unchecked {
+                    i++;
+                }
             }
         }
        
