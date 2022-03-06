@@ -11,7 +11,7 @@ abstract contract Multicall {
         
         // cannot realistically overflow on human timescales
         unchecked {
-            for (uint256 i = 0; i < data.length; i++) {
+            for (uint256 i = 0; i < data.length; ++i) {
                 (bool success, bytes memory result) = address(this).delegatecall(data[i]);
 
                 if (!success) {

@@ -139,8 +139,8 @@ abstract contract ClubNFT {
         // underflow of the sender's balance is impossible because we check for
         // ownership above and the recipient's balance can't realistically overflow
         unchecked { 
-            balanceOf[from]--; 
-            balanceOf[to]++;
+            --balanceOf[from]; 
+            ++balanceOf[to];
         }
         
         delete getApproved[id];
