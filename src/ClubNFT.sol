@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-
 pragma solidity >=0.8.4;
 
 /// @notice A generic interface for a contract which properly accepts ERC-721 tokens
