@@ -13,6 +13,10 @@ contract ClubSigTest is DSTestPlus {
     address public alice = address(0xa);
     address public bob = address(0xb);
     address public charlie = address(0xc);
+    
+    /// @dev Tokens
+    address public tokenA = address(0xa);
+    address public tokenB = address(0xb);
 
     /// @notice Set up the testing suite
     function setUp() public {
