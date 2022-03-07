@@ -5,6 +5,8 @@ pragma solidity >=0.8.4;
 /// @notice Safe ERC20 transfer library that gracefully handles missing return values
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
 /// License-Identifier: AGPL-3.0-only
+/// @dev Use with caution! Some functions in this library knowingly create dirty bits at the destination of the free memory pointer
+/// @dev Note that none of the functions in this library check that a token has code at all! That responsibility is delegated to the caller
 library SafeTransferTokenLib {
     error TransferFailed();
 
@@ -13,48 +15,33 @@ library SafeTransferTokenLib {
         address to,
         uint256 amount
     ) internal {
-        bool callStatus;
+        bool success;
+
         assembly {
             // get a pointer to some free memory
             let freeMemoryPointer := mload(0x40)
-            // write the abi-encoded calldata to memory piece by piece:
-            mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000) // begin with the function selector
-            mstore(add(freeMemoryPointer, 4), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // mask and append the "to" argument
-            mstore(add(freeMemoryPointer, 36), amount) // finally append the "amount" argument - no mask as it's a full 32 byte value
+
+            // write the abi-encoded calldata into memory, beginning with the function selector
+            mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
+            mstore(add(freeMemoryPointer, 4), to) // mask and append the "to" argument
+            mstore(add(freeMemoryPointer, 36), amount) // append the "amount" argument
+
+            // fill up the scratch space so it's easy to tell if the call returns <32 bytes
+            mstore(0, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+
             // call the token and store if it succeeded or not
             // we use 68 because the calldata length is 4 + 32 * 2
-            callStatus := call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)
+            // we'll copy up to 32 bytes of return data into the scratch space,
+            // if it returns <32 bytes at least a portion of the junk will remain
+            success := call(gas(), token, 0, freeMemoryPointer, 68, 0, 32)
+
+            // set success to whether the call returned 1, except if it
+            // had no return data, in which case we assume it succeeded,
+            // or if it reverted, in which case we multiply everything by
+            // 0, setting success to zero which will decode as false below
+            success := mul(add(iszero(returndatasize()), eq(mload(0), 1)), success)
         }
-        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert TransferFailed();
-    }
 
-    function _didLastOptionalReturnCallSucceed(bool callStatus) private pure returns (bool success) {
-        assembly {
-            // if the call reverted:
-            if iszero(callStatus) {
-                // copy the revert message into memory
-                returndatacopy(0, 0, returndatasize())
-
-                // revert with the same message.
-                revert(0, returndatasize())
-            }
-
-            switch returndatasize()
-            case 32 {
-                // copy the return data into memory
-                returndatacopy(0, 0, returndatasize())
-
-                // set success to whether it returned true
-                success := iszero(iszero(mload(0)))
-            }
-            case 0 {
-                // there was no return data
-                success := 1
-            }
-            default {
-                // it returned some malformed output
-                success := 0
-            }
-        }
+        if (!success) revert TransferFailed();
     }
 }
