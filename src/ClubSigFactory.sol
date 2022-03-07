@@ -65,7 +65,7 @@ contract ClubSigFactory is Multicall, ClubSig {
 
         clubSig = ClubSig(address(clubMaster).clone(data));
 
-        clubSig.init{msg.value}(
+        clubSig.init{value: msg.value}(
             club_,
             quorum_,
             paused_,
