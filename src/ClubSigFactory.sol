@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-
 pragma solidity >=0.8.4;
 
 import {ClubSig} from './ClubSig.sol';
+
 import {Multicall} from './utils/Multicall.sol';
+
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Contract Factory
 contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
-    /// Library usage
+    /// Library Usage
     /// -----------------------------------------------------------------------
 
     using ClonesWithImmutableArgs for address;
@@ -35,7 +36,7 @@ contract ClubSigFactory is Multicall, ClubSig {
     error NullDeploy();
 
     /// -----------------------------------------------------------------------
-    /// Immutable parameters
+    /// Immutable Parameters
     /// -----------------------------------------------------------------------
 
     ClubSig internal immutable clubMaster;
@@ -59,12 +60,12 @@ contract ClubSigFactory is Multicall, ClubSig {
         bytes32 symbol_,
         bool paused_,
         string calldata baseURI_
-    ) public payable virtual returns (ClubSig clubSig) {
+    ) public payable returns (ClubSig clubSig) {
         bytes memory data = abi.encodePacked(name_, symbol_);
 
         clubSig = ClubSig(address(clubMaster).clone(data));
 
-        clubSig.init(
+        clubSig.init{msg.value}(
             club_,
             quorum_,
             paused_,
