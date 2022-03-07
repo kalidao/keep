@@ -121,16 +121,16 @@ contract ClubSigTest is DSTestPlus {
 
     function testRageQuit(address a, address b) public {
       address[] memory assets = new address[](2);
-      assets[0] = a > b ? a : b;
-      assets[1] = a > b ? b : a;
+      assets[0] = a > b ? b : a;
+      assets[1] = a > b ? a : b;
 
       // Should revert on asset order
       vm.expectRevert(bytes4(keccak256("AssetOrder()")));
       clubSig.ragequit(assets, 100);
 
       // Switch the asset order
-      assets[0] = a > b ? b : a;
-      assets[1] = a > b ? a : b;
+      assets[0] = a > b ? a : b;
+      assets[1] = a > b ? b : a;
 
       // Should arithmetic underflow since not enough loot
       startHoax(charlie, charlie, type(uint256).max);
