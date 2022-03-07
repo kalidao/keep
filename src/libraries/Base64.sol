@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-
 pragma solidity >=0.8.4;
 
 /// @notice Provides a function for encoding some bytes in base64
