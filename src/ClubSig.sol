@@ -252,7 +252,7 @@ contract ClubSig is ClubNFT, Multicall {
         unchecked {
             bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
                 keccak256(abi.encode(keccak256(
-                    'Exec(address target,uint256 value,bytes payload,bool std,uint256 nonce)'),
+                    'Exec(address target,uint256 value,bytes payload,bool call,uint256 nonce)'),
                     call.target, call.value, call.payload, call.call, nonce++)))
                 );
 
