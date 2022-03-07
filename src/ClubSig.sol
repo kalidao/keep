@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-
 pragma solidity >=0.8.4;
 
 import {ClubNFT} from './ClubNFT.sol';
@@ -39,10 +38,10 @@ contract ClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
 
     error Initialized();
-    error NotSigner();
+    error SigsBounded();
+    error WrongSigner();
     error ExecuteFailed();
     error NoArrayParity();
-    error SigsBounded();
     error AssetOrder();
 
     /// -----------------------------------------------------------------------
@@ -130,11 +129,17 @@ contract ClubSig is ClubNFT, Multicall {
 
         uint256 totalSupply_;
         uint256 totalLoot_;
+        address prevAddr;
 
         for (uint256 i; i < length;) {
+            // prevent null and duplicate signers
+            if (prevAddr >= club_[i].signer) revert WrongSigner();
+            prevAddr = club_[i].signer;
+
             _safeMint(club_[i].signer, club_[i].id);
-            loot[club_[i].signer] = club_[i].loot;
+
             totalLoot_ += club_[i].loot;
+            loot[club_[i].signer] = club_[i].loot;
 
             // cannot realistically overflow on human timescales
             unchecked {
@@ -207,8 +212,8 @@ contract ClubSig is ClubNFT, Multicall {
 
     function _addressToString(address addr) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
-        for (uint i; i < 20;) {
-            bytes1 b = bytes1(uint8(uint(uint160(addr)) / (2**(8*(19 - i)))));
+        for (uint256 i; i < 20;) {
+            bytes1 b = bytes1(uint8(uint256(uint160(addr)) / (2**(8*(19 - i)))));
             bytes1 hi = bytes1(uint8(b) / 16);
             bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
             s[2*i] = _char(hi);
@@ -231,7 +236,10 @@ contract ClubSig is ClubNFT, Multicall {
         uint256 temp = value;
         uint256 digits;
         while (temp != 0) {
-            ++digits;
+            // cannot realistically overflow on human timescales
+            unchecked {
+                ++digits;
+            }
             temp /= 10;
         }
         bytes memory buffer = new bytes(digits);
@@ -248,27 +256,24 @@ contract ClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
 
     function execute(Call calldata call, Signature[] calldata sigs) public payable returns (bool success, bytes memory result) {
-        // cannot realistically overflow on human timescales
         unchecked {
             bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
                 keccak256(abi.encode(keccak256(
                     'Exec(address target,uint256 value,bytes payload,bool call,uint256 nonce)'),
-                    call.target, call.value, call.payload, call.call, nonce++)))
+                    // cannot realistically overflow on human timescales
+                    call.target, call.value, call.payload, call.call, ++nonce)))
                 );
 
             address prevAddr;
 
             for (uint256 i; i < quorum;) {
                 address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
-
                 // check for conformant contract signature
                 if (signer.code.length != 0 && IERC1271(signer).isValidSignature(
                         digest, abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)) != 0x1626ba7e // magic value
-                    ) revert NotSigner();
-
+                    ) revert WrongSigner();
                 // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer) revert NotSigner();
-
+                if (balanceOf[signer] == 0 || prevAddr >= signer) revert WrongSigner();
                 prevAddr = signer;
 
                 ++i;
@@ -298,31 +303,37 @@ contract ClubSig is ClubNFT, Multicall {
         if (length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
-        uint256 totalLoot_;
+        uint256 totalLoot_ = totalLoot;
+
         for (uint256 i; i < length;) {
             if (mints_[i]) {
                 _safeMint(club_[i].signer, club_[i].id);
-
                 // cannot realistically overflow on human timescales
                 unchecked {
                     ++totalSupply_;
                 }
             } else {
                 _burn(club_[i].id);
-                --totalSupply_;
+                // cannot underflow because ownership is checked in burn()
+                unchecked {
+                    --totalSupply_;
+                }
             }
             if (club_[i].loot != 0) {
-                loot[club_[i].signer] += club_[i].loot;
                 totalLoot_ += club_[i].loot;
+                // cannot overflow because the sum of all user
+                // balances can't exceed the max uint256 value
+                unchecked {
+                    loot[club_[i].signer] += club_[i].loot;
+                }
             }
-
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
             }
         }
 
-        if (totalLoot_ != 0) totalLoot += totalLoot_;
+        if (totalLoot_ != 0) totalLoot = totalLoot_;
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
         if (quorum_ > totalSupply_) revert SigsBounded();
@@ -374,31 +385,24 @@ contract ClubSig is ClubNFT, Multicall {
     receive() external payable {}
 
     function ragequit(address[] calldata assets, uint256 lootToBurn) public payable {
-        uint256 length = assets.length;
-
-        // cannot realistically overflow on human timescales
-        unchecked {
-            for (uint256 i; i < length;) {
-                if (i != 0 && assets[i] <= assets[i-1]) revert AssetOrder();
-                ++i;
-            }
-        }
-
         uint256 lootTotal = totalLoot;
         loot[msg.sender] -= lootToBurn;
-
-        // cannot realistically overflow on human timescales
+        // cannot underflow because balance is checked above
         unchecked {
             totalLoot -= lootToBurn;
         }
 
-        for (uint256 i; i < length;) {
+        address prevAddr;
+
+        for (uint256 i; i < assets.length;) {
+            // prevent null and duplicate assets
+            if (prevAddr >= assets[i]) revert AssetOrder();
+            prevAddr = assets[i];
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = lootToBurn * IERC20minimal(assets[i]).balanceOf(address(this)) / 
                 lootTotal;
             // transfer to redeemer
-            if (amountToRedeem != 0)
-                assets[i]._safeTransfer(msg.sender, amountToRedeem);
+            if (amountToRedeem != 0) assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
