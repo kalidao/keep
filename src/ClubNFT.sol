@@ -186,7 +186,7 @@ abstract contract ClubNFT {
   
         // cannot realistically overflow on human timescales
         unchecked {
-            balanceOf[to]++;
+            ++balanceOf[to];
         }
         
         ownerOf[id] = to;
@@ -202,11 +202,11 @@ abstract contract ClubNFT {
     function _burn(uint256 id) internal { 
         address owner = ownerOf[id];
 
-        if (ownerOf[id] == address(0)) revert NotMinted();
+        if (owner == address(0)) revert NotMinted();
         
         // ownership check ensures no underflow
         unchecked {
-            balanceOf[owner]--;
+            --balanceOf[owner];
         }
         
         delete ownerOf[id];
