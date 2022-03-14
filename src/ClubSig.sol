@@ -20,7 +20,7 @@ import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
 /// License-Identifier: AGPL-3.0-only
 contract ClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
-    /// Library usage
+    /// Library Usage
     /// -----------------------------------------------------------------------
     using SafeTransferTokenLib for address;
 
