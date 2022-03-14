@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @title ClonesWithImmutableArgs
-/// @author wighawag, zefram.eth
-/// @notice Enables creating clone contracts with immutable args
+/// @notice Enables creating clone contracts with immutable arguments
+/// @author Modified from wighawag, zefram.eth (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
+/// License-Identifier: BSD
 library ClonesWithImmutableArgs {
     error CreateFail();
 
