@@ -92,7 +92,7 @@ contract ClubSig is ClubNFT, Multicall {
         bytes32 s;
     }
 
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+    function DOMAIN_SEPARATOR() internal view returns (bytes32) {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
     }
 
