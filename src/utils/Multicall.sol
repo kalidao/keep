@@ -5,12 +5,10 @@ pragma solidity >=0.8.4;
 /// @author Modified from Uniswap (https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol)
 /// License-Identifier: GPL-2.0-or-later
 abstract contract Multicall {
-    function multicall(bytes[] calldata data) external payable returns (bytes[] memory results) {
-        uint256 length = data.length;
+    function multicall(bytes[] calldata data) public payable returns (bytes[] memory results) {
+        results = new bytes[](data.length);
         
-        results = new bytes[](length);
-        
-        for (uint256 i; i < length;) {
+        for (uint256 i; i < data.length;) {
             (bool success, bytes memory result) = address(this).delegatecall(data[i]);
 
             if (!success) {
