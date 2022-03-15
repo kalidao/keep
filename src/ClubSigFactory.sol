@@ -5,10 +5,12 @@ import {ClubSig} from './ClubSig.sol';
 
 import {Multicall} from './utils/Multicall.sol';
 
+import {IClub} from './interfaces/IClub.sol';
+
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Contract Factory
-contract ClubSigFactory is Multicall, ClubSig {
+contract ClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
