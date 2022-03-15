@@ -118,7 +118,7 @@ contract ClubSig is ClubNFT, Multicall {
         uint256 quorum_,
         bool paused_,
         string memory baseURI_
-    ) public payable {
+    ) external payable {
         if (nonce != 0) revert Initialized();
 
         ClubNFT._init(paused_);
@@ -163,7 +163,7 @@ contract ClubSig is ClubNFT, Multicall {
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
-    function tokenURI(uint256 id) public view returns (string memory) {
+    function tokenURI(uint256 id) external view returns (string memory) {
         bytes memory base = bytes(baseURI);
         return base.length != 0 ? baseURI : _buildTokenURI(id);
     }
@@ -255,7 +255,7 @@ contract ClubSig is ClubNFT, Multicall {
     /// Operations
     /// -----------------------------------------------------------------------
 
-    function execute(Call calldata call, Signature[] calldata sigs) public payable returns (bool success, bytes memory result) {
+    function execute(Call calldata call, Signature[] calldata sigs) external payable returns (bool success, bytes memory result) {
         unchecked {
             bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
                 keccak256(abi.encode(keccak256(
@@ -295,7 +295,7 @@ contract ClubSig is ClubNFT, Multicall {
         Club[] calldata club_,
         bool[] calldata mints_,
         uint256 quorum_
-    ) public payable {
+    ) external payable {
         if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
         uint256 length = club_.length;
@@ -344,7 +344,7 @@ contract ClubSig is ClubNFT, Multicall {
         emit Govern(club_, mints_, quorum_);
     }
 
-    function governorExecute(Call calldata call) public payable returns (bool success, bytes memory result) {
+    function governorExecute(Call calldata call) external payable returns (bool success, bytes memory result) {
         if (!governor[msg.sender]) revert Forbidden();
 
         if (call.call) {
@@ -356,7 +356,7 @@ contract ClubSig is ClubNFT, Multicall {
         }
     }
 
-    function flipGovernor(address account) public payable {
+    function flipGovernor(address account) external payable {
         if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
         governor[account] = !governor[account];
@@ -364,13 +364,13 @@ contract ClubSig is ClubNFT, Multicall {
         emit GovernorFlipped(account);
     }
 
-    function flipPause() public payable {
+    function flipPause() external payable {
         if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
         ClubNFT._flipPause();
     }
 
-    function updateURI(string calldata baseURI_) public payable {
+    function updateURI(string calldata baseURI_) external payable {
         if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
 
         baseURI = baseURI_;
@@ -384,7 +384,7 @@ contract ClubSig is ClubNFT, Multicall {
 
     receive() external payable {}
 
-    function ragequit(address[] calldata assets, uint256 lootToBurn) public payable {
+    function ragequit(address[] calldata assets, uint256 lootToBurn) external payable {
         uint256 lootTotal = totalLoot;
         loot[msg.sender] -= lootToBurn;
         // cannot underflow because balance is checked above
