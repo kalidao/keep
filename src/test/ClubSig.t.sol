@@ -2,7 +2,7 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
-import {ClubSig} from "../ClubSig.sol";
+import {ClubSig} from '../ClubSig.sol';
 import {DSTestPlus} from './utils/DSTestPlus.sol';
 
 import {stdError} from '@std/stdlib.sol';
@@ -29,8 +29,8 @@ contract ClubSigTest is DSTestPlus {
         clubs,
         2,
         false,
-        "DOCS",
-        "BASE"
+        'DOCS',
+        'BASE'
       );
 
       // Sanity check initialization
