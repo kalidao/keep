@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
+import {IClub} from "../interfaces/IClub.sol";
 import {ClubSig} from "../ClubSig.sol";
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
@@ -19,9 +20,9 @@ contract ClubSigTest is DSTestPlus {
       clubSig = new ClubSig();
 
       // Create the Club[]
-      ClubSig.Club[] memory clubs = new ClubSig.Club[](2);
-      clubs[0] = ClubSig.Club(alice, 0, 100);
-      clubs[1] = ClubSig.Club(bob, 1, 100);
+      IClub.Club[] memory clubs = new IClub.Club[](2);
+      clubs[0] = IClub.Club(alice, 0, 100);
+      clubs[1] = IClub.Club(bob, 1, 100);
 
       // Initialize
       clubSig.init(
