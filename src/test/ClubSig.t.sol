@@ -42,8 +42,8 @@ contract ClubSigTest is DSTestPlus {
     /// -----------------------------------------------------------------------
 
     function testGovernAlreadyMinted() public {
-      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
-      clubs[0] = ClubSig.Club(alice, 0, 100);
+      IClub.Club[] memory clubs = new IClub.Club[](1);
+      clubs[0] = IClub.Club(alice, 0, 100);
 
       bool[] memory mints = new bool[](1);
       mints[0] = true;
@@ -56,8 +56,8 @@ contract ClubSigTest is DSTestPlus {
     function testGovernMint() public {
       address db = address(0xdeadbeef);
 
-      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
-      clubs[0] = ClubSig.Club(db, 2, 100);
+      IClub.Club[] memory clubs = new IClub.Club[](1);
+      clubs[0] = IClub.Club(db, 2, 100);
 
       bool[] memory mints = new bool[](1);
       mints[0] = true;
@@ -67,8 +67,8 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testGovernBurn() public {
-      ClubSig.Club[] memory clubs = new ClubSig.Club[](1);
-      clubs[0] = ClubSig.Club(alice, 1, 100);
+      IClub.Club[] memory clubs = new IClub.Club[](1);
+      clubs[0] = IClub.Club(alice, 1, 100);
 
       bool[] memory mints = new bool[](1);
       mints[0] = false;
