@@ -7,9 +7,11 @@ pragma solidity >=0.8.4;
 library URIbuilder {
     bytes internal constant TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
     
-    function _buildTokenURI(uint256 id) internal view returns (string memory) {
-        address owner = ownerOf[id];
-
+    function _buildTokenURI(
+        address owner, 
+        uint256 loot,
+        string memory name
+    ) internal pure returns (string memory) {
         string memory metaSVG = string(
             abi.encodePacked(
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="90px">',
@@ -17,7 +19,7 @@ library URIbuilder {
                 _addressToString(owner),
                 '</text>',
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="100%" y="180px">',
-                _uintToString(loot[owner]),
+                _uintToString(loot),
                 ' Loot',
                 '</text>'
             )
@@ -29,16 +31,16 @@ library URIbuilder {
         );
         bytes memory image = abi.encodePacked(
             'data:image/svg+xml;base64,',
-            Base64._encode(bytes(svg))
+            _encode(bytes(svg))
         );
         return string(
             abi.encodePacked(
                 'data:application/json;base64,',
-                Base64._encode(
+                _encode(
                     bytes(
                         abi.encodePacked(
                             '{"name":"',
-                            name(),
+                            name,
                             '", "image":"',
                             image,
                             '", "description": "The holder of this NFT is a club key signer."}'
