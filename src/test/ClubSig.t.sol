@@ -28,6 +28,7 @@ contract ClubSigTest is DSTestPlus {
         clubs,
         2,
         false,
+        "DOCS",
         "BASE"
       );
 

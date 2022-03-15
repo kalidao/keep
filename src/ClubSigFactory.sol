@@ -26,6 +26,7 @@ contract ClubSigFactory is Multicall, ClubSig {
         bytes32 name,
         bytes32 symbol,
         bool paused,
+        string docs,
         string baseURI
     );
 
@@ -38,7 +39,7 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
-
+  
     ClubSig internal immutable clubMaster;
 
     /// -----------------------------------------------------------------------
@@ -52,26 +53,26 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Deployment
     /// -----------------------------------------------------------------------
-
+    
     function deployClubSig(
         Club[] calldata club_,
         uint256 quorum_,
         bytes32 name_,
         bytes32 symbol_,
         bool paused_,
+        string calldata docs_,
         string calldata baseURI_
-    ) public payable returns (ClubSig clubSig) {
-        bytes memory data = abi.encodePacked(name_, symbol_);
-
-        clubSig = ClubSig(address(clubMaster).clone(data));
+    ) external payable returns (ClubSig clubSig) {
+        clubSig = ClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
 
         clubSig.init{value: msg.value}(
             club_,
             quorum_,
             paused_,
+            docs_,
             baseURI_
         );
 
-        emit SigDeployed(clubSig, club_, quorum_, name_, symbol_, paused_, baseURI_);
+        emit SigDeployed(clubSig, club_, quorum_, name_, symbol_, paused_, docs_, baseURI_);
     }
 }

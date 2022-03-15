@@ -96,7 +96,7 @@ abstract contract ClubNFT {
     /// ERC-165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return
             interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
             interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
@@ -107,7 +107,7 @@ abstract contract ClubNFT {
     /// ERC-721 Logic
     /// -----------------------------------------------------------------------
     
-    function approve(address spender, uint256 id) public payable {
+    function approve(address spender, uint256 id) external payable {
         address owner = ownerOf[id];
 
         if (msg.sender != owner && !isApprovedForAll[owner][msg.sender]) revert Forbidden();
@@ -117,7 +117,7 @@ abstract contract ClubNFT {
         emit Approval(owner, spender, id); 
     }
     
-    function setApprovalForAll(address operator, bool approved) public payable {
+    function setApprovalForAll(address operator, bool approved) external payable {
         isApprovedForAll[msg.sender][operator] = approved;
         
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -153,7 +153,7 @@ abstract contract ClubNFT {
         address from, 
         address to, 
         uint256 id
-    ) public payable {
+    ) external payable {
         transferFrom(from, to, id); 
 
         if (to.code.length != 0 
@@ -167,7 +167,7 @@ abstract contract ClubNFT {
         address to, 
         uint256 id, 
         bytes calldata data
-    ) public payable {
+    ) external payable {
         transferFrom(from, to, id); 
         
         if (to.code.length != 0 
@@ -186,7 +186,7 @@ abstract contract ClubNFT {
   
         // cannot realistically overflow on human timescales
         unchecked {
-            balanceOf[to]++;
+            ++balanceOf[to];
         }
         
         ownerOf[id] = to;
@@ -202,11 +202,11 @@ abstract contract ClubNFT {
     function _burn(uint256 id) internal { 
         address owner = ownerOf[id];
 
-        if (ownerOf[id] == address(0)) revert NotMinted();
+        if (owner == address(0)) revert NotMinted();
         
         // ownership check ensures no underflow
         unchecked {
-            balanceOf[owner]--;
+            --balanceOf[owner];
         }
         
         delete ownerOf[id];
@@ -221,7 +221,6 @@ abstract contract ClubNFT {
 
     function _flipPause() internal {
         paused = !paused;
-
         emit PauseFlipped(paused);
     }
 }
