@@ -127,7 +127,7 @@ abstract contract ClubNFT {
         address from, 
         address to, 
         uint256 id
-    ) external payable notPaused {
+    ) public payable notPaused {
         if (from != ownerOf[id]) revert NotOwner();
         if (to == address(0)) revert InvalidRecipient();
         if (msg.sender != from 
