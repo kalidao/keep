@@ -221,7 +221,6 @@ abstract contract ClubNFT {
 
     function _flipPause() internal {
         paused = !paused;
-
         emit PauseFlipped(paused);
     }
 }
