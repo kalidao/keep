@@ -6,6 +6,7 @@ import {ClubNFT} from './ClubNFT.sol';
 import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
+import {IClub} from './interfaces/IClub.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
 import {IERC20minimal} from './interfaces/IERC20minimal.sol';
 
@@ -19,7 +20,7 @@ import {URIbuilder} from './libraries/URIbuilder.sol';
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
-contract ClubSig is ClubNFT, Multicall {
+contract ClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -65,12 +66,6 @@ contract ClubSig is ClubNFT, Multicall {
     mapping(address => uint256) public loot;
     /// @dev administrative account tracking
     mapping(address => bool) public governor;
-
-    struct Club {
-        address signer;
-        uint256 id;
-        uint256 loot;
-    }
 
     modifier OnlyClubOrGov {
         if (msg.sender != address(this) 
