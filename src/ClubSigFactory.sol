@@ -60,7 +60,7 @@ contract ClubSigFactory is Multicall, ClubSig {
         bytes32 symbol_,
         bool paused_,
         string calldata baseURI_
-    ) public payable returns (ClubSig clubSig) {
+    ) external payable returns (ClubSig clubSig) {
         bytes memory data = abi.encodePacked(name_, symbol_);
 
         clubSig = ClubSig(address(clubMaster).clone(data));
