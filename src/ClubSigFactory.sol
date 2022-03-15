@@ -8,7 +8,7 @@ import {Multicall} from './utils/Multicall.sol';
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Contract Factory
-contract ClubSigFactory is Multicall {
+contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -37,15 +37,9 @@ contract ClubSigFactory is Multicall {
     error NullDeploy();
 
     /// -----------------------------------------------------------------------
-    /// Factory Storage
+    /// Immutable Parameters
     /// -----------------------------------------------------------------------
-    
-    struct Club {
-        address signer;
-        uint256 id;
-        uint256 loot;
-    }
-
+  
     ClubSig internal immutable clubMaster;
 
     /// -----------------------------------------------------------------------
@@ -69,9 +63,7 @@ contract ClubSigFactory is Multicall {
         string calldata docs_,
         string calldata baseURI_
     ) external payable returns (ClubSig clubSig) {
-        bytes memory data = abi.encodePacked(name_, symbol_);
-
-        clubSig = ClubSig(address(clubMaster).clone(data));
+        clubSig = ClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
 
         clubSig.init{value: msg.value}(
             club_,
