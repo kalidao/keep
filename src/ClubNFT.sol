@@ -41,11 +41,11 @@ abstract contract ClubNFT {
     /// Metadata Storage/Logic
     /// -----------------------------------------------------------------------
 
-    function name() external pure returns (string memory) {
+    function name() public pure returns (string memory) {
         return string(abi.encodePacked(_getArgUint256(0)));
     }
 
-    function symbol() external pure returns (string memory) {
+    function symbol() public pure returns (string memory) {
         return string(abi.encodePacked(_getArgUint256(0x20)));
     }
 
