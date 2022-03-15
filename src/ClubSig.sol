@@ -23,6 +23,7 @@ contract ClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
+    using FixedPointMathLib for uint256;
     using SafeTransferTokenLib for address;
 
     /// -----------------------------------------------------------------------
@@ -72,6 +73,12 @@ contract ClubSig is ClubNFT, Multicall {
         uint256 loot;
     }
 
+    modifier OnlyClubOrGov {
+        if (msg.sender != address(this) 
+        && !governor[msg.sender]) revert Forbidden();
+        _;
+    }
+
     /// -----------------------------------------------------------------------
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
@@ -80,8 +87,8 @@ contract ClubSig is ClubNFT, Multicall {
     bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
     struct Signature {
-	uint8 v;
-	bytes32 r;
+	    uint8 v;
+	    bytes32 r;
         bytes32 s;
     }
 
@@ -163,7 +170,8 @@ contract ClubSig is ClubNFT, Multicall {
 
         if (base.length == 0) {
             address owner = ownerOf[id];
-            return URIbuilder._buildTokenURI(owner, loot[owner], name());
+            uint256 lt = loot[owner];
+            return URIbuilder._buildTokenURI(owner, lt, name());
         } else {
             return baseURI;
         }
@@ -293,25 +301,21 @@ contract ClubSig is ClubNFT, Multicall {
         emit Execute(to, value, data);
     }
 
-    function flipGovernor(address account) external payable {
-        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
+    function flipGovernor(address account) external payable OnlyClubOrGov {
         governor[account] = !governor[account];
         emit GovernorFlipped(account);
     }
 
     function flipPause() external payable {
-        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
         ClubNFT._flipPause();
     }
 
-    function updateDocs(string calldata docs_) external payable {
-        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
+    function updateDocs(string calldata docs_) external payable OnlyClubOrGov {
         docs = docs_;
         emit DocsUpdated(docs_);
     }
 
-    function updateURI(string calldata baseURI_) external payable {
-        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
+    function updateURI(string calldata baseURI_) external payable OnlyClubOrGov {
         baseURI = baseURI_;
         emit URIupdated(baseURI_);
     }
