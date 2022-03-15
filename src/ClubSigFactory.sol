@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubSig} from './ClubSig.sol';
-
 import {Multicall} from './utils/Multicall.sol';
+
+import {IClub} from './interfaces/IClub.sol';
+
+import {ClubSig} from './ClubSig.sol';
 
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Contract Factory
-contract ClubSigFactory is Multicall, ClubSig {
+contract ClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
