@@ -23,7 +23,6 @@ contract ClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
-    using FixedPointMathLib for uint256;
     using SafeTransferTokenLib for address;
 
     /// -----------------------------------------------------------------------
@@ -87,8 +86,8 @@ contract ClubSig is ClubNFT, Multicall {
     bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
     struct Signature {
-	    uint8 v;
-	    bytes32 r;
+	uint8 v;
+	bytes32 r;
         bytes32 s;
     }
 
@@ -229,9 +228,7 @@ contract ClubSig is ClubNFT, Multicall {
         Club[] calldata club_,
         bool[] calldata mints_,
         uint256 quorum_
-    ) external payable {
-        if (msg.sender != address(this) && !governor[msg.sender]) revert Forbidden();
-
+    ) external payable OnlyClubOrGov {
         uint256 length = club_.length;
 
         if (length != mints_.length) revert NoArrayParity();
@@ -306,7 +303,7 @@ contract ClubSig is ClubNFT, Multicall {
         emit GovernorFlipped(account);
     }
 
-    function flipPause() external payable {
+    function flipPause() external payable OnlyClubOrGov {
         ClubNFT._flipPause();
     }
 
