@@ -8,7 +8,7 @@ import {Multicall} from './utils/Multicall.sol';
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Contract Factory
-contract ClubSigFactory is Multicall, ClubSig {
+contract ClubSigFactory is Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -52,6 +52,12 @@ contract ClubSigFactory is Multicall, ClubSig {
     /// -----------------------------------------------------------------------
     /// Deployment
     /// -----------------------------------------------------------------------
+    
+    struct Club {
+        address signer;
+        uint256 id;
+        uint256 loot;
+    }
 
     function deployClubSig(
         Club[] calldata club_,
