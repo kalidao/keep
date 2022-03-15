@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
+import {IClub} from '../interfaces/IClub.sol';
 import {ClubSig} from "../ClubSig.sol";
-import {DSTestPlus} from "./utils/DSTestPlus.sol";
+import {DSTestPlus} from './utils/DSTestPlus.sol';
 
-import {stdError} from "@std/stdlib.sol";
+import {stdError} from '@std/stdlib.sol';
 
 contract ClubSigTest is DSTestPlus {
     ClubSig clubSig;
@@ -33,7 +34,7 @@ contract ClubSigTest is DSTestPlus {
       );
 
       // Sanity check initialization
-      assertEq(keccak256(bytes(clubSig.baseURI())), keccak256(bytes("BASE")));
+      assertEq(keccak256(bytes(clubSig.baseURI())), keccak256(bytes('BASE')));
     }
 
     /// -----------------------------------------------------------------------
@@ -47,7 +48,7 @@ contract ClubSigTest is DSTestPlus {
       bool[] memory mints = new bool[](1);
       mints[0] = true;
 
-      vm.expectRevert(bytes4(keccak256("AlreadyMinted()")));
+      vm.expectRevert(bytes4(keccak256('AlreadyMinted()')));
       vm.prank(address(clubSig));
       clubSig.govern(clubs, mints, 3);
     }
@@ -78,7 +79,7 @@ contract ClubSigTest is DSTestPlus {
 
     function testFlipGovernor(address dave) public {
       startHoax(dave, dave, type(uint256).max);
-      vm.expectRevert(bytes4(keccak256("Forbidden()")));
+      vm.expectRevert(bytes4(keccak256('Forbidden()')));
       clubSig.flipGovernor(dave);
       vm.stopPrank();
 
@@ -91,7 +92,7 @@ contract ClubSigTest is DSTestPlus {
 
     function testFlipPause(address dave) public {
       startHoax(dave, dave, type(uint256).max);
-      vm.expectRevert(bytes4(keccak256("Forbidden()")));
+      vm.expectRevert(bytes4(keccak256('Forbidden()')));
       clubSig.flipPause();
       vm.stopPrank();
       assertTrue(!clubSig.paused());
@@ -105,15 +106,15 @@ contract ClubSigTest is DSTestPlus {
 
     function testUpdateURI(address dave) public {
       startHoax(dave, dave, type(uint256).max);
-      vm.expectRevert(bytes4(keccak256("Forbidden()")));
-      clubSig.updateURI("new_base_uri");
+      vm.expectRevert(bytes4(keccak256('Forbidden()')));
+      clubSig.updateURI('new_base_uri');
       vm.stopPrank();
 
       // The ClubSig itself should be able to update the base uri
       startHoax(address(clubSig), address(clubSig), type(uint256).max);
-      clubSig.updateURI("new_base_uri");
+      clubSig.updateURI('new_base_uri');
       vm.stopPrank();
-      assertEq(keccak256(bytes("new_base_uri")), keccak256(bytes(clubSig.baseURI())));
+      assertEq(keccak256(bytes('new_base_uri')), keccak256(bytes(clubSig.baseURI())));
     }
 
     /// -----------------------------------------------------------------------
@@ -126,7 +127,7 @@ contract ClubSigTest is DSTestPlus {
     //  assets[1] = a > b ? a : b;
 
     //  // Should revert on asset order
-    //  vm.expectRevert(bytes4(keccak256("AssetOrder()")));
+    //  vm.expectRevert(bytes4(keccak256('AssetOrder()')));
     //  clubSig.ragequit(assets, 100);
 
     //  // Switch the asset order
