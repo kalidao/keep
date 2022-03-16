@@ -5,13 +5,13 @@ import {Multicall} from './utils/Multicall.sol';
 
 import {IClub} from './interfaces/IClub.sol';
 
-import {ClubSig} from './ClubSig.sol';
+import {KaliClubSig} from './KaliClubSig.sol';
 import {ClubLoot} from './ClubLoot.sol';
 
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
-/// @notice ClubSig Contract Factory
-contract ClubSigFactory is Multicall, IClub {
+/// @notice Kali ClubSig Contract Factory
+contract KaliClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -30,10 +30,10 @@ contract ClubSigFactory is Multicall, IClub {
         uint256 redemptionStart,
         bytes32 name,
         bytes32 symbol,
-        bool signerPaused,
         bool lootPaused,
-        string docs,
-        string baseURI
+        bool signerPaused,
+        string baseURI,
+        string docs
     );
 
     /// -----------------------------------------------------------------------
@@ -46,14 +46,14 @@ contract ClubSigFactory is Multicall, IClub {
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
   
-    ClubSig internal immutable clubMaster;
+    KaliClubSig internal immutable clubMaster;
     ClubLoot internal immutable lootMaster;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ClubSig clubMaster_, ClubLoot lootMaster_) {
+    constructor(KaliClubSig clubMaster_, ClubLoot lootMaster_) {
         clubMaster = clubMaster_;
         lootMaster = lootMaster_;
     }
@@ -68,12 +68,12 @@ contract ClubSigFactory is Multicall, IClub {
         uint256 redemptionStart_,
         bytes32 name_,
         bytes32 symbol_,
-        bool signerPaused_,
         bool lootPaused_,
-        string memory docs_,
-        string memory baseURI_
-    ) external payable returns (ClubSig clubSig, ClubLoot loot) {
-        clubSig = ClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
+        bool signerPaused_,
+        string memory baseURI_,
+        string memory docs_
+    ) external payable returns (KaliClubSig clubSig, ClubLoot loot) {
+        KaliClubSig = ClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
 
         loot = ClubLoot(address(lootMaster).clone(abi.encodePacked(name_, symbol_)));
         
@@ -83,8 +83,8 @@ contract ClubSigFactory is Multicall, IClub {
             quorum_,
             redemptionStart_,
             signerPaused_,
-            docs_,
-            baseURI_
+            baseURI_,
+            docs_
         );
         
         loot.init(
@@ -93,6 +93,6 @@ contract ClubSigFactory is Multicall, IClub {
             address(clubSig)
         );
         
-        emit SigDeployed(clubSig, loot, club_, quorum_, redemptionStart_, name_, symbol_, signerPaused_, lootPaused_, docs_, baseURI_);
+        emit SigDeployed(clubSig, loot, club_, quorum_, redemptionStart_, name_, symbol_, lootPaused_, signerPaused_, baseURI_, docs_);
     }
 }
