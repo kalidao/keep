@@ -3,9 +3,9 @@ pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
 
-import {KaliClubSig} from '../ClubSig.sol';
+import {KaliClubSig} from '../KaliClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
-import {KaliClubSigFactory} from '../ClubSigFactory.sol';
+import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import {DSTestPlus} from './utils/DSTestPlus.sol';
 
