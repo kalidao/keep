@@ -52,7 +52,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     /// @dev ERC-20 token for capital management
-    IClubToken public loot;
+    IClubLoot public loot;
     /// @dev initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
@@ -135,7 +135,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             prevAddr = club_[i].signer;
 
             _safeMint(club_[i].signer, club_[i].id);
-            IClubToken(loot_).mint(club_[i].signer, club_[i].loot);
+            IClubLoot(loot_).mint(club_[i].signer, club_[i].loot);
 
             // cannot realistically overflow on human timescales
             unchecked {
@@ -144,7 +144,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
-        loot = IClubToken(loot_);
+        loot = IClubLoot(loot_);
         totalSupply = totalSupply_;
         nonce = 1;
         quorum = quorum_;
@@ -328,7 +328,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
                 lootToBurn, 
-                IClubToken(assets[i]).balanceOf(address(this)), 
+                IClubLoot(assets[i]).balanceOf(address(this)), 
                 lootTotal
             );
             // transfer to redeemer
