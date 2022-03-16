@@ -44,6 +44,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     error SigsBounded();
     error WrongSigner();
     error NoArrayParity();
+    error RedemptionEarly();
     error AssetOrder();
 
     /// -----------------------------------------------------------------------
@@ -56,6 +57,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
     uint256 public quorum;
+    /// @dev starting period for club redemptions
+    uint256 public redemptionStart;
     /// @dev metadata signifying club agreements
     string public docs;
     /// @dev optional metadata signifying club logo
@@ -110,6 +113,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         address loot_,
         Club[] calldata club_,
         uint256 quorum_,
+        uint256 redemptionStart_,
         bool signerPaused_,
         string calldata docs_,
         string calldata baseURI_
@@ -145,6 +149,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         totalSupply = totalSupply_;
         nonce = 1;
         quorum = quorum_;
+        redemptionStart = redemptionStart_;
         docs = docs_;
         baseURI = baseURI_;
 
@@ -281,6 +286,10 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         emit GovernorSet(account, approved);
     }
 
+    function setRedemptionStart(uint256 redemptionStart_) external payable onlyClubOrGov {
+        redemptionStart = redemptionStart_;
+    }
+
     function setSignerPause(bool paused_) external payable onlyClubOrGov {
         ClubNFT._setPause(paused_);
     }
@@ -306,6 +315,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     receive() external payable {}
 
     function ragequit(address[] calldata assets, uint256 lootToBurn) external payable {
+        if (block.timestamp < redemptionStart) revert RedemptionEarly();
+
         uint256 lootTotal = loot.totalSupply();
         loot.burn(msg.sender, lootToBurn);
 
