@@ -6,7 +6,6 @@ import {Multicall} from './utils/Multicall.sol';
 import {IClub} from './interfaces/IClub.sol';
 
 import {ClubSig} from './ClubSig.sol';
-
 import {LootERC20} from './LootERC20.sol';
 
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
@@ -28,6 +27,7 @@ contract ClubSigFactory is Multicall, IClub {
         LootERC20 indexed loot,
         Club[] club_,
         uint256 quorum,
+        uint256 redemptionStart,
         bytes32 name,
         bytes32 symbol,
         bool signerPaused,
@@ -65,12 +65,13 @@ contract ClubSigFactory is Multicall, IClub {
     function deployClubSig(
         Club[] calldata club_,
         uint256 quorum_,
+        uint256 redemptionStart_,
         bytes32 name_,
         bytes32 symbol_,
         bool signerPaused_,
         bool lootPaused_,
         string memory docs_,
-        string calldata baseURI_
+        string memory baseURI_
     ) external payable returns (ClubSig clubSig, LootERC20 loot) {
         clubSig = ClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
 
@@ -86,11 +87,12 @@ contract ClubSigFactory is Multicall, IClub {
             address(loot),
             club_,
             quorum_,
+            redemptionStart_,
             signerPaused_,
             docs_,
             baseURI_
         );
         
-        emit SigDeployed(clubSig, loot, club_, quorum_, name_, symbol_, signerPaused_, lootPaused_, docs_, baseURI_);
+        emit SigDeployed(clubSig, loot, club_, quorum_, redemptionStart_, name_, symbol_, signerPaused_, lootPaused_, docs_, baseURI_);
     }
 }
