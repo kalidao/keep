@@ -13,7 +13,7 @@ interface ERC721TokenReceiver {
     ) external returns (bytes4);
 }
 
-/// @notice Modern, minimalist, and gas efficient ERC-721 implementation designed for governance
+/// @notice Modern, minimalist, and gas efficient ERC-721 implementation designed for Kali ClubSig
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
 /// License-Identifier: AGPL-3.0-only
 abstract contract ClubNFT {
