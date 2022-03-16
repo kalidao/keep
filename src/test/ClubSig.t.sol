@@ -3,18 +3,18 @@ pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
 
-import {ClubSig} from '../ClubSig.sol';
+import {KaliClubSig} from '../ClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
-import {ClubSigFactory} from '../ClubSigFactory.sol';
+import {KaliClubSigFactory} from '../ClubSigFactory.sol';
 
 import {DSTestPlus} from './utils/DSTestPlus.sol';
 
 import {stdError} from '@std/stdlib.sol';
 
 contract ClubSigTest is DSTestPlus {
-    ClubSig clubSig;
+    KaliClubSig clubSig;
     ClubLoot loot;
-    ClubSigFactory factory;
+    KaliClubSigFactory factory;
     
     /// @dev Users
     address public alice = address(0xa);
@@ -27,7 +27,7 @@ contract ClubSigTest is DSTestPlus {
       loot = new ClubLoot();
       
       // Create the factory
-      factory = new ClubSigFactory(clubSig, loot);
+      factory = new KaliClubSigFactory(clubSig, loot);
       
       // Create the Club[]
       IClub.Club[] memory clubs = new IClub.Club[](2);
@@ -42,8 +42,8 @@ contract ClubSigTest is DSTestPlus {
         0x5445535400000000000000000000000000000000000000000000000000000000,
         false,
         false,
-        'DOCS',
-        'BASE'
+        'BASE',
+        'DOCS'
       );
 
       // Sanity check initialization
