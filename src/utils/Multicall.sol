@@ -22,7 +22,6 @@ abstract contract Multicall {
             }
 
             results[i] = result;
-
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
