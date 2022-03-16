@@ -94,13 +94,13 @@ contract ClubSigTest is DSTestPlus {
     function testFlipPause(address dave) public {
       startHoax(dave, dave, type(uint256).max);
       vm.expectRevert(bytes4(keccak256('Forbidden()')));
-      clubSig.flipPause();
+      clubSig.flipSignerPause();
       vm.stopPrank();
       assertTrue(!clubSig.paused());
 
       // The ClubSig itself should be able to flip pause
       startHoax(address(clubSig), address(clubSig), type(uint256).max);
-      clubSig.flipPause();
+      clubSig.flipSignerPause();
       vm.stopPrank();
       assertTrue(clubSig.paused());
     }
