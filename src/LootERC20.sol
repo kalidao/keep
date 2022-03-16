@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
+import {IClub} from './interfaces/IClub.sol';
+
 /// @notice Modern and gas efficient ERC20 + EIP-2612 implementation designed for Kali ClubSig
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: AGPL-3.0-only
