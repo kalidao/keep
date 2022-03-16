@@ -14,13 +14,13 @@ import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
 import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
 import {ClubURIbuilder} from './libraries/ClubURIbuilder.sol';
 
-/// @title ClubSig
+/// @title Kali ClubSig
 /// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
-contract ClubSig is ClubNFT, Multicall, IClub {
+contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -59,12 +59,13 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     uint256 public quorum;
     /// @dev starting period for club redemptions
     uint256 public redemptionStart;
-    /// @dev metadata signifying club agreements
-    string public docs;
-    /// @dev optional metadata signifying club logo
-    string public baseURI;
     /// @dev total signer units minted
     uint256 public totalSupply;
+    /// @dev optional metadata signifying club 
+    string public baseURI;
+    /// @dev metadata signifying club agreements
+    string public docs;
+
     /// @dev administrative account tracking
     mapping(address => bool) public governor;
 
@@ -106,56 +107,6 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     }
 
     /// -----------------------------------------------------------------------
-    /// Initializer
-    /// -----------------------------------------------------------------------
-
-    function init(
-        address loot_,
-        Club[] calldata club_,
-        uint256 quorum_,
-        uint256 redemptionStart_,
-        bool signerPaused_,
-        string calldata docs_,
-        string calldata baseURI_
-    ) external payable {
-        if (nonce != 0) revert Initialized();
-
-        ClubNFT._init(signerPaused_);
-
-        uint256 length = club_.length;
-
-        if (quorum_ > length) revert SigsBounded();
-
-        uint256 totalSupply_;
-        address prevAddr;
-
-        for (uint256 i; i < length;) {
-            // prevent null and duplicate signers
-            if (prevAddr >= club_[i].signer) revert WrongSigner();
-            prevAddr = club_[i].signer;
-
-            _safeMint(club_[i].signer, club_[i].id);
-
-            // cannot realistically overflow on human timescales
-            unchecked {
-                ++i;
-                ++totalSupply_;
-            }
-        }
-
-        loot = IClubLoot(loot_);
-        totalSupply = totalSupply_;
-        nonce = 1;
-        quorum = quorum_;
-        redemptionStart = redemptionStart_;
-        docs = docs_;
-        baseURI = baseURI_;
-
-        INITIAL_CHAIN_ID = block.chainid;
-        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
-    }
-
-    /// -----------------------------------------------------------------------
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
@@ -169,6 +120,55 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         } else {
             return baseURI;
         }
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Initializer
+    /// -----------------------------------------------------------------------
+
+    function init(
+        address loot_,
+        Club[] calldata club_,
+        uint256 quorum_,
+        uint256 redemptionStart_,
+        bool signerPaused_,
+        string calldata baseURI_,
+        string calldata docs_
+    ) external payable {
+        if (nonce != 0) revert Initialized();
+
+        uint256 length = club_.length;
+
+        if (quorum_ > length) revert SigsBounded();
+
+        ClubNFT._init(signerPaused_);
+
+        address prevAddr;
+        uint256 totalSupply_;
+
+        for (uint256 i; i < length;) {
+            // prevent null and duplicate signers
+            if (prevAddr >= club_[i].signer) revert WrongSigner();
+            prevAddr = club_[i].signer;
+
+            _safeMint(club_[i].signer, club_[i].id);
+
+            // cannot realistically overflow on human timescales
+            unchecked {
+                ++totalSupply_;
+                ++i;
+            }
+        }
+
+        loot = IClubLoot(loot_);
+        nonce = 1;
+        quorum = quorum_;
+        redemptionStart = redemptionStart_;
+        totalSupply = totalSupply_;
+        baseURI = baseURI_;
+        docs = docs_;
+        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
@@ -250,8 +250,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         // since this could cause issues in reaching quorum
         if (quorum_ > totalSupply_) revert SigsBounded();
 
-        totalSupply = totalSupply_;
         quorum = quorum_;
+        totalSupply = totalSupply_;
 
         emit Govern(club_, mints_, quorum_);
     }
@@ -288,12 +288,12 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         redemptionStart = redemptionStart_;
     }
 
-    function setSignerPause(bool paused_) external payable onlyClubOrGov {
-        ClubNFT._setPause(paused_);
-    }
-
     function setLootPause(bool paused_) external payable onlyClubOrGov {
         loot.setPause(paused_);
+    }
+
+    function setSignerPause(bool paused_) external payable onlyClubOrGov {
+        ClubNFT._setPause(paused_);
     }
 
     function updateDocs(string calldata docs_) external payable onlyClubOrGov {
