@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Arithmetic library with operations for fixed-point numbers.
+/// @notice Arithmetic library with operations for fixed-point numbers
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/FixedPointMathLib.sol)
 /// License-Identifier: AGPL-3.0-only
 library FixedPointMathLib {
