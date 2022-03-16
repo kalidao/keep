@@ -23,7 +23,7 @@ contract ClubSigTest is DSTestPlus {
   
     /// @notice Set up the testing suite
     function setUp() public {
-      clubSig = new ClubSig();
+      clubSig = new KaliClubSig();
       loot = new ClubLoot();
       
       // Create the factory
