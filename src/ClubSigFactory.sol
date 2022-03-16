@@ -24,7 +24,7 @@ contract ClubSigFactory is Multicall, IClub {
 
     event SigDeployed(
         ClubSig indexed clubSig,
-        LootERC20 indexed loot,
+        ClubLoot indexed loot,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -72,16 +72,10 @@ contract ClubSigFactory is Multicall, IClub {
         bool lootPaused_,
         string memory docs_,
         string memory baseURI_
-    ) external payable returns (ClubSig clubSig, LootERC20 loot) {
+    ) external payable returns (ClubSig clubSig, ClubLoot loot) {
         clubSig = ClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
 
-        loot = LootERC20(address(lootMaster).clone(abi.encodePacked(name_, symbol_)));
-        
-        loot.init(
-            club_,
-            lootPaused_,
-            address(clubSig)
-        );
+        loot = ClubLoot(address(lootMaster).clone(abi.encodePacked(name_, symbol_)));
         
         clubSig.init{value: msg.value}(
             address(loot),
@@ -91,6 +85,12 @@ contract ClubSigFactory is Multicall, IClub {
             signerPaused_,
             docs_,
             baseURI_
+        );
+        
+        loot.init(
+            club_,
+            lootPaused_,
+            address(clubSig)
         );
         
         emit SigDeployed(clubSig, loot, club_, quorum_, redemptionStart_, name_, symbol_, signerPaused_, lootPaused_, docs_, baseURI_);
