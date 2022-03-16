@@ -119,7 +119,6 @@ abstract contract ClubNFT {
     
     function setApprovalForAll(address operator, bool approved) external payable {
         isApprovedForAll[msg.sender][operator] = approved;
-        
         emit ApprovalForAll(msg.sender, operator, approved);
     }
     
