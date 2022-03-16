@@ -3,13 +3,17 @@ pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
 import {ClubSig} from '../ClubSig.sol';
+import {LootERC20} from '../LootERC20.sol';
+import {ClubSigFactory} from '../ClubSigFactory.sol';
 import {DSTestPlus} from './utils/DSTestPlus.sol';
 
 import {stdError} from '@std/stdlib.sol';
 
 contract ClubSigTest is DSTestPlus {
     ClubSig clubSig;
-
+    LootERC20 loot;
+    ClubSigFactory factory;
+    
     /// @dev Users
     address public alice = address(0xa);
     address public bob = address(0xb);
@@ -18,20 +22,36 @@ contract ClubSigTest is DSTestPlus {
     /// @notice Set up the testing suite
     function setUp() public {
       clubSig = new ClubSig();
-
+      loot = new LootERC20();
+      
+      // Create the factory
+      factory = new ClubSigFactory(clubSig, loot);
+      
       // Create the Club[]
       IClub.Club[] memory clubs = new IClub.Club[](2);
       clubs[0] = IClub.Club(alice, 0, 100);
       clubs[1] = IClub.Club(bob, 1, 100);
-
-      // Initialize
-      clubSig.init(
+      
+      (clubSig, ) = factory.deployClubSig(
         clubs,
         2,
+        0x5445535400000000000000000000000000000000000000000000000000000000,
+        0x5445535400000000000000000000000000000000000000000000000000000000,
+        false,
         false,
         'DOCS',
         'BASE'
       );
+
+      // Initialize
+      //clubSig.init(
+      //  alice,
+      //  clubs,
+      //  2,
+      //  false,
+      //  'DOCS',
+      //  'BASE'
+      //);
 
       // Sanity check initialization
       assertEq(keccak256(bytes(clubSig.baseURI())), keccak256(bytes('BASE')));
@@ -77,29 +97,29 @@ contract ClubSigTest is DSTestPlus {
       clubSig.govern(clubs, mints, 1);
     }
 
-    function testFlipGovernor(address dave) public {
+    function testSetGovernor(address dave) public {
       startHoax(dave, dave, type(uint256).max);
       vm.expectRevert(bytes4(keccak256('Forbidden()')));
-      clubSig.flipGovernor(dave);
+      clubSig.setGovernor(dave, true);
       vm.stopPrank();
 
       // The ClubSig itself should be able to flip governor
       startHoax(address(clubSig), address(clubSig), type(uint256).max);
-      clubSig.flipGovernor(dave);
+      clubSig.setGovernor(dave, true);
       vm.stopPrank();
       assertTrue(clubSig.governor(dave));
     }
 
-    function testFlipPause(address dave) public {
+    function testSetSignerPause(address dave) public {
       startHoax(dave, dave, type(uint256).max);
       vm.expectRevert(bytes4(keccak256('Forbidden()')));
-      clubSig.flipPause();
+      clubSig.setSignerPause(true);
       vm.stopPrank();
       assertTrue(!clubSig.paused());
 
       // The ClubSig itself should be able to flip pause
       startHoax(address(clubSig), address(clubSig), type(uint256).max);
-      clubSig.flipPause();
+      clubSig.setSignerPause(true);
       vm.stopPrank();
       assertTrue(clubSig.paused());
     }

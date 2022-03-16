@@ -7,8 +7,8 @@ import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
 import {IClub} from './interfaces/IClub.sol';
+import {IClubToken} from './interfaces/IClubToken.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
-import {IERC20minimal} from './interfaces/IERC20minimal.sol';
 
 import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
 import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
@@ -32,7 +32,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
 
     event Execute(address indexed to, uint256 value, bytes data);
     event Govern(Club[] club, bool[] mints, uint256 quorum);
-    event GovernorFlipped(address indexed account);
+    event GovernorSet(address indexed account, bool approved);
     event DocsUpdated(string docs);
     event URIupdated(string uri);
 
@@ -50,6 +50,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     /// Club Storage
     /// -----------------------------------------------------------------------
 
+    /// @dev ERC-20 token for capital management
+    IClubToken public loot;
     /// @dev initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
@@ -60,14 +62,11 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     string public baseURI;
     /// @dev total signer units minted
     uint256 public totalSupply;
-    /// @dev total ragequittable units minted
-    uint256 public totalLoot;
-    /// @dev ragequittable units per account
-    mapping(address => uint256) public loot;
     /// @dev administrative account tracking
     mapping(address => bool) public governor;
 
-    modifier OnlyClubOrGov {
+    /// @dev access control for this contract and governors
+    modifier onlyClubOrGov {
         if (msg.sender != address(this) 
         && !governor[msg.sender]) revert Forbidden();
         _;
@@ -108,22 +107,22 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function init(
+        address loot_,
         Club[] calldata club_,
         uint256 quorum_,
-        bool paused_,
+        bool signerPaused_,
         string calldata docs_,
         string calldata baseURI_
     ) external payable {
         if (nonce != 0) revert Initialized();
 
-        ClubNFT._init(paused_);
+        ClubNFT._init(signerPaused_);
 
         uint256 length = club_.length;
 
         if (quorum_ > length) revert SigsBounded();
 
         uint256 totalSupply_;
-        uint256 totalLoot_;
         address prevAddr;
 
         for (uint256 i; i < length;) {
@@ -133,8 +132,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
 
             _safeMint(club_[i].signer, club_[i].id);
 
-            totalLoot_ += club_[i].loot;
-            loot[club_[i].signer] = club_[i].loot;
+            IClubToken(loot_).mint(club_[i].signer, club_[i].loot);
 
             // cannot realistically overflow on human timescales
             unchecked {
@@ -143,9 +141,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
+        loot = IClubToken(loot_);
         totalSupply = totalSupply_;
-        totalLoot = totalLoot_;
-
         nonce = 1;
         quorum = quorum_;
         docs = docs_;
@@ -164,7 +161,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
 
         if (base.length == 0) {
             address owner = ownerOf[id];
-            uint256 lt = loot[owner];
+            uint256 lt = loot.balanceOf(owner);
             return URIbuilder._buildTokenURI(owner, lt, name());
         } else {
             return baseURI;
@@ -182,11 +179,11 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         bool deleg, 
         Signature[] calldata sigs
     ) external payable returns (bool success) {
+    	// cannot realistically overflow on human timescales
         unchecked {
             bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
                 keccak256(abi.encode(keccak256(
                     'Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)'),
-                    // cannot realistically overflow on human timescales
                     to, value, data, deleg, ++nonce)))
                 );
 
@@ -223,43 +220,29 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         Club[] calldata club_,
         bool[] calldata mints_,
         uint256 quorum_
-    ) external payable OnlyClubOrGov {
+    ) external payable onlyClubOrGov {
         uint256 length = club_.length;
 
         if (length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
-        uint256 totalLoot_ = totalLoot;
-
-        for (uint256 i; i < length;) {
-            if (mints_[i]) {
-                _safeMint(club_[i].signer, club_[i].id);
-                // cannot realistically overflow on human timescales
-                unchecked {
+	
+	// cannot realistically overflow on human timescales, and
+        // cannot underflow because ownership is checked in burn()
+	unchecked {
+            for (uint256 i; i < length; ++i) {
+                if (mints_[i]) {
+                    _safeMint(club_[i].signer, club_[i].id);
                     ++totalSupply_;
-                }
-            } else {
-                _burn(club_[i].id);
-                // cannot underflow because ownership is checked in burn()
-                unchecked {
+                } else {
+                    _burn(club_[i].id);
                     --totalSupply_;
                 }
-            }
-            if (club_[i].loot != 0) {
-                totalLoot_ += club_[i].loot;
-                // cannot overflow because the sum of all user
-                // balances can't exceed the max uint256 value
-                unchecked {
-                    loot[club_[i].signer] += club_[i].loot;
+                if (club_[i].loot != 0) {
+                    loot.mint(club_[i].signer, club_[i].loot);
                 }
             }
-            // cannot realistically overflow on human timescales
-            unchecked {
-                ++i;
-            }
         }
-
-        if (totalLoot_ != 0) totalLoot = totalLoot_;
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
         if (quorum_ > totalSupply_) revert SigsBounded();
@@ -293,21 +276,25 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         emit Execute(to, value, data);
     }
 
-    function flipGovernor(address account) external payable OnlyClubOrGov {
-        governor[account] = !governor[account];
-        emit GovernorFlipped(account);
+    function setGovernor(address account, bool approved) external payable onlyClubOrGov {
+        governor[account] = approved;
+        emit GovernorSet(account, approved);
     }
 
-    function flipPause() external payable OnlyClubOrGov {
-        ClubNFT._flipPause();
+    function setSignerPause(bool paused_) external payable onlyClubOrGov {
+        ClubNFT._setPause(paused_);
     }
 
-    function updateDocs(string calldata docs_) external payable OnlyClubOrGov {
+    function setLootPause(bool paused_) external payable onlyClubOrGov {
+        loot.setPause(paused_);
+    }
+
+    function updateDocs(string calldata docs_) external payable onlyClubOrGov {
         docs = docs_;
         emit DocsUpdated(docs_);
     }
 
-    function updateURI(string calldata baseURI_) external payable OnlyClubOrGov {
+    function updateURI(string calldata baseURI_) external payable onlyClubOrGov {
         baseURI = baseURI_;
         emit URIupdated(baseURI_);
     }
@@ -319,12 +306,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     receive() external payable {}
 
     function ragequit(address[] calldata assets, uint256 lootToBurn) external payable {
-        uint256 lootTotal = totalLoot;
-        loot[msg.sender] -= lootToBurn;
-        // cannot underflow because balance is checked above
-        unchecked {
-            totalLoot -= lootToBurn;
-        }
+        uint256 lootTotal = loot.totalSupply();
+        loot.burn(msg.sender, lootToBurn);
 
         address prevAddr;
 
@@ -332,14 +315,12 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             // prevent null and duplicate assets
             if (prevAddr >= assets[i]) revert AssetOrder();
             prevAddr = assets[i];
-
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
                 lootToBurn, 
-                IERC20minimal(assets[i]).balanceOf(address(this)), 
+                IClubToken(assets[i]).balanceOf(address(this)), 
                 lootTotal
             );
-            
             // transfer to redeemer
             if (amountToRedeem != 0) assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
