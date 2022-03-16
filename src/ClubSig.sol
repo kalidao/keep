@@ -165,7 +165,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         if (base.length == 0) {
             address owner = ownerOf[id];
             uint256 lt = loot.balanceOf(owner);
-            return URIbuilder._buildTokenURI(owner, lt, name());
+            return ClubURIbuilder._buildTokenURI(owner, lt, name());
         } else {
             return baseURI;
         }
