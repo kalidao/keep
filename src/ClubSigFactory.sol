@@ -47,13 +47,13 @@ contract ClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
   
     ClubSig internal immutable clubMaster;
-    LootERC20 internal immutable lootMaster;
+    ClubLoot internal immutable lootMaster;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ClubSig clubMaster_, LootERC20 lootMaster_) {
+    constructor(ClubSig clubMaster_, ClubLoot lootMaster_) {
         clubMaster = clubMaster_;
         lootMaster = lootMaster_;
     }
