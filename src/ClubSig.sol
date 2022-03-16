@@ -52,7 +52,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     /// @dev ERC-20 token for capital management
-    address public loot;
+    IClubToken public loot;
     /// @dev initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
@@ -142,7 +142,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
-        loot = loot_;
+        loot = IClubToken(loot_);
         totalSupply = totalSupply_;
         nonce = 1;
         quorum = quorum_;
@@ -243,7 +243,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
                 }
             }
             if (club_[i].loot != 0) {
-                IClubToken(loot).mint(club_[i].signer, club_[i].loot);
+                loot.mint(club_[i].signer, club_[i].loot);
             }
             // cannot realistically overflow on human timescales
             unchecked {
@@ -293,7 +293,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     }
 
     function flipLootPause() external payable onlyClubOrGov {
-        IClubToken(loot).flipPause();
+        loot.flipPause();
     }
 
     function updateDocs(string calldata docs_) external payable onlyClubOrGov {
@@ -313,8 +313,8 @@ contract ClubSig is ClubNFT, Multicall, IClub {
     receive() external payable {}
 
     function ragequit(address[] calldata assets, uint256 lootToBurn) external payable {
-        uint256 lootTotal = IClubToken(loot).totalSupply();
-        IClubToken(loot).burn(msg.sender, lootToBurn);
+        uint256 lootTotal = loot.totalSupply();
+        loot.burn(msg.sender, lootToBurn);
 
         address prevAddr;
 
