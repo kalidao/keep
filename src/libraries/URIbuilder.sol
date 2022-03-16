@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Provides functions for building tokenURI SVG
+/// @notice Provides functions for building Kali ClubSig tokenURI SVG
 /// @author Modified from Brecht Devos (https://github.com/Brechtpd/base64/blob/main/base64.sol)
 /// License-Identifier: MIT
-library URIbuilder {
+library ClubURIbuilder {
     bytes internal constant TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
     
     function _buildTokenURI(
