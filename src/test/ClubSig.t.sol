@@ -32,7 +32,7 @@ contract ClubSigTest is DSTestPlus {
       clubs[0] = IClub.Club(alice, 0, 100);
       clubs[1] = IClub.Club(bob, 1, 100);
       
-      (clubSig, ) = ClubSigFactory.deployClubSig(
+      (clubSig, ) = factory.deployClubSig(
         clubs,
         2,
         0x5445535400000000000000000000000000000000000000000000000000000000,
