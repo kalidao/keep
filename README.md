@@ -17,6 +17,7 @@ src
 │  └─ ...
 ├─ ClubNFT — "Modern, minimalist, and gas efficient ERC-721 implementation designed for governance"
 ├─ ClubSig — "EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers"
+├─ ClubLoot — "Modern and gas efficient ERC20 + EIP-2612 implementation designed for Kali ClubSig"
 └─ ClubSigFactory — "ClubSig Contract Factory"
 ```
 
