@@ -102,13 +102,7 @@ contract LootERC20 is IClub {
     ) external payable {
         if (INITIAL_CHAIN_ID != 0) revert Initialized();
 
-        for (uint256 i; i < club_.length;) {
-            _mint(club_[i].signer, club_[i].loot);
-            // cannot realistically overflow on human timescales
-            unchecked {
-                ++i;
-            }
-        }
+        _batchMint(club_);
 
         paused = lootPaused_;
         governance = governance_;
@@ -240,6 +234,22 @@ contract LootERC20 is IClub {
         }
 
         emit Transfer(address(0), to, amount);
+    }
+    
+    function _batchMint(Club[] memory club_) internal {
+        uint256 totalSupply_;
+
+        for (uint256 i; i < club_.length;) {
+            totalSupply_ += club_[i].loot;
+
+            // cannot realistically overflow on human timescales
+            unchecked {
+                balanceOf[club_[i].signer] += club_[i].loot;
+                ++i;
+            }
+        }
+
+        totalSupply = totalSupply_;
     }
 
     function _burn(address from, uint256 amount) internal {
