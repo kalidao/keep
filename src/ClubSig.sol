@@ -135,7 +135,6 @@ contract ClubSig is ClubNFT, Multicall, IClub {
             prevAddr = club_[i].signer;
 
             _safeMint(club_[i].signer, club_[i].id);
-
             IClubToken(loot_).mint(club_[i].signer, club_[i].loot);
 
             // cannot realistically overflow on human timescales
