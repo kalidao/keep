@@ -208,7 +208,7 @@ contract LootERC20 is IClub {
                                 owner,
                                 spender,
                                 value,
-                                nonces[owner]++,
+                                ++nonces[owner],
                                 deadline
                             )
                         )
@@ -279,7 +279,7 @@ contract LootERC20 is IClub {
 
     function setPause(bool paused_) external payable onlyGov {
         paused = paused_;
-        emit PauseFlipped(paused_);
+        emit PauseSet(paused_);
     }
 
     function transferGov(address governance_) external payable onlyGov {
