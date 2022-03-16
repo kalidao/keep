@@ -97,29 +97,29 @@ contract ClubSigTest is DSTestPlus {
       clubSig.govern(clubs, mints, 1);
     }
 
-    function testFlipGovernor(address dave) public {
+    function testSetGovernor(address dave) public {
       startHoax(dave, dave, type(uint256).max);
       vm.expectRevert(bytes4(keccak256('Forbidden()')));
-      clubSig.flipGovernor(dave);
+      clubSig.setGovernor(dave, true);
       vm.stopPrank();
 
       // The ClubSig itself should be able to flip governor
       startHoax(address(clubSig), address(clubSig), type(uint256).max);
-      clubSig.flipGovernor(dave);
+      clubSig.setGovernor(dave, true);
       vm.stopPrank();
       assertTrue(clubSig.governor(dave));
     }
 
-    function testFlipPause(address dave) public {
+    function testSetSignerPause(address dave) public {
       startHoax(dave, dave, type(uint256).max);
       vm.expectRevert(bytes4(keccak256('Forbidden()')));
-      clubSig.flipSignerPause();
+      clubSig.setSignerPause(true);
       vm.stopPrank();
       assertTrue(!clubSig.paused());
 
       // The ClubSig itself should be able to flip pause
       startHoax(address(clubSig), address(clubSig), type(uint256).max);
-      clubSig.flipSignerPause();
+      clubSig.setSignerPause(true);
       vm.stopPrank();
       assertTrue(clubSig.paused());
     }
