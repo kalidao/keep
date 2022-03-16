@@ -24,15 +24,18 @@ library URIbuilder {
                 '</text>'
             )
         );
+
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" style="font:14px serif"><rect width="400" height="400" fill="black" />',
             metaSVG,
             '</svg>'
         );
+
         bytes memory image = abi.encodePacked(
             'data:image/svg+xml;base64,',
             _encode(bytes(svg))
         );
+
         return string(
             abi.encodePacked(
                 'data:application/json;base64,',
@@ -53,10 +56,12 @@ library URIbuilder {
 
     function _addressToString(address addr) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
+
         for (uint256 i; i < 20;) {
             bytes1 b = bytes1(uint8(uint256(uint160(addr)) / (2**(8*(19 - i)))));
             bytes1 hi = bytes1(uint8(b) / 16);
             bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+
             s[2*i] = _char(hi);
             s[2*i+1] = _char(lo);
             // cannot realistically overflow on human timescales
@@ -64,6 +69,7 @@ library URIbuilder {
                 ++i; 
             }
         }
+
         return string(s);
     }
 
@@ -74,21 +80,27 @@ library URIbuilder {
 
     function _uintToString(uint256 value) internal pure returns (string memory) {
         if (value == 0) return '0';
+
         uint256 temp = value;
         uint256 digits;
+
         while (temp != 0) {
             // cannot realistically overflow on human timescales
             unchecked {
                 ++digits;
             }
+
             temp /= 10;
         }
+        
         bytes memory buffer = new bytes(digits);
+
         while (value != 0) {
             digits -= 1;
             buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
             value /= 10;
         }
+
         return string(buffer);
     }
 
