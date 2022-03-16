@@ -7,7 +7,7 @@ import {IClub} from './interfaces/IClub.sol';
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: AGPL-3.0-only
 /// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it
-contract LootERC20 is IClub {
+contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
