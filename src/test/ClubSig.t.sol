@@ -26,9 +26,9 @@ contract ClubSigTest is DSTestPlus {
 
       // Initialize
       clubSig.init(
+        alice,
         clubs,
         2,
-        false,
         false,
         'DOCS',
         'BASE'
