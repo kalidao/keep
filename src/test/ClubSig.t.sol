@@ -2,9 +2,11 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
+
 import {ClubSig} from '../ClubSig.sol';
 import {LootERC20} from '../LootERC20.sol';
 import {ClubSigFactory} from '../ClubSigFactory.sol';
+
 import {DSTestPlus} from './utils/DSTestPlus.sol';
 
 import {stdError} from '@std/stdlib.sol';
@@ -35,6 +37,7 @@ contract ClubSigTest is DSTestPlus {
       (clubSig, ) = factory.deployClubSig(
         clubs,
         2,
+        0,
         0x5445535400000000000000000000000000000000000000000000000000000000,
         0x5445535400000000000000000000000000000000000000000000000000000000,
         false,
