@@ -24,7 +24,7 @@ abstract contract ClubNFT {
     event Transfer(address indexed from, address indexed to, uint256 indexed id);
     event Approval(address indexed owner, address indexed spender, uint256 indexed id);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-    event PauseFlipped(bool paused);
+    event PauseSet(bool paused);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -219,8 +219,8 @@ abstract contract ClubNFT {
     /// Internal Pause Logic
     /// -----------------------------------------------------------------------
 
-    function _flipPause() internal {
-        paused = !paused;
-        emit PauseFlipped(paused);
+    function _setPause(bool paused_) internal {
+        paused = paused_;
+        emit PauseSet(paused_);
     }
 }
