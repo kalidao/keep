@@ -7,8 +7,8 @@ import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
 import {IClub} from './interfaces/IClub.sol';
+import {IClubToken} from './interfaces/IClubToken.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
-import {IERC20minimal} from './interfaces/IERC20minimal.sol';
 
 import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
 import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
