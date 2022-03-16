@@ -14,7 +14,7 @@ contract LootERC20 is IClub {
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
     event Approval(address indexed owner, address indexed spender, uint256 amount);
-    event PauseFlipped(bool paused);
+    event PauseSet(bool paused);
     event GovTransferred(address indexed governance);
 
     /// -----------------------------------------------------------------------
@@ -277,9 +277,9 @@ contract LootERC20 is IClub {
         _burn(from, amount);
     }
 
-    function flipPause() external payable onlyGov {
-        paused = !paused;
-        emit PauseFlipped(paused);
+    function setPause(bool paused_) external payable onlyGov {
+        paused = paused_;
+        emit PauseFlipped(paused_);
     }
 
     function transferGov(address governance_) external payable onlyGov {
