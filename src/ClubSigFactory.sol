@@ -7,6 +7,8 @@ import {IClub} from './interfaces/IClub.sol';
 
 import {ClubSig} from './ClubSig.sol';
 
+import {LootERC20} from './LootERC20.sol';
+
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice ClubSig Contract Factory
