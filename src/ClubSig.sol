@@ -285,7 +285,7 @@ contract ClubSig is ClubNFT, Multicall, IClub {
         ClubNFT._setPause(paused_);
     }
 
-    function flipLootPause(bool paused_) external payable onlyClubOrGov {
+    function setLootPause(bool paused_) external payable onlyClubOrGov {
         loot.setPause(paused_);
     }
 
