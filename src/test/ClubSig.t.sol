@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 import {IClub} from '../interfaces/IClub.sol';
 
 import {ClubSig} from '../ClubSig.sol';
-import {LootERC20} from '../LootERC20.sol';
+import {ClubLoot} from '../ClubLoot.sol';
 import {ClubSigFactory} from '../ClubSigFactory.sol';
 
 import {DSTestPlus} from './utils/DSTestPlus.sol';
@@ -13,7 +13,7 @@ import {stdError} from '@std/stdlib.sol';
 
 contract ClubSigTest is DSTestPlus {
     ClubSig clubSig;
-    LootERC20 loot;
+    ClubLoot loot;
     ClubSigFactory factory;
     
     /// @dev Users
@@ -24,7 +24,7 @@ contract ClubSigTest is DSTestPlus {
     /// @notice Set up the testing suite
     function setUp() public {
       clubSig = new ClubSig();
-      loot = new LootERC20();
+      loot = new ClubLoot();
       
       // Create the factory
       factory = new ClubSigFactory(clubSig, loot);
@@ -45,16 +45,6 @@ contract ClubSigTest is DSTestPlus {
         'DOCS',
         'BASE'
       );
-
-      // Initialize
-      //clubSig.init(
-      //  alice,
-      //  clubs,
-      //  2,
-      //  false,
-      //  'DOCS',
-      //  'BASE'
-      //);
 
       // Sanity check initialization
       assertEq(keccak256(bytes(clubSig.baseURI())), keccak256(bytes('BASE')));
