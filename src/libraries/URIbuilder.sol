@@ -107,6 +107,7 @@ library URIbuilder {
     /// @dev encodes some bytes to the base64 representation
     function _encode(bytes memory data) internal pure returns (string memory) {
         uint256 len = data.length;
+        
         if (len == 0) return '';
 
         // multiply by 4/3 rounded up
