@@ -12,7 +12,7 @@ import {IERC1271} from './interfaces/IERC1271.sol';
 
 import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
 import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
-import {URIbuilder} from './libraries/URIbuilder.sol';
+import {ClubURIbuilder} from './libraries/ClubURIbuilder.sol';
 
 /// @title ClubSig
 /// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
