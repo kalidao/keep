@@ -102,7 +102,22 @@ contract ClubLoot is IClub {
     ) external payable {
         if (INITIAL_CHAIN_ID != 0) revert Initialized();
 
-        _batchMint(club_);
+        uint256 totalSupply_;
+
+        for (uint256 i; i < club_.length;) {
+            totalSupply_ += club_[i].loot;
+
+            emit Transfer(address(0), club_[i].signer, club_[i].loot);
+            // cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value,
+            // and incrementing cannot realistically overflow
+            unchecked {
+                balanceOf[club_[i].signer] += club_[i].loot;
+                ++i;
+            }
+        }
+
+        totalSupply = totalSupply_;
         
         governance = governance_;
         paused = lootPaused_;
@@ -235,26 +250,6 @@ contract ClubLoot is IClub {
         emit Transfer(address(0), to, amount);
     }
     
-    /// @dev this is called on initialization to save gas
-    function _batchMint(Club[] memory club_) internal {
-        uint256 totalSupply_;
-
-        for (uint256 i; i < club_.length;) {
-            totalSupply_ += club_[i].loot;
-            // cannot overflow because the sum of all user
-            // balances can't exceed the max uint256 value,
-            // and incrementing cannot realistically overflow
-            unchecked {
-                balanceOf[club_[i].signer] += club_[i].loot;
-                ++i;
-            }
-            
-            //emit Transfer(address(0), club_[i].signer, club_[i].loot);
-        }
-
-        totalSupply = totalSupply_;
-    }
-
     function _burn(address from, uint256 amount) internal {
         balanceOf[from] -= amount;
         // cannot underflow because a user's balance
