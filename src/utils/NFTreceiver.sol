@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Receiver utility for NFT 'safe' transfers
+/// @notice Receiver hook utility for NFT 'safe' transfers
 abstract contract NFTreceiver {
     function onERC721Received(
         address,
