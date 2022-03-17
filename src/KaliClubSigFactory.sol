@@ -23,7 +23,7 @@ contract KaliClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     event SigDeployed(
-        ClubSig indexed clubSig,
+        KaliClubSig indexed clubSig,
         ClubLoot indexed loot,
         Club[] club_,
         uint256 quorum,
