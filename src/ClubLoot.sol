@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import {IClub} from './interfaces/IClub.sol';
 
-/// @notice Modern and gas efficient ERC20 + EIP-2612 implementation designed for Kali ClubSig
+/// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: AGPL-3.0-only
 /// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it
@@ -96,17 +96,16 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
 
     function init(
+        address governance_,
         Club[] calldata club_,
-        bool lootPaused_,
-        address governance_
+        bool lootPaused_
     ) external payable {
         if (INITIAL_CHAIN_ID != 0) revert Initialized();
 
         _batchMint(club_);
-
-        paused = lootPaused_;
+        
         governance = governance_;
-
+        paused = lootPaused_;
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
@@ -187,7 +186,7 @@ contract ClubLoot is IClub {
     ) external payable {
         if (block.timestamp > deadline) revert SignatureExpired();
         // unchecked because the only math done is incrementing
-        // the owner's nonce which cannot realistically overflow.
+        // the owner's nonce which cannot realistically overflow
         unchecked {
             address recoveredAddress = ecrecover(
                 keccak256(
@@ -236,17 +235,21 @@ contract ClubLoot is IClub {
         emit Transfer(address(0), to, amount);
     }
     
+    /// @dev this is called on initialization to save gas
     function _batchMint(Club[] memory club_) internal {
         uint256 totalSupply_;
 
         for (uint256 i; i < club_.length;) {
             totalSupply_ += club_[i].loot;
-
-            // cannot realistically overflow on human timescales
+            // cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value,
+            // and incrementing cannot realistically overflow
             unchecked {
                 balanceOf[club_[i].signer] += club_[i].loot;
                 ++i;
             }
+            
+            emit Transfer(address(0), club_[i].signer, club_[i].loot);
         }
 
         totalSupply = totalSupply_;
