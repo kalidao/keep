@@ -102,7 +102,7 @@ contract ClubLoot is IClub {
     ) external payable {
         if (INITIAL_CHAIN_ID != 0) revert Initialized();
 
-        _batchMint(club_);
+        //_batchMint(club_);
         
         governance = governance_;
         paused = lootPaused_;
