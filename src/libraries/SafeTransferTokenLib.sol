@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Safe ERC20 transfer library that gracefully handles missing return values
+/// @notice Safe ERC-20 transfer library that gracefully handles missing return values
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
 /// License-Identifier: AGPL-3.0-only
 /// @dev Use with caution! Some functions in this library knowingly create dirty bits at the destination of the free memory pointer
@@ -19,7 +19,6 @@ library SafeTransferTokenLib {
         assembly {
             // get a pointer to some free memory
             let freeMemoryPointer := mload(0x40)
-
             // write the abi-encoded calldata into memory, beginning with the function selector
             mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
             mstore(add(freeMemoryPointer, 4), to) // append the 'to' argument
