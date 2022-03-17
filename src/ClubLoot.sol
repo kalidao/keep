@@ -118,7 +118,6 @@ contract ClubLoot is IClub {
         }
 
         totalSupply = totalSupply_;
-        
         governance = governance_;
         paused = lootPaused_;
         INITIAL_CHAIN_ID = block.chainid;
