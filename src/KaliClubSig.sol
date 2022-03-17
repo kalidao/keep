@@ -153,7 +153,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             prevAddr = club_[i].signer;
 
             _safeMint(club_[i].signer, club_[i].id);
-
             // cannot realistically overflow on human timescales
             unchecked {
                 ++totalSupply_;
@@ -230,7 +229,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
-	
 	// cannot realistically overflow on human timescales, and
         // cannot underflow because ownership is checked in burn()
 	unchecked {
