@@ -107,12 +107,9 @@ library ClubURIbuilder {
     /// @dev encodes some bytes to the base64 representation
     function _encode(bytes memory data) internal pure returns (string memory) {
         uint256 len = data.length;
-        
         if (len == 0) return '';
-
         // multiply by 4/3 rounded up
         uint256 encodedLen = 4 * ((len + 2) / 3);
-
         // add some extra buffer at the end
         bytes memory result = new bytes(encodedLen + 32);
         
