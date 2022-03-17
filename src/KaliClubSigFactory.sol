@@ -88,9 +88,9 @@ contract KaliClubSigFactory is Multicall, IClub {
         );
         
         loot.init(
+            address(clubSig),
             club_,
-            lootPaused_,
-            address(clubSig)
+            lootPaused_
         );
         
         emit SigDeployed(clubSig, loot, club_, quorum_, redemptionStart_, name_, symbol_, lootPaused_, signerPaused_, baseURI_, docs_);
