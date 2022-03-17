@@ -235,20 +235,9 @@ contract ClubLoot is IClub {
     }
 
     /// -----------------------------------------------------------------------
-    /// Mint/Burn Logic
+    /// Burn Logic
     /// -----------------------------------------------------------------------
 
-    function _mint(address to, uint256 amount) internal {
-        totalSupply += amount;
-        // cannot overflow because the sum of all user
-        // balances can't exceed the max uint256 value
-        unchecked {
-            balanceOf[to] += amount;
-        }
-
-        emit Transfer(address(0), to, amount);
-    }
-    
     function _burn(address from, uint256 amount) internal {
         balanceOf[from] -= amount;
         // cannot underflow because a user's balance
@@ -277,7 +266,14 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
 
     function mint(address to, uint256 amount) external payable onlyGov {
-        _mint(to, amount);
+        totalSupply += amount;
+        // cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value
+        unchecked {
+            balanceOf[to] += amount;
+        }
+
+        emit Transfer(address(0), to, amount);
     }
 
     function govBurn(address from, uint256 amount) external payable onlyGov {
