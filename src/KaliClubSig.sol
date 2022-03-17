@@ -33,6 +33,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     event Execute(address indexed to, uint256 value, bytes data);
     event Govern(Club[] club, bool[] mints, uint256 quorum);
     event GovernorSet(address indexed account, bool approved);
+    event RedemptionStartSet(uint256 redemptionStart);
     event DocsUpdated(string docs);
     event URIupdated(string uri);
 
@@ -286,6 +287,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     function setRedemptionStart(uint256 redemptionStart_) external payable onlyClubOrGov {
         redemptionStart = redemptionStart_;
+	emit RedemptionStartSet(redemptionStart_);
     }
 
     function setLootPause(bool paused_) external payable onlyClubOrGov {
