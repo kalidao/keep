@@ -6,7 +6,6 @@ import {IClub} from './interfaces/IClub.sol';
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: AGPL-3.0-only
-/// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it
 contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
     /// Events
