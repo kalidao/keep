@@ -133,7 +133,6 @@ abstract contract ClubNFT {
             && msg.sender != getApproved[id]
             && !isApprovedForAll[from][msg.sender]
         ) revert Forbidden();  
-        
         // underflow of the sender's balance is impossible because we check for
         // ownership above and the recipient's balance can't realistically overflow
         unchecked { 
@@ -182,7 +181,6 @@ abstract contract ClubNFT {
     function _safeMint(address to, uint256 id) internal {
         if (to == address(0)) revert InvalidRecipient();
         if (ownerOf[id] != address(0)) revert AlreadyMinted();
-  
         // cannot realistically overflow on human timescales
         unchecked {
             ++balanceOf[to];
@@ -202,7 +200,6 @@ abstract contract ClubNFT {
         address owner = ownerOf[id];
 
         if (owner == address(0)) revert NotMinted();
-        
         // ownership check ensures no underflow
         unchecked {
             --balanceOf[owner];
