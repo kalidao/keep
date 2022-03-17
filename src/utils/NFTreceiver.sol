@@ -9,7 +9,8 @@ abstract contract NFTreceiver {
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0x150b7a02; // 'onERC721Received(address,address,uint256,bytes)'
+        return 0x150b7a02; 
+        // 'onERC721Received(address,address,uint256,bytes)'
     }
 
     function onERC1155Received(
@@ -19,7 +20,8 @@ abstract contract NFTreceiver {
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0xf23a6e61; // 'onERC1155Received(address,address,uint256,uint256,bytes)'
+        return 0xf23a6e61; 
+        // 'onERC1155Received(address,address,uint256,uint256,bytes)'
     }
     
     function onERC1155BatchReceived(
@@ -29,6 +31,7 @@ abstract contract NFTreceiver {
         uint256[] calldata,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0xbc197c81; // 'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'
+        return 0xbc197c81; 
+        // 'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'
     }
 }
