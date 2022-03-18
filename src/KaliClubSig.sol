@@ -310,7 +310,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     receive() external payable {}
 
     function ragequit(address[] calldata assets, uint256 lootToBurn) external payable {
-        //if (block.timestamp < redemptionStart) revert RedemptionEarly();
+        if (block.timestamp < redemptionStart) revert RedemptionEarly();
 
         uint256 lootTotal = loot.totalSupply();
         loot.govBurn(msg.sender, lootToBurn);
