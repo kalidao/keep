@@ -6,6 +6,6 @@ interface IClubLoot {
     function balanceOf(address account) external view returns (uint256);
     function totalSupply() external view returns (uint256);
     function mint(address to, uint256 amount) external;
-    function burn(address from, uint256 amount) external;
+    function govBurn(address from, uint256 amount) external;
     function setPause(bool paused) external;
 }
