@@ -205,15 +205,13 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
-        uint256 gasLeft = gasleft() - 2500;
-
         if (!deleg) {
             assembly {
-                success := call(gasLeft, to, value, add(data, 0x20), mload(data), 0, 0)
+                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
             }
         } else { // delegate call
             assembly {
-                success := delegatecall(gasLeft, to, add(data, 0x20), mload(data), 0, 0)
+                success := delegatecall(gas(), to, add(data, 0x20), mload(data), 0, 0)
             }
         }
 
@@ -264,15 +262,13 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     ) external payable returns (bool success) {
         if (!governor[msg.sender]) revert Forbidden();
 
-        uint256 gasLeft = gasleft() - 2500;
-
         if (!deleg) {
             assembly {
-                success := call(gasLeft, to, value, add(data, 0x20), mload(data), 0, 0)
+                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
             }
         } else { // delegate call
             assembly {
-                success := delegatecall(gasLeft, to, add(data, 0x20), mload(data), 0, 0)
+                success := delegatecall(gas(), to, add(data, 0x20), mload(data), 0, 0)
             }
         }
 
@@ -286,7 +282,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     function setRedemptionStart(uint256 redemptionStart_) external payable onlyClubOrGov {
         redemptionStart = redemptionStart_;
-	emit RedemptionStartSet(redemptionStart_);
+	    emit RedemptionStartSet(redemptionStart_);
     }
 
     function setLootPause(bool paused_) external payable onlyClubOrGov {
