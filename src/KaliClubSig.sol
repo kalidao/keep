@@ -282,7 +282,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     function setRedemptionStart(uint256 redemptionStart_) external payable onlyClubOrGov {
         redemptionStart = redemptionStart_;
-	    emit RedemptionStartSet(redemptionStart_);
+	emit RedemptionStartSet(redemptionStart_);
     }
 
     function setLootPause(bool paused_) external payable onlyClubOrGov {
