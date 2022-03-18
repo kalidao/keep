@@ -144,13 +144,13 @@ contract ClubSigTest is DSTestPlus {
       clubSig.ragequit(assets, 100);
 
       // Switch the asset order
-      //assets[0] = a > b ? a : b;
-      //assets[1] = a > b ? b : a;
+      assets[0] = a > b ? a : b;
+      assets[1] = a > b ? b : a;
 
       // Should arithmetic underflow since not enough loot
-      //startHoax(charlie, charlie, type(uint256).max);
-      //vm.expectRevert(stdError.arithmeticError);
-      //clubSig.ragequit(assets, 100);
-      //vm.stopPrank();
+      startHoax(charlie, charlie, type(uint256).max);
+      vm.expectRevert(stdError.arithmeticError);
+      clubSig.ragequit(assets, 100);
+      vm.stopPrank();
     }
 }
