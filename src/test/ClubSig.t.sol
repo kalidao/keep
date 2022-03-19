@@ -45,9 +45,6 @@ contract ClubSigTest is DSTestPlus {
             "BASE",
             "DOCS"
         );
-
-        // Sanity check initialization
-        assertEq(keccak256(bytes(clubSig.baseURI())), keccak256(bytes("BASE")));
     }
 
     /// -----------------------------------------------------------------------
