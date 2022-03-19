@@ -6,19 +6,25 @@ pragma solidity >=0.8.4;
 /// License-Identifier: GPL-2.0-or-later
 abstract contract Multicall {
     // TODO(This should not be external wide open, but rather an access restricted function)
-    function multicall(bytes[] calldata data) external payable returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data)
+        external
+        payable
+        returns (bytes[] memory results)
+    {
         results = new bytes[](data.length);
-        
-        for (uint256 i; i < data.length;) {
-            (bool success, bytes memory result) = address(this).delegatecall(data[i]);
+
+        for (uint256 i; i < data.length; ) {
+            (bool success, bytes memory result) = address(this).delegatecall(
+                data[i]
+            );
 
             if (!success) {
                 if (result.length < 68) revert();
-                    
+
                 assembly {
                     result := add(result, 0x04)
                 }
-                    
+
                 revert(abi.decode(result, (string)));
             }
 

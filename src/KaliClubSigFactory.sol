@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Multicall} from './utils/Multicall.sol';
+import {Multicall} from "./utils/Multicall.sol";
 
-import {IClub} from './interfaces/IClub.sol';
+import {IClub} from "./interfaces/IClub.sol";
 
-import {KaliClubSig} from './KaliClubSig.sol';
-import {ClubLoot} from './ClubLoot.sol';
+import {KaliClubSig} from "./KaliClubSig.sol";
+import {ClubLoot} from "./ClubLoot.sol";
 
-import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
+import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
 
 /// @notice Kali ClubSig Contract Factory
 contract KaliClubSigFactory is Multicall, IClub {
@@ -45,7 +45,7 @@ contract KaliClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
-  
+
     KaliClubSig internal immutable clubMaster;
     ClubLoot internal immutable lootMaster;
 
@@ -61,7 +61,7 @@ contract KaliClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Deployment
     /// -----------------------------------------------------------------------
-    
+
     function deployClubSig(
         Club[] calldata club_,
         uint256 quorum_,
@@ -74,10 +74,14 @@ contract KaliClubSigFactory is Multicall, IClub {
         string memory docs_
     ) external payable returns (KaliClubSig clubSig, ClubLoot loot) {
         // TODO(Why is this called SigDeployed when a ClubDeployed?)
-        clubSig = KaliClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
+        clubSig = KaliClubSig(
+            address(clubMaster).clone(abi.encodePacked(name_, symbol_))
+        );
 
-        loot = ClubLoot(address(lootMaster).clone(abi.encodePacked(name_, symbol_)));
-        
+        loot = ClubLoot(
+            address(lootMaster).clone(abi.encodePacked(name_, symbol_))
+        );
+
         clubSig.init{value: msg.value}(
             address(loot),
             club_,
@@ -87,13 +91,21 @@ contract KaliClubSigFactory is Multicall, IClub {
             baseURI_,
             docs_
         );
-        
-        loot.init(
-            address(clubSig),
+
+        loot.init(address(clubSig), club_, lootPaused_);
+
+        emit SigDeployed(
+            clubSig,
+            loot,
             club_,
-            lootPaused_
+            quorum_,
+            redemptionStart_,
+            name_,
+            symbol_,
+            lootPaused_,
+            signerPaused_,
+            baseURI_,
+            docs_
         );
-        
-        emit SigDeployed(clubSig, loot, club_, quorum_, redemptionStart_, name_, symbol_, lootPaused_, signerPaused_, baseURI_, docs_);
     }
 }

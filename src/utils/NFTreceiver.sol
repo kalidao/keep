@@ -10,7 +10,7 @@ abstract contract NFTreceiver {
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0x150b7a02; 
+        return 0x150b7a02;
     }
 
     function onERC1155Received(
@@ -20,9 +20,9 @@ abstract contract NFTreceiver {
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0xf23a6e61; 
+        return 0xf23a6e61;
     }
-    
+
     function onERC1155BatchReceived(
         address,
         address,
@@ -30,6 +30,6 @@ abstract contract NFTreceiver {
         uint256[] calldata,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0xbc197c81; 
+        return 0xbc197c81;
     }
 }

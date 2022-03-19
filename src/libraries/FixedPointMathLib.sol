@@ -14,7 +14,12 @@ library FixedPointMathLib {
             // store x * y in z for now
             z := mul(x, y)
             // equivalent to require(denominator != 0 && (x == 0 || (x * y) / x == y))
-            if iszero(and(iszero(iszero(denominator)), or(iszero(x), eq(div(z, x), y)))) {
+            if iszero(
+                and(
+                    iszero(iszero(denominator)),
+                    or(iszero(x), eq(div(z, x), y))
+                )
+            ) {
                 revert(0, 0)
             }
             // divide z by the denominator

@@ -22,9 +22,21 @@ abstract contract ClubNFT {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Transfer(address indexed from, address indexed to, uint256 indexed id);
-    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed id
+    );
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 indexed id
+    );
+    event ApprovalForAll(
+        address indexed owner,
+        address indexed operator,
+        bool approved
+    );
     event PauseSet(bool paused);
 
     /// -----------------------------------------------------------------------
@@ -50,7 +62,11 @@ abstract contract ClubNFT {
         return string(abi.encodePacked(_getArgUint256(0x20)));
     }
 
-    function _getArgUint256(uint256 argOffset) internal pure returns (uint256 arg) {
+    function _getArgUint256(uint256 argOffset)
+        internal
+        pure
+        returns (uint256 arg)
+    {
         uint256 offset;
 
         assembly {
@@ -97,7 +113,11 @@ abstract contract ClubNFT {
     /// ERC-165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        external
+        pure
+        returns (bool)
+    {
         return
             interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
             interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
@@ -107,71 +127,88 @@ abstract contract ClubNFT {
     /// -----------------------------------------------------------------------
     /// ERC-721 Logic
     /// -----------------------------------------------------------------------
-    
+
     function approve(address spender, uint256 id) external payable {
         address owner = ownerOf[id];
 
-        if (msg.sender != owner && !isApprovedForAll[owner][msg.sender]) revert Forbidden();
-        
+        if (msg.sender != owner && !isApprovedForAll[owner][msg.sender])
+            revert Forbidden();
+
         getApproved[id] = spender;
-        
-        emit Approval(owner, spender, id); 
+
+        emit Approval(owner, spender, id);
     }
-    
-    function setApprovalForAll(address operator, bool approved) external payable {
+
+    function setApprovalForAll(address operator, bool approved)
+        external
+        payable
+    {
         isApprovedForAll[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
-    
+
     function transferFrom(
-        address from, 
-        address to, 
+        address from,
+        address to,
         uint256 id
     ) public payable notPaused {
         if (from != ownerOf[id]) revert NotOwner();
         if (to == address(0)) revert InvalidRecipient();
-        if (msg.sender != from 
-            && msg.sender != getApproved[id]
-            && !isApprovedForAll[from][msg.sender]
-        ) revert Forbidden();  
+        if (
+            msg.sender != from &&
+            msg.sender != getApproved[id] &&
+            !isApprovedForAll[from][msg.sender]
+        ) revert Forbidden();
         // underflow of the sender's balance is impossible because we check for
         // ownership above and the recipient's balance can't realistically overflow
-        unchecked { 
-            --balanceOf[from]; 
+        unchecked {
+            --balanceOf[from];
             ++balanceOf[to];
         }
-        
+
         delete getApproved[id];
-        
+
         ownerOf[id] = to;
-        
-        emit Transfer(from, to, id); 
+
+        emit Transfer(from, to, id);
     }
-    
+
     function safeTransferFrom(
-        address from, 
-        address to, 
+        address from,
+        address to,
         uint256 id
     ) external payable {
-        transferFrom(from, to, id); 
+        transferFrom(from, to, id);
 
-        if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, '') 
-            != ERC721TokenReceiver.onERC721Received.selector
+        if (
+            to.code.length != 0 &&
+            ERC721TokenReceiver(to).onERC721Received(
+                msg.sender,
+                from,
+                id,
+                ""
+            ) !=
+            ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
     }
-    
+
     function safeTransferFrom(
-        address from, 
-        address to, 
-        uint256 id, 
+        address from,
+        address to,
+        uint256 id,
         bytes calldata data
     ) external payable {
-        transferFrom(from, to, id); 
-        
-        if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, data) 
-            != ERC721TokenReceiver.onERC721Received.selector
+        transferFrom(from, to, id);
+
+        if (
+            to.code.length != 0 &&
+            ERC721TokenReceiver(to).onERC721Received(
+                msg.sender,
+                from,
+                id,
+                data
+            ) !=
+            ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
     }
 
@@ -186,29 +223,35 @@ abstract contract ClubNFT {
         unchecked {
             ++balanceOf[to];
         }
-        
-        ownerOf[id] = to;
-        
-        emit Transfer(address(0), to, id); 
 
-        if (to.code.length != 0 
-            && ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, '') 
-            != ERC721TokenReceiver.onERC721Received.selector
+        ownerOf[id] = to;
+
+        emit Transfer(address(0), to, id);
+
+        if (
+            to.code.length != 0 &&
+            ERC721TokenReceiver(to).onERC721Received(
+                msg.sender,
+                address(0),
+                id,
+                ""
+            ) !=
+            ERC721TokenReceiver.onERC721Received.selector
         ) revert InvalidRecipient();
     }
 
-    function _burn(uint256 id) internal { 
+    function _burn(uint256 id) internal {
         address owner = ownerOf[id];
         if (owner == address(0)) revert NotMinted();
         // ownership check ensures no underflow
         unchecked {
             --balanceOf[owner];
         }
-        
+
         delete ownerOf[id];
         delete getApproved[id];
-        
-        emit Transfer(owner, address(0), id); 
+
+        emit Transfer(owner, address(0), id);
     }
 
     /// -----------------------------------------------------------------------
