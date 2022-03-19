@@ -1,21 +1,59 @@
-name: Tests
-
-on: [push]
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  tests:
+  run-ci:
     runs-on: ubuntu-latest
-
     steps:
+
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v2
+
+      - name: Install dev dependencies
+        run: npm install
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install library
+        run: poetry install --no-interaction
+
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
         with:
           version: nightly
-      - name: Install Dependencies
-        run: yarn
-      - name: Update Modules
-        run: yarn sync
-      - name: Run Tests
-        run: FOUNDRY_PROFILE=ci yarn test
+      
+      - name: Pull Submodules
+        run: forge update
+
+      - name: Run tests
+        run: forge test --optimize
+
+      - name: Run lint check
+        run: npm run lint:check
+
+      # TODO(Figure out how to allow this to find the correct solc binary)
+      # - name: Run audit
+      # run: poetry run slither --solc-remaps "solmate=lib/solmate/src" --solc-args optimize src/ --exclude-dependencies

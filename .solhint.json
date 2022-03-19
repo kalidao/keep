@@ -1,0 +1,8 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "compiler-version": ["error", ">=0.8.4"],
+    "avoid-low-level-calls": "off",
+    "quotes": ["warn","double"]
+  }
+}

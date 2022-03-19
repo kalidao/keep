@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubNFT} from './ClubNFT.sol';
+import {ClubNFT} from "./ClubNFT.sol";
 
-import {Multicall} from './utils/Multicall.sol';
-import {NFTreceiver} from './utils/NFTreceiver.sol';
+import {Multicall} from "./utils/Multicall.sol";
+import {NFTreceiver} from "./utils/NFTreceiver.sol";
 
-import {IClub} from './interfaces/IClub.sol';
-import {IClubLoot} from './interfaces/IClubLoot.sol';
-import {IERC1271} from './interfaces/IERC1271.sol';
+import {IClub} from "./interfaces/IClub.sol";
+import {IClubLoot} from "./interfaces/IClubLoot.sol";
+import {IERC1271} from "./interfaces/IERC1271.sol";
 
-import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
-import {SafeTransferTokenLib} from './libraries/SafeTransferTokenLib.sol';
-import {ClubURIbuilder} from './libraries/ClubURIbuilder.sol';
+import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
+import {SafeTransferTokenLib} from "./libraries/SafeTransferTokenLib.sol";
+import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 
 /// @title Kali ClubSig
 /// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
@@ -24,7 +24,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
-    
+
     using SafeTransferTokenLib for address;
 
     /// -----------------------------------------------------------------------
@@ -63,7 +63,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     uint256 public redemptionStart;
     /// @dev total signer units minted
     uint256 public totalSupply;
-    /// @dev optional metadata signifying club 
+    /// @dev optional metadata signifying club
     string public baseURI;
     /// @dev metadata signifying club agreements
     string public docs;
@@ -72,9 +72,9 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     mapping(address => bool) public governor;
 
     /// @dev access control for this contract and governors
-    modifier onlyClubOrGov {
-        if (msg.sender != address(this) 
-        && !governor[msg.sender]) revert Forbidden();
+    modifier onlyClubOrGov() {
+        if (msg.sender != address(this) && !governor[msg.sender])
+            revert Forbidden();
         _;
     }
 
@@ -86,22 +86,27 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
     struct Signature {
-	uint8 v;
-	bytes32 r;
+        uint8 v;
+        bytes32 r;
         bytes32 s;
     }
 
     function DOMAIN_SEPARATOR() internal view returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
+        return
+            block.chainid == INITIAL_CHAIN_ID
+                ? INITIAL_DOMAIN_SEPARATOR
+                : _computeDomainSeparator();
     }
 
     function _computeDomainSeparator() internal view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
-                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
                     keccak256(bytes(name())),
-                    keccak256('1'),
+                    keccak256("1"),
                     block.chainid,
                     address(this)
                 )
@@ -113,6 +118,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function tokenURI(uint256 id) external view returns (string memory) {
+        // TODO(A boolean here indicating if the tokenuri is set might be more gas efficient)
         bytes memory base = bytes(baseURI);
 
         if (base.length == 0) {
@@ -148,7 +154,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         address prevAddr;
         uint256 totalSupply_;
 
-        for (uint256 i; i < length;) {
+        for (uint256 i; i < length; ) {
             // prevent null and duplicate signers
             if (prevAddr >= club_[i].signer) revert WrongSigner();
             prevAddr = club_[i].signer;
@@ -162,6 +168,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         loot = IClubLoot(loot_);
+        // TODO(is this needed on init? Or can it be set at deploy time?)
         nonce = 1;
         quorum = quorum_;
         redemptionStart = redemptionStart_;
@@ -177,41 +184,83 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function execute(
-        address to, 
-        uint256 value, 
-        bytes memory data, 
-        bool deleg, 
+        address to,
+        uint256 value,
+        bytes memory data,
+        bool deleg,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
-    	// cannot realistically overflow on human timescales
+        // cannot realistically overflow on human timescales
         unchecked {
-            bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR(),
-                keccak256(abi.encode(keccak256(
-                    'Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)'),
-                    to, value, data, deleg, ++nonce)))
-                );
+            bytes32 digest = keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            keccak256(
+                                "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                            ),
+                            to,
+                            value,
+                            data,
+                            deleg,
+                            ++nonce
+                        )
+                    )
+                )
+            );
 
             address prevAddr;
 
             for (uint256 i; i < quorum; ++i) {
-                address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
+                address signer = ecrecover(
+                    digest,
+                    sigs[i].v,
+                    sigs[i].r,
+                    sigs[i].s
+                );
                 // check for conformant contract signature
-                if (signer.code.length != 0 && IERC1271(signer).isValidSignature(
-                        digest, abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)) != 0x1626ba7e // magic value
-                    ) revert WrongSigner();
+                if (
+                    signer.code.length != 0 &&
+                    IERC1271(signer).isValidSignature(
+                        digest,
+                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
+                    ) !=
+                    0x1626ba7e // magic value
+                ) revert WrongSigner();
                 // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer) revert WrongSigner();
+                if (balanceOf[signer] == 0 || prevAddr >= signer)
+                    revert WrongSigner();
                 prevAddr = signer;
             }
         }
 
+        // TODO(Support multicall?)
+
         if (!deleg) {
             assembly {
-                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
+                success := call(
+                    gas(),
+                    to,
+                    value,
+                    add(data, 0x20),
+                    mload(data),
+                    0,
+                    0
+                )
             }
-        } else { // delegate call
+        } else {
+            // delegate call
             assembly {
-                success := delegatecall(gas(), to, add(data, 0x20), mload(data), 0, 0)
+                success := delegatecall(
+                    gas(),
+                    to,
+                    add(data, 0x20),
+                    mload(data),
+                    0,
+                    0
+                )
             }
         }
 
@@ -228,9 +277,9 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
-	// cannot realistically overflow on human timescales, and
+        // cannot realistically overflow on human timescales, and
         // cannot underflow because ownership is checked in burn()
-	unchecked {
+        unchecked {
             for (uint256 i; i < length; ++i) {
                 if (mints_[i]) {
                     _safeMint(club_[i].signer, club_[i].id);
@@ -255,34 +304,59 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     }
 
     function governorExecute(
-        address to, 
-        uint256 value, 
-        bytes memory data, 
+        address to,
+        uint256 value,
+        bytes memory data,
         bool deleg
     ) external payable returns (bool success) {
         if (!governor[msg.sender]) revert Forbidden();
 
+        // TODO(Deduplicate with execute by branching execute with a boolean flag)
         if (!deleg) {
             assembly {
-                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
+                success := call(
+                    gas(),
+                    to,
+                    value,
+                    add(data, 0x20),
+                    mload(data),
+                    0,
+                    0
+                )
             }
-        } else { // delegate call
+        } else {
+            // delegate call
             assembly {
-                success := delegatecall(gas(), to, add(data, 0x20), mload(data), 0, 0)
+                success := delegatecall(
+                    gas(),
+                    to,
+                    add(data, 0x20),
+                    mload(data),
+                    0,
+                    0
+                )
             }
         }
 
         emit Execute(to, value, data);
     }
 
-    function setGovernor(address account, bool approved) external payable onlyClubOrGov {
+    function setGovernor(address account, bool approved)
+        external
+        payable
+        onlyClubOrGov
+    {
         governor[account] = approved;
         emit GovernorSet(account, approved);
     }
 
-    function setRedemptionStart(uint256 redemptionStart_) external payable onlyClubOrGov {
+    function setRedemptionStart(uint256 redemptionStart_)
+        external
+        payable
+        onlyClubOrGov
+    {
         redemptionStart = redemptionStart_;
-	emit RedemptionStartSet(redemptionStart_);
+        emit RedemptionStartSet(redemptionStart_);
     }
 
     function setLootPause(bool paused_) external payable onlyClubOrGov {
@@ -298,7 +372,11 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         emit DocsUpdated(docs_);
     }
 
-    function updateURI(string calldata baseURI_) external payable onlyClubOrGov {
+    function updateURI(string calldata baseURI_)
+        external
+        payable
+        onlyClubOrGov
+    {
         baseURI = baseURI_;
         emit URIupdated(baseURI_);
     }
@@ -309,26 +387,35 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     receive() external payable {}
 
-    function ragequit(address[] calldata assets, uint256 lootToBurn) external payable {
+    function ragequit(address[] calldata assets, uint256 lootToBurn)
+        external
+        payable
+    {
         if (block.timestamp < redemptionStart) revert RedemptionEarly();
 
         uint256 lootTotal = loot.totalSupply();
+        // TODO(Move this state update to after external calls to prevent reentrancy)
         loot.govBurn(msg.sender, lootToBurn);
 
         address prevAddr;
 
-        for (uint256 i; i < assets.length;) {
+        // TODO(Add eth support)
+        // TODO(Add ERC721 support or disallow receipt by the multisig or document)
+        // TODO(Add ERC1155 support or disallow receipt by the multisig or document)
+
+        for (uint256 i; i < assets.length; ) {
             // prevent null and duplicate assets
             if (prevAddr >= assets[i]) revert AssetOrder();
             prevAddr = assets[i];
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
-                lootToBurn, 
-                IClubLoot(assets[i]).balanceOf(address(this)), 
+                lootToBurn,
+                IClubLoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer
-            if (amountToRedeem != 0) assets[i]._safeTransfer(msg.sender, amountToRedeem);
+            if (amountToRedeem != 0)
+                assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;

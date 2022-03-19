@@ -3,13 +3,14 @@ pragma solidity >=0.8.4;
 
 /// @notice Receiver hook utility for NFT 'safe' transfers
 abstract contract NFTreceiver {
+    // TODO(The multisig should deal with ragequitting any assets it recieves, or in lieu a claims accounting for them)
     function onERC721Received(
         address,
         address,
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0x150b7a02; 
+        return 0x150b7a02;
     }
 
     function onERC1155Received(
@@ -19,9 +20,9 @@ abstract contract NFTreceiver {
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0xf23a6e61; 
+        return 0xf23a6e61;
     }
-    
+
     function onERC1155BatchReceived(
         address,
         address,
@@ -29,6 +30,6 @@ abstract contract NFTreceiver {
         uint256[] calldata,
         bytes calldata
     ) external pure returns (bytes4) {
-        return 0xbc197c81; 
+        return 0xbc197c81;
     }
 }
