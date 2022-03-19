@@ -17,9 +17,9 @@ contract ClubSigTest is DSTestPlus {
     KaliClubSigFactory factory;
 
     /// @dev Users
-    address public alice = address(0xa);
-    address public bob = address(0xb);
-    address public charlie = address(0xc);
+    address public immutable alice = address(0xa);
+    address public immutable bob = address(0xb);
+    address public immutable charlie = address(0xc);
 
     /// @notice Set up the testing suite
     function setUp() public {

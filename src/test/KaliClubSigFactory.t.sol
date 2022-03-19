@@ -16,9 +16,8 @@ contract KaliClubSigFactoryTest is DSTestPlus {
     KaliClubSigFactory factory;
 
     /// @dev Users
-    address public alice = address(0xa);
-    address public bob = address(0xb);
-    address public charlie = address(0xc);
+    address public immutable alice = address(0xa);
+    address public immutable bob = address(0xb);
 
     /// @notice Set up the testing suite
     function setUp() public {
@@ -38,6 +37,7 @@ contract KaliClubSigFactoryTest is DSTestPlus {
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
 
+        vm_std_cheats.expectEmit(true, true, true, true);
         (depClubSig, ) = factory.deployClubSig(
             clubs,
             2,
