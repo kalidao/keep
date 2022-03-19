@@ -5,6 +5,7 @@ pragma solidity >=0.8.4;
 /// @author Modified from Uniswap (https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol)
 /// License-Identifier: GPL-2.0-or-later
 abstract contract Multicall {
+    // TODO(This should not be external wide open, but rather an access restricted function)
     function multicall(bytes[] calldata data) external payable returns (bytes[] memory results) {
         results = new bytes[](data.length);
         

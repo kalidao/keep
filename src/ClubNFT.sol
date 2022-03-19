@@ -13,6 +13,7 @@ interface ERC721TokenReceiver {
     ) external returns (bytes4);
 }
 
+// TODO(Could inherit from ERC721 to reduce test surface and override as needed)
 /// @notice Modern, minimalist, and gas efficient ERC-721 implementation designed for Kali ClubSig
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
 /// License-Identifier: AGPL-3.0-only

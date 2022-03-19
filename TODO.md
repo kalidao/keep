@@ -1,3 +1,0 @@
-- Refactor all libraries out to /lib
-- ClubLoot could inherit from ERC20 and override where needed
-- 

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+// TODO(These libraries could/should be refactored to /lib)
 pragma solidity >=0.8.4;
 
 /// @notice Enables creating clone contracts with immutable arguments

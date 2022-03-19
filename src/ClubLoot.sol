@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
+// TODO(Could inherit from ERC20 to reduce test surface and override as needed)
 import {IClub} from './interfaces/IClub.sol';
 
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig

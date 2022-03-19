@@ -113,6 +113,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function tokenURI(uint256 id) external view returns (string memory) {
+        // TODO(A boolean here indicating if the tokenuri is set might be more gas efficient)
         bytes memory base = bytes(baseURI);
 
         if (base.length == 0) {
@@ -162,6 +163,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         loot = IClubLoot(loot_);
+        // TODO(is this needed on init? Or can it be set at deploy time?)
         nonce = 1;
         quorum = quorum_;
         redemptionStart = redemptionStart_;
@@ -205,6 +207,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
+        // TODO(Support multicall?)
+
         if (!deleg) {
             assembly {
                 success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
@@ -228,9 +232,9 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
-	// cannot realistically overflow on human timescales, and
+	    // cannot realistically overflow on human timescales, and
         // cannot underflow because ownership is checked in burn()
-	unchecked {
+	    unchecked {
             for (uint256 i; i < length; ++i) {
                 if (mints_[i]) {
                     _safeMint(club_[i].signer, club_[i].id);
@@ -262,6 +266,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     ) external payable returns (bool success) {
         if (!governor[msg.sender]) revert Forbidden();
 
+        // TODO(Deduplicate with execute by branching execute with a boolean flag)
         if (!deleg) {
             assembly {
                 success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
@@ -282,7 +287,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     function setRedemptionStart(uint256 redemptionStart_) external payable onlyClubOrGov {
         redemptionStart = redemptionStart_;
-	emit RedemptionStartSet(redemptionStart_);
+	    emit RedemptionStartSet(redemptionStart_);
     }
 
     function setLootPause(bool paused_) external payable onlyClubOrGov {
@@ -313,9 +318,14 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (block.timestamp < redemptionStart) revert RedemptionEarly();
 
         uint256 lootTotal = loot.totalSupply();
+        // TODO(Move this state update to after external calls to prevent reentrancy)
         loot.govBurn(msg.sender, lootToBurn);
 
         address prevAddr;
+
+        // TODO(Add eth support)
+        // TODO(Add ERC721 support or disallow receipt by the multisig or document)
+        // TODO(Add ERC1155 support or disallow receipt by the multisig or document)
 
         for (uint256 i; i < assets.length;) {
             // prevent null and duplicate assets

@@ -73,6 +73,7 @@ contract KaliClubSigFactory is Multicall, IClub {
         string memory baseURI_,
         string memory docs_
     ) external payable returns (KaliClubSig clubSig, ClubLoot loot) {
+        // TODO(Why is this called SigDeployed when a ClubDeployed?)
         clubSig = KaliClubSig(address(clubMaster).clone(abi.encodePacked(name_, symbol_)));
 
         loot = ClubLoot(address(lootMaster).clone(abi.encodePacked(name_, symbol_)));

@@ -3,6 +3,7 @@ pragma solidity >=0.8.4;
 
 /// @notice Receiver hook utility for NFT 'safe' transfers
 abstract contract NFTreceiver {
+    // TODO(The multisig should deal with ragequitting any assets it recieves, or in lieu a claims accounting for them)
     function onERC721Received(
         address,
         address,
