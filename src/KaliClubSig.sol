@@ -11,7 +11,7 @@ import {IClubLoot} from "./interfaces/IClubLoot.sol";
 import {IERC1271} from "./interfaces/IERC1271.sol";
 
 import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
-import {SafeTransferTokenLib} from "./libraries/SafeTransferTokenLib.sol";
+import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 
 /// @title Kali ClubSig
