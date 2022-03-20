@@ -25,7 +25,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Library Usage
     /// -----------------------------------------------------------------------
 
-    using SafeTransferTokenLib for address;
+    using SafeTransferLib for address;
 
     /// -----------------------------------------------------------------------
     /// Events
@@ -386,7 +386,9 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     receive() external payable {}
-
+    
+    /// @dev Redemption only available for ETH and ERC-20
+    /// - NFTs will need to be liquidated or fractionalized
     function ragequit(address[] calldata assets, uint256 lootToBurn)
         external
         payable
@@ -394,14 +396,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (block.timestamp < redemptionStart) revert RedemptionEarly();
 
         uint256 lootTotal = loot.totalSupply();
-        // TODO(Move this state update to after external calls to prevent reentrancy)
-        loot.govBurn(msg.sender, lootToBurn);
 
         address prevAddr;
-
-        // TODO(Add eth support)
-        // TODO(Add ERC721 support or disallow receipt by the multisig or document)
-        // TODO(Add ERC1155 support or disallow receipt by the multisig or document)
 
         for (uint256 i; i < assets.length; ) {
             // prevent null and duplicate assets
@@ -410,16 +406,18 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
                 lootToBurn,
-                IClubLoot(assets[i]).balanceOf(address(this)),
+                assets[i] == address(0xDead) ? address(this).balance : IClubLoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer
             if (amountToRedeem != 0)
-                assets[i]._safeTransfer(msg.sender, amountToRedeem);
+                assets[i] == address(0xDead) ? msg.sender._safeTransferETH(amountToRedeem) : assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
             }
         }
+
+        loot.govBurn(msg.sender, lootToBurn);
     }
 }
