@@ -121,6 +121,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     function tokenURI(uint256 id) external view returns (string memory) {
         // TODO(A boolean here indicating if the tokenuri is set might be more gas efficient)
+        // RESPONSE - SSTORE with bool should be more expensive - since URI is read-only and free, we save
+        // by avoiding need to write those state changes?
         bytes memory base = bytes(baseURI);
 
         if (base.length == 0) {
@@ -171,6 +173,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
         loot = IClubLoot(loot_);
         // TODO(is this needed on init? Or can it be set at deploy time?)
+        // RESPONSE: Since we are using clones, we do need to set nonce on init or it will be null
         nonce = 1;
         quorum = quorum_;
         redemptionStart = redemptionStart_;
@@ -192,53 +195,56 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bool deleg,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
-        // cannot realistically overflow on human timescales
-        unchecked {
-            bytes32 digest = keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(
-                            keccak256(
-                                "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
-                            ),
-                            to,
-                            value,
-                            data,
-                            deleg,
-                            ++nonce
+        if (!governor[msg.sender]) {
+            // cannot realistically overflow on human timescales
+            unchecked {
+                bytes32 digest = keccak256(
+                    abi.encodePacked(
+                        "\x19\x01",
+                        DOMAIN_SEPARATOR(),
+                        keccak256(
+                            abi.encode(
+                                keccak256(
+                                    "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                                ),
+                                to,
+                                value,
+                                data,
+                                deleg,
+                                ++nonce
+                            )
                         )
                     )
-                )
-            );
-
-            address prevAddr;
-
-            for (uint256 i; i < quorum; ++i) {
-                address signer = ecrecover(
-                    digest,
-                    sigs[i].v,
-                    sigs[i].r,
-                    sigs[i].s
                 );
-                // check for conformant contract signature
-                if (
-                    signer.code.length != 0 &&
-                    IERC1271(signer).isValidSignature(
+
+                address prevAddr;
+
+                for (uint256 i; i < quorum; ++i) {
+                    address signer = ecrecover(
                         digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) !=
-                    0x1626ba7e // magic value
-                ) revert WrongSigner();
-                // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer)
-                    revert WrongSigner();
-                prevAddr = signer;
+                        sigs[i].v,
+                        sigs[i].r,
+                        sigs[i].s
+                    );
+                    // check for conformant contract signature
+                    if (
+                        signer.code.length != 0 &&
+                        IERC1271(signer).isValidSignature(
+                            digest,
+                            abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
+                        ) !=
+                        0x1626ba7e // magic value
+                    ) revert WrongSigner();
+                    // check for NFT balance and duplicates
+                    if (balanceOf[signer] == 0 || prevAddr >= signer)
+                        revert WrongSigner();
+                    prevAddr = signer;
+                }
             }
         }
 
         // TODO(Support multicall?)
+        // RESPONSE Multi-call should be able to batch this already?
 
         if (!deleg) {
             assembly {
@@ -303,44 +309,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         totalSupply = totalSupply_;
 
         emit Govern(club_, mints_, quorum_);
-    }
-
-    function governorExecute(
-        address to,
-        uint256 value,
-        bytes memory data,
-        bool deleg
-    ) external payable returns (bool success) {
-        if (!governor[msg.sender]) revert Forbidden();
-
-        // TODO(Deduplicate with execute by branching execute with a boolean flag)
-        if (!deleg) {
-            assembly {
-                success := call(
-                    gas(),
-                    to,
-                    value,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        } else {
-            // delegate call
-            assembly {
-                success := delegatecall(
-                    gas(),
-                    to,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        }
-
-        emit Execute(to, value, data);
     }
 
     function setGovernor(address account, bool approved)
