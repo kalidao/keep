@@ -93,14 +93,14 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bytes32 s;
     }
 
-    function DOMAIN_SEPARATOR() internal view returns (bytes32) {
+    function DOMAIN_SEPARATOR() private view returns (bytes32) {
         return
             block.chainid == INITIAL_CHAIN_ID
                 ? INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
-    function _computeDomainSeparator() internal view returns (bytes32) {
+    function _computeDomainSeparator() private view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
