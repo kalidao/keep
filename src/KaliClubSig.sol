@@ -53,6 +53,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Club Storage
     /// -----------------------------------------------------------------------
 
+    /// @dev ETH reference for redemptions
+    address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     /// @dev ERC-20 token for capital management
     IClubLoot public loot;
     /// @dev initialized at `1` for cheaper first tx
@@ -406,13 +408,13 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
                 lootToBurn,
-                assets[i] == address(0xDead) ? address(this).balance : 
+                assets[i] == ETH ? address(this).balance : 
                 IClubLoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer
             if (amountToRedeem != 0)
-                assets[i] == address(0xDead) ? msg.sender._safeTransferETH(amountToRedeem) : 
+                assets[i] == ETH ? msg.sender._safeTransferETH(amountToRedeem) : 
                 assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
