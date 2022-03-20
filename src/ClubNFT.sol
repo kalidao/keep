@@ -104,7 +104,7 @@ abstract contract ClubNFT {
     /// Initializer
     /// -----------------------------------------------------------------------
 
-    function _init(bool paused_) private {
+    function _init(bool paused_) internal {
         paused = paused_;
     }
 
