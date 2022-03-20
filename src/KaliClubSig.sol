@@ -387,7 +387,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     receive() external payable {}
     
-    /// @dev Redemption only available for ETH and ERC-20
+    /// @dev Redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
     function ragequit(address[] calldata assets, uint256 lootToBurn)
         external
