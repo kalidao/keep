@@ -86,11 +86,7 @@ library ClubURIbuilder {
         else return bytes1(uint8(b) + 0x57);
     }
 
-    function _uintToString(uint256 value)
-        private
-        pure
-        returns (string memory)
-    {
+    function _uintToString(uint256 value) private pure returns (string memory) {
         if (value == 0) return "0";
 
         uint256 temp = value;
