@@ -388,7 +388,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     receive() external payable {}
-    
+
     /// @dev Redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
     function ragequit(address[] calldata assets, uint256 lootToBurn)
@@ -408,14 +408,16 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
                 lootToBurn,
-                assets[i] == ETH ? address(this).balance : 
-                IClubLoot(assets[i]).balanceOf(address(this)),
+                assets[i] == ETH
+                    ? address(this).balance
+                    : IClubLoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer
             if (amountToRedeem != 0)
-                assets[i] == ETH ? msg.sender._safeTransferETH(amountToRedeem) : 
-                assets[i]._safeTransfer(msg.sender, amountToRedeem);
+                assets[i] == ETH
+                    ? msg.sender._safeTransferETH(amountToRedeem)
+                    : assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
