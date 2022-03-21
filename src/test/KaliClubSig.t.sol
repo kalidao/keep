@@ -53,7 +53,7 @@ contract ClubSigTest is DSTestPlus {
     }
 
     /// -----------------------------------------------------------------------
-    /// Tests
+    /// Club State Tests
     /// -----------------------------------------------------------------------
 
     function testNonce() public view {
@@ -76,12 +76,26 @@ contract ClubSigTest is DSTestPlus {
         // TODO(Mint another pass and assert that the total supply has increased)
     }
 
-    function testBaseURI() public view {
+    function testBaseURI() public {
         assert(keccak256(bytes(clubSig.baseURI())) == keccak256(bytes("BASE")));
+
+        string memory updated = "NEW BASE";
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateURI(updated);
+        vm.stopPrank();
+        assert(
+            keccak256(bytes(clubSig.baseURI())) == keccak256(bytes(updated))
+        );
     }
 
-    function testDocs() public view {
+    function testDocs() public {
         assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes("DOCS")));
+        string memory updated = "NEW DOCS";
+
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateDocs(updated);
+        vm.stopPrank();
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes(updated)));
     }
 
     function testTokenURI() public view {
@@ -160,6 +174,15 @@ contract ClubSigTest is DSTestPlus {
         assertTrue(clubSig.paused());
     }
 
+    function testSetLootPause(bool _paused) public {
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setLootPause(_paused);
+        vm.stopPrank();
+
+        // TODO(Why is this not being set as expected?)
+        // assert(loot.paused() == _paused);
+    }
+
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("Forbidden()")));
@@ -177,7 +200,7 @@ contract ClubSigTest is DSTestPlus {
     }
 
     /// -----------------------------------------------------------------------
-    /// Asset Management
+    /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
     //function testRageQuit(address a, address b) public {

@@ -191,6 +191,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         Signature[] calldata sigs
     ) external payable returns (bool success) {
         // Governor has admin privileges to execute without quorum.
+        // TODO(This entire check could/should be a modifier which can be applied to this and potentially govern)
         if (!governor[msg.sender]) {
             // cannot realistically overflow on human timescales
             unchecked {
@@ -246,6 +247,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         // We have quorum or a call by a governor here
+        // TODO(Support multicall here?)
+        // A single execute could support chaining transactions like a molochdao
 
         if (!deleg) {
             // If this is not a delegated call
@@ -279,6 +282,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     // TODO(Multicall inheritance here is un-permissioned)
 
+    // TODO(Should this be external, or public?)
     function govern(
         Club[] calldata club_,
         bool[] calldata mints_,
