@@ -5,23 +5,31 @@ pragma solidity >=0.8.4;
 /// @author Modified from Brecht Devos (https://github.com/Brechtpd/base64/blob/main/base64.sol)
 /// License-Identifier: MIT
 library ClubURIbuilder {
-    bytes internal constant TABLE =
+    bytes private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     function _buildTokenURI(
+        string memory name,
+        string memory symbol,
         address owner,
-        uint256 loot,
-        string memory name
+        uint256 loot
     ) internal pure returns (string memory) {
         string memory metaSVG = string(
             abi.encodePacked(
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="90px">',
+                name,
+                " ",
+                "(",
+                symbol,
+                ")",
+                "</text>",
+                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="120px">',
                 "0x",
                 _addressToString(owner),
                 "</text>",
-                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="100%" y="180px">',
+                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="150px">',
                 _uintToString(loot),
-                " Loot",
+                " Loot Shares",
                 "</text>"
             )
         );
@@ -57,7 +65,7 @@ library ClubURIbuilder {
     }
 
     function _addressToString(address addr)
-        internal
+        private
         pure
         returns (string memory)
     {
@@ -81,16 +89,12 @@ library ClubURIbuilder {
         return string(s);
     }
 
-    function _char(bytes1 b) internal pure returns (bytes1 c) {
+    function _char(bytes1 b) private pure returns (bytes1 c) {
         if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
         else return bytes1(uint8(b) + 0x57);
     }
 
-    function _uintToString(uint256 value)
-        internal
-        pure
-        returns (string memory)
-    {
+    function _uintToString(uint256 value) private pure returns (string memory) {
         if (value == 0) return "0";
 
         uint256 temp = value;
@@ -108,7 +112,11 @@ library ClubURIbuilder {
         bytes memory buffer = new bytes(digits);
 
         while (value != 0) {
-            digits -= 1;
+            // cannot underflow as digits will be positive
+            unchecked {
+                --digits;
+            }
+
             buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
             value /= 10;
         }
@@ -117,7 +125,7 @@ library ClubURIbuilder {
     }
 
     /// @dev encodes some bytes to the base64 representation
-    function _encode(bytes memory data) internal pure returns (string memory) {
+    function _encode(bytes memory data) private pure returns (string memory) {
         uint256 len = data.length;
         if (len == 0) return "";
         // multiply by 4/3 rounded up

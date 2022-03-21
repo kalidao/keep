@@ -11,7 +11,7 @@ import {IClubLoot} from "./interfaces/IClubLoot.sol";
 import {IERC1271} from "./interfaces/IERC1271.sol";
 
 import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
-import {SafeTransferTokenLib} from "./libraries/SafeTransferTokenLib.sol";
+import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 
 /// @title Kali ClubSig
@@ -25,7 +25,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Library Usage
     /// -----------------------------------------------------------------------
 
-    using SafeTransferTokenLib for address;
+    using SafeTransferLib for address;
 
     /// -----------------------------------------------------------------------
     /// Events
@@ -53,6 +53,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Club Storage
     /// -----------------------------------------------------------------------
 
+    /// @dev ETH reference for redemptions
+    address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     /// @dev ERC-20 token for capital management
     IClubLoot public loot;
     /// @dev initialized at `1` for cheaper first tx
@@ -82,8 +84,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    uint256 internal INITIAL_CHAIN_ID;
-    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
+    uint256 private INITIAL_CHAIN_ID;
+    bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
     struct Signature {
         uint8 v;
@@ -91,14 +93,14 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bytes32 s;
     }
 
-    function DOMAIN_SEPARATOR() internal view returns (bytes32) {
+    function DOMAIN_SEPARATOR() private view returns (bytes32) {
         return
             block.chainid == INITIAL_CHAIN_ID
                 ? INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
-    function _computeDomainSeparator() internal view returns (bytes32) {
+    function _computeDomainSeparator() private view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -118,13 +120,12 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function tokenURI(uint256 id) external view returns (string memory) {
-        // TODO(A boolean here indicating if the tokenuri is set might be more gas efficient)
         bytes memory base = bytes(baseURI);
 
         if (base.length == 0) {
             address owner = ownerOf[id];
-            uint256 lt = loot.balanceOf(owner);
-            return ClubURIbuilder._buildTokenURI(owner, lt, name());
+            uint256 lt = loot.balanceOf(owner) / 1e18;
+            return ClubURIbuilder._buildTokenURI(name(), symbol(), owner, lt);
         } else {
             return baseURI;
         }
@@ -168,7 +169,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         loot = IClubLoot(loot_);
-        // TODO(is this needed on init? Or can it be set at deploy time?)
         nonce = 1;
         quorum = quorum_;
         redemptionStart = redemptionStart_;
@@ -190,53 +190,53 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bool deleg,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
-        // cannot realistically overflow on human timescales
-        unchecked {
-            bytes32 digest = keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(
-                            keccak256(
-                                "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
-                            ),
-                            to,
-                            value,
-                            data,
-                            deleg,
-                            ++nonce
+        if (!governor[msg.sender]) {
+            // cannot realistically overflow on human timescales
+            unchecked {
+                bytes32 digest = keccak256(
+                    abi.encodePacked(
+                        "\x19\x01",
+                        DOMAIN_SEPARATOR(),
+                        keccak256(
+                            abi.encode(
+                                keccak256(
+                                    "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                                ),
+                                to,
+                                value,
+                                data,
+                                deleg,
+                                ++nonce
+                            )
                         )
                     )
-                )
-            );
-
-            address prevAddr;
-
-            for (uint256 i; i < quorum; ++i) {
-                address signer = ecrecover(
-                    digest,
-                    sigs[i].v,
-                    sigs[i].r,
-                    sigs[i].s
                 );
-                // check for conformant contract signature
-                if (
-                    signer.code.length != 0 &&
-                    IERC1271(signer).isValidSignature(
+
+                address prevAddr;
+
+                for (uint256 i; i < quorum; ++i) {
+                    address signer = ecrecover(
                         digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) !=
-                    0x1626ba7e // magic value
-                ) revert WrongSigner();
-                // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer)
-                    revert WrongSigner();
-                prevAddr = signer;
+                        sigs[i].v,
+                        sigs[i].r,
+                        sigs[i].s
+                    );
+                    // check for conformant contract signature
+                    if (
+                        signer.code.length != 0 &&
+                        IERC1271(signer).isValidSignature(
+                            digest,
+                            abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
+                        ) !=
+                        0x1626ba7e // magic value
+                    ) revert WrongSigner();
+                    // check for NFT balance and duplicates
+                    if (balanceOf[signer] == 0 || prevAddr >= signer)
+                        revert WrongSigner();
+                    prevAddr = signer;
+                }
             }
         }
-
-        // TODO(Support multicall?)
 
         if (!deleg) {
             assembly {
@@ -303,44 +303,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         emit Govern(club_, mints_, quorum_);
     }
 
-    function governorExecute(
-        address to,
-        uint256 value,
-        bytes memory data,
-        bool deleg
-    ) external payable returns (bool success) {
-        if (!governor[msg.sender]) revert Forbidden();
-
-        // TODO(Deduplicate with execute by branching execute with a boolean flag)
-        if (!deleg) {
-            assembly {
-                success := call(
-                    gas(),
-                    to,
-                    value,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        } else {
-            // delegate call
-            assembly {
-                success := delegatecall(
-                    gas(),
-                    to,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        }
-
-        emit Execute(to, value, data);
-    }
-
     function setGovernor(address account, bool approved)
         external
         payable
@@ -385,8 +347,10 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Asset Management
     /// -----------------------------------------------------------------------
 
-    receive() external payable {}
+    fallback() external payable {}
 
+    /// @dev redemption is only available for ETH and ERC-20
+    /// - NFTs will need to be liquidated or fractionalized
     function ragequit(address[] calldata assets, uint256 lootToBurn)
         external
         payable
@@ -394,14 +358,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (block.timestamp < redemptionStart) revert RedemptionEarly();
 
         uint256 lootTotal = loot.totalSupply();
-        // TODO(Move this state update to after external calls to prevent reentrancy)
-        loot.govBurn(msg.sender, lootToBurn);
 
         address prevAddr;
-
-        // TODO(Add eth support)
-        // TODO(Add ERC721 support or disallow receipt by the multisig or document)
-        // TODO(Add ERC1155 support or disallow receipt by the multisig or document)
 
         for (uint256 i; i < assets.length; ) {
             // prevent null and duplicate assets
@@ -410,16 +368,22 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
                 lootToBurn,
-                IClubLoot(assets[i]).balanceOf(address(this)),
+                assets[i] == ETH
+                    ? address(this).balance
+                    : IClubLoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer
             if (amountToRedeem != 0)
-                assets[i]._safeTransfer(msg.sender, amountToRedeem);
+                assets[i] == ETH
+                    ? msg.sender._safeTransferETH(amountToRedeem)
+                    : assets[i]._safeTransfer(msg.sender, amountToRedeem);
             // cannot realistically overflow on human timescales
             unchecked {
                 ++i;
             }
         }
+
+        loot.govBurn(msg.sender, lootToBurn);
     }
 }
