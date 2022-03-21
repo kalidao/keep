@@ -84,6 +84,19 @@ contract ClubSigTest is DSTestPlus {
         assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes("DOCS")));
     }
 
+    function testTokenURI() public view {
+        // TODO(Assertion about string returned being correct)
+        clubSig.tokenURI(1);
+    }
+
+    // Init is implicitly tested by the factory/deploy
+
+    function testExecute() public {
+        // TODO(test execution)
+    }
+
+    // The governor storage mapping in tested implicitly below
+
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
         clubs[0] = IClub.Club(alice, 0, 100);
