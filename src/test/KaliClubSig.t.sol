@@ -16,10 +16,14 @@ contract ClubSigTest is DSTestPlus {
     ClubLoot loot;
     KaliClubSigFactory factory;
 
+    // TODO(Success case tests for all functions in KaliClubSig)
+    // TODO(Fuzzing)
+    // TODO(Adversarial testing)
+
     /// @dev Users
-    address public alice = address(0xa);
-    address public bob = address(0xb);
-    address public charlie = address(0xc);
+    address public immutable alice = address(0xa);
+    address public immutable bob = address(0xb);
+    address public immutable charlie = address(0xc);
 
     /// @notice Set up the testing suite
     function setUp() public {
@@ -34,6 +38,7 @@ contract ClubSigTest is DSTestPlus {
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
 
+        // The factory is fully tested in KaliClubSigFactory.t.sol
         (clubSig, ) = factory.deployClubSig(
             clubs,
             2,
@@ -45,14 +50,66 @@ contract ClubSigTest is DSTestPlus {
             "BASE",
             "DOCS"
         );
-
-        // Sanity check initialization
-        assertEq(keccak256(bytes(clubSig.baseURI())), keccak256(bytes("BASE")));
     }
 
     /// -----------------------------------------------------------------------
-    /// Operations
+    /// Club State Tests
     /// -----------------------------------------------------------------------
+
+    function testNonce() public view {
+        assert(clubSig.nonce() == 1);
+        // TODO(Execute tx and check that nonce is incremented)
+    }
+
+    function testQuorum() public view {
+        assert(clubSig.quorum() == 2);
+        // TODO(Add more members, alter quorum and check that number changed)
+    }
+
+    function testRedemptionStart() public view {
+        assert(clubSig.redemptionStart() == 0);
+        // TODO(Set a different redemption and verify setting)
+    }
+
+    function testTotalSupply() public view {
+        assert(clubSig.totalSupply() == 2);
+        // TODO(Mint another pass and assert that the total supply has increased)
+    }
+
+    function testBaseURI() public {
+        assert(keccak256(bytes(clubSig.baseURI())) == keccak256(bytes("BASE")));
+
+        string memory updated = "NEW BASE";
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateURI(updated);
+        vm.stopPrank();
+        assert(
+            keccak256(bytes(clubSig.baseURI())) == keccak256(bytes(updated))
+        );
+    }
+
+    function testDocs() public {
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes("DOCS")));
+        string memory updated = "NEW DOCS";
+
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateDocs(updated);
+        vm.stopPrank();
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes(updated)));
+    }
+
+    function testTokenURI() public view {
+        // TODO(Assertion about string returned being correct)
+        clubSig.tokenURI(1);
+    }
+
+    // Init is implicitly tested by the factory/deploy
+
+    function testExecute() public {
+        // TODO(test execution)
+    }
+
+    // The governor storage mapping in tested implicitly below
 
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -117,6 +174,15 @@ contract ClubSigTest is DSTestPlus {
         assertTrue(clubSig.paused());
     }
 
+    function testSetLootPause(bool _paused) public {
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setLootPause(_paused);
+        vm.stopPrank();
+
+        // TODO(Why is this not being set as expected?)
+        // assert(loot.paused() == _paused);
+    }
+
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("Forbidden()")));
@@ -134,7 +200,7 @@ contract ClubSigTest is DSTestPlus {
     }
 
     /// -----------------------------------------------------------------------
-    /// Asset Management
+    /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
     //function testRageQuit(address a, address b) public {

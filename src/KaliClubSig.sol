@@ -190,9 +190,13 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bool deleg,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
+        // Governor has admin privileges to execute without quorum.
+        // TODO(This entire check could/should be a modifier which can be applied to this and potentially govern)
         if (!governor[msg.sender]) {
             // cannot realistically overflow on human timescales
             unchecked {
+                // TODO(Potential reentrancy bug here incrementing nonce before external calls)
+                // Consider intermediary storage on the stack and update after external calls
                 bytes32 digest = keccak256(
                     abi.encodePacked(
                         "\x19\x01",
@@ -212,8 +216,10 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                     )
                 );
 
+                // Starting from the zero address here to ensure that all addresses are greater than
                 address prevAddr;
 
+                // TODO(We assume here that the signers are sorted in the frontend?)
                 for (uint256 i; i < quorum; ++i) {
                     address signer = ecrecover(
                         digest,
@@ -221,7 +227,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                         sigs[i].r,
                         sigs[i].s
                     );
-                    // check for conformant contract signature
+                    // check for conformant contract signature using EIP-1271
+                    // branching on if the signer address is an EOA or a contract
                     if (
                         signer.code.length != 0 &&
                         IERC1271(signer).isValidSignature(
@@ -233,12 +240,18 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                     // check for NFT balance and duplicates
                     if (balanceOf[signer] == 0 || prevAddr >= signer)
                         revert WrongSigner();
+                    // Set prevAddr to signer for the next iteration until we've reached quorum
                     prevAddr = signer;
                 }
             }
         }
 
+        // We have quorum or a call by a governor here
+        // TODO(Support multicall here?)
+        // A single execute could support chaining transactions like a molochdao
+
         if (!deleg) {
+            // If this is not a delegated call
             assembly {
                 success := call(
                     gas(),
@@ -267,6 +280,9 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         emit Execute(to, value, data);
     }
 
+    // TODO(Multicall inheritance here is un-permissioned)
+
+    // TODO(Should this be external, or public?)
     function govern(
         Club[] calldata club_,
         bool[] calldata mints_,
@@ -348,6 +364,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     fallback() external payable {}
+
+    receive() external payable {}
 
     /// @dev redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
