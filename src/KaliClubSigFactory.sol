@@ -46,8 +46,8 @@ contract KaliClubSigFactory is Multicall, IClub {
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
 
-    KaliClubSig internal immutable clubMaster;
-    ClubLoot internal immutable lootMaster;
+    KaliClubSig private immutable clubMaster;
+    ClubLoot private immutable lootMaster;
 
     /// -----------------------------------------------------------------------
     /// Constructor
