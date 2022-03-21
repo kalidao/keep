@@ -84,8 +84,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    uint256 internal INITIAL_CHAIN_ID;
-    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
+    uint256 private INITIAL_CHAIN_ID;
+    bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
     struct Signature {
         uint8 v;
@@ -169,8 +169,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         loot = IClubLoot(loot_);
-        // TODO(is this needed on init? Or can it be set at deploy time?)
-        // RESPONSE: Since we are using clones, we do need to set nonce on init or it will be null
         nonce = 1;
         quorum = quorum_;
         redemptionStart = redemptionStart_;
@@ -239,9 +237,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 }
             }
         }
-
-        // TODO(Support multicall?)
-        // RESPONSE Multi-call should be able to batch this already?
 
         if (!deleg) {
             assembly {
