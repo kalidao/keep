@@ -16,6 +16,10 @@ contract ClubSigTest is DSTestPlus {
     ClubLoot loot;
     KaliClubSigFactory factory;
 
+    // TODO(Success case tests for all functions in KaliClubSig)
+    // TODO(Fuzzing)
+    // TODO(Adversarial testing)
+
     /// @dev Users
     address public immutable alice = address(0xa);
     address public immutable bob = address(0xb);
@@ -34,6 +38,7 @@ contract ClubSigTest is DSTestPlus {
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
 
+        // The factory is fully tested in KaliClubSigFactory.t.sol
         (clubSig, ) = factory.deployClubSig(
             clubs,
             2,
@@ -48,8 +53,36 @@ contract ClubSigTest is DSTestPlus {
     }
 
     /// -----------------------------------------------------------------------
-    /// Operations
+    /// Tests
     /// -----------------------------------------------------------------------
+
+    function testNonce() public view {
+        assert(clubSig.nonce() == 1);
+        // TODO(Execute tx and check that nonce is incremented)
+    }
+
+    function testQuorum() public view {
+        assert(clubSig.quorum() == 2);
+        // TODO(Add more members, alter quorum and check that number changed)
+    }
+
+    function testRedemptionStart() public view {
+        assert(clubSig.redemptionStart() == 0);
+        // TODO(Set a different redemption and verify setting)
+    }
+
+    function testTotalSupply() public view {
+        assert(clubSig.totalSupply() == 2);
+        // TODO(Mint another pass and assert that the total supply has increased)
+    }
+
+    function testBaseURI() public view {
+        assert(keccak256(bytes(clubSig.baseURI())) == keccak256(bytes("BASE")));
+    }
+
+    function testDocs() public view {
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes("DOCS")));
+    }
 
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
