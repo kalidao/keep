@@ -9,17 +9,25 @@ library ClubURIbuilder {
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     function _buildTokenURI(
+        string memory name,
+        string memory symbol,
         address owner,
-        uint256 loot,
-        string memory name
+        uint256 loot
     ) internal pure returns (string memory) {
         string memory metaSVG = string(
             abi.encodePacked(
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="90px">',
+                name,
+                " ",
+                "(",
+                symbol,
+                ")",
+                "</text>",
+                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="120px">',
                 "0x",
                 _addressToString(owner),
                 "</text>",
-                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="180px">',
+                '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="150px">',
                 _uintToString(loot),
                 " Loot Shares",
                 "</text>"
