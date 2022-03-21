@@ -92,7 +92,7 @@ contract ClubLoot is IClub {
     bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
     mapping(address => uint256) public nonces;
-    
+
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return
             block.chainid == INITIAL_CHAIN_ID
