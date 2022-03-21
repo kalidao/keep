@@ -120,14 +120,11 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function tokenURI(uint256 id) external view returns (string memory) {
-        // TODO(A boolean here indicating if the tokenuri is set might be more gas efficient)
-        // RESPONSE - SSTORE with bool should be more expensive - since URI is read-only and free, we save
-        // by avoiding need to write those state changes?
         bytes memory base = bytes(baseURI);
 
         if (base.length == 0) {
             address owner = ownerOf[id];
-            uint256 lt = loot.balanceOf(owner);
+            uint256 lt = loot.balanceOf(owner) / 1 ether;
             return ClubURIbuilder._buildTokenURI(owner, lt, name());
         } else {
             return baseURI;
