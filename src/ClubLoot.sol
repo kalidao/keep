@@ -44,7 +44,7 @@ contract ClubLoot is IClub {
             );
     }
 
-    function symbol() public pure returns (string memory) {
+    function symbol() external pure returns (string memory) {
         return
             string(
                 abi.encodePacked(
@@ -88,10 +88,32 @@ contract ClubLoot is IClub {
     /// EIP-2612 Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal INITIAL_CHAIN_ID;
-    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
+    uint256 private INITIAL_CHAIN_ID;
+    bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
     mapping(address => uint256) public nonces;
+    
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return
+            block.chainid == INITIAL_CHAIN_ID
+                ? INITIAL_DOMAIN_SEPARATOR
+                : _computeDomainSeparator();
+    }
+
+    function _computeDomainSeparator() private view returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes(name())),
+                    keccak256("1"),
+                    block.chainid,
+                    address(this)
+                )
+            );
+    }
 
     /// -----------------------------------------------------------------------
     /// Governance Storage
@@ -200,28 +222,6 @@ contract ClubLoot is IClub {
     /// EIP-2612 Logic
     /// -----------------------------------------------------------------------
 
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
-        return
-            block.chainid == INITIAL_CHAIN_ID
-                ? INITIAL_DOMAIN_SEPARATOR
-                : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() internal view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes(name())),
-                    keccak256("1"),
-                    block.chainid,
-                    address(this)
-                )
-            );
-    }
-
     function permit(
         address owner,
         address spender,
@@ -272,7 +272,7 @@ contract ClubLoot is IClub {
     /// Burn Logic
     /// -----------------------------------------------------------------------
 
-    function _burn(address from, uint256 amount) internal {
+    function _burn(address from, uint256 amount) private {
         balanceOf[from] -= amount;
         // cannot underflow because a user's balance
         // will never be larger than the total supply
