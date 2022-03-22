@@ -236,10 +236,20 @@ contract ClubSigTest is DSTestPlus {
         assets[1] = a > b ? a : b;
 
         mockDai.transfer(address(clubSig), 100000 * 1e18);
-        (bool sent,) = address(clubSig).call{value: 5 ether}("");
+
+        (bool sent, ) = address(clubSig).call{value: 5 ether}("");
         assert(sent);
+
         startHoax(alice, alice, type(uint256).max);
+
+        uint256 ethBal = address(this).balance;
+        uint256 daiBal = mockDai.balanceOf(address(this));
+
         clubSig.ragequit(assets, 100);
-        // TODO(Balance assertions)
+
+        // TODO(This is not working as expected, 1 eth is transfereed back rather than 2.5)
+        // Because here there is only 200 loot outstanding
+        // assert(ethBal + 2.5 ether == address(this).balance);
+        // assert(daiBal + 500000 * 1e18 == mockDai.balanceOf(address(this)));
     }
 }
