@@ -5,16 +5,21 @@ import {IClub} from "../interfaces/IClub.sol";
 
 import {KaliClubSig} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
+import {ERC20} from "./tokens/ERC20.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
-import {stdError} from "@std/stdlib.sol";
+import "forge-std/stdlib.sol";
 
 contract ClubSigTest is DSTestPlus {
+    using stdStorage for StdStorage;
+
+    StdStorage stdstore;
     KaliClubSig clubSig;
     ClubLoot loot;
     KaliClubSigFactory factory;
+    ERC20 mockDai;
 
     // TODO(Success case tests for all functions in KaliClubSig)
     // TODO(Fuzzing)
@@ -25,10 +30,26 @@ contract ClubSigTest is DSTestPlus {
     address public immutable bob = address(0xb);
     address public immutable charlie = address(0xc);
 
+    function writeTokenBalance(
+        address who,
+        address token,
+        uint256 amt
+    ) internal {
+        stdstore
+            .target(token)
+            .sig(ERC20(token).balanceOf.selector)
+            .with_key(who)
+            .checked_write(amt);
+    }
+
     /// @notice Set up the testing suite
     function setUp() public {
         clubSig = new KaliClubSig();
         loot = new ClubLoot();
+        mockDai = new ERC20("Dai", "DAI", 18);
+
+        // 1B mockDai!
+        mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
         factory = new KaliClubSigFactory(clubSig, loot);
@@ -50,6 +71,8 @@ contract ClubSigTest is DSTestPlus {
             "BASE",
             "DOCS"
         );
+
+        ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
     /// -----------------------------------------------------------------------
@@ -203,23 +226,20 @@ contract ClubSigTest is DSTestPlus {
     /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
-    //function testRageQuit(address a, address b) public {
-    //address[] memory assets = new address[](2);
-    //assets[0] = a > b ? b : a;
-    //assets[1] = a > b ? a : b;
+    // TODO(Add failure cases here)
+    function testRageQuit() public {
+        address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+        address b = address(mockDai);
 
-    // Should revert on asset order
-    //vm.expectRevert(bytes4(keccak256('AssetOrder()')));
-    //clubSig.ragequit(assets, 100);
+        address[] memory assets = new address[](2);
+        assets[0] = a > b ? b : a;
+        assets[1] = a > b ? a : b;
 
-    // Switch the asset order
-    //assets[0] = a > b ? a : b;
-    //assets[1] = a > b ? b : a;
-
-    // Should arithmetic underflow since not enough loot
-    //startHoax(charlie, charlie, type(uint256).max);
-    //vm.expectRevert(stdError.arithmeticError);
-    //clubSig.ragequit(assets, 100);
-    //vm.stopPrank();
-    //}
+        mockDai.transfer(address(clubSig), 100000 * 1e18);
+        (bool sent,) = address(clubSig).call{value: 5 ether}("");
+        assert(sent);
+        startHoax(alice, alice, type(uint256).max);
+        clubSig.ragequit(assets, 100);
+        // TODO(Balance assertions)
+    }
 }
