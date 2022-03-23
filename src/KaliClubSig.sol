@@ -20,6 +20,13 @@ import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
+
+struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
+
 contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
@@ -48,6 +55,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     error NoArrayParity();
     error RedemptionEarly();
     error AssetOrder();
+    error ExecuteError();
 
     /// -----------------------------------------------------------------------
     /// Club Storage
@@ -86,12 +94,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     uint256 private INITIAL_CHAIN_ID;
     bytes32 private INITIAL_DOMAIN_SEPARATOR;
-
-    struct Signature {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
 
     function DOMAIN_SEPARATOR() private view returns (bytes32) {
         return
@@ -249,6 +251,10 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         // We have quorum or a call by a governor here
         // TODO(Support multicall here?)
         // A single execute could support chaining transactions like a molochdao
+        // TODO(We throw away the return data here, there might be reason to parse the return values or pass them)
+        // to later calls
+        // https://gist.github.com/0xAlcibiades/4faf1601635eba8da17bdd3dd1c70692#file-multicall-sol-L171
+        // food for thought.
 
         if (!deleg) {
             // If this is not a delegated call
@@ -276,6 +282,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 )
             }
         }
+
+        if (!success) revert ExecuteError();
 
         emit Execute(to, value, data);
     }
