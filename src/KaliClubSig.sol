@@ -370,6 +370,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     fallback() external payable {}
+
     // note: receive doesn't work with cloneWithImmutable pattern
     receive() external payable {}
 
