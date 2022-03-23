@@ -185,110 +185,110 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Operations
     /// -----------------------------------------------------------------------
 
-    function execute(
-        address to,
-        uint256 value,
-        bytes memory data,
-        bool deleg,
-        Signature[] calldata sigs
-    ) external payable returns (bool success) {
-        // governor has admin privileges to execute without quorum
-        if (!governor[msg.sender]) {
-            // cannot realistically overflow on human timescales
-            unchecked {
-                // TODO(Potential reentrancy bug here incrementing nonce before external calls)
-                // Consider intermediary storage on the stack and update after external calls
-                bytes32 digest = keccak256(
-                    abi.encodePacked(
-                        "\x19\x01",
-                        DOMAIN_SEPARATOR(),
-                        keccak256(
-                            abi.encode(
-                                keccak256(
-                                    "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
-                                ),
-                                to,
-                                value,
-                                data,
-                                deleg,
-                                ++nonce
-                            )
-                        )
-                    )
-                );
-
-                // starting from the zero address here to ensure that all addresses are greater than
-                address prevAddr;
-
-                for (uint256 i; i < quorum; ++i) {
-                    address signer = ecrecover(
-                        digest,
-                        sigs[i].v,
-                        sigs[i].r,
-                        sigs[i].s
-                    );
-                    // check for conformant contract signature using EIP-1271
-                    // - branching on if the signer address is an EOA or a contract
-                    if (
-                        signer.code.length != 0 &&
-                        IERC1271(signer).isValidSignature(
-                            digest,
-                            abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                        ) !=
-                        0x1626ba7e // magic value
-                    ) revert WrongSigner();
-                    // check for NFT balance and duplicates
-                    if (balanceOf[signer] == 0 || prevAddr >= signer)
-                        revert WrongSigner();
-                    // set prevAddr to signer for the next iteration until we've reached quorum
-                    prevAddr = signer;
-                }
-            }
-        }
-
-        // We have quorum or a call by a governor here
-        // TODO(Support multicall here?)
-        // A single execute could support chaining transactions like a molochdao
-        // TODO(We throw away the return data here, there might be reason to parse the return values or pass them)
-        // to later calls
-        // https://gist.github.com/0xAlcibiades/4faf1601635eba8da17bdd3dd1c70692#file-multicall-sol-L171
-        // food for thought.
-
-        if (!deleg) {
-            // if this is not a delegated call
-            assembly {
-                success := call(
-                    gas(),
-                    to,
-                    value,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        } else {
-            // delegate call
-            assembly {
-                success := delegatecall(
-                    gas(),
-                    to,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        }
-
-        if (!success) revert ExecuteError();
-
-        emit Execute(to, value, data);
+    struct Call {
+        address to;
+        uint256 value;
+        bytes data;
+        bool deleg;
     }
 
-    // TODO(Multicall inheritance here is un-permissioned)
+    function execute(
+        Call[] calldata calls,
+        Signature[] calldata sigs
+    ) external payable returns (bool success) {
+        for (uint256 i; i < calls.length; ) {
+            if (!governor[msg.sender]) {
+                // cannot realistically overflow on human timescales
+                unchecked {
+                    // TODO(Potential reentrancy bug here incrementing nonce before external calls)
+                    // Consider intermediary storage on the stack and update after external calls
+                    bytes32 digest = keccak256(
+                        abi.encodePacked(
+                            "\x19\x01",
+                            DOMAIN_SEPARATOR(),
+                            keccak256(
+                                abi.encode(
+                                    keccak256(
+                                        "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                                    ),
+                                    calls[i].to,
+                                    calls[i].value,
+                                    calls[i].data,
+                                    calls[i].deleg,
+                                    ++nonce
+                                )
+                            )
+                        )
+                    );
+                    // Starting from the zero address here to ensure that all addresses are greater than
+                    address prevAddr;
 
-    // TODO(Should this be external, or public?)
+                    for (uint256 j; j < quorum; ++j) {
+                        address signer = ecrecover(
+                            digest,
+                            sigs[j].v,
+                            sigs[j].r,
+                            sigs[j].s
+                        );
+                        // check for conformant contract signature using EIP-1271
+                        // branching on if the signer address is an EOA or a contract
+                        if (
+                            signer.code.length != 0 &&
+                            IERC1271(signer).isValidSignature(
+                                digest,
+                                abi.encodePacked(sigs[j].r, sigs[j].s, sigs[j].v)
+                            ) !=
+                            0x1626ba7e // magic value
+                        ) revert WrongSigner();
+                        // check for NFT balance and duplicates
+                        if (balanceOf[signer] == 0 || prevAddr >= signer)
+                            revert WrongSigner();
+                        // Set prevAddr to signer for the next iteration until we've reached quorum
+                        prevAddr = signer;
+                    }
+                }
+            }
+            // We have quorum or a call by a governor here
+            if (!calls[i].deleg) {
+                // If this is not a delegated call
+                address to = calls[i].to;
+                uint256 value = calls[i].value;
+                bytes memory data = calls[i].data;
+
+                assembly {
+                    success := call(
+                        gas(),
+                        to,
+                        value,
+                        add(data, 0x20),
+                        mload(data),
+                        0,
+                        0
+                    )
+                }
+            } else {
+                // delegate call
+                address to = calls[i].to;
+                bytes memory data = calls[i].data;
+
+                assembly {
+                    success := delegatecall(
+                        gas(),
+                        to,
+                        add(data, 0x20),
+                        mload(data),
+                        0,
+                        0
+                    )
+                }
+            }
+
+            if (!success) revert ExecuteError();
+
+            emit Execute(calls[i].to, calls[i].value, calls[i].data);
+        }
+    }
+
     function govern(
         Club[] calldata club_,
         bool[] calldata mints_,
@@ -370,8 +370,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     fallback() external payable {}
-    // note: receive doesn't work with cloneWithImmutable pattern
-    receive() external payable {}
 
     /// @dev redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
