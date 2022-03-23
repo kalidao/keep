@@ -253,7 +253,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                     prevAddr = signer;
                 }
             }
-            nonce++;
         }
 
         // We have quorum or a call by a governor here
@@ -292,6 +291,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         if (!success) revert ExecuteError();
+
+        nonce++;
 
         emit Execute(to, value, data);
     }

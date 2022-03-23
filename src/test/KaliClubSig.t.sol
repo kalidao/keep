@@ -22,6 +22,7 @@ contract ClubSigTest is DSTestPlus {
     ERC20 mockDai;
 
     // TODO(Fuzzing)
+    // TODO(Failure cases)
     // TODO(Adversarial testing)
 
     /// @dev Users
@@ -90,7 +91,6 @@ contract ClubSigTest is DSTestPlus {
 
     function testNonce() public view {
         assert(clubSig.nonce() == 1);
-        // TODO(Execute tx and check that nonce is incremented)
     }
 
     function testQuorum() public view {
@@ -144,6 +144,7 @@ contract ClubSigTest is DSTestPlus {
     /// -----------------------------------------------------------------------
 
     function testExecuteGovernor() public {
+        uint256 nonceInit = clubSig.nonce();
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setGovernor(alice, true);
         vm.stopPrank();
@@ -170,6 +171,8 @@ contract ClubSigTest is DSTestPlus {
 
         clubSig.execute(address(mockDai), 0, data, false, sigs);
         vm.stopPrank();
+        uint256 nonceAfter = clubSig.nonce();
+        assert((nonceInit + 1) == nonceAfter);
     }
 
     function testExecuteWithSignatures() public {
@@ -330,7 +333,6 @@ contract ClubSigTest is DSTestPlus {
     /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
-    // TODO(Add failure cases here)
     function testRageQuit() public {
         address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         address b = address(mockDai);
