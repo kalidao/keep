@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import {IClub} from "../interfaces/IClub.sol";
 
-import {KaliClubSig} from "../KaliClubSig.sol";
+import {KaliClubSig, Signature} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
 import {ERC20} from "./tokens/ERC20.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
@@ -133,13 +133,32 @@ contract ClubSigTest is DSTestPlus {
     /// Operations Tests
     /// -----------------------------------------------------------------------
 
-    function testExecuteGovernor(bool deleg) public {
+    function testExecuteGovernor() public {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setGovernor(alice, true);
         vm.stopPrank();
         assertTrue(clubSig.governor(alice));
 
+        address aliceAddress = address(alice);
+
+        Signature[] memory sigs = new Signature[](0);
+
+        mockDai.transfer(address(clubSig), 100);
+
         startHoax(address(alice), address(alice), type(uint256).max);
+
+        bytes memory data = "";
+
+        assembly {
+            mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(data, 0x24), aliceAddress)
+            mstore(add(data, 0x44), 100)
+            mstore(data, 0x44)
+            // Update free memory pointer
+            mstore(0x40, add(data, 0x100))
+        }
+
+        clubSig.execute(address(mockDai), 0, data, false, sigs);
         vm.stopPrank();
     }
 
@@ -253,8 +272,8 @@ contract ClubSigTest is DSTestPlus {
 
         startHoax(alice, alice, type(uint256).max);
 
-        uint256 ethBal = address(this).balance;
-        uint256 daiBal = mockDai.balanceOf(address(this));
+        //uint256 ethBal = address(this).balance;
+        //uint256 daiBal = mockDai.balanceOf(address(this));
 
         clubSig.ragequit(assets, 100);
 

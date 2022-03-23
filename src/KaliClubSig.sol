@@ -20,6 +20,13 @@ import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
+
+struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
+
 contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
@@ -48,6 +55,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     error NoArrayParity();
     error RedemptionEarly();
     error AssetOrder();
+    error ExecuteError();
 
     /// -----------------------------------------------------------------------
     /// Club Storage
@@ -86,12 +94,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     uint256 private INITIAL_CHAIN_ID;
     bytes32 private INITIAL_DOMAIN_SEPARATOR;
-
-    struct Signature {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
 
     function DOMAIN_SEPARATOR() private view returns (bytes32) {
         return
@@ -253,19 +255,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         // to later calls
         // https://gist.github.com/0xAlcibiades/4faf1601635eba8da17bdd3dd1c70692#file-multicall-sol-L171
         // food for thought.
-        // TODO(At the least, we should consider requiring success or reverting)
-
-        // Solidity stores the length of a memory segment in the first word, and the body in the words after that to
-        // form a memory object
-        // The memory object here is an abi encoded function call
-        //
-        // A sample in yul of this encoding for a common call looks like:
-        //
-        // Store the method signature for transferFrom(address,address,uint256)
-        //mstore(ptr, encodeMethod(0x23b872dd))
-        //mstore(add(ptr, 0x4), source)
-        //mstore(add(ptr, 0x24), dest)
-        //mstore(add(ptr, 0x44), amount)
 
         if (!deleg) {
             // If this is not a delegated call
@@ -293,6 +282,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 )
             }
         }
+
+        if (!success) revert ExecuteError();
 
         emit Execute(to, value, data);
     }
