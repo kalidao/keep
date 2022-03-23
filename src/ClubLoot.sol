@@ -55,7 +55,7 @@ contract ClubLoot is IClub {
     }
 
     function _getArgUint256(uint256 argOffset)
-        internal
+        private
         pure
         returns (uint256 arg)
     {
