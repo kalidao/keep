@@ -185,6 +185,34 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Operations
     /// -----------------------------------------------------------------------
 
+    function getDigest(
+        address to,
+        uint256 value,
+        bytes memory data,
+        bool deleg,
+        uint256 tx_nonce
+    ) public view returns (bytes32 digest) {
+        // Exposed for the user to precompute a digest when signing.
+        digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                        ),
+                        to,
+                        value,
+                        data,
+                        deleg,
+                        tx_nonce
+                    )
+                )
+            )
+        );
+    }
+
     function execute(
         address to,
         uint256 value,
@@ -196,26 +224,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (!governor[msg.sender]) {
             // cannot realistically overflow on human timescales
             unchecked {
-                // TODO(Potential reentrancy bug here incrementing nonce before external calls)
-                // Consider intermediary storage on the stack and update after external calls
-                bytes32 digest = keccak256(
-                    abi.encodePacked(
-                        "\x19\x01",
-                        DOMAIN_SEPARATOR(),
-                        keccak256(
-                            abi.encode(
-                                keccak256(
-                                    "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
-                                ),
-                                to,
-                                value,
-                                data,
-                                deleg,
-                                ++nonce
-                            )
-                        )
-                    )
-                );
+                bytes32 digest = getDigest(to, value, data, deleg, nonce);
 
                 // starting from the zero address here to ensure that all addresses are greater than
                 address prevAddr;
@@ -244,6 +253,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                     prevAddr = signer;
                 }
             }
+            nonce++;
         }
 
         // We have quorum or a call by a governor here

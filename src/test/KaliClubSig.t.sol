@@ -25,9 +25,12 @@ contract ClubSigTest is DSTestPlus {
     // TODO(Adversarial testing)
 
     /// @dev Users
-    address public immutable alice = address(0xa);
     address public immutable bob = address(0xb);
     address public immutable charlie = address(0xc);
+
+    uint256 immutable alicesPk =
+        0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
+    address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
 
     function writeTokenBalance(
         address who,
@@ -55,8 +58,12 @@ contract ClubSigTest is DSTestPlus {
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
-        clubs[0] = IClub.Club(alice, 0, 100);
-        clubs[1] = IClub.Club(bob, 1, 100);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (clubSig, ) = factory.deployClubSig(
@@ -160,6 +167,46 @@ contract ClubSigTest is DSTestPlus {
 
         clubSig.execute(address(mockDai), 0, data, false, sigs);
         vm.stopPrank();
+    }
+
+    function testFailExecuteWithSignatures() public {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        bytes memory tx_data = "";
+
+        address aliceAddress = alice;
+
+        assembly {
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(tx_data, 0x24), aliceAddress)
+            mstore(add(tx_data, 0x44), 100)
+            mstore(tx_data, 0x44)
+            // Update free memory pointer
+            mstore(0x40, add(tx_data, 0x100))
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        // Sign as alice
+        startHoax(address(alice), address(alice), type(uint256).max);
+
+        (v, r, s) = vm.sign(
+            alicesPk,
+            clubSig.getDigest(
+                address(mockDai),
+                0,
+                tx_data,
+                false,
+                clubSig.nonce()
+            )
+        );
+        sigs[0] = Signature({v: v, r: r, s: s});
+
+        vm.stopPrank();
+        // TODO(Sign as bob)
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, false, sigs);
     }
 
     // TODO(Test as non admin (quorum))
