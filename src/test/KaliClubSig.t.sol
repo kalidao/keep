@@ -21,7 +21,6 @@ contract ClubSigTest is DSTestPlus {
     KaliClubSigFactory factory;
     ERC20 mockDai;
 
-    // TODO(Success case tests for all functions in KaliClubSig)
     // TODO(Fuzzing)
     // TODO(Adversarial testing)
 
@@ -128,11 +127,23 @@ contract ClubSigTest is DSTestPlus {
 
     // Init is implicitly tested by the factory/deploy
 
-    function testExecute() public {
-        // TODO(test execution)
+    // The governor storage mapping in tested implicitly below
+
+    /// -----------------------------------------------------------------------
+    /// Operations Tests
+    /// -----------------------------------------------------------------------
+
+    function testExecuteGovernor(bool deleg) public {
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setGovernor(alice, true);
+        vm.stopPrank();
+        assertTrue(clubSig.governor(alice));
+
+        startHoax(address(alice), address(alice), type(uint256).max);
+        vm.stopPrank();
     }
 
-    // The governor storage mapping in tested implicitly below
+    // TODO(Test as non admin (quorum))
 
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
