@@ -25,12 +25,15 @@ contract ClubSigTest is DSTestPlus {
     // TODO(Adversarial testing)
 
     /// @dev Users
-    address public immutable bob = address(0xb);
     address public immutable charlie = address(0xc);
 
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
     address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
+
+    uint256 immutable bobsPk =
+        0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
+    address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
     function writeTokenBalance(
         address who,
@@ -169,13 +172,14 @@ contract ClubSigTest is DSTestPlus {
         vm.stopPrank();
     }
 
-    function testFailExecuteWithSignatures() public {
+    function testExecuteWithSignatures() public {
+        // TODO(Test quorum 2/3)
+        mockDai.transfer(address(clubSig), 100);
         uint8 v;
         bytes32 r;
         bytes32 s;
-        bytes memory tx_data = "";
-
         address aliceAddress = alice;
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -183,10 +187,13 @@ contract ClubSigTest is DSTestPlus {
             mstore(add(tx_data, 0x44), 100)
             mstore(tx_data, 0x44)
             // Update free memory pointer
-            mstore(0x40, add(tx_data, 0x100))
+            mstore(0x40, add(tx_data, 0x80))
         }
 
         Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
 
         // Sign as alice
         startHoax(address(alice), address(alice), type(uint256).max);
@@ -201,10 +208,30 @@ contract ClubSigTest is DSTestPlus {
                 clubSig.nonce()
             )
         );
-        sigs[0] = Signature({v: v, r: r, s: s});
 
+        aliceSig = Signature({v: v, r: r, s: s});
         vm.stopPrank();
-        // TODO(Sign as bob)
+
+        // Sign as bob
+        startHoax(address(bob), address(bob), type(uint256).max);
+
+        (v, r, s) = vm.sign(
+            bobsPk,
+            clubSig.getDigest(
+                address(mockDai),
+                0,
+                tx_data,
+                false,
+                clubSig.nonce()
+            )
+        );
+
+        bobSig = Signature({v: v, r: r, s: s});
+        vm.stopPrank();
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, false, sigs);
     }
