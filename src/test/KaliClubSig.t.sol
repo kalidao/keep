@@ -117,14 +117,16 @@ contract ClubSigTest is DSTestPlus {
         // TODO(Add more members, alter quorum and check that number changed)
     }
 
-    function testRedemptionStart() public view {
+    function testRedemptionStart() public {
         assert(clubSig.redemptionStart() == 0);
-        // TODO(Set a different redemption and verify setting)
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setRedemptionStart(block.timestamp);
+        vm.stopPrank();
+        assert(clubSig.redemptionStart() == block.timestamp);
     }
 
     function testTotalSupply() public view {
         assert(clubSig.totalSupply() == 2);
-        // TODO(Mint another pass and assert that the total supply has increased)
     }
 
     function testBaseURI() public {
@@ -211,7 +213,7 @@ contract ClubSigTest is DSTestPlus {
             }
         } else {
             assembly {
-                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
                 mstore(tx_data, 0x24)
                 // Update free memory pointer
@@ -234,8 +236,6 @@ contract ClubSigTest is DSTestPlus {
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
-    // TODO(Test as non admin (quorum))
-
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
         clubs[0] = IClub.Club(alice, 0, 100);
@@ -249,6 +249,7 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testGovernMint() public {
+        assert(clubSig.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -259,6 +260,7 @@ contract ClubSigTest is DSTestPlus {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
+        assert(clubSig.totalSupply() == 3);
     }
 
     function testGovernBurn() public {
