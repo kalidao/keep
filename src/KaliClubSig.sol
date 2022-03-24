@@ -88,6 +88,14 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         _;
     }
 
+    /// @dev call execution parameters 
+    struct Call {
+        address to;
+        uint256 value;
+        bytes data;
+        bool deleg;
+    }
+
     /// -----------------------------------------------------------------------
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
@@ -185,67 +193,68 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Operations
     /// -----------------------------------------------------------------------
 
-    struct Call {
-        address to;
-        uint256 value;
-        bytes data;
-        bool deleg;
+    /// @dev exposed for the user to precompute a digest when signing
+    function getDigest(
+        address to,
+        uint256 value,
+        bytes memory data,
+        bool deleg,
+        uint256 tx_nonce
+    ) public view returns (bytes32 digest) {
+        digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                        ),
+                        to,
+                        value,
+                        data,
+                        deleg,
+                        tx_nonce
+                    )
+                )
+            )
+        );
     }
 
     function execute(
         Call[] calldata calls,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
-        for (uint256 i; i < calls.length; ) {
-            if (!governor[msg.sender]) {
-                // cannot realistically overflow on human timescales
-                unchecked {
-                    // TODO(Potential reentrancy bug here incrementing nonce before external calls)
-                    // Consider intermediary storage on the stack and update after external calls
-                    bytes32 digest = keccak256(
-                        abi.encodePacked(
-                            "\x19\x01",
-                            DOMAIN_SEPARATOR(),
-                            keccak256(
-                                abi.encode(
-                                    keccak256(
-                                        "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
-                                    ),
-                                    calls[i].to,
-                                    calls[i].value,
-                                    calls[i].data,
-                                    calls[i].deleg,
-                                    ++nonce
-                                )
-                            )
-                        )
-                    );
-                    // Starting from the zero address here to ensure that all addresses are greater than
-                    address prevAddr;
+        bool gov = governor[msg.sender];
 
-                    for (uint256 j; j < quorum; ++j) {
-                        address signer = ecrecover(
+        for (uint256 i; i < calls.length; ) {
+            if (!gov) {
+                bytes32 digest = getDigest(calls[i].to, calls[i].value, calls[i].data, calls[i].deleg, nonce);
+                // starting from the zero address here to ensure that all addresses are greater than
+                address prevAddr;
+
+                for (uint256 j; j < quorum; ) {
+                    address signer = ecrecover(
+                        digest,
+                        sigs[j].v,
+                        sigs[j].r,
+                        sigs[j].s
+                    );
+                    // check for conformant contract signature using EIP-1271
+                    // branching on if the signer address is an EOA or a contract
+                    if (
+                        signer.code.length != 0 &&
+                        IERC1271(signer).isValidSignature(
                             digest,
-                            sigs[j].v,
-                            sigs[j].r,
-                            sigs[j].s
-                        );
-                        // check for conformant contract signature using EIP-1271
-                        // branching on if the signer address is an EOA or a contract
-                        if (
-                            signer.code.length != 0 &&
-                            IERC1271(signer).isValidSignature(
-                                digest,
-                                abi.encodePacked(sigs[j].r, sigs[j].s, sigs[j].v)
-                            ) !=
-                            0x1626ba7e // magic value
-                        ) revert WrongSigner();
-                        // check for NFT balance and duplicates
-                        if (balanceOf[signer] == 0 || prevAddr >= signer)
-                            revert WrongSigner();
-                        // Set prevAddr to signer for the next iteration until we've reached quorum
-                        prevAddr = signer;
-                    }
+                            abi.encodePacked(sigs[j].r, sigs[j].s, sigs[j].v)
+                        ) !=
+                        0x1626ba7e // magic value
+                    ) revert WrongSigner();
+                    // check for NFT balance and duplicates
+                    if (balanceOf[signer] == 0 || prevAddr >= signer)
+                        revert WrongSigner();
+                    // Set prevAddr to signer for the next iteration until we've reached quorum
+                    prevAddr = signer;
                 }
             }
             // We have quorum or a call by a governor here
