@@ -10,4 +10,6 @@ interface IClubLoot {
     function mint(address to, uint256 amount) external;
 
     function govBurn(address from, uint256 amount) external;
+
+    function setPause(bool paused) external;
 }
