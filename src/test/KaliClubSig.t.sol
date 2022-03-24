@@ -22,11 +22,20 @@ contract ClubSigTest is DSTestPlus {
     ERC20 mockDai;
 
     // TODO(Fuzzing)
+    // TODO(Failure cases)
     // TODO(Adversarial testing)
 
     /// @dev Users
-    address public immutable alice = address(0xa);
-    address public immutable bob = address(0xb);
+
+    uint256 immutable alicesPk =
+        0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
+    address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
+
+    uint256 immutable bobsPk =
+        0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
+    address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
+
+    // TODO(Use this guy and add him to the ternary operator sorting throughout)
     address public immutable charlie = address(0xc);
 
     function writeTokenBalance(
@@ -39,6 +48,25 @@ contract ClubSigTest is DSTestPlus {
             .sig(ERC20(token).balanceOf.selector)
             .with_key(who)
             .checked_write(amt);
+    }
+
+    function signExecution(
+        uint256 pk,
+        address to,
+        uint256 value,
+        bytes memory data,
+        bool deleg
+    ) internal returns (Signature memory sig) {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+        (v, r, s) = vm.sign(
+            pk,
+            clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce())
+        );
+
+        sig = Signature({v: v, r: r, s: s});
     }
 
     /// @notice Set up the testing suite
@@ -55,8 +83,12 @@ contract ClubSigTest is DSTestPlus {
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
-        clubs[0] = IClub.Club(alice, 0, 100);
-        clubs[1] = IClub.Club(bob, 1, 100);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (clubSig, ) = factory.deployClubSig(
@@ -80,22 +112,34 @@ contract ClubSigTest is DSTestPlus {
 
     function testNonce() public view {
         assert(clubSig.nonce() == 1);
-        // TODO(Execute tx and check that nonce is incremented)
     }
 
-    function testQuorum() public view {
+    function testQuorum() public {
         assert(clubSig.quorum() == 2);
-        // TODO(Add more members, alter quorum and check that number changed)
+        address db = address(0xdeadbeef);
+
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(db, 2, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = true;
+
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 3);
+
+        assert(clubSig.quorum() == 3);
     }
 
-    function testRedemptionStart() public view {
+    function testRedemptionStart() public {
         assert(clubSig.redemptionStart() == 0);
-        // TODO(Set a different redemption and verify setting)
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setRedemptionStart(block.timestamp);
+        vm.stopPrank();
+        assert(clubSig.redemptionStart() == block.timestamp);
     }
 
     function testTotalSupply() public view {
         assert(clubSig.totalSupply() == 2);
-        // TODO(Mint another pass and assert that the total supply has increased)
     }
 
     function testBaseURI() public {
@@ -134,6 +178,7 @@ contract ClubSigTest is DSTestPlus {
     /// -----------------------------------------------------------------------
 
     function testExecuteGovernor() public {
+        uint256 nonceInit = clubSig.nonce();
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setGovernor(alice, true);
         vm.stopPrank();
@@ -160,9 +205,48 @@ contract ClubSigTest is DSTestPlus {
 
         clubSig.execute(address(mockDai), 0, data, false, sigs);
         vm.stopPrank();
+        uint256 nonceAfter = clubSig.nonce();
+        assert((nonceInit + 1) == nonceAfter);
     }
 
-    // TODO(Test as non admin (quorum))
+    function testExecuteWithSignatures(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+    }
 
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -177,6 +261,7 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testGovernMint() public {
+        assert(clubSig.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -187,6 +272,7 @@ contract ClubSigTest is DSTestPlus {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
+        assert(clubSig.totalSupply() == 3);
     }
 
     function testGovernBurn() public {
@@ -256,7 +342,6 @@ contract ClubSigTest is DSTestPlus {
     /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
-    // TODO(Add failure cases here)
     function testRageQuit() public {
         address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         address b = address(mockDai);
