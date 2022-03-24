@@ -304,7 +304,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             }
 
             emit Execute(calls[i].to, calls[i].value, calls[i].data);
-
         }
     }
 
