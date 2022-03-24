@@ -48,6 +48,25 @@ contract ClubSigTest is DSTestPlus {
             .checked_write(amt);
     }
 
+    function signExecution(uint256 pk, address to, uint256 value, bytes memory data, bool deleg) internal returns (Signature memory sig) {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+        (v, r, s) = vm.sign(
+            pk,
+            clubSig.getDigest(
+                address(to),
+                value,
+                data,
+                deleg,
+                clubSig.nonce()
+            )
+        );
+
+        sig = Signature({v: v, r: r, s: s});
+    }
+
     /// @notice Set up the testing suite
     function setUp() public {
         clubSig = new KaliClubSig();
@@ -175,68 +194,47 @@ contract ClubSigTest is DSTestPlus {
         assert((nonceInit + 1) == nonceAfter);
     }
 
-    function testExecuteWithSignatures() public {
+    function testExecuteWithSignatures(bool deleg) public {
         // TODO(Test quorum 2/3)
         mockDai.transfer(address(clubSig), 100);
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
         address aliceAddress = alice;
         bytes memory tx_data = "";
 
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
-            mstore(add(tx_data, 0x24), aliceAddress)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
             // Update free memory pointer
-            mstore(0x40, add(tx_data, 0x80))
+                mstore(0x40, add(tx_data, 0x80))
+            }
         }
+        else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
 
         Signature[] memory sigs = new Signature[](2);
 
         Signature memory aliceSig;
         Signature memory bobSig;
 
-        // Sign as alice
-        startHoax(address(alice), address(alice), type(uint256).max);
 
-        (v, r, s) = vm.sign(
-            alicesPk,
-            clubSig.getDigest(
-                address(mockDai),
-                0,
-                tx_data,
-                false,
-                clubSig.nonce()
-            )
-        );
-
-        aliceSig = Signature({v: v, r: r, s: s});
-        vm.stopPrank();
-
-        // Sign as bob
-        startHoax(address(bob), address(bob), type(uint256).max);
-
-        (v, r, s) = vm.sign(
-            bobsPk,
-            clubSig.getDigest(
-                address(mockDai),
-                0,
-                tx_data,
-                false,
-                clubSig.nonce()
-            )
-        );
-
-        bobSig = Signature({v: v, r: r, s: s});
-        vm.stopPrank();
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
 
         sigs[0] = alice > bob ? bobSig : aliceSig;
         sigs[1] = alice > bob ? aliceSig : bobSig;
 
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, false, sigs);
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
     // TODO(Test as non admin (quorum))
