@@ -48,20 +48,20 @@ contract ClubSigTest is DSTestPlus {
             .checked_write(amt);
     }
 
-    function signExecution(uint256 pk, address to, uint256 value, bytes memory data, bool deleg) internal returns (Signature memory sig) {
+    function signExecution(
+        uint256 pk,
+        address to,
+        uint256 value,
+        bytes memory data,
+        bool deleg
+    ) internal returns (Signature memory sig) {
         uint8 v;
         bytes32 r;
         bytes32 s;
 
         (v, r, s) = vm.sign(
             pk,
-            clubSig.getDigest(
-                address(to),
-                value,
-                data,
-                deleg,
-                clubSig.nonce()
-            )
+            clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce())
         );
 
         sig = Signature({v: v, r: r, s: s});
@@ -206,11 +206,10 @@ contract ClubSigTest is DSTestPlus {
                 mstore(add(tx_data, 0x24), aliceAddress)
                 mstore(add(tx_data, 0x44), 100)
                 mstore(tx_data, 0x44)
-            // Update free memory pointer
+                // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        }
-        else {
+        } else {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -220,12 +219,10 @@ contract ClubSigTest is DSTestPlus {
             }
         }
 
-
         Signature[] memory sigs = new Signature[](2);
 
         Signature memory aliceSig;
         Signature memory bobSig;
-
 
         aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
         bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
