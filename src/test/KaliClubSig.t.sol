@@ -26,7 +26,6 @@ contract ClubSigTest is DSTestPlus {
     // TODO(Adversarial testing)
 
     /// @dev Users
-    address public immutable charlie = address(0xc);
 
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
@@ -35,6 +34,9 @@ contract ClubSigTest is DSTestPlus {
     uint256 immutable bobsPk =
         0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
     address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
+
+    // TODO(Use this guy and add him to the ternary operator sorting throughout)
+    address public immutable charlie = address(0xc);
 
     function writeTokenBalance(
         address who,
@@ -112,9 +114,20 @@ contract ClubSigTest is DSTestPlus {
         assert(clubSig.nonce() == 1);
     }
 
-    function testQuorum() public view {
+    function testQuorum() public {
         assert(clubSig.quorum() == 2);
-        // TODO(Add more members, alter quorum and check that number changed)
+        address db = address(0xdeadbeef);
+
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(db, 2, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = true;
+
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 3);
+
+        assert(clubSig.quorum() == 3);
     }
 
     function testRedemptionStart() public {
@@ -197,7 +210,6 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testExecuteWithSignatures(bool deleg) public {
-        // TODO(Test quorum 2/3)
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
