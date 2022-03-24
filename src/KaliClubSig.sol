@@ -200,8 +200,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bytes memory data,
         bool deleg,
         uint256 tx_nonce
-    ) public view returns (bytes32 digest) {
-        digest = keccak256(
+    ) public view returns (bytes32) {
+        return keccak256(
             abi.encodePacked(
                 "\x19\x01",
                 DOMAIN_SEPARATOR(),
@@ -255,6 +255,10 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                         revert WrongSigner();
                     // Set prevAddr to signer for the next iteration until we've reached quorum
                     prevAddr = signer;
+                    // cannot realistically overflow on human timescales
+                    unchecked {
+                        ++j;
+                    }
                 }
             }
             // We have quorum or a call by a governor here
@@ -293,8 +297,14 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             }
 
             if (!success) revert ExecuteError();
+            // cannot realistically overflow on human timescales
+            unchecked {
+                ++i;
+                ++nonce;
+            }
 
             emit Execute(calls[i].to, calls[i].value, calls[i].data);
+
         }
     }
 
