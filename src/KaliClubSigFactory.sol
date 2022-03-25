@@ -3,15 +3,13 @@ pragma solidity >=0.8.4;
 
 import {Multicall} from "./utils/Multicall.sol";
 
-import {IClub} from "./interfaces/IClub.sol";
-
 import {KaliClubSig} from "./KaliClubSig.sol";
 import {ClubLoot} from "./ClubLoot.sol";
 
 import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
 
 /// @notice Kali ClubSig Contract Factory
-contract KaliClubSigFactory is Multicall, IClub {
+contract KaliClubSigFactory is Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
