@@ -27,6 +27,8 @@ contract ClubSigTest is DSTestPlus {
 
     /// @dev Users
 
+    bytes4 immutable internal MAGICVALUE = 0x1626ba7e;
+
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
     address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
@@ -68,6 +70,13 @@ contract ClubSigTest is DSTestPlus {
 
         sig = Signature({v: v, r: r, s: s});
     }
+
+    function isValidSignature(
+        bytes32 _hash,
+        bytes memory _signature)
+    public
+    view
+    returns (bytes4 magicValue);
 
     /// @notice Set up the testing suite
     function setUp() public {
@@ -248,6 +257,57 @@ contract ClubSigTest is DSTestPlus {
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
+    function testExecuteWithEip1271Signature(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
+        // TODO(Add this address as a signer)
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+        Signature memory thisSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+
+        digest = clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce());
+
+
+
+        // TODO(Sign as this contract)
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+    }
+
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
         clubs[0] = IClub.Club(alice, 0, 100);
@@ -343,7 +403,7 @@ contract ClubSigTest is DSTestPlus {
     /// -----------------------------------------------------------------------
 
     // This is causing an overflow
-        function testRageQuit() public {
+    function testRageQuit() public {
         address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         address b = address(mockDai);
 
@@ -364,7 +424,7 @@ contract ClubSigTest is DSTestPlus {
 
         vm.stopPrank();
 
-        // TODO(This is not working as expected, 1 eth is transfereed back rather than 2.5)
+        // TODO(This is not working as expected, 1 eth is transfered back rather than 2.5)
         // Because here there is only 200 loot outstanding
         // assert(ethBal + 2.5 ether == address(this).balance);
         // assert(daiBal + 500000 * 1e18 == mockDai.balanceOf(address(this)));
