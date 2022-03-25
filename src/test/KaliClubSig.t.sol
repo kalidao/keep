@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from "../interfaces/IClub.sol";
-
-import {KaliClubSig, Signature, Call} from "../KaliClubSig.sol";
+import {KaliClubSig, Club, Call, Signature} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
 import {ERC20} from "./tokens/ERC20.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
@@ -82,13 +80,13 @@ contract ClubSigTest is DSTestPlus {
         factory = new KaliClubSigFactory(clubSig, loot);
 
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (clubSig, ) = factory.deployClubSig(
@@ -118,8 +116,8 @@ contract ClubSigTest is DSTestPlus {
         assert(clubSig.quorum() == 2);
         address db = address(0xdeadbeef);
 
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(db, 2, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(db, 2, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
@@ -255,8 +253,8 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testGovernAlreadyMinted() public {
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(alice, 0, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(alice, 0, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
@@ -270,8 +268,8 @@ contract ClubSigTest is DSTestPlus {
         assert(clubSig.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(db, 2, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(db, 2, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
@@ -282,8 +280,8 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testGovernBurn() public {
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(alice, 1, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(alice, 1, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = false;
