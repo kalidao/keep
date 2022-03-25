@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import {Multicall} from "./utils/Multicall.sol";
 
-import {KaliClubSig, Club} from "./KaliClubSig.sol";
+import {Club, KaliClubSig} from "./KaliClubSig.sol";
 import {ClubLoot} from "./ClubLoot.sol";
 
 import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
