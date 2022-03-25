@@ -143,7 +143,7 @@ contract ClubLoot {
 
     function init(
         address governance_,
-        Club[] calldata club_,
+        Club[] memory club_,
         bool lootPaused_
     ) external payable {
         if (INITIAL_CHAIN_ID != 0) revert Initialized();
