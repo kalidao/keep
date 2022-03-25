@@ -343,7 +343,7 @@ contract ClubSigTest is DSTestPlus {
     /// -----------------------------------------------------------------------
 
     // This is causing an overflow
-    /*    function testRageQuit() public {
+        function testRageQuit() public {
         address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         address b = address(mockDai);
 
@@ -356,8 +356,7 @@ contract ClubSigTest is DSTestPlus {
         (bool sent, ) = address(clubSig).call{value: 5 ether}("");
         assert(sent);
 
-        startHoax(alice, alice, type(uint256).max);
-
+        vm.startPrank(alice, alice);
         //uint256 ethBal = address(this).balance;
         //uint256 daiBal = mockDai.balanceOf(address(this));
 
@@ -369,5 +368,5 @@ contract ClubSigTest is DSTestPlus {
         // Because here there is only 200 loot outstanding
         // assert(ethBal + 2.5 ether == address(this).balance);
         // assert(daiBal + 500000 * 1e18 == mockDai.balanceOf(address(this)));
-    }*/
+    }
 }
