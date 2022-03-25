@@ -6,7 +6,6 @@ import {ClubNFT} from "./ClubNFT.sol";
 import {Multicall} from "./utils/Multicall.sol";
 import {NFTreceiver} from "./utils/NFTreceiver.sol";
 
-import {IClub} from "./interfaces/IClub.sol";
 import {IClubLoot} from "./interfaces/IClubLoot.sol";
 import {IERC1271} from "./interfaces/IERC1271.sol";
 
