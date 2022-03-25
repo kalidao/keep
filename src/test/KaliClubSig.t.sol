@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import {IClub} from "../interfaces/IClub.sol";
 
-import {KaliClubSig, Signature} from "../KaliClubSig.sol";
+import {KaliClubSig, Signature, Call} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
 import {ERC20} from "./tokens/ERC20.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
