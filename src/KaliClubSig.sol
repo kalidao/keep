@@ -201,7 +201,7 @@ contract KaliClubSig is ClubNFT, Multicall {
     function getDigest(
         address to,
         uint256 value,
-        bytes memory data,
+        bytes calldata data,
         bool deleg,
         uint256 tx_nonce
     ) public view returns (bytes32) {
