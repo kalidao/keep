@@ -27,7 +27,7 @@ contract ClubSigTest is DSTestPlus {
 
     /// @dev Users
 
-    bytes4 immutable internal MAGICVALUE = 0x1626ba7e;
+    bytes4 internal immutable MAGICVALUE = 0x1626ba7e;
 
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
@@ -71,12 +71,14 @@ contract ClubSigTest is DSTestPlus {
         sig = Signature({v: v, r: r, s: s});
     }
 
-    function isValidSignature(
-        bytes32 _hash,
-        bytes memory _signature)
-    public
-    view
-    returns (bytes4 magicValue);
+    function isValidSignature(bytes32 _hash, bytes memory _signature)
+        public
+        view
+        returns (bytes4)
+    {
+        // TODO(Any validation for test?)
+        return MAGICVALUE;
+    }
 
     /// @notice Set up the testing suite
     function setUp() public {
@@ -292,11 +294,15 @@ contract ClubSigTest is DSTestPlus {
         aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
         bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
 
-        digest = clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce());
+        bytes32 digest = clubSig.getDigest(
+            address(mockDai),
+            0,
+            tx_data,
+            deleg,
+            clubSig.nonce()
+        );
 
-
-
-        // TODO(Sign as this contract)
+        // TODO(How do we sign this on behalf of this contract?)
 
         aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
         bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
