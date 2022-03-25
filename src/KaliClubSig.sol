@@ -21,6 +21,12 @@ import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
 
+struct Club {
+    address signer;
+    uint256 id;
+    uint256 loot;
+}
+
 struct Call {
     address to;
     uint256 value;
@@ -34,7 +40,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClubSig is ClubNFT, Multicall, IClub {
+contract KaliClubSig is ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
