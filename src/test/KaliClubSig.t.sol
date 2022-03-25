@@ -202,8 +202,11 @@ contract ClubSigTest is DSTestPlus {
             // Update free memory pointer
             mstore(0x40, add(data, 0x100))
         }
+        
+        Call[] memory calls = new Call[](1);
+        calls[0] = Call(address(mockDai), 0, data, false);
 
-        clubSig.execute(address(mockDai), 0, data, false, sigs);
+        clubSig.execute(calls, sigs);
         vm.stopPrank();
         uint256 nonceAfter = clubSig.nonce();
         assert((nonceInit + 1) == nonceAfter);
