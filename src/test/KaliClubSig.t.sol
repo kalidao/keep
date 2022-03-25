@@ -243,9 +243,12 @@ contract ClubSigTest is DSTestPlus {
 
         sigs[0] = alice > bob ? bobSig : aliceSig;
         sigs[1] = alice > bob ? aliceSig : bobSig;
+        
+        Call[] memory calls = new Call[](1);
+        calls[0] = Call(address(mockDai), 0, tx_data, deleg);
 
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(calls, sigs);
     }
 
     function testGovernAlreadyMinted() public {
