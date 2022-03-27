@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import {IClub} from "../interfaces/IClub.sol";
 
-import {KaliClubSig, Signature} from "../KaliClubSig.sol";
+import {Call, Signature, KaliClubSig} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
 import {ERC20} from "./tokens/ERC20.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
@@ -202,8 +202,11 @@ contract ClubSigTest is DSTestPlus {
             // Update free memory pointer
             mstore(0x40, add(data, 0x100))
         }
+        
+        Call[] memory calls = new Call[](1);
+        calls[0] = Call(address(mockDai), 0, data, false);
 
-        clubSig.execute(address(mockDai), 0, data, false, sigs);
+        clubSig.execute(calls, sigs);
         vm.stopPrank();
         uint256 nonceAfter = clubSig.nonce();
         assert((nonceInit + 1) == nonceAfter);
@@ -243,9 +246,12 @@ contract ClubSigTest is DSTestPlus {
 
         sigs[0] = alice > bob ? bobSig : aliceSig;
         sigs[1] = alice > bob ? aliceSig : bobSig;
+        
+        Call[] memory calls = new Call[](1);
+        calls[0] = Call(address(mockDai), 0, tx_data, deleg);
 
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(calls, sigs);
     }
 
     function testGovernAlreadyMinted() public {
