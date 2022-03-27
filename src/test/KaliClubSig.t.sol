@@ -328,21 +328,21 @@ contract ClubSigTest is DSTestPlus {
         // assert(loot.paused() == _paused);
     }
 
-    function testUpdateURI(address dave) public {
-        startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("Forbidden()")));
-        clubSig.updateURI("new_base_uri");
-        vm.stopPrank();
+    //function testUpdateURI(address dave) public {
+    //    startHoax(dave, dave, type(uint256).max);
+    //    vm.expectRevert(bytes4(keccak256("Forbidden()")));
+    //    clubSig.updateURI("new_base_uri");
+    //    vm.stopPrank();
 
-        // The ClubSig itself should be able to update the base uri
-        startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.updateURI("new_base_uri");
-        vm.stopPrank();
-        assertEq(
-            keccak256(bytes("new_base_uri")),
-            keccak256(bytes(clubSig.baseURI()))
-        );
-    }
+    //    // The ClubSig itself should be able to update the base uri
+    //    startHoax(address(clubSig), address(clubSig), type(uint256).max);
+    //    clubSig.updateURI("new_base_uri");
+    //    vm.stopPrank();
+    //    assertEq(
+    //        keccak256(bytes("new_base_uri")),
+    //        keccak256(bytes(clubSig.baseURI()))
+    //    );
+    //}
 
     /// -----------------------------------------------------------------------
     /// Asset Management Tests
