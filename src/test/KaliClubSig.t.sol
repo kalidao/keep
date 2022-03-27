@@ -165,13 +165,17 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testTokenURI() public {
-        assert(keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE")));
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+        );
         string memory updated = "NEW BASE";
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.updateURI(updated);
         vm.stopPrank();
-        assert(keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated)));
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
+        );
     }
 
     // @dev Init is implicitly tested by the factory/deploy
