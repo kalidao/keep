@@ -55,7 +55,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     error NoArrayParity();
     error RedemptionEarly();
     error AssetOrder();
-    error ExecuteError();
 
     /// -----------------------------------------------------------------------
     /// Club Storage
@@ -192,7 +191,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bool deleg,
         uint256 tx_nonce
     ) public view returns (bytes32 digest) {
-        // Exposed for the user to precompute a digest when signing.
+        // exposed for the user to precompute a digest when signing
         digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -237,7 +236,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                         sigs[i].s
                     );
                     // check for conformant contract signature using EIP-1271
-                    // - branching on if the signer address is an EOA or a contract
+                    // - branching on whether signer address is an EOA or a contract
                     if (
                         signer.code.length != 0 &&
                         IERC1271(signer).isValidSignature(
@@ -254,14 +253,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 }
             }
         }
-
-        // We have quorum or a call by a governor here
-        // TODO(Support multicall here?)
-        // A single execute could support chaining transactions like a molochdao
-        // TODO(We throw away the return data here, there might be reason to parse the return values or pass them)
-        // to later calls
-        // https://gist.github.com/0xAlcibiades/4faf1601635eba8da17bdd3dd1c70692#file-multicall-sol-L171
-        // food for thought.
 
         if (!deleg) {
             // if this is not a delegated call
@@ -289,17 +280,14 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 )
             }
         }
-
-        if (!success) revert ExecuteError();
-
-        nonce++;
+        // cannot realistically overflow on human timescales
+        unchecked {
+            ++nonce;
+        }
 
         emit Execute(to, value, data);
     }
 
-    // TODO(Multicall inheritance here is un-permissioned)
-
-    // TODO(Should this be external, or public?)
     function govern(
         Club[] calldata club_,
         bool[] calldata mints_,
@@ -381,9 +369,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     fallback() external payable {}
-
-    // note: receive doesn't work with cloneWithImmutable pattern
-    receive() external payable {}
 
     /// @dev redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
