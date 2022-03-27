@@ -164,14 +164,24 @@ contract ClubSigTest is DSTestPlus {
         assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes(updated)));
     }
 
-    function testTokenURI() public view {
-        // TODO(Assertion about string returned being correct)
-        clubSig.tokenURI(1);
+    function testTokenURI() public {
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+        );
+        string memory updated = "NEW BASE";
+
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateURI(updated);
+        vm.stopPrank();
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
+        );
     }
 
-    // Init is implicitly tested by the factory/deploy
-
+    // @dev Init is implicitly tested by the factory/deploy
     // The governor storage mapping in tested implicitly below
+
+    // TO-DO Test Club amending Docs
 
     /// -----------------------------------------------------------------------
     /// Operations Tests
@@ -342,8 +352,7 @@ contract ClubSigTest is DSTestPlus {
     /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
-    // This is causing an overflow
-    /*    function testRageQuit() public {
+    function testRageQuit() public {
         address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         address b = address(mockDai);
 
@@ -356,10 +365,10 @@ contract ClubSigTest is DSTestPlus {
         (bool sent, ) = address(clubSig).call{value: 5 ether}("");
         assert(sent);
 
-        startHoax(alice, alice, type(uint256).max);
+        startHoax(alice, alice, type(uint128).max);
 
-        //uint256 ethBal = address(this).balance;
-        //uint256 daiBal = mockDai.balanceOf(address(this));
+        uint256 ethBal = address(this).balance;
+        uint256 daiBal = mockDai.balanceOf(address(this));
 
         clubSig.ragequit(assets, 100);
 
@@ -367,7 +376,7 @@ contract ClubSigTest is DSTestPlus {
 
         // TODO(This is not working as expected, 1 eth is transfereed back rather than 2.5)
         // Because here there is only 200 loot outstanding
-        // assert(ethBal + 2.5 ether == address(this).balance);
-        // assert(daiBal + 500000 * 1e18 == mockDai.balanceOf(address(this)));
-    }*/
+        //assert(ethBal - 2.5 ether == address(this).balance);
+        //assert(daiBal - 500000 * 1e18 == mockDai.balanceOf(address(this)));
+    }
 }
