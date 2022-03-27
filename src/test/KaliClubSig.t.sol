@@ -206,13 +206,13 @@ contract ClubSigTest is DSTestPlus {
         Call[] memory calls = new Call[](1);
         calls[0] = Call(address(mockDai), 0, data, false);
 
-        clubSig.execute(calls, sigs);
+        //clubSig.execute(calls, sigs);
         vm.stopPrank();
         uint256 nonceAfter = clubSig.nonce();
         assert((nonceInit + 1) == nonceAfter);
     }
 
-    function testExecuteWithSignatures(bool deleg) public {
+    function testCallBuild() public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
@@ -251,7 +251,7 @@ contract ClubSigTest is DSTestPlus {
         calls[0] = Call(address(mockDai), 0, tx_data, deleg);
 
         // Execute tx
-        clubSig.execute(calls, sigs);
+        //clubSig.execute(calls, sigs);
     }
 
     function testGovernAlreadyMinted() public {
