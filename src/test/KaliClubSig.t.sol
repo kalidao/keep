@@ -212,7 +212,7 @@ contract ClubSigTest is DSTestPlus {
         assert((nonceInit + 1) == nonceAfter);
     }
 
-    function testCallBuild() public {
+    function testExecuteWithSignatures(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
