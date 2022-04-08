@@ -348,6 +348,22 @@ contract ClubSigTest is DSTestPlus {
         );
     }
 
+    function testUpdateDocs(address dave) public {
+        startHoax(dave, dave, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        clubSig.updateDocs("new_docs");
+        vm.stopPrank();
+
+        // The ClubSig itself should be able to update the docs
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateDocs("new_docs");
+        vm.stopPrank();
+        assertEq(
+            keccak256(bytes("new_docs")),
+            keccak256(bytes(clubSig.docs()))
+        );
+    }
+
     /// -----------------------------------------------------------------------
     /// Asset Management Tests
     /// -----------------------------------------------------------------------
