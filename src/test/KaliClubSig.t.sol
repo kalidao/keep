@@ -21,12 +21,7 @@ contract ClubSigTest is DSTestPlus {
     KaliClubSigFactory factory;
     ERC20 mockDai;
 
-    // TODO(Fuzzing)
-    // TODO(Failure cases)
-    // TODO(Adversarial testing)
-
     /// @dev Users
-
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
     address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
@@ -35,7 +30,6 @@ contract ClubSigTest is DSTestPlus {
         0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
     address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
-    // TODO(Use this guy and add him to the ternary operator sorting throughout)
     address public immutable charlie = address(0xc);
 
     function writeTokenBalance(
@@ -91,7 +85,7 @@ contract ClubSigTest is DSTestPlus {
             : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (clubSig, ) = factory.deployClubSig(
+        (clubSig, loot) = factory.deployClubSig(
             clubs,
             2,
             0,
@@ -180,8 +174,6 @@ contract ClubSigTest is DSTestPlus {
 
     // @dev Init is implicitly tested by the factory/deploy
     // The governor storage mapping in tested implicitly below
-
-    // TO-DO Test Club amending Docs
 
     /// -----------------------------------------------------------------------
     /// Operations Tests
@@ -327,9 +319,7 @@ contract ClubSigTest is DSTestPlus {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setLootPause(_paused);
         vm.stopPrank();
-
-        // TODO(Why is this not being set as expected?)
-        // assert(loot.paused() == _paused);
+        assert(loot.paused() == _paused);
     }
 
     function testUpdateURI(address dave) public {
