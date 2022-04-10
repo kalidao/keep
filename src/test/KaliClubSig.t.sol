@@ -32,6 +32,8 @@ contract ClubSigTest is DSTestPlus {
     address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
     address public immutable charlie = address(0xc);
+    
+    IRicardianLLC public immutable ricardian = IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
     function writeTokenBalance(
         address who,
@@ -74,7 +76,7 @@ contract ClubSigTest is DSTestPlus {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, IRicardianLLC(0xBEEF));
+        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
@@ -372,17 +374,20 @@ contract ClubSigTest is DSTestPlus {
         (bool sent, ) = address(clubSig).call{value: 5 ether}("");
         assert(sent);
 
-        startHoax(alice, alice, type(uint128).max);
-
-        uint256 ethBal = address(alice).balance;
-        uint256 daiBal = mockDai.balanceOf(address(alice));
-        uint256 clubDaiBal = mockDai.balanceOf(address(clubSig));
-
+        startHoax(alice, alice, 0);
         clubSig.ragequit(assets, 100);
-
         vm.stopPrank();
 
-        assert(ethBal + 2.5 ether == address(alice).balance);
-        assert(daiBal + (clubDaiBal / 2) == mockDai.balanceOf(address(alice)));
+        uint256 aliceEthBal = address(alice).balance;
+        uint256 aliceDaiBal = mockDai.balanceOf(address(alice));
+
+        uint256 clubEthBal = address(clubSig).balance;
+        uint256 clubDaiBal = mockDai.balanceOf(address(clubSig));
+
+        assert(aliceEthBal == 2.5 ether);
+        assert(aliceDaiBal == 50000 ether);
+
+        assert(clubEthBal == 2.5 ether);
+        assert(clubDaiBal == 50000 ether);
     }
 }
