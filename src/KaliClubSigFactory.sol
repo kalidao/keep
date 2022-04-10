@@ -56,7 +56,7 @@ contract KaliClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     constructor(
-        KaliClubSig clubMaster_, 
+        KaliClubSig clubMaster_,
         ClubLoot lootMaster_,
         IRicardianLLC ricardianLLC_
     ) {
@@ -99,7 +99,7 @@ contract KaliClubSigFactory is Multicall, IClub {
         );
 
         loot.init(address(clubSig), club_, lootPaused_);
-        
+
         bytes memory docs = bytes(docs_);
 
         if (docs.length == 0) {
