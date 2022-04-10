@@ -1,6 +1,7 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from "../interfaces/IClub.sol";
+import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
 
 import {KaliClubSig} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
@@ -19,6 +20,9 @@ contract KaliClubSigFactoryTest is DSTestPlus {
     address public immutable alice = address(0xa);
     address public immutable bob = address(0xb);
 
+    IRicardianLLC public immutable ricardian =
+        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
+
     /// @notice Set up the testing suite
     function setUp() public {
         clubSig = new KaliClubSig();
@@ -26,7 +30,7 @@ contract KaliClubSigFactoryTest is DSTestPlus {
         loot = new ClubLoot();
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot);
+        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
     }
 
     function testDeployClubSig() public {

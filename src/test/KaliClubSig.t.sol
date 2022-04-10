@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from "../interfaces/IClub.sol";
+import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
 
 import {KaliClubSig, Signature} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
@@ -31,6 +32,9 @@ contract ClubSigTest is DSTestPlus {
     address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
     address public immutable charlie = address(0xc);
+
+    IRicardianLLC public immutable ricardian =
+        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
     function writeTokenBalance(
         address who,
@@ -73,7 +77,7 @@ contract ClubSigTest is DSTestPlus {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot);
+        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);

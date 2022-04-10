@@ -4,6 +4,7 @@ pragma solidity >=0.8.4;
 import {Multicall} from "./utils/Multicall.sol";
 
 import {IClub} from "./interfaces/IClub.sol";
+import {IRicardianLLC} from "./interfaces/IRicardianLLC.sol";
 
 import {KaliClubSig} from "./KaliClubSig.sol";
 import {ClubLoot} from "./ClubLoot.sol";
@@ -48,14 +49,20 @@ contract KaliClubSigFactory is Multicall, IClub {
 
     KaliClubSig private immutable clubMaster;
     ClubLoot private immutable lootMaster;
+    IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(KaliClubSig clubMaster_, ClubLoot lootMaster_) {
+    constructor(
+        KaliClubSig clubMaster_,
+        ClubLoot lootMaster_,
+        IRicardianLLC ricardianLLC_
+    ) {
         clubMaster = clubMaster_;
         lootMaster = lootMaster_;
+        ricardianLLC = ricardianLLC_;
     }
 
     /// -----------------------------------------------------------------------
@@ -81,7 +88,7 @@ contract KaliClubSigFactory is Multicall, IClub {
             address(lootMaster).clone(abi.encodePacked(name_, symbol_))
         );
 
-        clubSig.init{value: msg.value}(
+        clubSig.init(
             address(loot),
             club_,
             quorum_,
@@ -92,6 +99,12 @@ contract KaliClubSigFactory is Multicall, IClub {
         );
 
         loot.init(address(clubSig), club_, lootPaused_);
+
+        bytes memory docs = bytes(docs_);
+
+        if (docs.length == 0) {
+            ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
+        }
 
         emit ClubDeployed(
             clubSig,
