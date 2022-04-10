@@ -73,7 +73,7 @@ contract ClubSigTest is DSTestPlus {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot);
+        factory = new KaliClubSigFactory(clubSig, loot, address(0xBEEF));
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
