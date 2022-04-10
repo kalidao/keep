@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from "../interfaces/IClub.sol";
+import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
 
 import {KaliClubSig, Signature} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
@@ -73,7 +74,7 @@ contract ClubSigTest is DSTestPlus {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, address(0xBEEF));
+        factory = new KaliClubSigFactory(clubSig, loot, IRicardianLLC(0xBEEF));
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
