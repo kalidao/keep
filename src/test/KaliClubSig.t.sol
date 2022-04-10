@@ -33,7 +33,7 @@ contract ClubSigTest is DSTestPlus {
 
     address public immutable charlie = address(0xc);
     
-    address public immutable ricardian = 0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49;
+    IRicardianLLC public immutable ricardian = IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
     function writeTokenBalance(
         address who,
