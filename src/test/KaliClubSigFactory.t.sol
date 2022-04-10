@@ -27,7 +27,7 @@ contract KaliClubSigFactoryTest is DSTestPlus {
         loot = new ClubLoot();
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, address(0xBEEF));
+        factory = new KaliClubSigFactory(clubSig, loot, IRicardianLLC(0xBEEF));
     }
 
     function testDeployClubSig() public {
