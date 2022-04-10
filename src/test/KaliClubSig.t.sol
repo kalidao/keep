@@ -371,17 +371,20 @@ contract ClubSigTest is DSTestPlus {
         (bool sent, ) = address(clubSig).call{value: 5 ether}("");
         assert(sent);
 
-        startHoax(alice, alice, type(uint128).max);
-
-        uint256 ethBal = address(alice).balance;
-        uint256 daiBal = mockDai.balanceOf(address(alice));
-        uint256 clubDaiBal = mockDai.balanceOf(address(clubSig));
-
+        startHoax(alice, alice, 0);
         clubSig.ragequit(assets, 100);
-
         vm.stopPrank();
 
-        assert(ethBal + 2.5 ether == address(alice).balance);
-        assert(daiBal + (clubDaiBal / 2) == mockDai.balanceOf(address(alice)));
+        uint256 aliceEthBal = address(alice).balance;
+        uint256 aliceDaiBal = mockDai.balanceOf(address(alice));
+
+        uint256 clubEthBal = address(clubSig).balance;
+        uint256 clubDaiBal = mockDai.balanceOf(address(clubSig));
+
+        assert(aliceEthBal == 2.5 ether);
+        assert(aliceDaiBal == 50000 ether);
+
+        assert(clubEthBal == 2.5 ether);
+        assert(clubDaiBal == 50000 ether);
     }
 }
