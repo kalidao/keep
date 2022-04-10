@@ -19,8 +19,9 @@ contract KaliClubSigFactoryTest is DSTestPlus {
     /// @dev Users
     address public immutable alice = address(0xa);
     address public immutable bob = address(0xb);
-    
-    IRicardianLLC public immutable ricardian = IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
+
+    IRicardianLLC public immutable ricardian =
+        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
     /// @notice Set up the testing suite
     function setUp() public {
