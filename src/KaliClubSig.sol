@@ -178,7 +178,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 ++i;
             }
         }
-        
+
         ClubNFT._setPause(signerPaused_);
 
         nonce = 1;
