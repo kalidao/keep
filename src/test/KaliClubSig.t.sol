@@ -108,6 +108,10 @@ contract ClubSigTest is DSTestPlus {
     /// Club State Tests
     /// -----------------------------------------------------------------------
 
+    function testLoot() public view {
+        assert(address(clubSig.loot()) == address(loot));
+    }
+
     function testNonce() public view {
         assert(clubSig.nonce() == 1);
     }
@@ -141,14 +145,16 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testBaseURI() public {
-        assert(keccak256(bytes(clubSig.baseURI())) == keccak256(bytes("BASE")));
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+        );
 
         string memory updated = "NEW BASE";
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.updateURI(updated);
         vm.stopPrank();
         assert(
-            keccak256(bytes(clubSig.baseURI())) == keccak256(bytes(updated))
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
         );
     }
 
@@ -338,7 +344,7 @@ contract ClubSigTest is DSTestPlus {
         vm.stopPrank();
         assertEq(
             keccak256(bytes("new_base_uri")),
-            keccak256(bytes(clubSig.baseURI()))
+            keccak256(bytes(clubSig.tokenURI(1)))
         );
     }
 

@@ -57,7 +57,7 @@ contract KaliClubSigFactoryTest is DSTestPlus {
 
         // Sanity check initialization
         assertEq(
-            keccak256(bytes(depClubSig.baseURI())),
+            keccak256(bytes(depClubSig.tokenURI(1))),
             keccak256(bytes("BASE"))
         );
     }
