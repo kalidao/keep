@@ -107,7 +107,7 @@ contract ClubSigTest is DSTestPlus {
     /// -----------------------------------------------------------------------
     /// Club State Tests
     /// -----------------------------------------------------------------------
-    
+
     function testLoot() public view {
         assert(address(clubSig.loot()) == address(loot));
     }
@@ -180,8 +180,8 @@ contract ClubSigTest is DSTestPlus {
         );
     }
 
-    /// @dev Init is implicitly tested by the factory/deploy
-    /// The governor storage mapping in tested implicitly below
+    // @dev Init is implicitly tested by the factory/deploy
+    // The governor storage mapping in tested implicitly below
 
     /// -----------------------------------------------------------------------
     /// Operations Tests
