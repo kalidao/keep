@@ -70,8 +70,8 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     uint256 public redemptionStart;
     /// @dev total signer units minted
     uint256 public totalSupply;
-    /// @dev optional metadata signifying club
-    string public baseURI;
+    /// @dev optional metadata signifying club (fetched via tokenURI())
+    string private baseURI;
     /// @dev metadata signifying club agreements
     string public docs;
 
