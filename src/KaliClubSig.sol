@@ -129,7 +129,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
 
         assembly {
-            lootAddr := shr(0x60, calldataload(add(offset, 0x41)))
+            lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
         }
     }
 
