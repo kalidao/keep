@@ -62,8 +62,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
     /// @dev ETH reference for redemptions
     address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    /// @dev ERC-20 token for capital management
-    IClubLoot public loot;
     /// @dev initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
@@ -94,7 +92,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     uint256 private INITIAL_CHAIN_ID;
     bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
-    function DOMAIN_SEPARATOR() private view returns (bytes32) {
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return
             block.chainid == INITIAL_CHAIN_ID
                 ? INITIAL_DOMAIN_SEPARATOR
@@ -120,12 +118,27 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
+    function loot() public pure returns (IClubLoot lootAddr) {
+        uint256 offset;
+
+        assembly {
+            offset := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+        }
+
+        assembly {
+            lootAddr := shr(0x60, calldataload(add(offset, 0x41)))
+        }
+    }
+
     function tokenURI(uint256 id) external view returns (string memory) {
         bytes memory base = bytes(baseURI);
 
         if (base.length == 0) {
             address owner = ownerOf[id];
-            uint256 lt = loot.balanceOf(owner) / 1e18;
+            uint256 lt = loot().balanceOf(owner) / 1e18;
             return ClubURIbuilder._buildTokenURI(name(), symbol(), owner, lt);
         } else {
             return baseURI;
@@ -137,7 +150,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     function init(
-        address loot_,
         Club[] calldata club_,
         uint256 quorum_,
         uint256 redemptionStart_,
@@ -169,7 +181,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
-        loot = IClubLoot(loot_);
         nonce = 1;
         quorum = quorum_;
         redemptionStart = redemptionStart_;
@@ -311,7 +322,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                     --totalSupply_;
                 }
                 if (club_[i].loot != 0) {
-                    loot.mint(club_[i].signer, club_[i].loot);
+                    loot().mint(club_[i].signer, club_[i].loot);
                 }
             }
         }
@@ -344,7 +355,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     }
 
     function setLootPause(bool paused_) external payable onlyClubOrGov {
-        loot.setPause(paused_);
+        loot().setPause(paused_);
     }
 
     function setSignerPause(bool paused_) external payable onlyClubOrGov {
@@ -379,7 +390,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     {
         if (block.timestamp < redemptionStart) revert RedemptionEarly();
 
-        uint256 lootTotal = loot.totalSupply();
+        uint256 lootTotal = loot().totalSupply();
 
         address prevAddr;
 
@@ -406,6 +417,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
             }
         }
 
-        loot.govBurn(msg.sender, lootToBurn);
+        loot().govBurn(msg.sender, lootToBurn);
     }
 }
