@@ -145,7 +145,9 @@ contract ClubSigTest is DSTestPlus {
     }
 
     function testBaseURI() public {
-        assert(keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE")));
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+        );
 
         string memory updated = "NEW BASE";
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
