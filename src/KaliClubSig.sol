@@ -163,6 +163,12 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
         if (quorum_ > length) revert SigsBounded();
 
+        assembly {
+            if iszero(quorum_) { 
+                revert(0, 0)
+            }
+        }
+
         address prevAddr;
         uint256 totalSupply_;
 
