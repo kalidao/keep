@@ -104,6 +104,29 @@ contract ClubSigTest is DSTestPlus {
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
+    function testZeroQuorumSetup() public  {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        vm.expectRevert(bytes(""));
+        factory.deployClubSig(
+            clubs,
+            0,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
     /// -----------------------------------------------------------------------
     /// Club State Tests
     /// -----------------------------------------------------------------------
