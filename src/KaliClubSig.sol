@@ -164,7 +164,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         if (quorum_ > length) revert SigsBounded();
 
         assembly {
-            if iszero(quorum_) { 
+            if iszero(quorum_) {
                 revert(0, 0)
             }
         }
