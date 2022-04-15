@@ -104,7 +104,7 @@ contract ClubSigTest is DSTestPlus {
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
-    function testZeroQuorumSetup() public  {
+    function testZeroQuorumSetup() public {
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
@@ -127,6 +127,7 @@ contract ClubSigTest is DSTestPlus {
             "DOCS"
         );
     }
+
     /// -----------------------------------------------------------------------
     /// Club State Tests
     /// -----------------------------------------------------------------------
