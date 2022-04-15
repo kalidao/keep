@@ -11,7 +11,7 @@ import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
-import "forge-std/stdlib.sol";
+import "@std/stdlib.sol";
 
 contract ClubSigTest is DSTestPlus {
     using stdStorage for StdStorage;
