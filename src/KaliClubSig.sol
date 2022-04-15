@@ -52,6 +52,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     error AlreadyInitialized();
     error QuorumExceedsSigs();
     error WrongSigner();
+    error ExecuteFailed();
     error NoArrayParity();
     error RedemptionTooEarly();
     error WrongAssetOrder();
@@ -296,6 +297,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 )
             }
         }
+        if (!success) revert ExecuteFailed();
         // cannot realistically overflow on human timescales
         unchecked {
             ++nonce;
@@ -312,6 +314,12 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         uint256 length = club_.length;
 
         if (length != mints_.length) revert NoArrayParity();
+
+        assembly {
+            if iszero(quorum_) {
+                revert(0, 0)
+            }
+        }
 
         uint256 totalSupply_ = totalSupply;
         // cannot realistically overflow on human timescales, and
