@@ -49,12 +49,12 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error Initialized();
-    error SigsBounded();
+    error AlreadyInitialized();
+    error QuorumExceedsSigs();
     error WrongSigner();
     error NoArrayParity();
-    error RedemptionEarly();
-    error AssetOrder();
+    error RedemptionTooEarly();
+    error WrongAssetOrder();
 
     /// -----------------------------------------------------------------------
     /// Club Storage
@@ -127,7 +127,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
         }
-
         assembly {
             lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
         }
@@ -157,11 +156,11 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         string calldata baseURI_,
         string calldata docs_
     ) external payable {
-        if (nonce != 0) revert Initialized();
+        if (nonce != 0) revert AlreadyInitialized();
 
         uint256 length = club_.length;
 
-        if (quorum_ > length) revert SigsBounded();
+        if (quorum_ > length) revert QuorumExceedsSigs();
 
         assembly {
             if iszero(quorum_) {
@@ -271,7 +270,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
                 }
             }
         }
-
         if (!deleg) {
             // if this is not a delegated call
             assembly {
@@ -334,7 +332,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         }
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply_) revert SigsBounded();
+        if (quorum_ > totalSupply_) revert QuorumExceedsSigs();
 
         quorum = quorum_;
         totalSupply = totalSupply_;
@@ -394,7 +392,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         external
         payable
     {
-        if (block.timestamp < redemptionStart) revert RedemptionEarly();
+        if (block.timestamp < redemptionStart) revert RedemptionTooEarly();
 
         uint256 lootTotal = loot().totalSupply();
 
@@ -402,7 +400,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
 
         for (uint256 i; i < assets.length; ) {
             // prevent null and duplicate assets
-            if (prevAddr >= assets[i]) revert AssetOrder();
+            if (prevAddr >= assets[i]) revert WrongAssetOrder();
             prevAddr = assets[i];
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
