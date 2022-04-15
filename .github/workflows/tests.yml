@@ -11,6 +11,8 @@ jobs:
     steps:
 
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       - uses: actions/setup-node@v2
 
@@ -41,7 +43,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Install Foundry
-        uses: onbjerg/foundry-toolchain@v1
+        uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
       
