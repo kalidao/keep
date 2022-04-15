@@ -11,7 +11,7 @@ import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
-import "@std/stdlib.sol";
+import "forge-std/stdlib.sol";
 
 contract ClubSigTest is DSTestPlus {
     using stdStorage for StdStorage;
@@ -104,7 +104,7 @@ contract ClubSigTest is DSTestPlus {
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
-    function testZeroQuorumSetup() public {
+    function testZeroQuorumSetup() public  {
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
@@ -127,7 +127,6 @@ contract ClubSigTest is DSTestPlus {
             "DOCS"
         );
     }
-
     /// -----------------------------------------------------------------------
     /// Club State Tests
     /// -----------------------------------------------------------------------
