@@ -49,7 +49,6 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error AlreadyInitialized();
     error QuorumExceedsSigs();
     error WrongSigner();
     error ExecuteFailed();
@@ -157,15 +156,17 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         string calldata baseURI_,
         string calldata docs_
     ) external payable {
-        if (nonce != 0) revert AlreadyInitialized();
-
-        if (quorum_ > club_.length) revert QuorumExceedsSigs();
-
+        assembly {
+            if iszero(iszero(nonce.offset)) {
+                revert(0, 0)
+            }
+        }
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
             }
         }
+        if (quorum_ > club_.length) revert QuorumExceedsSigs();
 
         address prevAddr;
         uint256 totalSupply_;
