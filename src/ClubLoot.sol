@@ -67,7 +67,6 @@ contract ClubLoot is IClub {
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
         }
-
         assembly {
             arg := calldataload(add(offset, argOffset))
         }
@@ -141,7 +140,11 @@ contract ClubLoot is IClub {
         Club[] calldata club_,
         bool lootPaused_
     ) external payable {
-        if (INITIAL_CHAIN_ID != 0) revert Initialized();
+        assembly {
+            if iszero(iszero(INITIAL_CHAIN_ID.offset)) {
+                revert(0, 0)
+            }
+        }
 
         uint256 totalSupply_;
 
