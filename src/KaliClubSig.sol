@@ -158,9 +158,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     ) external payable {
         if (nonce != 0) revert AlreadyInitialized();
 
-        uint256 length = club_.length;
-
-        if (quorum_ > length) revert QuorumExceedsSigs();
+        if (quorum_ > club_.length) revert QuorumExceedsSigs();
 
         assembly {
             if iszero(quorum_) {
@@ -171,7 +169,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         address prevAddr;
         uint256 totalSupply_;
 
-        for (uint256 i; i < length; ) {
+        for (uint256 i; i < club_.length; ) {
             // prevent null and duplicate signers
             if (prevAddr >= club_[i].signer) revert WrongSigner();
             prevAddr = club_[i].signer;
@@ -309,15 +307,13 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
         bool[] calldata mints_,
         uint256 quorum_
     ) external payable onlyClubOrGov {
-        uint256 length = club_.length;
-
-        if (length != mints_.length) revert NoArrayParity();
+        if (club_.length != mints_.length) revert NoArrayParity();
 
         uint256 totalSupply_ = totalSupply;
         // cannot realistically overflow on human timescales, and
         // cannot underflow because ownership is checked in burn()
         unchecked {
-            for (uint256 i; i < length; ++i) {
+            for (uint256 i; i < club_.length; ++i) {
                 if (mints_[i]) {
                     _safeMint(club_[i].signer, club_[i].id);
                     ++totalSupply_;
