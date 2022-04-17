@@ -26,7 +26,7 @@ contract ClubLoot is IClub {
 
     error NotGov();
     error Paused();
-    error Initialized();
+    error AlreadyInitialized();
     error SignatureExpired();
     error InvalidSignature();
 
@@ -140,11 +140,7 @@ contract ClubLoot is IClub {
         Club[] calldata club_,
         bool lootPaused_
     ) external payable {
-        assembly {
-            if iszero(iszero(INITIAL_CHAIN_ID.offset)) {
-                revert(0, 0)
-            }
-        }
+        if (INITIAL_CHAIN_ID != 0) revert AlreadyInitialized();
 
         uint256 totalSupply_;
 
