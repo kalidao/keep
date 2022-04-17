@@ -15,7 +15,9 @@ contract ClubSigTest is Test {
     using stdStorage for StdStorage;
 
     KaliClubSig clubSig;
+    KaliClubSig clubSigRepeat;
     ClubLoot loot;
+    ClubLoot lootRepeat;
     KaliClubSigFactory factory;
     ERC20 mockDai;
 
@@ -101,7 +103,7 @@ contract ClubSigTest is Test {
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
-    function testZeroQuorumSetup() public  {
+    function testZeroQuorumSetup() public {
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
@@ -124,6 +126,81 @@ contract ClubSigTest is Test {
             "DOCS"
         );
     }
+
+    function testRepeatClubSetup() public {
+        clubSigRepeat = new KaliClubSig();
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        (clubSigRepeat, ) = factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+
+        // Create the Club[]
+        IClub.Club[] memory clubsRepeat = new IClub.Club[](2);
+        clubsRepeat[0] = alice > bob
+            ? IClub.Club(bob, 3, 100)
+            : IClub.Club(alice, 2, 100);
+        clubsRepeat[1] = alice > bob
+            ? IClub.Club(alice, 2, 100)
+            : IClub.Club(bob, 3, 100);
+
+        vm.expectRevert(bytes4(keccak256("AlreadyInitialized()")));
+        clubSigRepeat.init(
+            clubsRepeat,
+            2,
+            0,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    function testRepeatLootSetup() public {
+        lootRepeat = new ClubLoot();
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        (, lootRepeat) = factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+
+        vm.expectRevert(bytes4(keccak256("AlreadyInitialized()")));
+        lootRepeat.init(
+            alice,
+            clubs,
+            true
+        );
+    }
+
     /// -----------------------------------------------------------------------
     /// Club State Tests
     /// -----------------------------------------------------------------------
