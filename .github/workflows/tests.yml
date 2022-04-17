@@ -53,8 +53,8 @@ jobs:
       - name: Run tests
         run: forge test -vvv --optimize
 
-      - name: Run lint check
-        run: npm run lint:check
+      - name: Run lint and lint check
+        run: npm run lint && npm run lint:check
 
       # TODO(Figure out how to allow this to find the correct solc binary)
       # - name: Run audit
