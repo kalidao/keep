@@ -9,14 +9,11 @@ import {ClubLoot} from "../ClubLoot.sol";
 import {ERC20} from "./tokens/ERC20.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
-import {DSTestPlus} from "./utils/DSTestPlus.sol";
+import "@std/Test.sol";
 
-import "forge-std/stdlib.sol";
-
-contract ClubSigTest is DSTestPlus {
+contract ClubSigTest is Test {
     using stdStorage for StdStorage;
 
-    StdStorage stdstore;
     KaliClubSig clubSig;
     ClubLoot loot;
     KaliClubSigFactory factory;

@@ -7,11 +7,9 @@ import {KaliClubSig} from "../KaliClubSig.sol";
 import {ClubLoot} from "../ClubLoot.sol";
 import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
-import {DSTestPlus} from "./utils/DSTestPlus.sol";
+import "@std/Test.sol";
 
-import {stdError} from "@std/stdlib.sol";
-
-contract KaliClubSigFactoryTest is DSTestPlus {
+contract KaliClubSigFactoryTest is Test {
     KaliClubSig clubSig;
     ClubLoot loot;
     KaliClubSigFactory factory;
