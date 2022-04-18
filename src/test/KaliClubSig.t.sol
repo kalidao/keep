@@ -1,428 +1,715 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubNFT} from "./ClubNFT.sol";
+import {IClub} from "../interfaces/IClub.sol";
+import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
 
-import {Multicall} from "./utils/Multicall.sol";
-import {NFTreceiver} from "./utils/NFTreceiver.sol";
+import {KaliClubSig, Signature} from "../KaliClubSig.sol";
+import {ClubLoot} from "../ClubLoot.sol";
+import {ERC20} from "./tokens/ERC20.sol";
+import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
-import {IClub} from "./interfaces/IClub.sol";
-import {IClubLoot} from "./interfaces/IClubLoot.sol";
-import {IERC1271} from "./interfaces/IERC1271.sol";
+import "@std/Test.sol";
 
-import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
-import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
-import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
+contract ClubSigTest is Test {
+    using stdStorage for StdStorage;
 
-/// @title Kali ClubSig
-/// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
-/// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
-/// License-Identifier: MIT
-/// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
-/// License-Identifier: AGPL-3.0-only
+    KaliClubSig clubSig;
+    KaliClubSig clubSigRepeat;
+    ClubLoot loot;
+    ClubLoot lootRepeat;
+    KaliClubSigFactory factory;
+    ERC20 mockDai;
 
-struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-}
+    /// @dev Users
+    uint256 immutable alicesPk =
+        0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
+    address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
 
-contract KaliClubSig is ClubNFT, Multicall, IClub {
-    /// -----------------------------------------------------------------------
-    /// Library Usage
-    /// -----------------------------------------------------------------------
+    uint256 immutable bobsPk =
+        0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
+    address public immutable bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
-    using SafeTransferLib for address;
+    uint256 immutable charliesPk =
+        0xb9dee2522aae4d21136ba441f976950520adf9479a3c0bda0a88ffc81495ded3;
+    address public immutable charlie = 0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
 
-    /// -----------------------------------------------------------------------
-    /// Events
-    /// -----------------------------------------------------------------------
+    uint256 immutable nullPk =
+        0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
+    address public immutable nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
 
-    event Execute(address indexed to, uint256 value, bytes data);
-    event Govern(Club[] club, bool[] mints, uint256 quorum);
-    event GovernorSet(address indexed account, bool approved);
-    event RedemptionStartSet(uint256 redemptionStart);
-    event DocsUpdated(string docs);
-    event URIupdated(string uri);
+    IRicardianLLC public immutable ricardian =
+        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
-    /// -----------------------------------------------------------------------
-    /// Errors
-    /// -----------------------------------------------------------------------
-
-    error AlreadyInitialized();
-    error QuorumExceedsSigs();
-    error WrongSigner();
-    error ExecuteFailed();
-    error NoArrayParity();
-    error RedemptionTooEarly();
-    error WrongAssetOrder();
-
-    /// -----------------------------------------------------------------------
-    /// Club Storage
-    /// -----------------------------------------------------------------------
-
-    /// @dev ETH reference for redemptions
-    address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    /// @dev initialized at `1` for cheaper first tx
-    uint256 public nonce;
-    /// @dev signature (NFT) threshold to execute tx
-    uint256 public quorum;
-    /// @dev starting period for club redemptions
-    uint256 public redemptionStart;
-    /// @dev total signer units minted
-    uint256 public totalSupply;
-    /// @dev optional metadata signifying club (fetched via tokenURI())
-    string private baseURI;
-    /// @dev metadata signifying club agreements
-    string public docs;
-
-    /// @dev administrative account tracking
-    mapping(address => bool) public governor;
-
-    /// @dev access control for this contract and governors
-    modifier onlyClubOrGov() {
-        if (msg.sender != address(this) && !governor[msg.sender])
-            revert Forbidden();
-        _;
+    function writeTokenBalance(
+        address who,
+        address token,
+        uint256 amt
+    ) internal {
+        stdstore
+            .target(token)
+            .sig(ERC20(token).balanceOf.selector)
+            .with_key(who)
+            .checked_write(amt);
     }
 
-    /// -----------------------------------------------------------------------
-    /// EIP-712 Storage/Logic
-    /// -----------------------------------------------------------------------
-
-    uint256 private INITIAL_CHAIN_ID;
-    bytes32 private INITIAL_DOMAIN_SEPARATOR;
-
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
-        return
-            block.chainid == INITIAL_CHAIN_ID
-                ? INITIAL_DOMAIN_SEPARATOR
-                : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() private view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes(name())),
-                    keccak256("1"),
-                    block.chainid,
-                    address(this)
-                )
-            );
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Metadata Logic
-    /// -----------------------------------------------------------------------
-
-    function loot() public pure returns (IClubLoot lootAddr) {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-        }
-        assembly {
-            lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
-        }
-    }
-
-    function tokenURI(uint256 id) external view returns (string memory) {
-        bytes memory base = bytes(baseURI);
-
-        if (base.length == 0) {
-            address owner = ownerOf[id];
-            uint256 lt = loot().balanceOf(owner) / 1e18;
-            return ClubURIbuilder._buildTokenURI(name(), symbol(), owner, lt);
-        } else {
-            return baseURI;
-        }
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Initializer
-    /// -----------------------------------------------------------------------
-
-    function init(
-        Club[] calldata club_,
-        uint256 quorum_,
-        uint256 redemptionStart_,
-        bool signerPaused_,
-        string calldata baseURI_,
-        string calldata docs_
-    ) external payable {
-        if (nonce != 0) revert AlreadyInitialized();
-        assembly {
-            if iszero(quorum_) {
-                revert(0, 0)
-            }
-        }
-        if (quorum_ > club_.length) revert QuorumExceedsSigs();
-
-        address prevAddr;
-        uint256 totalSupply_;
-
-        for (uint256 i; i < club_.length; ) {
-            // prevent null and duplicate signers
-            if (prevAddr >= club_[i].signer) revert WrongSigner();
-            prevAddr = club_[i].signer;
-
-            _safeMint(club_[i].signer, club_[i].id);
-            // cannot realistically overflow on human timescales
-            unchecked {
-                ++totalSupply_;
-                ++i;
-            }
-        }
-
-        ClubNFT._setPause(signerPaused_);
-
-        nonce = 1;
-        quorum = quorum_;
-        redemptionStart = redemptionStart_;
-        totalSupply = totalSupply_;
-        baseURI = baseURI_;
-        docs = docs_;
-        INITIAL_CHAIN_ID = block.chainid;
-        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Operations
-    /// -----------------------------------------------------------------------
-
-    function getDigest(
+    function signExecution(
+        uint256 pk,
         address to,
         uint256 value,
         bytes memory data,
-        bool deleg,
-        uint256 tx_nonce
-    ) public view returns (bytes32 digest) {
-        // exposed for the user to precompute a digest when signing
-        digest = keccak256(
-            abi.encodePacked(
-                "\x19\x01",
-                DOMAIN_SEPARATOR(),
-                keccak256(
-                    abi.encode(
-                        keccak256(
-                            "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
-                        ),
-                        to,
-                        value,
-                        data,
-                        deleg,
-                        tx_nonce
-                    )
-                )
-            )
+        bool deleg
+    ) internal returns (Signature memory sig) {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+        (v, r, s) = vm.sign(
+            pk,
+            clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce())
+        );
+        // set 'wrong v' to return null signer for tests
+        if (pk == nullPk) v = 17;
+
+        sig = Signature({v: v, r: r, s: s});
+    }
+
+    /// @notice Set up the testing suite
+    function setUp() public {
+        clubSig = new KaliClubSig();
+        loot = new ClubLoot();
+        mockDai = new ERC20("Dai", "DAI", 18);
+
+        // 1B mockDai!
+        mockDai.mint(address(this), 1000000000 * 1e18);
+
+        // Create the factory
+        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
+
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        // The factory is fully tested in KaliClubSigFactory.t.sol
+        (clubSig, loot) = factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+
+        ERC20(mockDai).approve(address(clubSig), type(uint256).max);
+    }
+
+    function testRepeatClubSetup() public {
+        clubSigRepeat = new KaliClubSig();
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        (clubSigRepeat, ) = factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+
+        // Create the Club[]
+        IClub.Club[] memory clubsRepeat = new IClub.Club[](2);
+        clubsRepeat[0] = alice > bob
+            ? IClub.Club(bob, 3, 100)
+            : IClub.Club(alice, 2, 100);
+        clubsRepeat[1] = alice > bob
+            ? IClub.Club(alice, 2, 100)
+            : IClub.Club(bob, 3, 100);
+
+        vm.expectRevert(bytes4(keccak256("AlreadyInitialized()")));
+        clubSigRepeat.init(
+            clubsRepeat,
+            2,
+            0,
+            false,
+            "BASE",
+            "DOCS"
         );
     }
 
-    function execute(
-        address to,
-        uint256 value,
-        bytes memory data,
-        bool deleg,
-        Signature[] calldata sigs
-    ) external payable returns (bool success) {
-        // governor has admin privileges to execute without quorum
-        if (!governor[msg.sender]) {
-            bytes32 digest = getDigest(to, value, data, deleg, nonce);
+    function testRepeatLootSetup() public {
+        lootRepeat = new ClubLoot();
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
 
-            // starting from the zero address here to ensure that all addresses are greater than
-            address prevAddr;
+        (, lootRepeat) = factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
 
-            for (uint256 i; i < quorum; ) {
-                address signer = ecrecover(
-                    digest,
-                    sigs[i].v,
-                    sigs[i].r,
-                    sigs[i].s
-                );
-                // check for conformant contract signature using EIP-1271
-                // - branching on whether signer address is an EOA or a contract
-                if (
-                    signer.code.length != 0 &&
-                    IERC1271(signer).isValidSignature(
-                        digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) !=
-                    0x1626ba7e // magic value
-                ) revert WrongSigner();
-                // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer)
-                    revert WrongSigner();
-                // set prevAddr to signer for the next iteration until we've reached quorum
-                prevAddr = signer;
-                // cannot realistically overflow on human timescales
-                unchecked {
-                    ++i;
-                }
-            }
-        }
-        if (!deleg) {
-            // if this is not a delegated call
-            assembly {
-                success := call(
-                    gas(),
-                    to,
-                    value,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        } else {
-            // delegate call
-            assembly {
-                success := delegatecall(
-                    gas(),
-                    to,
-                    add(data, 0x20),
-                    mload(data),
-                    0,
-                    0
-                )
-            }
-        }
-        if (!success) revert ExecuteFailed();
-        // cannot realistically overflow on human timescales
-        unchecked {
-            ++nonce;
-        }
-
-        emit Execute(to, value, data);
+        vm.expectRevert(bytes4(keccak256("AlreadyInitialized()")));
+        lootRepeat.init(
+            alice,
+            clubs,
+            true
+        );
     }
 
-    function govern(
-        Club[] calldata club_,
-        bool[] calldata mints_,
-        uint256 quorum_
-    ) external payable onlyClubOrGov {
-        if (club_.length != mints_.length) revert NoArrayParity();
+    function testZeroQuorumSetup() public {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        vm.expectRevert(bytes(""));
+        factory.deployClubSig(
+            clubs,
+            0,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    function testExcessiveQuorumSetup() public {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        vm.expectRevert(bytes4(keccak256("QuorumExceedsSigs()")));
+        factory.deployClubSig(
+            clubs,
+            3,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    function testOutOfOrderSignerSetup() public {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Club State Tests
+    /// -----------------------------------------------------------------------
+
+    function testLoot() public view {
+        assert(address(clubSig.loot()) == address(loot));
+    }
+
+    function testNonce() public view {
+        assert(clubSig.nonce() == 1);
+    }
+
+    function testQuorum() public {
+        assert(clubSig.quorum() == 2);
+        address db = address(0xdeadbeef);
+
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(db, 2, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = true;
+
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 3);
+
+        assert(clubSig.quorum() == 3);
+    }
+
+    function testRedemptionStart() public {
+        assert(clubSig.redemptionStart() == 0);
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setRedemptionStart(block.timestamp);
+        vm.stopPrank();
+        assert(clubSig.redemptionStart() == block.timestamp);
+    }
+
+    function testTotalSupply() public view {
+        assert(clubSig.totalSupply() == 2);
+    }
+
+    function testBaseURI() public {
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+        );
+
+        string memory updated = "NEW BASE";
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateURI(updated);
+        vm.stopPrank();
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
+        );
+    }
+
+    function testDocs() public {
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes("DOCS")));
+        string memory updated = "NEW DOCS";
+
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateDocs(updated);
+        vm.stopPrank();
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes(updated)));
+    }
+
+    function testTokenURI() public {
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+        );
+        string memory updated = "NEW BASE";
+
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateURI(updated);
+        vm.stopPrank();
+        assert(
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
+        );
+    }
+
+    // @dev Init is implicitly tested by the factory/deploy
+    // The governor storage mapping in tested implicitly below
+
+    /// -----------------------------------------------------------------------
+    /// Operations Tests
+    /// -----------------------------------------------------------------------
+
+    // EXECUTE
+
+    function testExecuteGovernor() public {
+        uint256 nonceInit = clubSig.nonce();
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setGovernor(alice, true);
+        vm.stopPrank();
+        assertTrue(clubSig.governor(alice));
+
+        address aliceAddress = address(alice);
+
+        Signature[] memory sigs = new Signature[](0);
+
+        mockDai.transfer(address(clubSig), 100);
+
+        startHoax(address(alice), address(alice), type(uint256).max);
+
+        bytes memory data = "";
 
         assembly {
-            if iszero(quorum_) {
-                revert(0, 0)
+            mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(data, 0x24), aliceAddress)
+            mstore(add(data, 0x44), 100)
+            mstore(data, 0x44)
+            // Update free memory pointer
+            mstore(0x40, add(data, 0x100))
+        }
+
+        clubSig.execute(address(mockDai), 0, data, false, sigs);
+        vm.stopPrank();
+        uint256 nonceAfter = clubSig.nonce();
+        assert((nonceInit + 1) == nonceAfter);
+    }
+
+    function testExecuteWithSignatures(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
             }
         }
 
-        uint256 totalSupply_ = totalSupply;
-        // cannot realistically overflow on human timescales, and
-        // cannot underflow because ownership is checked in burn()
-        unchecked {
-            for (uint256 i; i < club_.length; ++i) {
-                if (mints_[i]) {
-                    _safeMint(club_[i].signer, club_[i].id);
-                    ++totalSupply_;
-                } else {
-                    _burn(club_[i].id);
-                    --totalSupply_;
-                }
-                if (club_[i].loot != 0) {
-                    loot().mint(club_[i].signer, club_[i].loot);
-                }
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+    }
+
+    function testExecuteWithImproperSignatures(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
             }
         }
-        // note: also make sure that signers don't concentrate NFTs,
-        // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply_) revert QuorumExceedsSigs();
 
-        quorum = quorum_;
-        totalSupply = totalSupply_;
+        Signature[] memory sigs = new Signature[](2);
 
-        emit Govern(club_, mints_, quorum_);
+        Signature memory aliceSig;
+        Signature memory charlieSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        charlieSig = signExecution(charliesPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > charlie ? charlieSig : aliceSig;
+        sigs[1] = alice > charlie ? aliceSig : charlieSig;
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
-    function setGovernor(address account, bool approved)
-        external
-        payable
-        onlyClubOrGov
-    {
-        governor[account] = approved;
-        emit GovernorSet(account, approved);
+    function testExecuteWithSignaturesOutOfOrder(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > bob ? aliceSig : bobSig;
+        sigs[1] = alice > bob ? bobSig : aliceSig;
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
-    function setRedemptionStart(uint256 redemptionStart_)
-        external
-        payable
-        onlyClubOrGov
-    {
-        redemptionStart = redemptionStart_;
-        emit RedemptionStartSet(redemptionStart_);
+    function testExecuteWithSignaturesRepeated(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = aliceSig;
+        sigs[1] = aliceSig;
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
-    function setLootPause(bool paused_) external payable onlyClubOrGov {
-        loot().setPause(paused_);
+    function testExecuteWithNullSignatures(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory nullSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        nullSig = signExecution(nullPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > nully ? nullSig : aliceSig;
+        sigs[1] = alice > nully ? aliceSig : nullSig;
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
-    function setSignerPause(bool paused_) external payable onlyClubOrGov {
-        ClubNFT._setPause(paused_);
+    // GOVERN
+
+    function testGovernAlreadyMinted() public {
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(alice, 0, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = true;
+
+        vm.expectRevert(bytes4(keccak256("AlreadyMinted()")));
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 3);
     }
 
-    function updateDocs(string calldata docs_) external payable onlyClubOrGov {
-        docs = docs_;
-        emit DocsUpdated(docs_);
+    function testGovernMint() public {
+        assert(clubSig.totalSupply() == 2);
+        address db = address(0xdeadbeef);
+
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(db, 2, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = true;
+
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 3);
+        assert(clubSig.totalSupply() == 3);
     }
 
-    function updateURI(string calldata baseURI_)
-        external
-        payable
-        onlyClubOrGov
-    {
-        baseURI = baseURI_;
-        emit URIupdated(baseURI_);
+    function testGovernBurn() public {
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(alice, 1, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = false;
+
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 1);
+    }
+
+    function testSetGovernor(address dave) public {
+        startHoax(dave, dave, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        clubSig.setGovernor(dave, true);
+        vm.stopPrank();
+
+        // The ClubSig itself should be able to flip governor
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setGovernor(dave, true);
+        vm.stopPrank();
+        assertTrue(clubSig.governor(dave));
+    }
+
+    function testSetSignerPause(address dave) public {
+        startHoax(dave, dave, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        clubSig.setSignerPause(true);
+        vm.stopPrank();
+        assertTrue(!clubSig.paused());
+
+        // The ClubSig itself should be able to flip pause
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setSignerPause(true);
+        vm.stopPrank();
+        assertTrue(clubSig.paused());
+    }
+
+    function testSetLootPause(bool _paused) public {
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setLootPause(_paused);
+        vm.stopPrank();
+        assert(loot.paused() == _paused);
+    }
+
+    function testUpdateURI(address dave) public {
+        startHoax(dave, dave, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        clubSig.updateURI("new_base_uri");
+        vm.stopPrank();
+
+        // The ClubSig itself should be able to update the base uri
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateURI("new_base_uri");
+        vm.stopPrank();
+        assertEq(
+            keccak256(bytes("new_base_uri")),
+            keccak256(bytes(clubSig.tokenURI(1)))
+        );
+    }
+
+    function testUpdateDocs(address dave) public {
+        startHoax(dave, dave, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        clubSig.updateDocs("new_docs");
+        vm.stopPrank();
+
+        // The ClubSig itself should be able to update the docs
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.updateDocs("new_docs");
+        vm.stopPrank();
+        assertEq(
+            keccak256(bytes("new_docs")),
+            keccak256(bytes(clubSig.docs()))
+        );
     }
 
     /// -----------------------------------------------------------------------
-    /// Asset Management
+    /// Asset Management Tests
     /// -----------------------------------------------------------------------
 
-    fallback() external payable {}
+    function testRageQuit() public {
+        address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+        address b = address(mockDai);
 
-    /// @dev redemption is only available for ETH and ERC-20
-    /// - NFTs will need to be liquidated or fractionalized
-    function ragequit(address[] calldata assets, uint256 lootToBurn)
-        external
-        payable
-    {
-        if (block.timestamp < redemptionStart) revert RedemptionTooEarly();
+        address[] memory assets = new address[](2);
+        assets[0] = a > b ? b : a;
+        assets[1] = a > b ? a : b;
 
-        uint256 lootTotal = loot().totalSupply();
+        mockDai.transfer(address(clubSig), 100000 * 1e18);
 
-        address prevAddr;
+        (bool sent, ) = address(clubSig).call{value: 5 ether}("");
+        assert(sent);
 
-        for (uint256 i; i < assets.length; ) {
-            // prevent null and duplicate assets
-            if (prevAddr >= assets[i]) revert WrongAssetOrder();
-            prevAddr = assets[i];
-            // calculate fair share of given assets for redemption
-            uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
-                lootToBurn,
-                assets[i] == ETH
-                    ? address(this).balance
-                    : IClubLoot(assets[i]).balanceOf(address(this)),
-                lootTotal
-            );
-            // transfer to redeemer
-            if (amountToRedeem != 0)
-                assets[i] == ETH
-                    ? msg.sender._safeTransferETH(amountToRedeem)
-                    : assets[i]._safeTransfer(msg.sender, amountToRedeem);
-            // cannot realistically overflow on human timescales
-            unchecked {
-                ++i;
-            }
-        }
+        startHoax(alice, alice, 0);
+        clubSig.ragequit(assets, 100);
+        vm.stopPrank();
 
-        loot().govBurn(msg.sender, lootToBurn);
+        uint256 aliceEthBal = address(alice).balance;
+        uint256 aliceDaiBal = mockDai.balanceOf(address(alice));
+
+        uint256 clubEthBal = address(clubSig).balance;
+        uint256 clubDaiBal = mockDai.balanceOf(address(clubSig));
+
+        assert(aliceEthBal == 2.5 ether);
+        assert(aliceDaiBal == 50000 ether);
+
+        assert(clubEthBal == 2.5 ether);
+        assert(clubDaiBal == 50000 ether);
     }
 }
