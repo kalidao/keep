@@ -405,6 +405,46 @@ contract ClubSigTest is Test {
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
+    function testExecuteWithSignaturesOutOfOrder(bool deleg) public {
+        mockDai.transfer(address(clubSig), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        if (!deleg) {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(add(tx_data, 0x44), 100)
+                mstore(tx_data, 0x44)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x80))
+            }
+        } else {
+            assembly {
+                mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+                mstore(add(tx_data, 0x24), aliceAddress)
+                mstore(tx_data, 0x24)
+                // Update free memory pointer
+                mstore(0x40, add(tx_data, 0x60))
+            }
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+
+        sigs[0] = alice > bob ? aliceSig : bobSig;
+        sigs[1] = alice > bob ? bobSig : aliceSig;
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        // Execute tx
+        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+    }
+
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
         clubs[0] = IClub.Club(alice, 0, 100);
