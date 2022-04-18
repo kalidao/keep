@@ -103,30 +103,6 @@ contract ClubSigTest is Test {
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
-    function testZeroQuorumSetup() public {
-        // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
-        clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
-        clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
-
-        vm.expectRevert(bytes(""));
-        factory.deployClubSig(
-            clubs,
-            0,
-            0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            false,
-            false,
-            "BASE",
-            "DOCS"
-        );
-    }
-
     function testRepeatClubSetup() public {
         clubSigRepeat = new KaliClubSig();
         // Create the Club[]
@@ -198,6 +174,78 @@ contract ClubSigTest is Test {
             alice,
             clubs,
             true
+        );
+    }
+
+    function testZeroQuorumSetup() public {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        vm.expectRevert(bytes(""));
+        factory.deployClubSig(
+            clubs,
+            0,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    function testExcessiveQuorumSetup() public {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+
+        vm.expectRevert(bytes4(keccak256("QuorumExceedsSigs()")));
+        factory.deployClubSig(
+            clubs,
+            3,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    function testOutOfOrderSignerSetup() public {
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(alice, 0, 100)
+            : IClub.Club(bob, 1, 100);
+        clubs[1] = alice > bob
+            ? IClub.Club(bob, 1, 100)
+            : IClub.Club(alice, 0, 100);
+
+        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            0x5445535400000000000000000000000000000000000000000000000000000000,
+            false,
+            false,
+            "BASE",
+            "DOCS"
         );
     }
 
