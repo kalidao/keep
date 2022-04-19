@@ -113,7 +113,6 @@ contract ClubSigTest is Test {
     }
 
     function testGovernMint() public {
-        assert(clubSig.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -124,20 +123,38 @@ contract ClubSigTest is Test {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
-        assert(clubSig.totalSupply() == 3);
         assert(loot.totalSupply() == 300);
     }
 
     function testGovernBurn() public {
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(alice, 1, 100);
+        uint256 nonceInit = clubSig.nonce();
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setGovernor(alice, true);
+        vm.stopPrank();
+        assertTrue(clubSig.governor(alice));
 
-        bool[] memory mints = new bool[](1);
-        mints[0] = false;
+        address aliceAddress = address(alice);
 
-        vm.prank(address(clubSig));
-        clubSig.govern(clubs, mints, 1);
-        assert(loot.totalSupply() == 100);
+        Signature[] memory sigs = new Signature[](0);
+
+        startHoax(address(alice), address(alice), type(uint256).max);
+
+        bytes memory data = "";
+
+        assembly {
+            mstore(add(data, 0x20), shl(0xE0, 0x1f3c683a)) // governBurn(address,uint256)
+            mstore(add(data, 0x24), aliceAddress)
+            mstore(add(data, 0x44), 50)
+            mstore(data, 0x44)
+            // Update free memory pointer
+            mstore(0x40, add(data, 0x100))
+        }
+
+        clubSig.execute(address(loot), 0, data, false, sigs);
+        vm.stopPrank();
+        uint256 nonceAfter = clubSig.nonce();
+        assert((nonceInit + 1) == nonceAfter);
+        assert(loot.totalSupply() == 150);
     }
 
     function testSetLootPause(bool _paused) public {
@@ -154,21 +171,14 @@ contract ClubSigTest is Test {
     }
 
     function testTransfer() public {
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(address(this), 2, 1e18);
+        startHoax(alice, alice, type(uint256).max);
 
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        assertTrue(loot.transfer(address(0xBEEF), 10));
+        assertEq(loot.totalSupply(), 150);
 
-        vm.prank(address(clubSig));
-        clubSig.govern(clubs, mints, 3);
+        assertEq(loot.balanceOf(alice), 40);
+        assertEq(loot.balanceOf(address(0xBEEF)), 10);
 
-        uint256 postMintSupply = 1e18 + 300;
-
-        assertTrue(loot.transfer(address(0xBEEF), 1e18));
-        assertEq(loot.totalSupply(), postMintSupply);
-
-        assertEq(loot.balanceOf(address(this)), 0);
-        assertEq(loot.balanceOf(address(0xBEEF)), 1e18);
+        vm.stopPrank();
     }
 }
