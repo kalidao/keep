@@ -112,6 +112,38 @@ contract ClubSigTest is Test {
         assertEq(loot.decimals(), 18);
     }
 
+    function testApprove() public {
+        assertTrue(loot.approve(address(0xBEEF), 1e18));
+
+        assertEq(loot.allowance(address(this), address(0xBEEF)), 1e18);
+    }
+
+    function testTransfer() public {
+        startHoax(alice, alice, type(uint256).max);
+        assertTrue(loot.transfer(address(0xBEEF), 10));
+        vm.stopPrank();
+
+        assertEq(loot.totalSupply(), 200);
+        assertEq(loot.balanceOf(alice), 90);
+        assertEq(loot.balanceOf(address(0xBEEF)), 10);
+    }
+
+    function testTransferFrom() public {
+        startHoax(alice, alice, type(uint256).max);
+        assertTrue(loot.approve(bob, 10));
+        vm.stopPrank();
+
+        assertEq(loot.allowance(alice, bob, 10));
+
+        startHoax(bob, bob, type(uint256).max);
+        assertTrue(loot.transferFrom(alice, charlie, 10));
+        vm.stopPrank();
+
+        assertEq(loot.allowance(alice, bob), 0);
+        assertEq(loot.balanceOf(alice), 90);
+        assertEq(loot.balanceOf(charlie), 10);
+    }
+
     function testGovernMint() public {
         address db = address(0xdeadbeef);
 
@@ -131,23 +163,5 @@ contract ClubSigTest is Test {
         clubSig.setLootPause(_paused);
         vm.stopPrank();
         assert(loot.paused() == _paused);
-    }
-
-    function testApprove() public {
-        assertTrue(loot.approve(address(0xBEEF), 1e18));
-
-        assertEq(loot.allowance(address(this), address(0xBEEF)), 1e18);
-    }
-
-    function testTransfer() public {
-        startHoax(alice, alice, type(uint256).max);
-
-        assertTrue(loot.transfer(address(0xBEEF), 10));
-        assertEq(loot.totalSupply(), 200);
-
-        assertEq(loot.balanceOf(alice), 90);
-        assertEq(loot.balanceOf(address(0xBEEF)), 10);
-
-        vm.stopPrank();
     }
 }
