@@ -22,6 +22,7 @@ contract ClubSigTest is Test {
     ERC20 mockDai;
 
     /// @dev Users
+
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
     address public immutable alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
@@ -38,9 +39,13 @@ contract ClubSigTest is Test {
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
     address public immutable nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
 
+    /// @dev Integrations
+
     IRicardianLLC public immutable ricardian =
         IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
-
+    
+    /// @dev Helpers
+    
     function writeTokenBalance(
         address who,
         address token,
@@ -74,7 +79,12 @@ contract ClubSigTest is Test {
         sig = Signature({v: v, r: r, s: s});
     }
 
+    /// -----------------------------------------------------------------------
+    /// Club Setup Tests
+    /// -----------------------------------------------------------------------
+
     /// @notice Set up the testing suite
+
     function setUp() public {
         clubSig = new KaliClubSig();
         loot = new ClubLoot();
@@ -110,6 +120,8 @@ contract ClubSigTest is Test {
 
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
+
+    /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
         clubSigRepeat = new KaliClubSig();
@@ -335,14 +347,11 @@ contract ClubSigTest is Test {
         );
     }
 
-    // @dev Init is implicitly tested by the factory/deploy
-    // The governor storage mapping in tested implicitly below
-
     /// -----------------------------------------------------------------------
     /// Operations Tests
     /// -----------------------------------------------------------------------
 
-    // EXECUTE
+    /// @notice Check execution
 
     function testExecuteGovernor() public {
         uint256 nonceInit = clubSig.nonce();
@@ -414,6 +423,8 @@ contract ClubSigTest is Test {
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
+
+    /// @notice Check execution malconditions
 
     function testExecuteWithImproperSignatures(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
@@ -573,7 +584,7 @@ contract ClubSigTest is Test {
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
 
-    // GOVERN
+    /// @notice Check governance
 
     function testGovernAlreadyMinted() public {
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -600,6 +611,7 @@ contract ClubSigTest is Test {
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
         assert(clubSig.totalSupply() == 3);
+        assert(loot().totalSupply() == 300);
     }
 
     function testGovernBurn() public {
@@ -611,6 +623,7 @@ contract ClubSigTest is Test {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 1);
+        assert(loot().totalSupply() == 100);
     }
 
     function testSetGovernor(address dave) public {
@@ -682,6 +695,8 @@ contract ClubSigTest is Test {
     /// -----------------------------------------------------------------------
     /// Asset Management Tests
     /// -----------------------------------------------------------------------
+
+    /// @notice Check treasury redemption
 
     function testRageQuit() public {
         address a = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
