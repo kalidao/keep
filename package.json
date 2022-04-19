@@ -15,24 +15,14 @@
     "lint": "npm run prettier && npm run solhint",
     "lint:check": "npm run prettier:check && npm run solhint:check",
     "clean": "forge clean",
-    "setup": "forge clean && forge build --optimize --optimize-runs 1000000",
+    "setup": "forge clean && forge build --optimize --optimize-runs 9999999",
     "sync": "forge update",
-    "test": "forge clean && forge test --optimize --optimize-runs 1000000 -v",
-    "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 1000000"
+    "test": "forge clean && forge test --optimize --optimize-runs 9999999 -v",
+    "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 9999999"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.2.0",
-    "hardhat": "^2.5.0",
-    "hardhat-gas-reporter": "^1.0.4",
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.6"
-  },
-  "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.0",
-    "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "chai": "^4.2.0",
-    "ethereum-waffle": "^3.0.0",
-    "ethers": "^5.0.0"
   }
 }
