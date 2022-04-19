@@ -106,7 +106,7 @@ contract ClubSigTest is Test {
     /// Club Loot Tests
     /// -----------------------------------------------------------------------
 
-    function invariantMetadata() public {
+    function testInvariantMetadata() public {
         assertEq(loot.name(), "TEST");
         assertEq(loot.symbol(), "TEST-LOOT");
         assertEq(loot.decimals(), 18);
