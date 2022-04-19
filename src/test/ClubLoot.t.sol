@@ -108,7 +108,7 @@ contract ClubSigTest is Test {
 
     function testInvariantMetadata() public {
         assertEq(loot.name(), "TEST");
-        assertEq(loot.symbol(), "TEST-LOOT");
+        assertEq(loot.symbol(), "TEST LOOT");
         assertEq(loot.decimals(), 18);
     }
 
