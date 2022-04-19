@@ -347,6 +347,9 @@ contract ClubSigTest is Test {
         );
     }
 
+    // @dev Init is implicitly tested by the factory/deploy
+    // The governor storage mapping in tested implicitly below
+
     /// -----------------------------------------------------------------------
     /// Operations Tests
     /// -----------------------------------------------------------------------
@@ -611,7 +614,7 @@ contract ClubSigTest is Test {
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
         assert(clubSig.totalSupply() == 3);
-        assert(loot().totalSupply() == 300);
+        assert(loot.totalSupply() == 300);
     }
 
     function testGovernBurn() public {
@@ -623,7 +626,7 @@ contract ClubSigTest is Test {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 1);
-        assert(loot().totalSupply() == 100);
+        assert(loot.totalSupply() == 100);
     }
 
     function testSetGovernor(address dave) public {
