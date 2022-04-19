@@ -154,7 +154,7 @@ contract ClubSigTest is Test {
         vm.stopPrank();
         uint256 nonceAfter = clubSig.nonce();
         assert((nonceInit + 1) == nonceAfter);
-        assert(loot.totalSupply() == 150);
+        assert(loot.totalSupply() == 250);
     }
 
     function testSetLootPause(bool _paused) public {
@@ -174,7 +174,7 @@ contract ClubSigTest is Test {
         startHoax(alice, alice, type(uint256).max);
 
         assertTrue(loot.transfer(address(0xBEEF), 10));
-        assertEq(loot.totalSupply(), 150);
+        assertEq(loot.totalSupply(), 250);
 
         assertEq(loot.balanceOf(alice), 40);
         assertEq(loot.balanceOf(address(0xBEEF)), 10);
