@@ -126,37 +126,6 @@ contract ClubSigTest is Test {
         assert(loot.totalSupply() == 300);
     }
 
-    function testGovernBurn() public {
-        uint256 nonceInit = clubSig.nonce();
-        startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.setGovernor(alice, true);
-        vm.stopPrank();
-        assertTrue(clubSig.governor(alice));
-
-        address aliceAddress = address(alice);
-
-        Signature[] memory sigs = new Signature[](0);
-
-        startHoax(address(alice), address(alice), type(uint256).max);
-
-        bytes memory data = "";
-
-        assembly {
-            mstore(add(data, 0x20), shl(0xE0, 0x1f3c683a)) // governBurn(address,uint256)
-            mstore(add(data, 0x24), aliceAddress)
-            mstore(add(data, 0x44), 50)
-            mstore(data, 0x44)
-            // Update free memory pointer
-            mstore(0x40, add(data, 0x100))
-        }
-
-        clubSig.execute(address(loot), 0, data, false, sigs);
-        vm.stopPrank();
-        uint256 nonceAfter = clubSig.nonce();
-        assert((nonceInit + 1) == nonceAfter);
-        assert(loot.totalSupply() == 250);
-    }
-
     function testSetLootPause(bool _paused) public {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setLootPause(_paused);
@@ -174,9 +143,9 @@ contract ClubSigTest is Test {
         startHoax(alice, alice, type(uint256).max);
 
         assertTrue(loot.transfer(address(0xBEEF), 10));
-        assertEq(loot.totalSupply(), 250);
+        assertEq(loot.totalSupply(), 300);
 
-        assertEq(loot.balanceOf(alice), 40);
+        assertEq(loot.balanceOf(alice), 90);
         assertEq(loot.balanceOf(address(0xBEEF)), 10);
 
         vm.stopPrank();
