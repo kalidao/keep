@@ -143,7 +143,7 @@ contract ClubSigTest is Test {
         startHoax(alice, alice, type(uint256).max);
 
         assertTrue(loot.transfer(address(0xBEEF), 10));
-        assertEq(loot.totalSupply(), 300);
+        assertEq(loot.totalSupply(), 200);
 
         assertEq(loot.balanceOf(alice), 90);
         assertEq(loot.balanceOf(address(0xBEEF)), 10);
