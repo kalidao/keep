@@ -623,7 +623,7 @@ contract ClubSigTest is Test {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 1);
-        assert(loot.totalSupply() == 200);
+        assert(loot.totalSupply() == 300);
     }
 
     function testSetGovernor(address dave) public {
