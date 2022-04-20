@@ -101,9 +101,7 @@ contract KaliClubSigFactory is Multicall, IClub {
 
         loot.init(address(clubSig), club_, lootPaused_);
 
-        bytes memory docs = bytes(docs_);
-
-        if (docs.length == 0) {
+        if (bytes(docs_).length == 0) {
             ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
         }
 
