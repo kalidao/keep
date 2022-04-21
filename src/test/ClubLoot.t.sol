@@ -10,7 +10,7 @@ import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
 
 import "@std/Test.sol";
 
-contract ClubSigTest is Test {
+contract ClubLootTest is Test {
     using stdStorage for StdStorage;
 
     KaliClubSig clubSig;
@@ -128,7 +128,7 @@ contract ClubSigTest is Test {
         assertEq(loot.balanceOf(address(0xBEEF)), 10);
     }
 
-    function testTransferFrom() public {
+    /*function testTransferFrom() public {
         startHoax(alice, alice, type(uint256).max);
         assertTrue(loot.approve(bob, 10));
         vm.stopPrank();
@@ -142,7 +142,7 @@ contract ClubSigTest is Test {
         assertEq(loot.allowance(alice, bob), 0);
         assertEq(loot.balanceOf(alice), 90);
         assertEq(loot.balanceOf(charlie), 10);
-    }
+    */}
 
     function testGovernMint() public {
         address db = address(0xdeadbeef);
