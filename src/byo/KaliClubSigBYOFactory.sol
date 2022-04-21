@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 import {Multicall} from "../utils/Multicall.sol";
 
 import {IClub} from "../interfaces/IClub.sol";
-import {IRicardianLLC} from "./interfaces/IRicardianLLC.sol";
+import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
 
 import {KaliClubSig} from "./KaliClubSigBYO.sol";
 import {ClubLoot} from "../ClubLoot.sol";
