@@ -142,7 +142,7 @@ contract ClubLootTest is Test {
         assertEq(loot.allowance(alice, bob), 0);
         assertEq(loot.balanceOf(alice), 90);
         assertEq(loot.balanceOf(charlie), 10);
-    */}
+    }*/
 
     function testGovernMint() public {
         address db = address(0xdeadbeef);
