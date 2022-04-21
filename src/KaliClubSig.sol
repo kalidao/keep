@@ -134,9 +134,7 @@ contract KaliClubSig is ClubNFT, Multicall, IClub {
     }
 
     function tokenURI(uint256 id) external view returns (string memory) {
-        bytes memory base = bytes(baseURI);
-
-        if (base.length == 0) {
+        if (bytes(baseURI).length == 0) {
             address owner = ownerOf[id];
             uint256 lt = loot().balanceOf(owner) / 1e18;
             return ClubURIbuilder._buildTokenURI(name(), symbol(), owner, lt);
