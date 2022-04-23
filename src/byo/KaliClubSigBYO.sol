@@ -4,7 +4,6 @@ pragma solidity >=0.8.4;
 import {Multicall} from "../utils/Multicall.sol";
 import {NFTreceiver} from "../utils/NFTreceiver.sol";
 
-import {IClub} from "../interfaces/IClub.sol";
 import {IClubLoot} from "../interfaces/IClubLoot.sol";
 import {IERC721minimal} from "../interfaces/IERC721minimal.sol";
 import {IERC1271} from "../interfaces/IERC1271.sol";
