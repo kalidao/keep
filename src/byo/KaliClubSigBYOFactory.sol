@@ -3,16 +3,16 @@ pragma solidity >=0.8.4;
 
 import {Multicall} from "../utils/Multicall.sol";
 
-import {IClub} from "../interfaces/IClub.sol";
+import {IClubBYO} from "../interfaces/IClubBYO.sol";
 import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
 
 import {KaliClubSigBYO} from "./KaliClubSigBYO.sol";
-import {ClubLoot} from "../ClubLoot.sol";
+import {ClubLootBYO} from "./ClubLootBYO.sol";
 
 import {ClonesWithImmutableArgs} from "../libraries/ClonesWithImmutableArgs.sol";
 
 /// @notice Kali ClubSig (BYO) Contract Factory
-contract KaliClubSigBYOFactory is Multicall, IClub {
+contract KaliClubSigBYOfactory is Multicall, IClubBYO {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -26,7 +26,7 @@ contract KaliClubSigBYOFactory is Multicall, IClub {
     event ClubDeployed(
         address indexed clubNFT_,
         KaliClubSigBYO indexed clubSig,
-        ClubLoot indexed loot,
+        ClubLootBYO indexed loot,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -47,7 +47,7 @@ contract KaliClubSigBYOFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
 
     KaliClubSigBYO private immutable clubMaster;
-    ClubLoot private immutable lootMaster;
+    ClubLootBYO private immutable lootMaster;
     IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
@@ -56,7 +56,7 @@ contract KaliClubSigBYOFactory is Multicall, IClub {
 
     constructor(
         KaliClubSigBYO clubMaster_,
-        ClubLoot lootMaster_,
+        ClubLootBYO lootMaster_,
         IRicardianLLC ricardianLLC_
     ) {
         clubMaster = clubMaster_;
@@ -77,8 +77,8 @@ contract KaliClubSigBYOFactory is Multicall, IClub {
         bytes32 symbol_,
         bool lootPaused_,
         string calldata docs_
-    ) external payable returns (KaliClubSigBYO clubSig, ClubLoot loot) {
-        loot = ClubLoot(
+    ) external payable returns (KaliClubSigBYO clubSig, ClubLootBYO loot) {
+        loot = ClubLootBYO(
             address(lootMaster).clone(abi.encodePacked(name_, symbol_))
         );
 
