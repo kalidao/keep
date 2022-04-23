@@ -5,21 +5,17 @@ pragma solidity >=0.8.4;
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v2-core/blob/master/contracts/UniswapV2ERC20.sol)
 /// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it.
-abstract contract ERC20Abc {
-    /*///////////////////////////////////////////////////////////////
-    EVENTS
+abstract contract ERC20base {
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
 
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 amount
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 amount);
 
-    /*///////////////////////////////////////////////////////////////
-    METADATA STORAGE
+    /*//////////////////////////////////////////////////////////////
+                            METADATA STORAGE
     //////////////////////////////////////////////////////////////*/
 
     string public name;
@@ -28,8 +24,8 @@ abstract contract ERC20Abc {
 
     uint8 public immutable decimals;
 
-    /*///////////////////////////////////////////////////////////////
-    ERC20 STORAGE
+    /*//////////////////////////////////////////////////////////////
+                              ERC20 STORAGE
     //////////////////////////////////////////////////////////////*/
 
     uint256 public totalSupply;
@@ -38,8 +34,8 @@ abstract contract ERC20Abc {
 
     mapping(address => mapping(address => uint256)) public allowance;
 
-    /*///////////////////////////////////////////////////////////////
-    EIP-2612 STORAGE
+    /*//////////////////////////////////////////////////////////////
+                            EIP-2612 STORAGE
     //////////////////////////////////////////////////////////////*/
 
     uint256 internal immutable INITIAL_CHAIN_ID;
@@ -48,8 +44,8 @@ abstract contract ERC20Abc {
 
     mapping(address => uint256) public nonces;
 
-    /*///////////////////////////////////////////////////////////////
-    CONSTRUCTOR
+    /*//////////////////////////////////////////////////////////////
+                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
     constructor(
@@ -65,15 +61,11 @@ abstract contract ERC20Abc {
         INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
     }
 
-    /*///////////////////////////////////////////////////////////////
-    ERC20 LOGIC
+    /*//////////////////////////////////////////////////////////////
+                               ERC20 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function approve(address spender, uint256 amount)
-        public
-        virtual
-        returns (bool)
-    {
+    function approve(address spender, uint256 amount) public virtual returns (bool) {
         allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
@@ -81,11 +73,7 @@ abstract contract ERC20Abc {
         return true;
     }
 
-    function transfer(address to, uint256 amount)
-        public
-        virtual
-        returns (bool)
-    {
+    function transfer(address to, uint256 amount) public virtual returns (bool) {
         balanceOf[msg.sender] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -106,8 +94,7 @@ abstract contract ERC20Abc {
     ) public virtual returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
 
-        if (allowed != type(uint256).max)
-            allowance[from][msg.sender] = allowed - amount;
+        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
 
         balanceOf[from] -= amount;
 
@@ -122,8 +109,8 @@ abstract contract ERC20Abc {
         return true;
     }
 
-    /*///////////////////////////////////////////////////////////////
-    EIP-2612 LOGIC
+    /*//////////////////////////////////////////////////////////////
+                             EIP-2612 LOGIC
     //////////////////////////////////////////////////////////////*/
 
     function permit(
@@ -164,10 +151,7 @@ abstract contract ERC20Abc {
                 s
             );
 
-            require(
-                recoveredAddress != address(0) && recoveredAddress == owner,
-                "INVALID_SIGNER"
-            );
+            require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
 
             allowance[recoveredAddress][spender] = value;
         }
@@ -176,19 +160,14 @@ abstract contract ERC20Abc {
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            block.chainid == INITIAL_CHAIN_ID
-                ? INITIAL_DOMAIN_SEPARATOR
-                : computeDomainSeparator();
+        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
     }
 
     function computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
                 abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
+                    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                     keccak256(bytes(name)),
                     keccak256("1"),
                     block.chainid,
@@ -197,8 +176,8 @@ abstract contract ERC20Abc {
             );
     }
 
-    /*///////////////////////////////////////////////////////////////
-    INTERNAL MINT/BURN LOGIC
+    /*//////////////////////////////////////////////////////////////
+                        INTERNAL MINT/BURN LOGIC
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address to, uint256 amount) internal virtual {
@@ -226,12 +205,12 @@ abstract contract ERC20Abc {
     }
 }
 
-contract ERC20 is ERC20Abc {
+contract ERC20 is ERC20base {
     constructor(
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) ERC20Abc(_name, _symbol, _decimals) {}
+    ) ERC20base(_name, _symbol, _decimals) {}
 
     function mint(address to, uint256 value) public virtual {
         _mint(to, value);
