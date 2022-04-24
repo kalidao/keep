@@ -131,12 +131,12 @@ contract ClubLootTest is Test {
         assertEq(loot.balanceOf(address(0xBEEF)), 10);
     }
 
-    /*function testTransferFrom() public {
+    function testTransferFrom() public {
         startHoax(alice, alice, type(uint256).max);
         assertTrue(loot.approve(bob, 10));
         vm.stopPrank();
 
-        assertEq(loot.allowance(alice, bob, 10));
+        assertEq(loot.allowance(alice, bob), 10);
 
         startHoax(bob, bob, type(uint256).max);
         assertTrue(loot.transferFrom(alice, charlie, 10));
@@ -145,7 +145,7 @@ contract ClubLootTest is Test {
         assertEq(loot.allowance(alice, bob), 0);
         assertEq(loot.balanceOf(alice), 90);
         assertEq(loot.balanceOf(charlie), 10);
-    }*/
+    }
 
     function testGovernMint() public {
         address db = address(0xdeadbeef);
