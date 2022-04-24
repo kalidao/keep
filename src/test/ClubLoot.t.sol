@@ -348,4 +348,44 @@ contract ClubLootTest is Test {
         vm.warp(block.timestamp + 2 days);
         assert(loot.getPriorVotes(bob, block.timestamp - 1 days) == 90);
     }
+
+    function testSafeCast192forVoteInit() public {
+        KaliClubSig clubSig1 = new KaliClubSig();
+        ClubLoot loot1 = new ClubLoot();
+
+        // Create the factory
+        factory = new KaliClubSigFactory(clubSig1, loot1, ricardian);
+
+        // Set mint amount
+        uint256 tooBigMintAmount = (1 << 192) + 1;
+
+        // Create the Club[]
+        IClub.Club[] memory clubs = new IClub.Club[](2);
+        clubs[0] = alice > bob
+            ? IClub.Club(bob, 1, tooBigMintAmount)
+            : IClub.Club(alice, 0, tooBigMintAmount);
+        clubs[1] = alice > bob
+            ? IClub.Club(alice, 0, tooBigMintAmount)
+            : IClub.Club(bob, 1, tooBigMintAmount);
+
+        vm.expectRevert(bytes4(keccak256("Uint192max()")));
+        factory.deployClubSig(
+            clubs,
+            2,
+            0,
+            name,
+            symbol,
+            false,
+            false,
+            "BASE",
+            "DOCS"
+        );
+    }
+
+    function testSafeCast192forVoteMint() public {
+        uint256 tooBigMintAmount = (1 << 192) + 1;
+        vm.prank(address(clubSig));
+        vm.expectRevert(bytes4(keccak256("Uint192max()")));
+        loot.mint(alice, tooBigMintAmount);
+    }
 }
