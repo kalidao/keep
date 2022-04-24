@@ -18,7 +18,7 @@ contract ClubLoot is IClub {
         uint256 amount
     );
     event PauseSet(bool paused);
-    event GovTransferred(address indexed governance);
+    event GovSet(address indexed governance);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -248,7 +248,7 @@ contract ClubLoot is IClub {
                                 owner,
                                 spender,
                                 value,
-                                ++nonces[owner],
+                                nonces[owner]++,
                                 deadline
                             )
                         )
@@ -320,8 +320,8 @@ contract ClubLoot is IClub {
         emit PauseSet(paused_);
     }
 
-    function transferGov(address governance_) external payable onlyGov {
+    function setGov(address governance_) external payable onlyGov {
         governance = governance_;
-        emit GovTransferred(governance_);
+        emit GovSet(governance_);
     }
 }
