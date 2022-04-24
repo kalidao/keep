@@ -45,6 +45,9 @@ contract ClubSigTest is Test {
         IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
     
     /// @dev Helpers
+
+    bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
     
     function writeTokenBalance(
         address who,
@@ -110,8 +113,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -138,8 +141,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -181,8 +184,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -212,8 +215,8 @@ contract ClubSigTest is Test {
             clubs,
             0,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -236,8 +239,8 @@ contract ClubSigTest is Test {
             clubs,
             3,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -260,8 +263,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -307,6 +310,14 @@ contract ClubSigTest is Test {
 
     function testTotalSupply() public view {
         assert(clubSig.totalSupply() == 2);
+    }
+
+    function testClubName() public {
+        assertEq(clubSig.name(), string(abi.encodePacked(name)));
+    }
+
+    function testClubSymbol() public {
+        assertEq(clubSig.symbol(), string(abi.encodePacked(symbol)));
     }
 
     function testBaseURI() public {
