@@ -48,7 +48,7 @@ contract KaliClubSigFactoryTest is Test {
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
 
-        vm.expectEmit(true, true, false, false);
+        // vm.expectEmit(true, true, false, false);
         (depClubSig, ) = factory.deployClubSig(
             clubs,
             2,
