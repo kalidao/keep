@@ -241,4 +241,111 @@ contract ClubLootTest is Test {
         assertEq(loot.allowance(alice, address(0xCAFE)), 1e18);
         assertEq(loot.nonces(alice), 1);
     }
+
+    function testGetCurrentVotes() public {
+        assert(loot.getCurrentVotes(alice) == 100);
+        assert(loot.getCurrentVotes(bob) == 100);
+        assert(loot.getCurrentVotes(charlie) == 0);
+    }
+
+    function testGetPriorVotes() public {
+        vm.warp(block.timestamp + 2 days);
+        assert(loot.getPriorVotes(alice, block.timestamp - 1 days) == 100);
+        assert(loot.getPriorVotes(bob, block.timestamp - 1 days) == 100);
+        assert(loot.getPriorVotes(charlie, block.timestamp - 1 days) == 0);
+    }
+
+    function testDelegation() public {
+        assert(loot.delegates(alice) == alice);
+        assert(loot.delegates(bob) == bob);
+
+        startHoax(alice, alice, type(uint256).max);
+        loot.delegate(bob);
+
+        assert(loot.delegates(alice) == bob);
+        assert(loot.getCurrentVotes(alice) == 0);
+        assert(loot.getCurrentVotes(bob) == 200);
+
+        vm.warp(block.timestamp + 2 days);
+
+        assert(loot.getPriorVotes(alice, block.timestamp - 1 days) == 0);
+        assert(loot.getPriorVotes(bob, block.timestamp - 1 days) == 200);
+    }
+
+    function testDelegationByTransfer() public {
+        startHoax(alice, alice, type(uint256).max);
+        assertTrue(loot.transfer(bob, 10));
+        assert(loot.getCurrentVotes(alice) == 90);
+        assert(loot.getCurrentVotes(bob) == 110);
+        vm.warp(block.timestamp + 2 days);
+        assert(loot.getPriorVotes(alice, block.timestamp - 1 days) == 90);
+        assert(loot.getPriorVotes(bob, block.timestamp - 1 days) == 110);
+    }
+
+    function testDelegationByTransferFrom() public {
+        startHoax(alice, alice, type(uint256).max);
+        assertTrue(loot.approve(bob, 10));
+        vm.stopPrank();
+
+        assertEq(loot.allowance(alice, bob), 10);
+
+        startHoax(bob, bob, type(uint256).max);
+        assertTrue(loot.transferFrom(alice, charlie, 10));
+        vm.stopPrank();
+
+        assertEq(loot.allowance(alice, bob), 0);
+        assertEq(loot.balanceOf(alice), 90);
+        assertEq(loot.balanceOf(charlie), 10);
+
+        assert(loot.getCurrentVotes(alice) == 90);
+        assert(loot.getCurrentVotes(charlie) == 10);
+
+        vm.warp(block.timestamp + 2 days);
+        assert(loot.getPriorVotes(alice, block.timestamp - 1 days) == 90);
+        assert(loot.getPriorVotes(charlie, block.timestamp - 1 days) == 10);
+    }
+
+    function testDelegationByMint() public {
+        address db = address(0xdeadbeef);
+
+        IClub.Club[] memory clubs = new IClub.Club[](1);
+        clubs[0] = IClub.Club(db, 2, 100);
+
+        bool[] memory mints = new bool[](1);
+        mints[0] = true;
+
+        vm.prank(address(clubSig));
+        clubSig.govern(clubs, mints, 3);
+        assert(loot.balanceOf(db) == 100);
+        assert(loot.totalSupply() == 300);
+
+        assert(loot.getCurrentVotes(db) == 100);
+
+        vm.warp(block.timestamp + 2 days);
+        assert(loot.getPriorVotes(db, block.timestamp - 1 days) == 100);
+
+        vm.prank(address(clubSig));
+        loot.mint(alice, 100);
+        assert(loot.balanceOf(alice) == 200);
+        assert(loot.totalSupply() == 400);
+
+        assert(loot.getCurrentVotes(alice) == 200);
+
+        vm.warp(block.timestamp + 2 days);
+        assert(loot.getPriorVotes(alice, block.timestamp - 1 days) == 200);
+    }
+
+    function testDelegationByBurn() public {
+        startHoax(bob, bob, type(uint256).max);
+        loot.burn(10);
+        vm.stopPrank();
+
+        assertEq(loot.balanceOf(bob), 90);
+        assert(loot.totalSupply() == 190);
+
+        assert(loot.getCurrentVotes(bob) == 90);
+
+        vm.warp(block.timestamp + 2 days);
+        assert(loot.getPriorVotes(bob, block.timestamp - 1 days) == 90);
+    }
 }
