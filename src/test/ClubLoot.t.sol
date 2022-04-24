@@ -42,6 +42,9 @@ contract ClubLootTest is Test {
 
     /// @dev Helpers
 
+    bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
+
     bytes32 constant PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
@@ -93,8 +96,8 @@ contract ClubLootTest is Test {
             clubs,
             2,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
@@ -106,10 +109,10 @@ contract ClubLootTest is Test {
     /// Club Loot Tests
     /// -----------------------------------------------------------------------
 
-    function invariantMetadata() public {
-        assertEq(loot.name(), "TEST");
-        assertEq(loot.symbol(), "TEST LOOT");
-        assertEq(loot.decimals(), 18);
+    function testInvariantMetadata() public {
+        assertEq(loot.name(), string(abi.encodePacked(name, " LOOT")));
+        assertEq(loot.symbol(), string(abi.encodePacked(symbol, "-LOOT")));
+        assertEq(loot.decimals(), 18);  
     }
 
     function testApprove() public {
