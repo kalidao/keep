@@ -15,13 +15,22 @@ contract KaliClubSigFactoryTest is Test {
     KaliClubSigFactory factory;
 
     /// @dev Users
+
     address public immutable alice = address(0xa);
     address public immutable bob = address(0xb);
+
+    /// @dev Integrations
 
     IRicardianLLC public immutable ricardian =
         IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
+    /// @dev Helpers
+
+    bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
+
     /// @notice Set up the testing suite
+
     function setUp() public {
         clubSig = new KaliClubSig();
 
@@ -39,14 +48,13 @@ contract KaliClubSigFactoryTest is Test {
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
 
-        // TODO(This suddenly fails on a newer version of foundry)
-        //vm.expectEmit(true, true, true, true);
+        vm.expectEmit(true, true, false, false);
         (depClubSig, ) = factory.deployClubSig(
             clubs,
             2,
             0,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
-            0x5445535400000000000000000000000000000000000000000000000000000000,
+            name,
+            symbol,
             false,
             false,
             "BASE",
