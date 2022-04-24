@@ -117,7 +117,6 @@ contract ClubLootTest is Test {
 
     function testApprove() public {
         assertTrue(loot.approve(address(0xBEEF), 1e18));
-
         assertEq(loot.allowance(address(this), address(0xBEEF)), 1e18);
     }
 
@@ -166,5 +165,16 @@ contract ClubLootTest is Test {
         clubSig.setLootPause(_paused);
         vm.stopPrank();
         assert(loot.paused() == _paused);
+    }
+
+    function testPausedTransfer() public {
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        clubSig.setLootPause(true);
+        vm.stopPrank();
+
+        startHoax(alice, alice, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("Paused()")));
+        loot.transfer(address(0xBEEF), 10);
+        vm.stopPrank();
     }
 }
