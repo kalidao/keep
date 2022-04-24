@@ -165,6 +165,8 @@ contract ClubLoot is IClub {
         for (uint256 i; i < club_.length; ) {
             totalSupply_ += club_[i].loot;
 
+            _moveDelegates(address(0), delegates(club_[i].signer), club_[i].loot);
+            
             emit Transfer(address(0), club_[i].signer, club_[i].loot);
             // cannot overflow because the sum of all user
             // balances can't exceed the max uint256 value,
