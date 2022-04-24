@@ -224,7 +224,7 @@ contract ClubLootTest is Test {
         vm.stopPrank();
     }
 
-    /*function testPermit() public {
+    function testPermit() public {
         (uint8 v, bytes32 r, bytes32 s) = signPermit(
             alicesPk,
             keccak256(
@@ -240,5 +240,5 @@ contract ClubLootTest is Test {
 
         assertEq(loot.allowance(alice, address(0xCAFE)), 1e18);
         assertEq(loot.nonces(alice), 1);
-    }*/
+    }
 }
