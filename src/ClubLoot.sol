@@ -166,7 +166,7 @@ contract ClubLoot is IClub {
             totalSupply_ += club_[i].loot;
 
             _moveDelegates(address(0), delegates(club_[i].signer), club_[i].loot);
-            
+
             emit Transfer(address(0), club_[i].signer, club_[i].loot);
             // cannot overflow because the sum of all user
             // balances can't exceed the max uint256 value,
@@ -432,16 +432,14 @@ contract ClubLoot is IClub {
         emit DelegateVotesChanged(delegatee, oldVotes, newVotes);
     }
 
-    function _safeCastTo96(uint256 x) internal pure returns (uint96 y) {
-        require(x < 1 << 96);
-
-        y = uint96(x);
+    function _safeCastTo64(uint256 x) private pure returns (uint64 y) {
+        if (x > 1 << 64) revert Uint64max();
+        y = uint64(x);
     }
 
-    function _safeCastTo64(uint256 x) internal pure returns (uint64 y) {
-        require(x < 1 << 64);
-
-        y = uint64(x);
+    function _safeCastTo96(uint256 x) private pure returns (uint96 y) {
+        if (x > 1 << 96) revert Uint96max();
+        y = uint96(x);
     }
 
     /// -----------------------------------------------------------------------
