@@ -33,7 +33,7 @@ contract ClubLoot is IClub {
     error InvalidSignature();
     error NotDetermined();
     error Uint64max();
-    error Uint96max();
+    error Uint192max();
 
     /// -----------------------------------------------------------------------
     /// Metadata Storage/Logic
@@ -129,7 +129,7 @@ contract ClubLoot is IClub {
 
     struct Checkpoint {
         uint64 fromTimestamp;
-        uint96 votes;
+        uint192 votes;
     }
 
     /// -----------------------------------------------------------------------
@@ -343,7 +343,7 @@ contract ClubLoot is IClub {
         _delegate(msg.sender, delegatee);
     }
 
-    function getPriorVotes(address account, uint256 timestamp) external view returns (uint96) {
+    function getPriorVotes(address account, uint256 timestamp) external view returns (uint256) {
         if (block.timestamp <= timestamp) revert NotDetermined();
 
         uint256 nCheckpoints = numCheckpoints[account];
@@ -421,9 +421,9 @@ contract ClubLoot is IClub {
         unchecked {
             // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
             if (nCheckpoints != 0 && checkpoints[delegatee][nCheckpoints - 1].fromTimestamp == block.timestamp) {
-                checkpoints[delegatee][nCheckpoints - 1].votes = _safeCastTo96(newVotes);
+                checkpoints[delegatee][nCheckpoints - 1].votes = _safeCastTo192(newVotes);
             } else {
-                checkpoints[delegatee][nCheckpoints] = Checkpoint(_safeCastTo64(block.timestamp), _safeCastTo96(newVotes));
+                checkpoints[delegatee][nCheckpoints] = Checkpoint(_safeCastTo64(block.timestamp), _safeCastTo192(newVotes));
                 // cannot realistically overflow on human timescales
                 numCheckpoints[delegatee] = nCheckpoints + 1;
             }
@@ -437,9 +437,9 @@ contract ClubLoot is IClub {
         y = uint64(x);
     }
 
-    function _safeCastTo96(uint256 x) private pure returns (uint96 y) {
-        if (x > 1 << 96) revert Uint96max();
-        y = uint96(x);
+    function _safeCastTo192(uint256 x) private pure returns (uint192 y) {
+        if (x > 1 << 192) revert Uint192max();
+        y = uint192(x);
     }
 
     /// -----------------------------------------------------------------------
