@@ -181,6 +181,7 @@ contract ClubLoot is IClub {
     function transfer(address to, uint256 amount)
         external
         payable
+        notPaused
         returns (bool)
     {
         balanceOf[msg.sender] -= amount;
@@ -199,7 +200,7 @@ contract ClubLoot is IClub {
         address from,
         address to,
         uint256 amount
-    ) external payable returns (bool) {
+    ) external payable notPaused returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // saves gas for limited approvals
 
         if (allowed != type(uint256).max)
