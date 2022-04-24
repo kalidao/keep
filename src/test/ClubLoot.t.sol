@@ -48,25 +48,11 @@ contract ClubLootTest is Test {
     bytes32 constant PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
-    function signExecution(
-        uint256 pk,
-        address to,
-        uint256 value,
-        bytes memory data,
-        bool deleg
-    ) internal returns (Signature memory sig) {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-
+    function signPermit(uint256 pk, bytes32 digest) internal returns (uint8 v, bytes32 r, bytes32 s) {
         (v, r, s) = vm.sign(
             pk,
-            clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce())
+            digest
         );
-        // set 'wrong v' to return null signer for tests
-        if (pk == nullPk) v = 17;
-
-        sig = Signature({v: v, r: r, s: s});
     }
 
     /// -----------------------------------------------------------------------
@@ -146,7 +132,53 @@ contract ClubLootTest is Test {
         assertEq(loot.balanceOf(charlie), 10);
     }
 
-    function testGovernMint() public {
+    function testBurn() public {
+        startHoax(bob, bob, type(uint256).max);
+        loot.burn(10);
+        vm.stopPrank();
+
+        assertEq(loot.balanceOf(bob), 90);
+        assert(loot.totalSupply() == 190);
+    }
+
+    function testBurnFrom() public {
+        startHoax(alice, alice, type(uint256).max);
+        assertTrue(loot.approve(bob, 10));
+        vm.stopPrank();
+
+        assertEq(loot.allowance(alice, bob), 10);
+
+        startHoax(bob, bob, type(uint256).max);
+        loot.burnFrom(alice, 10);
+        vm.stopPrank();
+
+        assertEq(loot.allowance(alice, bob), 0);
+        assertEq(loot.balanceOf(alice), 90);
+        assert(loot.totalSupply() == 190);
+    }
+
+    function testGovernance() public {
+        assert(loot.governance() == address(clubSig)); 
+
+        startHoax(alice, alice, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("NotGov()")));
+        loot.setGov(alice);
+        vm.stopPrank();
+
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        loot.setGov(alice);
+        vm.stopPrank();
+
+        assert(loot.governance() == alice); 
+
+        startHoax(alice, alice, type(uint256).max);
+        loot.setGov(bob);
+        vm.stopPrank();
+
+        assert(loot.governance() == bob);
+    }
+
+    function testMint() public {
         address db = address(0xdeadbeef);
 
         IClub.Club[] memory clubs = new IClub.Club[](1);
@@ -157,7 +189,21 @@ contract ClubLootTest is Test {
 
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
+        assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
+
+        vm.prank(address(clubSig));
+        loot.mint(alice, 100);
+        assert(loot.balanceOf(alice) == 200);
+        assert(loot.totalSupply() == 400);
+    }
+
+    function testGovBurn() public {
+        startHoax(address(clubSig), address(clubSig), type(uint256).max);
+        loot.govBurn(alice, 50);
+        assert(loot.balanceOf(alice) == 50);
+        assert(loot.totalSupply() == 150);
+        vm.stopPrank();
     }
 
     function testSetLootPause(bool _paused) public {
@@ -177,4 +223,22 @@ contract ClubLootTest is Test {
         loot.transfer(address(0xBEEF), 10);
         vm.stopPrank();
     }
+
+    /*function testPermit() public {
+        (uint8 v, bytes32 r, bytes32 s) = signPermit(
+            alicesPk,
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    loot.DOMAIN_SEPARATOR(),
+                    keccak256(abi.encode(PERMIT_TYPEHASH, alice, address(0xCAFE), 1e18, 0, block.timestamp))
+                )
+            )
+        );
+
+        loot.permit(alice, address(0xCAFE), 1e18, block.timestamp, v, r, s);
+
+        assertEq(loot.allowance(alice, address(0xCAFE)), 1e18);
+        assertEq(loot.nonces(alice), 1);
+    }*/
 }
