@@ -17,6 +17,8 @@ contract ClubLoot is IClub {
         address indexed spender,
         uint256 amount
     );
+    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
+    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
     event PauseSet(bool paused);
     event GovSet(address indexed governance);
 
@@ -29,6 +31,9 @@ contract ClubLoot is IClub {
     error AlreadyInitialized();
     error SignatureExpired();
     error InvalidSignature();
+    error NotDetermined();
+    error Uint64max();
+    error Uint192max();
 
     /// -----------------------------------------------------------------------
     /// Metadata Storage/Logic
@@ -115,6 +120,19 @@ contract ClubLoot is IClub {
     }
 
     /// -----------------------------------------------------------------------
+    /// DAO Storage
+    /// -----------------------------------------------------------------------
+
+    mapping(address => address) private _delegates;
+    mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
+    mapping(address => uint256) public numCheckpoints;
+
+    struct Checkpoint {
+        uint64 fromTimestamp;
+        uint192 votes;
+    }
+
+    /// -----------------------------------------------------------------------
     /// Governance Storage
     /// -----------------------------------------------------------------------
 
@@ -146,6 +164,8 @@ contract ClubLoot is IClub {
 
         for (uint256 i; i < club_.length; ) {
             totalSupply_ += club_[i].loot;
+
+            _moveDelegates(address(0), delegates(club_[i].signer), club_[i].loot);
 
             emit Transfer(address(0), club_[i].signer, club_[i].loot);
             // cannot overflow because the sum of all user
@@ -191,6 +211,8 @@ contract ClubLoot is IClub {
             balanceOf[to] += amount;
         }
 
+        _moveDelegates(delegates(msg.sender), delegates(to), amount);
+
         emit Transfer(msg.sender, to, amount);
 
         return true;
@@ -212,6 +234,8 @@ contract ClubLoot is IClub {
         unchecked {
             balanceOf[to] += amount;
         }
+
+        _moveDelegates(delegates(from), delegates(to), amount);
 
         emit Transfer(from, to, amount);
 
@@ -280,6 +304,8 @@ contract ClubLoot is IClub {
             totalSupply -= amount;
         }
 
+        _moveDelegates(delegates(from), address(0), amount);
+
         emit Transfer(from, address(0), amount);
     }
 
@@ -297,6 +323,126 @@ contract ClubLoot is IClub {
     }
 
     /// -----------------------------------------------------------------------
+    /// DAO Logic
+    /// -----------------------------------------------------------------------
+
+    function delegates(address delegator) public view returns (address) {
+        address current = _delegates[delegator];
+        return current == address(0) ? delegator : current;
+    }
+
+    function getCurrentVotes(address account) external view returns (uint256) {
+        // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
+        unchecked {
+            uint256 nCheckpoints = numCheckpoints[account];
+            return nCheckpoints != 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
+        }
+    }
+
+    function delegate(address delegatee) external payable {
+        _delegate(msg.sender, delegatee);
+    }
+
+    function getPriorVotes(address account, uint256 timestamp) external view returns (uint256) {
+        if (block.timestamp <= timestamp) revert NotDetermined();
+
+        uint256 nCheckpoints = numCheckpoints[account];
+
+        if (nCheckpoints == 0) return 0;
+        
+        // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
+        unchecked {
+            if (checkpoints[account][nCheckpoints - 1].fromTimestamp <= timestamp)
+                return checkpoints[account][nCheckpoints - 1].votes;
+            if (checkpoints[account][0].fromTimestamp > timestamp) return 0;
+
+            uint256 lower;  
+            // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
+            uint256 upper = nCheckpoints - 1;
+
+            while (upper > lower) {
+                // this is safe from underflow because `upper` ceiling is provided
+                uint256 center = upper - (upper - lower) / 2;
+
+                Checkpoint memory cp = checkpoints[account][center];
+
+                if (cp.fromTimestamp == timestamp) {
+                    return cp.votes;
+                } else if (cp.fromTimestamp < timestamp) {
+                    lower = center;
+                } else {
+                    upper = center - 1;
+                }
+            }
+
+        return checkpoints[account][lower].votes;
+
+        }
+    }
+
+    function _delegate(address delegator, address delegatee) private {
+        address currentDelegate = delegates(delegator);
+
+        _delegates[delegator] = delegatee;
+        _moveDelegates(currentDelegate, delegatee, balanceOf[delegator]);
+
+        emit DelegateChanged(delegator, currentDelegate, delegatee);
+    }
+
+    function _moveDelegates(
+        address srcRep, 
+        address dstRep, 
+        uint256 amount
+    ) private {
+        if (srcRep != dstRep && amount != 0) 
+            if (srcRep != address(0)) {
+                uint256 srcRepNum = numCheckpoints[srcRep];
+                uint256 srcRepOld = srcRepNum != 0 ? checkpoints[srcRep][srcRepNum - 1].votes : 0;
+                uint256 srcRepNew = srcRepOld - amount;
+
+                _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
+            }
+            
+            if (dstRep != address(0)) {
+                uint256 dstRepNum = numCheckpoints[dstRep];
+                uint256 dstRepOld = dstRepNum != 0 ? checkpoints[dstRep][dstRepNum - 1].votes : 0;
+                uint256 dstRepNew = dstRepOld + amount;
+
+                _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
+            }
+    }
+
+    function _writeCheckpoint(
+        address delegatee, 
+        uint256 nCheckpoints, 
+        uint256 oldVotes, 
+        uint256 newVotes
+    ) private {
+        unchecked {
+            // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
+            if (nCheckpoints != 0 && checkpoints[delegatee][nCheckpoints - 1].fromTimestamp == block.timestamp) {
+                checkpoints[delegatee][nCheckpoints - 1].votes = _safeCastTo192(newVotes);
+            } else {
+                checkpoints[delegatee][nCheckpoints] = Checkpoint(_safeCastTo64(block.timestamp), _safeCastTo192(newVotes));
+                // cannot realistically overflow on human timescales
+                numCheckpoints[delegatee] = nCheckpoints + 1;
+            }
+        }
+
+        emit DelegateVotesChanged(delegatee, oldVotes, newVotes);
+    }
+
+    function _safeCastTo64(uint256 x) private pure returns (uint64 y) {
+        if (x > 1 << 64) revert Uint64max();
+        y = uint64(x);
+    }
+
+    function _safeCastTo192(uint256 x) private pure returns (uint192 y) {
+        if (x > 1 << 192) revert Uint192max();
+        y = uint192(x);
+    }
+
+    /// -----------------------------------------------------------------------
     /// Governance Logic
     /// -----------------------------------------------------------------------
 
@@ -307,6 +453,8 @@ contract ClubLoot is IClub {
         unchecked {
             balanceOf[to] += amount;
         }
+
+        _moveDelegates(address(0), delegates(to), amount);
 
         emit Transfer(address(0), to, amount);
     }
