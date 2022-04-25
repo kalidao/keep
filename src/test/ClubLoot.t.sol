@@ -242,7 +242,7 @@ contract ClubLootTest is Test {
         assertEq(loot.nonces(alice), 1);
     }
 
-    function testGetCurrentVotes() public {
+    function testGetCurrentVotes() public view {
         assert(loot.getCurrentVotes(alice) == 100);
         assert(loot.getCurrentVotes(bob) == 100);
         assert(loot.getCurrentVotes(charlie) == 0);
