@@ -219,16 +219,16 @@ abstract contract ClubNFT {
 
         emit Transfer(address(0), to, id);
 
-        if (
-            to.code.length != 0 &&
-            ERC721TokenReceiver(to).onERC721Received(
-                msg.sender,
-                address(0),
-                id,
-                ""
-            ) !=
-            ERC721TokenReceiver.onERC721Received.selector
-        ) revert InvalidRecipient();
+        if (to.code.length != 0) {
+            if (
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    ""
+                ) != ERC721TokenReceiver.onERC721Received.selector
+            ) revert InvalidRecipient();
+        }
     }
 
     function _burn(uint256 id) internal {
