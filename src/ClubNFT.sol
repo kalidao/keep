@@ -171,16 +171,16 @@ abstract contract ClubNFT {
     ) external payable {
         transferFrom(from, to, id);
 
-        if (
-            to.code.length != 0 &&
-            ERC721TokenReceiver(to).onERC721Received(
-                msg.sender,
-                from,
-                id,
-                ""
-            ) !=
-            ERC721TokenReceiver.onERC721Received.selector
-        ) revert InvalidRecipient();
+        if (to.code.length != 0) {
+            if (
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    ""
+                ) != ERC721TokenReceiver.onERC721Received.selector
+            ) revert InvalidRecipient();
+        }
     }
 
     function safeTransferFrom(
@@ -191,16 +191,16 @@ abstract contract ClubNFT {
     ) external payable {
         transferFrom(from, to, id);
 
-        if (
-            to.code.length != 0 &&
-            ERC721TokenReceiver(to).onERC721Received(
-                msg.sender,
-                from,
-                id,
-                data
-            ) !=
-            ERC721TokenReceiver.onERC721Received.selector
-        ) revert InvalidRecipient();
+        if (to.code.length != 0) {
+            if (
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    data
+                ) != ERC721TokenReceiver.onERC721Received.selector
+            ) revert InvalidRecipient();
+        }
     }
 
     /// -----------------------------------------------------------------------
