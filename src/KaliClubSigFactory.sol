@@ -84,6 +84,7 @@ contract KaliClubSigFactory is Multicall, IClub {
         loot = ClubLoot(
             address(lootMaster).clone(abi.encodePacked(name_, symbol_))
         );
+        
         clubSig = KaliClubSig(
             address(clubMaster).clone(
                 abi.encodePacked(name_, symbol_, address(loot))
