@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Enables creating clone contracts with immutable arguments
+/// @notice Enables creating clone contracts with immutable arguments and CREATE2
 /// @author Modified from wighawag, zefram.eth (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
 /// License-Identifier: BSD
 library ClonesWithImmutableArgs {
-    error CreateFail();
+    error Create2fail();
 
     /// @notice Creates a clone proxy of the implementation contract, with immutable args
     /// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length
@@ -22,7 +22,7 @@ library ClonesWithImmutableArgs {
             uint256 creationSize = 0x41 + extraLength;
             uint256 runSize = creationSize - 10;
             uint256 dataPtr;
-            uint256 ptr;
+            uint256 ptr; 
 
             assembly {
                 ptr := mload(0x40)
@@ -136,10 +136,10 @@ library ClonesWithImmutableArgs {
             }
          
             assembly {
-                instance := create(0, ptr, creationSize)
+                instance := create2(0, ptr, creationSize, keccak256(add(data, 0x20), mload(data)))
             }
             if (instance == address(0)) {
-                revert CreateFail();
+                revert Create2fail();
             }
         }
     }
