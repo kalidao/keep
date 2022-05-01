@@ -48,6 +48,9 @@ contract ClubSigTest is Test {
 
     bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
     bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
+
+    bytes32 name2 = 0x5445535432000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol2 = 0x5445535432000000000000000000000000000000000000000000000000000000;
     
     function writeTokenBalance(
         address who,
@@ -141,8 +144,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            name,
-            symbol,
+            name2,
+            symbol2,
             false,
             false,
             "BASE",
@@ -184,8 +187,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            name,
-            symbol,
+            name2,
+            symbol2,
             false,
             false,
             "BASE",
@@ -215,8 +218,8 @@ contract ClubSigTest is Test {
             clubs,
             0,
             0,
-            name,
-            symbol,
+            name2,
+            symbol2,
             false,
             false,
             "BASE",
@@ -239,8 +242,8 @@ contract ClubSigTest is Test {
             clubs,
             3,
             0,
-            name,
-            symbol,
+            name2,
+            symbol2,
             false,
             false,
             "BASE",
@@ -263,8 +266,8 @@ contract ClubSigTest is Test {
             clubs,
             2,
             0,
-            name,
-            symbol,
+            name2,
+            symbol2,
             false,
             false,
             "BASE",
