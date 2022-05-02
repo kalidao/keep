@@ -2,7 +2,9 @@
 pragma solidity >=0.8.4;
 
 /// @notice Enables creating clone contracts with immutable arguments and CREATE2
-/// @author Modified from wighawag, zefram.eth (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
+/// @dev Uniqueness is enforced on payload
+/// @author Modified from wighawag, zefram.eth 
+/// (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
 /// License-Identifier: BSD
 library ClonesWithImmutableArgs {
     error Create2fail();
