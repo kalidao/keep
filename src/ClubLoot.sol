@@ -376,18 +376,14 @@ contract ClubLoot is IClub {
 
         }
     }
-    
+ 
     function delegate(address delegatee) external payable {
-        _delegate(msg.sender, delegatee);
-    }
+        address currentDelegate = delegates(msg.sender);
 
-    function _delegate(address delegator, address delegatee) private {
-        address currentDelegate = delegates(delegator);
+        _delegates[msg.sender] = delegatee;
+        _moveDelegates(currentDelegate, delegatee, balanceOf[msg.sender]);
 
-        _delegates[delegator] = delegatee;
-        _moveDelegates(currentDelegate, delegatee, balanceOf[delegator]);
-
-        emit DelegateChanged(delegator, currentDelegate, delegatee);
+        emit DelegateChanged(msg.sender, currentDelegate, delegatee);
     }
 
     function _moveDelegates(
