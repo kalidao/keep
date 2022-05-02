@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Provides functions for building Kali ClubSig tokenURI SVG
+/// @notice Builds Kali ClubSig tokenURI SVG
 library ClubURIbuilder {
     bytes private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -61,7 +61,8 @@ library ClubURIbuilder {
                 )
             );
     }
-
+    
+    /// @dev converts an address to a string
     function _addressToString(address addr)
         private
         pure
@@ -94,7 +95,7 @@ library ClubURIbuilder {
 
     /// @dev converts an unsigned integer to a string
     function _uintToString(uint256 value)
-        internal
+        private
         pure
         returns (string memory)
     {
@@ -120,7 +121,7 @@ library ClubURIbuilder {
     }
 
     /// @dev encodes some bytes to the base64 representation
-    function _encode(bytes memory data) internal pure returns (string memory) {
+    function _encode(bytes memory data) private pure returns (string memory) {
         // inspired by Brecht Devos (Brechtpd) implementation - MIT licence
         // https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
         if (data.length == 0) return "";
