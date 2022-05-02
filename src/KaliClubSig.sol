@@ -3,16 +3,16 @@ pragma solidity >=0.8.4;
 
 import {ClubNFT} from "./ClubNFT.sol";
 
-import {Multicall} from "./utils/Multicall.sol";
-import {NFTreceiver} from "./utils/NFTreceiver.sol";
-
 import {IClub} from "./interfaces/IClub.sol";
 import {IClubLoot} from "./interfaces/IClubLoot.sol";
 import {IERC1271} from "./interfaces/IERC1271.sol";
 
+import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
 import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
 import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
-import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
+
+import {Multicall} from "./utils/Multicall.sol";
+import {NFTreceiver} from "./utils/NFTreceiver.sol";
 
 /// @title Kali ClubSig
 /// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
