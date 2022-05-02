@@ -40,10 +40,10 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
 
     event Execute(address indexed to, uint256 value, bytes data);
     event Govern(Club[] club, bool[] mints, uint256 quorum);
+    event DocsSet(string docs);
     event GovernorSet(address indexed account, bool approved);
     event RedemptionStartSet(uint256 redemptionStart);
-    event DocsUpdated(string docs);
-    event URIupdated(string uri);
+    event URIset(string uri);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -306,6 +306,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         uint256 quorum_
     ) external payable onlyClubOrGov {
         if (club_.length != mints_.length) revert NoArrayParity();
+
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
@@ -339,6 +340,11 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         emit Govern(club_, mints_, quorum_);
     }
 
+    function setDocs(string calldata docs_) external payable onlyClubOrGov {
+        docs = docs_;
+        emit DocsSet(docs_);
+    }
+
     function setGovernor(address account, bool approved)
         external
         payable
@@ -365,18 +371,13 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         ClubNFT._setPause(paused_);
     }
 
-    function updateDocs(string calldata docs_) external payable onlyClubOrGov {
-        docs = docs_;
-        emit DocsUpdated(docs_);
-    }
-
-    function updateURI(string calldata baseURI_)
+    function setURI(string calldata baseURI_)
         external
         payable
         onlyClubOrGov
     {
         baseURI = baseURI_;
-        emit URIupdated(baseURI_);
+        emit URIset(baseURI_);
     }
 
     /// -----------------------------------------------------------------------
