@@ -90,6 +90,8 @@ contract KaliClubSigFactory is IClub, Multicall {
                 abi.encodePacked(name_, symbol_, address(loot))
             )
         );
+        
+        loot.init(address(clubSig), club_, lootPaused_);
 
         clubSig.init(
             club_,
@@ -99,8 +101,6 @@ contract KaliClubSigFactory is IClub, Multicall {
             baseURI_,
             docs_
         );
-
-        loot.init(address(clubSig), club_, lootPaused_);
 
         if (bytes(docs_).length == 0) {
             ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
