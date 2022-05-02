@@ -48,13 +48,13 @@ jobs:
           version: nightly
       
       - name: Pull Submodules
-        run: forge update
+        run: yarn sync
 
       - name: Run tests
-        run: forge clean && forge test --optimize --optimizer-runs 1000000 -v
+        run: yarn test
 
       - name: Run lint and lint check
-        run: npm run lint && npm run lint:check
+        run: yarn lint
 
       # TODO(Figure out how to allow this to find the correct solc binary)
       # - name: Run audit

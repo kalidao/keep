@@ -17,7 +17,7 @@
     "clean": "forge clean",
     "setup": "forge clean && forge build --optimize --optimize-runs 9999999",
     "sync": "forge update",
-    "test": "forge clean && forge test --optimize --optimize-runs 9999999 -v",
+    "test": "forge clean && forge test --optimize --optimize-runs 9999999 -vvv",
     "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 9999999"
   },
   "dependencies": {
