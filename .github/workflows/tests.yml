@@ -51,7 +51,7 @@ jobs:
         run: yarn sync
 
       - name: Run tests
-        run: yarn test
+        run: forge clean && forge test --optimize --optimizer-runs 9999999 -vvv
 
       - name: Run lint and lint check
         run: yarn lint
