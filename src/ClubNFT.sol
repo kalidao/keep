@@ -74,7 +74,6 @@ abstract contract ClubNFT {
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
         }
-
         assembly {
             arg := calldataload(add(offset, argOffset))
         }
