@@ -4,6 +4,7 @@ pragma solidity >=0.8.4;
 import {IClub} from "./interfaces/IClub.sol";
 
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
+/// @dev Includes delegation tracking based on Compound governance system, adapted with unix timestamps
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: AGPL-3.0-only
 contract ClubLoot is IClub {
