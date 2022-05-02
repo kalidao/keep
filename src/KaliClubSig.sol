@@ -54,7 +54,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     error WrongSigner();
     error ExecuteFailed();
     error NoArrayParity();
-    error RedemptionTooEarly();
+    error NoRedemptionYet();
     error WrongAssetOrder();
 
     /// -----------------------------------------------------------------------
@@ -392,7 +392,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         external
         payable
     {
-        if (block.timestamp < redemptionStart) revert RedemptionTooEarly();
+        if (block.timestamp < redemptionStart) revert NoRedemptionYet();
 
         uint256 lootTotal = loot().totalSupply();
 
