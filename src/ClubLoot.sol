@@ -340,10 +340,6 @@ contract ClubLoot is IClub {
         }
     }
 
-    function delegate(address delegatee) external payable {
-        _delegate(msg.sender, delegatee);
-    }
-
     function getPriorVotes(address account, uint256 timestamp) external view returns (uint256) {
         if (block.timestamp <= timestamp) revert NotDetermined();
 
@@ -379,6 +375,10 @@ contract ClubLoot is IClub {
         return checkpoints[account][lower].votes;
 
         }
+    }
+    
+    function delegate(address delegatee) external payable {
+        _delegate(msg.sender, delegatee);
     }
 
     function _delegate(address delegator, address delegatee) private {
