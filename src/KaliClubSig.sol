@@ -246,14 +246,14 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 );
                 // check for conformant contract signature using EIP-1271
                 // - branching on whether signer address is an EOA or a contract
-                if (
-                    signer.code.length != 0 &&
-                    IERC1271(signer).isValidSignature(
-                        digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) !=
-                    0x1626ba7e // magic value
-                ) revert WrongSigner();
+                if (signer.code.length != 0) {
+                    if (
+                        IERC1271(signer).isValidSignature(
+                            digest,
+                            abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
+                        ) != 0x1626ba7e // magic value
+                    ) revert WrongSigner();
+                }
                 // check for NFT balance and duplicates
                 if (balanceOf[signer] == 0 || prevAddr >= signer)
                     revert WrongSigner();
