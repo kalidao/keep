@@ -11,7 +11,7 @@ import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
 
 import {Multicall} from "./utils/Multicall.sol";
 
-/// @notice Kali ClubSig Contract Factory
+/// @notice Kali ClubSig Factory
 contract KaliClubSigFactory is Multicall, IClub {
     /// -----------------------------------------------------------------------
     /// Library Usage
