@@ -330,7 +330,7 @@ contract ClubSigTest is Test {
 
         string memory updated = "NEW BASE";
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.updateURI(updated);
+        clubSig.setURI(updated);
         vm.stopPrank();
         assert(
             keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
@@ -342,7 +342,7 @@ contract ClubSigTest is Test {
         string memory updated = "NEW DOCS";
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.updateDocs(updated);
+        clubSig.setDocs(updated);
         vm.stopPrank();
         assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes(updated)));
     }
@@ -354,7 +354,7 @@ contract ClubSigTest is Test {
         string memory updated = "NEW BASE";
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.updateURI(updated);
+        clubSig.setURI(updated);
         vm.stopPrank();
         assert(
             keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
@@ -677,12 +677,12 @@ contract ClubSigTest is Test {
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("Forbidden()")));
-        clubSig.updateURI("new_base_uri");
+        clubSig.setURI("new_base_uri");
         vm.stopPrank();
 
         // The ClubSig itself should be able to update the base uri
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.updateURI("new_base_uri");
+        clubSig.setURI("new_base_uri");
         vm.stopPrank();
         assertEq(
             keccak256(bytes("new_base_uri")),
@@ -693,12 +693,12 @@ contract ClubSigTest is Test {
     function testUpdateDocs(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("Forbidden()")));
-        clubSig.updateDocs("new_docs");
+        clubSig.setDocs("new_docs");
         vm.stopPrank();
 
         // The ClubSig itself should be able to update the docs
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.updateDocs("new_docs");
+        clubSig.setDocs("new_docs");
         vm.stopPrank();
         assertEq(
             keccak256(bytes("new_docs")),
