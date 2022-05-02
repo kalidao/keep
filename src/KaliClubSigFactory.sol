@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Multicall} from "./utils/Multicall.sol";
+import {ClubLoot} from "./ClubLoot.sol";
+import {KaliClubSig} from "./KaliClubSig.sol";
 
 import {IClub} from "./interfaces/IClub.sol";
 import {IRicardianLLC} from "./interfaces/IRicardianLLC.sol";
 
-import {KaliClubSig} from "./KaliClubSig.sol";
-import {ClubLoot} from "./ClubLoot.sol";
-
 import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
+
+import {Multicall} from "./utils/Multicall.sol";
 
 /// @notice Kali ClubSig Contract Factory
 contract KaliClubSigFactory is Multicall, IClub {
