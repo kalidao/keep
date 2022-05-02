@@ -223,7 +223,7 @@ abstract contract ClubNFT {
             if (
                 ERC721TokenReceiver(to).onERC721Received(
                     msg.sender,
-                    from,
+                    address(0),
                     id,
                     ""
                 ) != ERC721TokenReceiver.onERC721Received.selector
