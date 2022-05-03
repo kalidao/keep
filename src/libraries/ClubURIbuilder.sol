@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 /// @notice Builds Kali ClubSig tokenURI SVG
 library ClubURIbuilder {
-    bytes private constant TABLE =
+    string private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     function _buildTokenURI(
