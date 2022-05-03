@@ -3,9 +3,6 @@ pragma solidity >=0.8.4;
 
 /// @notice Builds Kali ClubSig tokenURI SVG
 library ClubURIbuilder {
-    string private constant TABLE =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
     function _buildTokenURI(
         string memory name,
         string memory symbol,
@@ -121,63 +118,49 @@ library ClubURIbuilder {
     }
 
     /// @dev encodes some bytes to the base64 representation
-    function _encode(bytes memory data) private pure returns (string memory) {
-        // inspired by Brecht Devos (Brechtpd) implementation - MIT licence
-        // https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
+    function _encode(bytes memory data) internal pure returns (string memory) {
         if (data.length == 0) return "";
-        // loads the table into memory
-        string memory table = TABLE;
-        // encoding takes 3 bytes chunks of binary data from `bytes` data parameter
-        // and split into 4 numbers of 6 bits.
-        // the final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
-        // - `data.length + 2`  -> round up
-        // - `/ 3`              -> number of 3-bytes chunks
-        // - `4 *`              -> 4 characters for each chunk
-        string memory result = new string(4 * ((data.length + 2) / 3));
+        // load the table into memory
+        string memory table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        // multiply by 4/3 rounded up
+        uint256 encodedLen = 4 * ((data.length + 2) / 3);
+        // add some extra buffer at the end required for the writing
+        string memory result = new string(encodedLen + 32);
 
         assembly {
-            // prepare the lookup table (skip the first "length" byte)
+            // set the actual output length
+            mstore(result, encodedLen)
+            // prepare the lookup table
             let tablePtr := add(table, 1)
-            // prepare result pointer, jump over length
+            // input ptr
+            let dataPtr := data
+            let endPtr := add(dataPtr, mload(data))
+            // result ptr, jump over length
             let resultPtr := add(result, 32)
             // run over the input, 3 bytes at a time
-            for {
-                let dataPtr := data
-                let endPtr := add(data, mload(data))
-            } lt(dataPtr, endPtr) {
-            } {
-                // advance 3 bytes
+            for {} lt(dataPtr, endPtr) {}
+            {
+                // read 3 bytes
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
-                // to write each character, shift the 3 bytes (18 bits) chunk
-                // 4 times in blocks of 6 bits for each character (18, 12, 6, 0)
-                // and apply logical AND with 0x3F which is the number of
-                // the previous character in the ASCII table prior to the Base64 Table
-                // the result is then added to the table to get the character to write,
-                // and finally write it in the result pointer but with a left shift
-                // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
+                // write 4 characters
                 mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
-                resultPtr := add(resultPtr, 1) // Advance
-
+                resultPtr := add(resultPtr, 1)
                 mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
-                resultPtr := add(resultPtr, 1) // Advance
-
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
-                resultPtr := add(resultPtr, 1) // Advance
-
-                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
-                resultPtr := add(resultPtr, 1) // Advance
+                resultPtr := add(resultPtr, 1)
+                mstore8(resultPtr, mload(add(tablePtr, and(shr( 6, input), 0x3F))))
+                resultPtr := add(resultPtr, 1)
+                mstore8(resultPtr, mload(add(tablePtr, and(        input,  0x3F))))
+                resultPtr := add(resultPtr, 1)
             }
-            // when data `bytes` is not exactly 3 bytes long
-            // it is padded with `=` characters at the end
+            // padding with "="
             switch mod(mload(data), 3)
-            case 1 {
-                mstore8(sub(resultPtr, 1), 0x3d)
-                mstore8(sub(resultPtr, 2), 0x3d)
-            }
-            case 2 {
-                mstore8(sub(resultPtr, 1), 0x3d)
-            }
+                case 1 {
+                    mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
+                }
+                case 2 {
+                    mstore(sub(resultPtr, 1), shl(248, 0x3d))
+                }
         }
 
         return result;
