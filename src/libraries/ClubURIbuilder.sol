@@ -126,7 +126,7 @@ library ClubURIbuilder {
         // https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
         if (data.length == 0) return "";
         // loads the table into memory
-        string memory table = _TABLE;
+        string memory table = TABLE;
         // encoding takes 3 bytes chunks of binary data from `bytes` data parameter
         // and split into 4 numbers of 6 bits.
         // the final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
