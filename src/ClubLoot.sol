@@ -123,7 +123,7 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
     /// DAO Storage
     /// -----------------------------------------------------------------------
-
+    
     mapping(address => address) private _delegates;
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     mapping(address => uint256) public numCheckpoints;
@@ -134,14 +134,15 @@ contract ClubLoot is IClub {
     }
 
     /// -----------------------------------------------------------------------
-    /// Governance Storage
+    /// Governor Storage
     /// -----------------------------------------------------------------------
 
-    address public governance;
     bool public paused;
+    
+    mapping(address => bool) public governors;
 
     modifier onlyGov() {
-        if (msg.sender != governance) revert NotGov();
+        if (!governors[msg.sender]) revert NotGov();
         _;
     }
 
@@ -179,7 +180,7 @@ contract ClubLoot is IClub {
         }
 
         totalSupply = totalSupply_;
-        governance = governance_;
+        governors[governance_] = true;
         paused = lootPaused_;
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
@@ -466,7 +467,7 @@ contract ClubLoot is IClub {
     }
 
     function setGov(address governance_) external payable onlyGov {
-        governance = governance_;
+        governors[governance_] = true;
         emit GovSet(governance_);
     }
 }
