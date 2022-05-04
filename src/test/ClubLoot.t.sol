@@ -169,15 +169,15 @@ contract ClubLootTest is Test {
         loot.setGov(alice, true);
         vm.stopPrank();
         
-        assert(loot.governors(alice);
+        assert(loot.governors(alice));
 
         startHoax(alice, alice, type(uint256).max);
         loot.setGov(bob, true);
         vm.stopPrank();
         
         assert(loot.governors(address(clubSig))); 
-        assert(loot.governors(alice);
-        assert(loot.governors(bob);
+        assert(loot.governors(alice));
+        assert(loot.governors(bob));
     }
 
     function testMint() public {
