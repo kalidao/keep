@@ -21,7 +21,7 @@ contract ClubLoot is IClub {
     event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
     event PauseSet(bool paused);
-    event GovSet(address indexed governance);
+    event GovSet(address indexed governance, bool approved);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -466,8 +466,8 @@ contract ClubLoot is IClub {
         emit PauseSet(paused_);
     }
 
-    function setGov(address governance_) external payable onlyGov {
-        governors[governance_] = true;
-        emit GovSet(governance_);
+    function setGov(address governance_, bool approved_) external payable onlyGov {
+        governors[governance_] = approved_;
+        emit GovSet(governance_, approved_);
     }
 }
