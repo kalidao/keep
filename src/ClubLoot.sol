@@ -21,7 +21,7 @@ contract ClubLoot is IClub {
     event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
     event PauseSet(bool paused);
-    event GovSet(address indexed governance, bool approved);
+    event GovSet(address indexed governance);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -123,7 +123,7 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
     /// DAO Storage
     /// -----------------------------------------------------------------------
-    
+
     mapping(address => address) private _delegates;
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     mapping(address => uint256) public numCheckpoints;
@@ -134,15 +134,14 @@ contract ClubLoot is IClub {
     }
 
     /// -----------------------------------------------------------------------
-    /// Governor Storage
+    /// Governance Storage
     /// -----------------------------------------------------------------------
 
+    address public governance;
     bool public paused;
-    
-    mapping(address => bool) public governors;
 
     modifier onlyGov() {
-        if (!governors[msg.sender]) revert NotGov();
+        if (msg.sender != governance) revert NotGov();
         _;
     }
 
@@ -167,7 +166,7 @@ contract ClubLoot is IClub {
         for (uint256 i; i < club_.length; ) {
             totalSupply_ += club_[i].loot;
 
-            _moveDelegates(address(0), delegates(club_[i].signer), club_[i].loot);
+            _moveDelegates(address(0), club_[i].signer, club_[i].loot);
 
             emit Transfer(address(0), club_[i].signer, club_[i].loot);
             // cannot overflow because the sum of all user
@@ -180,8 +179,8 @@ contract ClubLoot is IClub {
         }
 
         totalSupply = totalSupply_;
+        governance = governance_;
         paused = lootPaused_;
-        governors[governance_] = true;
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
@@ -466,8 +465,8 @@ contract ClubLoot is IClub {
         emit PauseSet(paused_);
     }
 
-    function setGov(address governance_, bool approved_) external payable onlyGov {
-        governors[governance_] = approved_;
-        emit GovSet(governance_, approved_);
+    function setGov(address governance_) external payable onlyGov {
+        governance = governance_;
+        emit GovSet(governance_);
     }
 }
