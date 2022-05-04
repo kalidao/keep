@@ -158,7 +158,7 @@ contract ClubLootTest is Test {
     }
 
     function testGovernance() public {
-        assert(loot.governance() == address(clubSig)); 
+        assert(loot.governors(address(clubSig))); 
 
         startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NotGov()")));
