@@ -180,8 +180,8 @@ contract ClubLoot is IClub {
         }
 
         totalSupply = totalSupply_;
-        governors[governance_] = true;
         paused = lootPaused_;
+        governors[governance_] = true;
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
