@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from "../interfaces/IClub.sol";
-import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
+import {IClub} from '../interfaces/IClub.sol';
+import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig, Signature} from "../KaliClubSig.sol";
-import {ClubLoot} from "../ClubLoot.sol";
-import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
+import {KaliClubSig, Signature} from '../KaliClubSig.sol';
+import {ClubLoot} from '../ClubLoot.sol';
+import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
-import "@std/Test.sol";
+import '@std/Test.sol';
 
 contract ClubLootTest is Test {
     using stdStorage for StdStorage;
@@ -29,7 +29,8 @@ contract ClubLootTest is Test {
 
     uint256 immutable charliesPk =
         0xb9dee2522aae4d21136ba441f976950520adf9479a3c0bda0a88ffc81495ded3;
-    address public immutable charlie = 0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
+    address public immutable charlie =
+        0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
 
     uint256 immutable nullPk =
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
@@ -42,17 +43,25 @@ contract ClubLootTest is Test {
 
     /// @dev Helpers
 
-    bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 name =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
 
     bytes32 constant PERMIT_TYPEHASH =
-        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-
-    function signPermit(uint256 pk, bytes32 digest) internal returns (uint8 v, bytes32 r, bytes32 s) {
-        (v, r, s) = vm.sign(
-            pk,
-            digest
+        keccak256(
+            'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)'
         );
+
+    function signPermit(uint256 pk, bytes32 digest)
+        internal
+        returns (
+            uint8 v,
+            bytes32 r,
+            bytes32 s
+        )
+    {
+        (v, r, s) = vm.sign(pk, digest);
     }
 
     /// -----------------------------------------------------------------------
@@ -86,8 +95,8 @@ contract ClubLootTest is Test {
             symbol,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
     }
 
@@ -96,9 +105,9 @@ contract ClubLootTest is Test {
     /// -----------------------------------------------------------------------
 
     function testInvariantMetadata() public {
-        assertEq(loot.name(), string(abi.encodePacked(name, " LOOT")));
-        assertEq(loot.symbol(), string(abi.encodePacked(symbol, "-LOOT")));
-        assertEq(loot.decimals(), 18);  
+        assertEq(loot.name(), string(abi.encodePacked(name, ' LOOT')));
+        assertEq(loot.symbol(), string(abi.encodePacked(symbol, '-LOOT')));
+        assertEq(loot.decimals(), 18);
     }
 
     function testApprove() public {
@@ -158,24 +167,24 @@ contract ClubLootTest is Test {
     }
 
     function testGovernance() public {
-        assert(loot.governors(address(clubSig))); 
+        assert(loot.governors(address(clubSig)));
 
         startHoax(alice, alice, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NotGov()")));
+        vm.expectRevert(bytes4(keccak256('NotGov()')));
         loot.setGov(alice, true);
         vm.stopPrank();
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         loot.setGov(alice, true);
         vm.stopPrank();
-        
+
         assert(loot.governors(alice));
 
         startHoax(alice, alice, type(uint256).max);
         loot.setGov(bob, true);
         vm.stopPrank();
-        
-        assert(loot.governors(address(clubSig))); 
+
+        assert(loot.governors(address(clubSig)));
         assert(loot.governors(alice));
         assert(loot.governors(bob));
     }
@@ -221,7 +230,7 @@ contract ClubLootTest is Test {
         vm.stopPrank();
 
         startHoax(alice, alice, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("Paused()")));
+        vm.expectRevert(bytes4(keccak256('Paused()')));
         loot.transfer(address(0xBEEF), 10);
         vm.stopPrank();
     }
@@ -231,9 +240,18 @@ contract ClubLootTest is Test {
             alicesPk,
             keccak256(
                 abi.encodePacked(
-                    "\x19\x01",
+                    '\x19\x01',
                     loot.DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(PERMIT_TYPEHASH, alice, address(0xCAFE), 1e18, 0, block.timestamp))
+                    keccak256(
+                        abi.encode(
+                            PERMIT_TYPEHASH,
+                            alice,
+                            address(0xCAFE),
+                            1e18,
+                            0,
+                            block.timestamp
+                        )
+                    )
                 )
             )
         );
@@ -370,7 +388,7 @@ contract ClubLootTest is Test {
             ? IClub.Club(alice, 0, tooBigMintAmount)
             : IClub.Club(bob, 1, tooBigMintAmount);
 
-        vm.expectRevert(bytes4(keccak256("Uint192max()")));
+        vm.expectRevert(bytes4(keccak256('Uint192max()')));
         factory.deployClubSig(
             clubs,
             2,
@@ -379,15 +397,15 @@ contract ClubLootTest is Test {
             symbol,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
     }
 
     function testSafeCast192forVoteMint() public {
         uint256 tooBigMintAmount = (1 << 192) + 1;
         vm.prank(address(clubSig));
-        vm.expectRevert(bytes4(keccak256("Uint192max()")));
+        vm.expectRevert(bytes4(keccak256('Uint192max()')));
         loot.mint(alice, tooBigMintAmount);
     }
 }

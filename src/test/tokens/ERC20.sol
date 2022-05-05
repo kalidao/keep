@@ -12,7 +12,11 @@ abstract contract ERC20base {
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
 
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 amount
+    );
 
     /*//////////////////////////////////////////////////////////////
                             METADATA STORAGE
@@ -65,7 +69,11 @@ abstract contract ERC20base {
                                ERC20 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function approve(address spender, uint256 amount) public virtual returns (bool) {
+    function approve(address spender, uint256 amount)
+        public
+        virtual
+        returns (bool)
+    {
         allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
@@ -73,7 +81,11 @@ abstract contract ERC20base {
         return true;
     }
 
-    function transfer(address to, uint256 amount) public virtual returns (bool) {
+    function transfer(address to, uint256 amount)
+        public
+        virtual
+        returns (bool)
+    {
         balanceOf[msg.sender] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -94,7 +106,8 @@ abstract contract ERC20base {
     ) public virtual returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
 
-        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
+        if (allowed != type(uint256).max)
+            allowance[from][msg.sender] = allowed - amount;
 
         balanceOf[from] -= amount;
 
@@ -122,7 +135,7 @@ abstract contract ERC20base {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
+        require(deadline >= block.timestamp, 'PERMIT_DEADLINE_EXPIRED');
 
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
@@ -130,12 +143,12 @@ abstract contract ERC20base {
             address recoveredAddress = ecrecover(
                 keccak256(
                     abi.encodePacked(
-                        "\x19\x01",
+                        '\x19\x01',
                         DOMAIN_SEPARATOR(),
                         keccak256(
                             abi.encode(
                                 keccak256(
-                                    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+                                    'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)'
                                 ),
                                 owner,
                                 spender,
@@ -151,7 +164,10 @@ abstract contract ERC20base {
                 s
             );
 
-            require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
+            require(
+                recoveredAddress != address(0) && recoveredAddress == owner,
+                'INVALID_SIGNER'
+            );
 
             allowance[recoveredAddress][spender] = value;
         }
@@ -160,16 +176,21 @@ abstract contract ERC20base {
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
+        return
+            block.chainid == INITIAL_CHAIN_ID
+                ? INITIAL_DOMAIN_SEPARATOR
+                : computeDomainSeparator();
     }
 
     function computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
                 abi.encode(
-                    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                    keccak256(
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+                    ),
                     keccak256(bytes(name)),
-                    keccak256("1"),
+                    keccak256('1'),
                     block.chainid,
                     address(this)
                 )

@@ -9,7 +9,6 @@ jobs:
   run-ci:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -17,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v2
 
       - name: Install dev dependencies
-        run: yarn 
+        run: yarn
 
       # - name: Set up python
       #   id: setup-python
@@ -46,7 +45,7 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
-      
+
       - name: Pull Submodules
         run: yarn sync
 

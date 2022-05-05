@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubLoot} from "./ClubLoot.sol";
-import {KaliClubSig} from "./KaliClubSig.sol";
+import {ClubLoot} from './ClubLoot.sol';
+import {KaliClubSig} from './KaliClubSig.sol';
 
-import {IClub} from "./interfaces/IClub.sol";
-import {IRicardianLLC} from "./interfaces/IRicardianLLC.sol";
+import {IClub} from './interfaces/IClub.sol';
+import {IRicardianLLC} from './interfaces/IRicardianLLC.sol';
 
-import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
+import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
-import {Multicall} from "./utils/Multicall.sol";
+import {Multicall} from './utils/Multicall.sol';
 
 /// @notice Kali ClubSig Factory
 contract KaliClubSigFactory is IClub, Multicall {
@@ -84,13 +84,13 @@ contract KaliClubSigFactory is IClub, Multicall {
         loot = ClubLoot(
             address(lootMaster).clone(abi.encodePacked(name_, symbol_))
         );
-        
+
         clubSig = KaliClubSig(
             address(clubMaster).clone(
                 abi.encodePacked(name_, symbol_, address(loot))
             )
         );
-        
+
         loot.init(address(clubSig), club_, lootPaused_);
 
         clubSig.init(

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClubBYO} from "../interfaces/IClubBYO.sol";
+import {IClubBYO} from '../interfaces/IClubBYO.sol';
 
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
@@ -39,7 +39,7 @@ contract ClubLootBYO is IClubBYO {
             string(
                 abi.encodePacked(
                     string(abi.encodePacked(_getArgUint256(0))),
-                    " LOOT"
+                    ' LOOT'
                 )
             );
     }
@@ -49,7 +49,7 @@ contract ClubLootBYO is IClubBYO {
             string(
                 abi.encodePacked(
                     string(abi.encodePacked(_getArgUint256(0x20))),
-                    "-LOOT"
+                    '-LOOT'
                 )
             );
     }
@@ -104,10 +104,10 @@ contract ClubLootBYO is IClubBYO {
             keccak256(
                 abi.encode(
                     keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
                     ),
                     keccak256(bytes(name())),
-                    keccak256("1"),
+                    keccak256('1'),
                     block.chainid,
                     address(this)
                 )
@@ -237,12 +237,12 @@ contract ClubLootBYO is IClubBYO {
             address recoveredAddress = ecrecover(
                 keccak256(
                     abi.encodePacked(
-                        "\x19\x01",
+                        '\x19\x01',
                         DOMAIN_SEPARATOR(),
                         keccak256(
                             abi.encode(
                                 keccak256(
-                                    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+                                    'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)'
                                 ),
                                 owner,
                                 spender,

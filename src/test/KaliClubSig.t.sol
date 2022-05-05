@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from "../interfaces/IClub.sol";
-import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
+import {IClub} from '../interfaces/IClub.sol';
+import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig, Signature} from "../KaliClubSig.sol";
-import {ClubLoot} from "../ClubLoot.sol";
-import {ERC20} from "./tokens/ERC20.sol";
-import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
+import {KaliClubSig, Signature} from '../KaliClubSig.sol';
+import {ClubLoot} from '../ClubLoot.sol';
+import {ERC20} from './tokens/ERC20.sol';
+import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
-import "@std/Test.sol";
+import '@std/Test.sol';
 
 contract ClubSigTest is Test {
     using stdStorage for StdStorage;
@@ -33,7 +33,8 @@ contract ClubSigTest is Test {
 
     uint256 immutable charliesPk =
         0xb9dee2522aae4d21136ba441f976950520adf9479a3c0bda0a88ffc81495ded3;
-    address public immutable charlie = 0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
+    address public immutable charlie =
+        0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
 
     uint256 immutable nullPk =
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
@@ -43,15 +44,19 @@ contract ClubSigTest is Test {
 
     IRicardianLLC public immutable ricardian =
         IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
-    
+
     /// @dev Helpers
 
-    bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 name =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
 
-    bytes32 name2 = 0x5445535432000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol2 = 0x5445535432000000000000000000000000000000000000000000000000000000;
-    
+    bytes32 name2 =
+        0x5445535432000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol2 =
+        0x5445535432000000000000000000000000000000000000000000000000000000;
+
     function writeTokenBalance(
         address who,
         address token,
@@ -94,7 +99,7 @@ contract ClubSigTest is Test {
     function setUp() public {
         clubSig = new KaliClubSig();
         loot = new ClubLoot();
-        mockDai = new ERC20("Dai", "DAI", 18);
+        mockDai = new ERC20('Dai', 'DAI', 18);
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
@@ -120,8 +125,8 @@ contract ClubSigTest is Test {
             symbol,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
 
         ERC20(mockDai).approve(address(clubSig), type(uint256).max);
@@ -148,8 +153,8 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
 
         // Create the Club[]
@@ -161,15 +166,8 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 2, 100)
             : IClub.Club(bob, 3, 100);
 
-        vm.expectRevert(bytes4(keccak256("AlreadyInitialized()")));
-        clubSigRepeat.init(
-            clubsRepeat,
-            2,
-            0,
-            false,
-            "BASE",
-            "DOCS"
-        );
+        vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
+        clubSigRepeat.init(clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
     }
 
     function testRepeatLootSetup() public {
@@ -191,16 +189,12 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
 
-        vm.expectRevert(bytes4(keccak256("AlreadyInitialized()")));
-        lootRepeat.init(
-            alice,
-            clubs,
-            true
-        );
+        vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
+        lootRepeat.init(alice, clubs, true);
     }
 
     function testZeroQuorumSetup() public {
@@ -213,7 +207,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 0, 100)
             : IClub.Club(bob, 1, 100);
 
-        vm.expectRevert(bytes(""));
+        vm.expectRevert(bytes(''));
         factory.deployClubSig(
             clubs,
             0,
@@ -222,8 +216,8 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
     }
 
@@ -237,7 +231,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 0, 100)
             : IClub.Club(bob, 1, 100);
 
-        vm.expectRevert(bytes4(keccak256("QuorumExceedsSigs()")));
+        vm.expectRevert(bytes4(keccak256('QuorumExceedsSigs()')));
         factory.deployClubSig(
             clubs,
             3,
@@ -246,8 +240,8 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
     }
 
@@ -261,7 +255,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(bob, 1, 100)
             : IClub.Club(alice, 0, 100);
 
-        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         factory.deployClubSig(
             clubs,
             2,
@@ -270,8 +264,8 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
     }
 
@@ -325,10 +319,10 @@ contract ClubSigTest is Test {
 
     function testBaseURI() public {
         assert(
-            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes('BASE'))
         );
 
-        string memory updated = "NEW BASE";
+        string memory updated = 'NEW BASE';
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setURI(updated);
         vm.stopPrank();
@@ -338,8 +332,8 @@ contract ClubSigTest is Test {
     }
 
     function testDocs() public {
-        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes("DOCS")));
-        string memory updated = "NEW DOCS";
+        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes('DOCS')));
+        string memory updated = 'NEW DOCS';
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setDocs(updated);
@@ -349,9 +343,9 @@ contract ClubSigTest is Test {
 
     function testTokenURI() public {
         assert(
-            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes("BASE"))
+            keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes('BASE'))
         );
-        string memory updated = "NEW BASE";
+        string memory updated = 'NEW BASE';
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setURI(updated);
@@ -382,7 +376,7 @@ contract ClubSigTest is Test {
 
         startHoax(address(alice), address(alice), type(uint256).max);
 
-        bytes memory data = "";
+        bytes memory data = '';
 
         assembly {
             mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -402,7 +396,7 @@ contract ClubSigTest is Test {
     function testExecuteWithSignatures(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = "";
+        bytes memory tx_data = '';
 
         if (!deleg) {
             assembly {
@@ -443,7 +437,7 @@ contract ClubSigTest is Test {
     function testExecuteWithImproperSignatures(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = "";
+        bytes memory tx_data = '';
 
         if (!deleg) {
             assembly {
@@ -470,12 +464,18 @@ contract ClubSigTest is Test {
         Signature memory charlieSig;
 
         aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
-        charlieSig = signExecution(charliesPk, address(mockDai), 0, tx_data, deleg);
+        charlieSig = signExecution(
+            charliesPk,
+            address(mockDai),
+            0,
+            tx_data,
+            deleg
+        );
 
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -483,7 +483,7 @@ contract ClubSigTest is Test {
     function testExecuteWithSignaturesOutOfOrder(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = "";
+        bytes memory tx_data = '';
 
         if (!deleg) {
             assembly {
@@ -515,7 +515,7 @@ contract ClubSigTest is Test {
         sigs[0] = alice > bob ? aliceSig : bobSig;
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
-        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -523,7 +523,7 @@ contract ClubSigTest is Test {
     function testExecuteWithSignaturesRepeated(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = "";
+        bytes memory tx_data = '';
 
         if (!deleg) {
             assembly {
@@ -553,7 +553,7 @@ contract ClubSigTest is Test {
         sigs[0] = aliceSig;
         sigs[1] = aliceSig;
 
-        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -561,7 +561,7 @@ contract ClubSigTest is Test {
     function testExecuteWithNullSignatures(bool deleg) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = "";
+        bytes memory tx_data = '';
 
         if (!deleg) {
             assembly {
@@ -593,7 +593,7 @@ contract ClubSigTest is Test {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert(bytes4(keccak256("WrongSigner()")));
+        vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -607,7 +607,7 @@ contract ClubSigTest is Test {
         bool[] memory mints = new bool[](1);
         mints[0] = true;
 
-        vm.expectRevert(bytes4(keccak256("AlreadyMinted()")));
+        vm.expectRevert(bytes4(keccak256('AlreadyMinted()')));
         vm.prank(address(clubSig));
         clubSig.govern(clubs, mints, 3);
     }
@@ -642,7 +642,7 @@ contract ClubSigTest is Test {
 
     function testSetGovernor(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        vm.expectRevert(bytes4(keccak256('Forbidden()')));
         clubSig.setGovernor(dave, true);
         vm.stopPrank();
 
@@ -655,7 +655,7 @@ contract ClubSigTest is Test {
 
     function testSetSignerPause(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("Forbidden()")));
+        vm.expectRevert(bytes4(keccak256('Forbidden()')));
         clubSig.setSignerPause(true);
         vm.stopPrank();
         assertTrue(!clubSig.paused());
@@ -676,32 +676,32 @@ contract ClubSigTest is Test {
 
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("Forbidden()")));
-        clubSig.setURI("new_base_uri");
+        vm.expectRevert(bytes4(keccak256('Forbidden()')));
+        clubSig.setURI('new_base_uri');
         vm.stopPrank();
 
         // The ClubSig itself should be able to update the base uri
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.setURI("new_base_uri");
+        clubSig.setURI('new_base_uri');
         vm.stopPrank();
         assertEq(
-            keccak256(bytes("new_base_uri")),
+            keccak256(bytes('new_base_uri')),
             keccak256(bytes(clubSig.tokenURI(1)))
         );
     }
 
     function testUpdateDocs(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("Forbidden()")));
-        clubSig.setDocs("new_docs");
+        vm.expectRevert(bytes4(keccak256('Forbidden()')));
+        clubSig.setDocs('new_docs');
         vm.stopPrank();
 
         // The ClubSig itself should be able to update the docs
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.setDocs("new_docs");
+        clubSig.setDocs('new_docs');
         vm.stopPrank();
         assertEq(
-            keccak256(bytes("new_docs")),
+            keccak256(bytes('new_docs')),
             keccak256(bytes(clubSig.docs()))
         );
     }
@@ -722,7 +722,7 @@ contract ClubSigTest is Test {
 
         mockDai.transfer(address(clubSig), 100000 * 1e18);
 
-        (bool sent, ) = address(clubSig).call{value: 5 ether}("");
+        (bool sent, ) = address(clubSig).call{value: 5 ether}('');
         assert(sent);
 
         startHoax(alice, alice, 0);

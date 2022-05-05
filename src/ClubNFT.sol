@@ -176,7 +176,7 @@ abstract contract ClubNFT {
                     msg.sender,
                     from,
                     id,
-                    ""
+                    ''
                 ) != ERC721TokenReceiver.onERC721Received.selector
             ) revert InvalidRecipient();
         }
@@ -224,7 +224,7 @@ abstract contract ClubNFT {
                     msg.sender,
                     address(0),
                     id,
-                    ""
+                    ''
                 ) != ERC721TokenReceiver.onERC721Received.selector
             ) revert InvalidRecipient();
         }

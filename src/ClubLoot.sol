@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from "./interfaces/IClub.sol";
+import {IClub} from './interfaces/IClub.sol';
 
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
 /// @dev Includes delegation tracking based on Compound governance system, adapted with unix timestamps
@@ -18,8 +18,16 @@ contract ClubLoot is IClub {
         address indexed spender,
         uint256 amount
     );
-    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
-    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+    event DelegateChanged(
+        address indexed delegator,
+        address indexed fromDelegate,
+        address indexed toDelegate
+    );
+    event DelegateVotesChanged(
+        address indexed delegate,
+        uint256 previousBalance,
+        uint256 newBalance
+    );
     event PauseSet(bool paused);
     event GovSet(address indexed governance, bool approved);
 
@@ -45,7 +53,7 @@ contract ClubLoot is IClub {
             string(
                 abi.encodePacked(
                     string(abi.encodePacked(_getArgUint256(0))),
-                    " LOOT"
+                    ' LOOT'
                 )
             );
     }
@@ -55,7 +63,7 @@ contract ClubLoot is IClub {
             string(
                 abi.encodePacked(
                     string(abi.encodePacked(_getArgUint256(0x20))),
-                    "-LOOT"
+                    '-LOOT'
                 )
             );
     }
@@ -110,10 +118,10 @@ contract ClubLoot is IClub {
             keccak256(
                 abi.encode(
                     keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
                     ),
                     keccak256(bytes(name())),
-                    keccak256("1"),
+                    keccak256('1'),
                     block.chainid,
                     address(this)
                 )
@@ -123,7 +131,7 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
     /// DAO Storage
     /// -----------------------------------------------------------------------
-    
+
     mapping(address => address) private _delegates;
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     mapping(address => uint256) public numCheckpoints;
@@ -138,7 +146,7 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
 
     bool public paused;
-    
+
     mapping(address => bool) public governors;
 
     modifier onlyGov() {
@@ -264,12 +272,12 @@ contract ClubLoot is IClub {
             address recoveredAddress = ecrecover(
                 keccak256(
                     abi.encodePacked(
-                        "\x19\x01",
+                        '\x19\x01',
                         DOMAIN_SEPARATOR(),
                         keccak256(
                             abi.encode(
                                 keccak256(
-                                    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+                                    'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)'
                                 ),
                                 owner,
                                 spender,
@@ -337,24 +345,33 @@ contract ClubLoot is IClub {
         // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account];
-            return nCheckpoints != 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
+            return
+                nCheckpoints != 0
+                    ? checkpoints[account][nCheckpoints - 1].votes
+                    : 0;
         }
     }
 
-    function getPriorVotes(address account, uint256 timestamp) external view returns (uint256) {
+    function getPriorVotes(address account, uint256 timestamp)
+        external
+        view
+        returns (uint256)
+    {
         if (block.timestamp <= timestamp) revert NotDetermined();
 
         uint256 nCheckpoints = numCheckpoints[account];
 
         if (nCheckpoints == 0) return 0;
-        
+
         // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
         unchecked {
-            if (checkpoints[account][nCheckpoints - 1].fromTimestamp <= timestamp)
-                return checkpoints[account][nCheckpoints - 1].votes;
+            if (
+                checkpoints[account][nCheckpoints - 1].fromTimestamp <=
+                timestamp
+            ) return checkpoints[account][nCheckpoints - 1].votes;
             if (checkpoints[account][0].fromTimestamp > timestamp) return 0;
 
-            uint256 lower;  
+            uint256 lower;
             // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
             uint256 upper = nCheckpoints - 1;
 
@@ -373,11 +390,10 @@ contract ClubLoot is IClub {
                 }
             }
 
-        return checkpoints[account][lower].votes;
-
+            return checkpoints[account][lower].votes;
         }
     }
- 
+
     function delegate(address delegatee) external payable {
         address currentDelegate = delegates(msg.sender);
 
@@ -388,40 +404,53 @@ contract ClubLoot is IClub {
     }
 
     function _moveDelegates(
-        address srcRep, 
-        address dstRep, 
+        address srcRep,
+        address dstRep,
         uint256 amount
     ) private {
-        if (srcRep != dstRep && amount != 0) 
+        if (srcRep != dstRep && amount != 0)
             if (srcRep != address(0)) {
                 uint256 srcRepNum = numCheckpoints[srcRep];
-                uint256 srcRepOld = srcRepNum != 0 ? checkpoints[srcRep][srcRepNum - 1].votes : 0;
+                uint256 srcRepOld = srcRepNum != 0
+                    ? checkpoints[srcRep][srcRepNum - 1].votes
+                    : 0;
                 uint256 srcRepNew = srcRepOld - amount;
 
                 _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
             }
-            
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = numCheckpoints[dstRep];
-                uint256 dstRepOld = dstRepNum != 0 ? checkpoints[dstRep][dstRepNum - 1].votes : 0;
-                uint256 dstRepNew = dstRepOld + amount;
 
-                _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
-            }
+        if (dstRep != address(0)) {
+            uint256 dstRepNum = numCheckpoints[dstRep];
+            uint256 dstRepOld = dstRepNum != 0
+                ? checkpoints[dstRep][dstRepNum - 1].votes
+                : 0;
+            uint256 dstRepNew = dstRepOld + amount;
+
+            _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
+        }
     }
 
     function _writeCheckpoint(
-        address delegatee, 
-        uint256 nCheckpoints, 
-        uint256 oldVotes, 
+        address delegatee,
+        uint256 nCheckpoints,
+        uint256 oldVotes,
         uint256 newVotes
     ) private {
         unchecked {
             // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
-            if (nCheckpoints != 0 && checkpoints[delegatee][nCheckpoints - 1].fromTimestamp == block.timestamp) {
-                checkpoints[delegatee][nCheckpoints - 1].votes = _safeCastTo192(newVotes);
+            if (
+                nCheckpoints != 0 &&
+                checkpoints[delegatee][nCheckpoints - 1].fromTimestamp ==
+                block.timestamp
+            ) {
+                checkpoints[delegatee][nCheckpoints - 1].votes = _safeCastTo192(
+                    newVotes
+                );
             } else {
-                checkpoints[delegatee][nCheckpoints] = Checkpoint(_safeCastTo64(block.timestamp), _safeCastTo192(newVotes));
+                checkpoints[delegatee][nCheckpoints] = Checkpoint(
+                    _safeCastTo64(block.timestamp),
+                    _safeCastTo192(newVotes)
+                );
                 // cannot realistically overflow on human timescales
                 numCheckpoints[delegatee] = nCheckpoints + 1;
             }
@@ -466,7 +495,11 @@ contract ClubLoot is IClub {
         emit PauseSet(paused_);
     }
 
-    function setGov(address governance_, bool approved_) external payable onlyGov {
+    function setGov(address governance_, bool approved_)
+        external
+        payable
+        onlyGov
+    {
         governors[governance_] = approved_;
         emit GovSet(governance_, approved_);
     }

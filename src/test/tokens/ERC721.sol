@@ -8,11 +8,23 @@ abstract contract ERC721base {
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event Transfer(address indexed from, address indexed to, uint256 indexed id);
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed id
+    );
 
-    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 indexed id
+    );
 
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event ApprovalForAll(
+        address indexed owner,
+        address indexed operator,
+        bool approved
+    );
 
     /*//////////////////////////////////////////////////////////////
                          METADATA STORAGE/LOGIC
@@ -33,11 +45,11 @@ abstract contract ERC721base {
     mapping(address => uint256) internal _balanceOf;
 
     function ownerOf(uint256 id) public view virtual returns (address owner) {
-        require((owner = _ownerOf[id]) != address(0), "NOT_MINTED");
+        require((owner = _ownerOf[id]) != address(0), 'NOT_MINTED');
     }
 
     function balanceOf(address owner) public view virtual returns (uint256) {
-        require(owner != address(0), "ZERO_ADDRESS");
+        require(owner != address(0), 'ZERO_ADDRESS');
 
         return _balanceOf[owner];
     }
@@ -66,7 +78,10 @@ abstract contract ERC721base {
     function approve(address spender, uint256 id) public virtual {
         address owner = _ownerOf[id];
 
-        require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "NOT_AUTHORIZED");
+        require(
+            msg.sender == owner || isApprovedForAll[owner][msg.sender],
+            'NOT_AUTHORIZED'
+        );
 
         getApproved[id] = spender;
 
@@ -84,13 +99,15 @@ abstract contract ERC721base {
         address to,
         uint256 id
     ) public virtual {
-        require(from == _ownerOf[id], "WRONG_FROM");
+        require(from == _ownerOf[id], 'WRONG_FROM');
 
-        require(to != address(0), "INVALID_RECIPIENT");
+        require(to != address(0), 'INVALID_RECIPIENT');
 
         require(
-            msg.sender == from || isApprovedForAll[from][msg.sender] || msg.sender == getApproved[id],
-            "NOT_AUTHORIZED"
+            msg.sender == from ||
+                isApprovedForAll[from][msg.sender] ||
+                msg.sender == getApproved[id],
+            'NOT_AUTHORIZED'
         );
 
         // Underflow of the sender's balance is impossible because we check for
@@ -117,9 +134,14 @@ abstract contract ERC721base {
 
         require(
             to.code.length == 0 ||
-                ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, "") ==
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    from,
+                    id,
+                    ''
+                ) ==
                 ERC721TokenReceiver.onERC721Received.selector,
-            "UNSAFE_RECIPIENT"
+            'UNSAFE_RECIPIENT'
         );
     }
 
@@ -133,9 +155,14 @@ abstract contract ERC721base {
 
         require(
             to.code.length == 0 ||
-                ERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, data) ==
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    from,
+                    id,
+                    data
+                ) ==
                 ERC721TokenReceiver.onERC721Received.selector,
-            "UNSAFE_RECIPIENT"
+            'UNSAFE_RECIPIENT'
         );
     }
 
@@ -143,7 +170,12 @@ abstract contract ERC721base {
                               ERC165 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return
             interfaceId == 0x01ffc9a7 || // ERC165 Interface ID for ERC165
             interfaceId == 0x80ac58cd || // ERC165 Interface ID for ERC721
@@ -155,9 +187,9 @@ abstract contract ERC721base {
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address to, uint256 id) internal virtual {
-        require(to != address(0), "INVALID_RECIPIENT");
+        require(to != address(0), 'INVALID_RECIPIENT');
 
-        require(_ownerOf[id] == address(0), "ALREADY_MINTED");
+        require(_ownerOf[id] == address(0), 'ALREADY_MINTED');
 
         // Counter overflow is incredibly unrealistic.
         unchecked {
@@ -172,7 +204,7 @@ abstract contract ERC721base {
     function _burn(uint256 id) internal virtual {
         address owner = _ownerOf[id];
 
-        require(owner != address(0), "NOT_MINTED");
+        require(owner != address(0), 'NOT_MINTED');
 
         // Ownership check above ensures no underflow.
         unchecked {
@@ -195,9 +227,14 @@ abstract contract ERC721base {
 
         require(
             to.code.length == 0 ||
-                ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, "") ==
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    ''
+                ) ==
                 ERC721TokenReceiver.onERC721Received.selector,
-            "UNSAFE_RECIPIENT"
+            'UNSAFE_RECIPIENT'
         );
     }
 
@@ -210,9 +247,14 @@ abstract contract ERC721base {
 
         require(
             to.code.length == 0 ||
-                ERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, data) ==
+                ERC721TokenReceiver(to).onERC721Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    data
+                ) ==
                 ERC721TokenReceiver.onERC721Received.selector,
-            "UNSAFE_RECIPIENT"
+            'UNSAFE_RECIPIENT'
         );
     }
 }
@@ -231,10 +273,12 @@ abstract contract ERC721TokenReceiver {
 }
 
 contract ERC721 is ERC721base {
-    constructor(string memory _name, string memory _symbol) ERC721base(_name, _symbol) {}
+    constructor(string memory _name, string memory _symbol)
+        ERC721base(_name, _symbol)
+    {}
 
     function tokenURI(uint256) public pure override returns (string memory) {
-        return "TEST";
+        return 'TEST';
     }
 
     function mint(address to, uint256 id) public {

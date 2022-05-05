@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Multicall} from "../utils/Multicall.sol";
+import {Multicall} from '../utils/Multicall.sol';
 
-import {IClubBYO} from "../interfaces/IClubBYO.sol";
-import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
+import {IClubBYO} from '../interfaces/IClubBYO.sol';
+import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSigBYO} from "./KaliClubSigBYO.sol";
-import {ClubLootBYO} from "./ClubLootBYO.sol";
+import {KaliClubSigBYO} from './KaliClubSigBYO.sol';
+import {ClubLootBYO} from './ClubLootBYO.sol';
 
-import {ClonesWithImmutableArgs} from "../libraries/ClonesWithImmutableArgs.sol";
+import {ClonesWithImmutableArgs} from '../libraries/ClonesWithImmutableArgs.sol';
 
 /// @notice Kali ClubSig (BYO) Contract Factory
 contract KaliClubSigBYOfactory is Multicall, IClubBYO {
@@ -88,11 +88,7 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
             )
         );
 
-        clubSig.init(
-            quorum_,
-            redemptionStart_,
-            docs_
-        );
+        clubSig.init(quorum_, redemptionStart_, docs_);
 
         loot.init(address(clubSig), club_, lootPaused_);
 

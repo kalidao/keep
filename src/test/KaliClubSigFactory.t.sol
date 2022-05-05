@@ -1,13 +1,13 @@
 pragma solidity >=0.8.4;
 
-import {IClub} from "../interfaces/IClub.sol";
-import {IRicardianLLC} from "../interfaces/IRicardianLLC.sol";
+import {IClub} from '../interfaces/IClub.sol';
+import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig} from "../KaliClubSig.sol";
-import {ClubLoot} from "../ClubLoot.sol";
-import {KaliClubSigFactory} from "../KaliClubSigFactory.sol";
+import {KaliClubSig} from '../KaliClubSig.sol';
+import {ClubLoot} from '../ClubLoot.sol';
+import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
-import "@std/Test.sol";
+import '@std/Test.sol';
 
 contract KaliClubSigFactoryTest is Test {
     KaliClubSig clubSig;
@@ -26,8 +26,10 @@ contract KaliClubSigFactoryTest is Test {
 
     /// @dev Helpers
 
-    bytes32 name = 0x5445535400000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol = 0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 name =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
 
     /// @notice Set up the testing suite
 
@@ -57,14 +59,14 @@ contract KaliClubSigFactoryTest is Test {
             symbol,
             false,
             false,
-            "BASE",
-            "DOCS"
+            'BASE',
+            'DOCS'
         );
 
         // Sanity check initialization
         assertEq(
             keccak256(bytes(depClubSig.tokenURI(1))),
-            keccak256(bytes("BASE"))
+            keccak256(bytes('BASE'))
         );
     }
 }

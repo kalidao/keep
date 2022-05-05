@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubNFT} from "./ClubNFT.sol";
+import {ClubNFT} from './ClubNFT.sol';
 
-import {IClub} from "./interfaces/IClub.sol";
-import {IClubLoot} from "./interfaces/IClubLoot.sol";
-import {IERC1271} from "./interfaces/IERC1271.sol";
+import {IClub} from './interfaces/IClub.sol';
+import {IClubLoot} from './interfaces/IClubLoot.sol';
+import {IERC1271} from './interfaces/IERC1271.sol';
 
-import {ClubURIbuilder} from "./libraries/ClubURIbuilder.sol";
-import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
-import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
+import {ClubURIbuilder} from './libraries/ClubURIbuilder.sol';
+import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
+import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
 
-import {Multicall} from "./utils/Multicall.sol";
-import {NFTreceiver} from "./utils/NFTreceiver.sol";
+import {Multicall} from './utils/Multicall.sol';
+import {NFTreceiver} from './utils/NFTreceiver.sol';
 
 /// @title Kali ClubSig
 /// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
@@ -105,10 +105,10 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             keccak256(
                 abi.encode(
                     keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
                     ),
                     keccak256(bytes(name())),
-                    keccak256("1"),
+                    keccak256('1'),
                     block.chainid,
                     address(this)
                 )
@@ -205,12 +205,12 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         // exposed for the user to precompute a digest when signing
         digest = keccak256(
             abi.encodePacked(
-                "\x19\x01",
+                '\x19\x01',
                 DOMAIN_SEPARATOR(),
                 keccak256(
                     abi.encode(
                         keccak256(
-                            "Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)"
+                            'Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)'
                         ),
                         to,
                         value,
@@ -371,11 +371,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         ClubNFT._setPause(paused_);
     }
 
-    function setURI(string calldata baseURI_)
-        external
-        payable
-        onlyClubOrGov
-    {
+    function setURI(string calldata baseURI_) external payable onlyClubOrGov {
         baseURI = baseURI_;
         emit URIset(baseURI_);
     }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 /// @notice Enables creating clone contracts with immutable arguments and CREATE2
 /// @dev Uniqueness is enforced on payload
-/// @author Modified from wighawag, zefram.eth 
+/// @author Modified from wighawag, zefram.eth
 /// (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
 /// License-Identifier: BSD
 library ClonesWithImmutableArgs {
@@ -24,7 +24,7 @@ library ClonesWithImmutableArgs {
             uint256 creationSize = 0x41 + extraLength;
             uint256 runSize = creationSize - 10;
             uint256 dataPtr;
-            uint256 ptr; 
+            uint256 ptr;
 
             assembly {
                 ptr := mload(0x40)
@@ -113,12 +113,11 @@ library ClonesWithImmutableArgs {
             extraLength -= 2;
             uint256 counter = extraLength;
             uint256 copyPtr = ptr + 0x41;
-       
+
             assembly {
                 dataPtr := add(data, 32)
             }
             for (; counter >= 32; counter -= 32) {
-          
                 assembly {
                     mstore(copyPtr, mload(dataPtr))
                 }
@@ -127,18 +126,23 @@ library ClonesWithImmutableArgs {
                 dataPtr += 32;
             }
             uint256 mask = ~(256**(32 - counter) - 1);
-  
+
             assembly {
                 mstore(copyPtr, and(mload(dataPtr), mask))
             }
             copyPtr += counter;
-          
+
             assembly {
                 mstore(copyPtr, shl(240, extraLength))
             }
-         
+
             assembly {
-                instance := create2(0, ptr, creationSize, keccak256(add(data, 0x20), mload(data)))
+                instance := create2(
+                    0,
+                    ptr,
+                    creationSize,
+                    keccak256(add(data, 0x20), mload(data))
+                )
             }
             if (instance == address(0)) {
                 revert Create2fail();

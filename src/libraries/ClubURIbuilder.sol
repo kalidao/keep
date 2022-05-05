@@ -13,37 +13,37 @@ library ClubURIbuilder {
             abi.encodePacked(
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="90px">',
                 name,
-                " ",
-                "(",
+                ' ',
+                '(',
                 symbol,
-                ")",
-                "</text>",
+                ')',
+                '</text>',
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="120px">',
-                "0x",
+                '0x',
                 _addressToString(owner),
-                "</text>",
+                '</text>',
                 '<text dominant-baseline="middle" text-anchor="middle" fill="white" x="50%" y="150px">',
                 _uintToString(loot),
-                " Loot Shares",
-                "</text>"
+                ' Loot Shares',
+                '</text>'
             )
         );
 
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" style="font:14px serif"><rect width="400" height="400" fill="black" />',
             metaSVG,
-            "</svg>"
+            '</svg>'
         );
 
         bytes memory image = abi.encodePacked(
-            "data:image/svg+xml;base64,",
+            'data:image/svg+xml;base64,',
             _encode(bytes(svg))
         );
 
         return
             string(
                 abi.encodePacked(
-                    "data:application/json;base64,",
+                    'data:application/json;base64,',
                     _encode(
                         bytes(
                             abi.encodePacked(
@@ -58,7 +58,7 @@ library ClubURIbuilder {
                 )
             );
     }
-    
+
     /// @dev converts an address to a string
     function _addressToString(address addr)
         private
@@ -91,11 +91,7 @@ library ClubURIbuilder {
     }
 
     /// @dev converts an unsigned integer to a string
-    function _uintToString(uint256 value)
-        private
-        pure
-        returns (string memory)
-    {
+    function _uintToString(uint256 value) private pure returns (string memory) {
         if (value == 0) {
             return '0';
         }
@@ -119,9 +115,10 @@ library ClubURIbuilder {
 
     /// @dev encodes some bytes to the base64 representation
     function _encode(bytes memory data) internal pure returns (string memory) {
-        if (data.length == 0) return "";
+        if (data.length == 0) return '';
         // load the table into memory
-        string memory table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        string
+            memory table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
         // multiply by 4/3 rounded up
         uint256 encodedLen = 4 * ((data.length + 2) / 3);
         // add some extra buffer at the end required for the writing
@@ -138,29 +135,41 @@ library ClubURIbuilder {
             // result ptr, jump over length
             let resultPtr := add(result, 32)
             // run over the input, 3 bytes at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
+            for {
+
+            } lt(dataPtr, endPtr) {
+
+            } {
                 // read 3 bytes
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
                 // write 4 characters
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(18, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(12, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr( 6, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(6, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(        input,  0x3F))))
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
                 resultPtr := add(resultPtr, 1)
             }
             // padding with "="
             switch mod(mload(data), 3)
-                case 1 {
-                    mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
-                }
-                case 2 {
-                    mstore(sub(resultPtr, 1), shl(248, 0x3d))
-                }
+            case 1 {
+                mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
+            }
+            case 2 {
+                mstore(sub(resultPtr, 1), shl(248, 0x3d))
+            }
         }
 
         return result;
