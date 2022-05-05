@@ -158,24 +158,26 @@ contract ClubLootTest is Test {
     }
 
     function testGovernance() public {
-        assert(loot.governance() == address(clubSig)); 
+        assert(loot.governors(address(clubSig))); 
 
         startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NotGov()")));
-        loot.setGov(alice);
+        loot.setGov(alice, true);
         vm.stopPrank();
 
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        loot.setGov(alice);
+        loot.setGov(alice, true);
         vm.stopPrank();
-
-        assert(loot.governance() == alice); 
+        
+        assert(loot.governors(alice));
 
         startHoax(alice, alice, type(uint256).max);
-        loot.setGov(bob);
+        loot.setGov(bob, true);
         vm.stopPrank();
-
-        assert(loot.governance() == bob);
+        
+        assert(loot.governors(address(clubSig))); 
+        assert(loot.governors(alice));
+        assert(loot.governors(bob));
     }
 
     function testMint() public {
