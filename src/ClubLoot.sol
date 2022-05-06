@@ -28,8 +28,8 @@ contract ClubLoot is IClub {
         uint256 previousBalance,
         uint256 newBalance
     );
-    event PauseSet(bool paused);
     event GovSet(address indexed governance, bool approved);
+    event PauseSet(bool paused);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -489,12 +489,7 @@ contract ClubLoot is IClub {
     function govBurn(address from, uint256 amount) external payable onlyGov {
         _burn(from, amount);
     }
-
-    function setPause(bool paused_) external payable onlyGov {
-        paused = paused_;
-        emit PauseSet(paused_);
-    }
-
+    
     function setGov(address governance_, bool approved_)
         external
         payable
@@ -502,5 +497,10 @@ contract ClubLoot is IClub {
     {
         governors[governance_] = approved_;
         emit GovSet(governance_, approved_);
+    }
+
+    function setPause(bool paused_) external payable onlyGov {
+        paused = paused_;
+        emit PauseSet(paused_);
     }
 }
