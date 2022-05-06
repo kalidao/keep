@@ -6,9 +6,10 @@ import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {KaliClubSigBYO, Signature} from '../byo/KaliClubSigBYO.sol';
 import {ClubLootBYO} from '../byo/ClubLootBYO.sol';
-import {ERC20} from './tokens/ERC20.sol';
-import {ERC721} from './tokens/ERC721.sol';
 import {KaliClubSigBYOfactory} from '../byo/KaliClubSigBYOfactory.sol';
+
+import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
+import {MockERC721} from '@solmate/test/utils/mocks/MockERC721.sol';
 
 import '@std/Test.sol';
 
@@ -20,8 +21,8 @@ contract ClubSigBYOtest is Test {
     ClubLootBYO loot;
     ClubLootBYO lootRepeat;
     KaliClubSigBYOfactory factory;
-    ERC20 mockDai;
-    ERC721 mockNFT;
+    MockERC20 mockDai;
+    MockERC721 mockNFT;
 
     /// @dev Users
 
@@ -66,7 +67,7 @@ contract ClubSigBYOtest is Test {
     ) internal {
         stdstore
             .target(token)
-            .sig(ERC20(token).balanceOf.selector)
+            .sig(MockERC20(token).balanceOf.selector)
             .with_key(who)
             .checked_write(amt);
     }
@@ -101,8 +102,8 @@ contract ClubSigBYOtest is Test {
     function setUp() public {
         clubSig = new KaliClubSigBYO();
         loot = new ClubLootBYO();
-        mockDai = new ERC20('Dai', 'DAI', 18);
-        mockNFT = new ERC721('NFT', 'NFT');
+        mockDai = new MockERC20('Dai', 'DAI', 18);
+        mockNFT = new MockERC721('NFT', 'NFT');
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
@@ -135,7 +136,7 @@ contract ClubSigBYOtest is Test {
             'DOCS'
         );
 
-        ERC20(mockDai).approve(address(clubSig), type(uint256).max);
+        mockDai.approve(address(clubSig), type(uint256).max);
     }
 
     /// @notice Check setup malconditions
