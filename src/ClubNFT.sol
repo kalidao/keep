@@ -109,7 +109,7 @@ abstract contract ClubNFT {
         returns (bool)
     {
         return
-            interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
+            interfaceId == this.supportsInterface.selector || // ERC-165 Interface ID for ERC-165
             interfaceId == 0x80ac58cd || // ERC-165 Interface ID for ERC-721
             interfaceId == 0x5b5e139f; // ERC-165 Interface ID for ERC721Metadata
     }
