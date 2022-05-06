@@ -24,8 +24,8 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     event ClubDeployed(
-        KaliClubSig indexed clubSig,
         ClubLoot indexed loot,
+        KaliClubSig indexed clubSig,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -46,9 +46,9 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
-
-    KaliClubSig private immutable clubMaster;
+    
     ClubLoot private immutable lootMaster;
+    KaliClubSig private immutable clubMaster;
     IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
@@ -56,12 +56,12 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     constructor(
-        KaliClubSig clubMaster_,
         ClubLoot lootMaster_,
+        KaliClubSig clubMaster_,
         IRicardianLLC ricardianLLC_
     ) {
-        clubMaster = clubMaster_;
         lootMaster = lootMaster_;
+        clubMaster = clubMaster_;
         ricardianLLC = ricardianLLC_;
     }
 
@@ -79,7 +79,7 @@ contract KaliClubSigFactory is IClub, Multicall {
         bool signerPaused_,
         string calldata baseURI_,
         string memory docs_
-    ) external payable returns (KaliClubSig clubSig, ClubLoot loot) {
+    ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
         // uniqueness is enforced on combined club name and symbol
         loot = ClubLoot(
             address(lootMaster).clone(abi.encodePacked(name_, symbol_))
@@ -107,8 +107,8 @@ contract KaliClubSigFactory is IClub, Multicall {
         }
 
         emit ClubDeployed(
-            clubSig,
             loot,
+            clubSig,
             club_,
             quorum_,
             redemptionStart_,
