@@ -130,7 +130,7 @@ contract ClubSigTest is Test {
             'DOCS'
         );
 
-        MockERC20(mockDai).approve(address(clubSig), type(uint256).max);
+        mockDai.approve(address(clubSig), type(uint256).max);
     }
 
     /// @notice Check setup malconditions
