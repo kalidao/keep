@@ -6,8 +6,9 @@ import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {KaliClubSig, Signature} from '../KaliClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
-import {ERC20} from './tokens/ERC20.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
+
+import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
 
 import '@std/Test.sol';
 
@@ -19,7 +20,7 @@ contract ClubSigTest is Test {
     ClubLoot loot;
     ClubLoot lootRepeat;
     KaliClubSigFactory factory;
-    ERC20 mockDai;
+    MockERC20 mockDai;
 
     /// @dev Users
 
@@ -99,7 +100,7 @@ contract ClubSigTest is Test {
     function setUp() public {
         clubSig = new KaliClubSig();
         loot = new ClubLoot();
-        mockDai = new ERC20('Dai', 'DAI', 18);
+        mockDai = new MockERC20('Dai', 'DAI', 18);
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
