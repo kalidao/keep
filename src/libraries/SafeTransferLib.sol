@@ -34,8 +34,8 @@ library SafeTransferLib {
                 freeMemoryPointer,
                 0xa9059cbb00000000000000000000000000000000000000000000000000000000
             )
-            mstore(add(freeMemoryPointer, 4), to) // append the "to" argument
-            mstore(add(freeMemoryPointer, 36), amount) // append the "amount" argument
+            mstore(add(freeMemoryPointer, 4), to) // append the 'to' argument
+            mstore(add(freeMemoryPointer, 36), amount) // append the 'amount' argument
 
             success := and(
                 // set success to whether the call reverted, if not we check it either
