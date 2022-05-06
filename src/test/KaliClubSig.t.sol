@@ -65,7 +65,7 @@ contract ClubSigTest is Test {
     ) internal {
         stdstore
             .target(token)
-            .sig(ERC20(token).balanceOf.selector)
+            .sig(MockERC20(token).balanceOf.selector)
             .with_key(who)
             .checked_write(amt);
     }
@@ -130,7 +130,7 @@ contract ClubSigTest is Test {
             'DOCS'
         );
 
-        ERC20(mockDai).approve(address(clubSig), type(uint256).max);
+        MockERC20(mockDai).approve(address(clubSig), type(uint256).max);
     }
 
     /// @notice Check setup malconditions
