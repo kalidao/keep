@@ -133,8 +133,8 @@ contract ClubLoot is IClub {
     /// -----------------------------------------------------------------------
 
     mapping(address => address) private _delegates;
-    mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     mapping(address => uint256) public numCheckpoints;
+    mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
 
     struct Checkpoint {
         uint64 fromTimestamp;
