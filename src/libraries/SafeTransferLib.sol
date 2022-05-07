@@ -15,7 +15,6 @@ library SafeTransferLib {
             // transfer the ETH and store if it succeeded or not
             success := call(gas(), to, amount, 0, 0, 0, 0)
         }
-
         if (!success) revert ETHtransferFailed();
     }
 
@@ -51,7 +50,6 @@ library SafeTransferLib {
                 call(gas(), token, 0, freeMemoryPointer, 68, 0, 32)
             )
         }
-
         if (!success) revert TransferFailed();
     }
 }
