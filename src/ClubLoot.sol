@@ -116,7 +116,7 @@ contract ClubLoot is IClub, Multicall {
             )
         }
         assembly {
-            chainId := calldataload(add(offset, 0x40))
+            chainId := shr(0xc0, calldataload(add(offset, 0x40)))
         }
     }
 
