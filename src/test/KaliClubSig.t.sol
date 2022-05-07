@@ -4,8 +4,8 @@ pragma solidity >=0.8.4;
 import {IClub} from '../interfaces/IClub.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig, Signature} from '../KaliClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
+import {Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
@@ -15,10 +15,10 @@ import '@std/Test.sol';
 contract ClubSigTest is Test {
     using stdStorage for StdStorage;
 
-    KaliClubSig clubSig;
-    KaliClubSig clubSigRepeat;
     ClubLoot loot;
     ClubLoot lootRepeat;
+    KaliClubSig clubSig;
+    KaliClubSig clubSigRepeat;
     KaliClubSigFactory factory;
     MockERC20 mockDai;
 
@@ -98,15 +98,15 @@ contract ClubSigTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        clubSig = new KaliClubSig();
         loot = new ClubLoot();
+        clubSig = new KaliClubSig();
         mockDai = new MockERC20('Dai', 'DAI', 18);
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
+        factory = new KaliClubSigFactory(loot, clubSig, ricardian);
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
@@ -118,7 +118,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (clubSig, loot) = factory.deployClubSig(
+        (loot, clubSig) = factory.deployClubSig(
             clubs,
             2,
             0,
@@ -146,7 +146,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 0, 100)
             : IClub.Club(bob, 1, 100);
 
-        (clubSigRepeat, ) = factory.deployClubSig(
+        ( , clubSigRepeat) = factory.deployClubSig(
             clubs,
             2,
             0,
@@ -182,7 +182,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 0, 100)
             : IClub.Club(bob, 1, 100);
 
-        (, lootRepeat) = factory.deployClubSig(
+        (lootRepeat, ) = factory.deployClubSig(
             clubs,
             2,
             0,
