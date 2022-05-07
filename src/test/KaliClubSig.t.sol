@@ -48,6 +48,8 @@ contract ClubSigTest is Test {
 
     /// @dev Helpers
 
+    uint256 chainId;
+
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
     bytes32 symbol =
@@ -101,6 +103,7 @@ contract ClubSigTest is Test {
         loot = new ClubLoot();
         clubSig = new KaliClubSig();
         mockDai = new MockERC20('Dai', 'DAI', 18);
+        chainId = block.chainid;
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
@@ -268,6 +271,14 @@ contract ClubSigTest is Test {
             'BASE',
             'DOCS'
         );
+    }
+
+    function testChainIdForClub() public view {
+        assert(clubSig.INITIAL_CHAIN_ID() == chainId);
+    }
+
+    function testChainIdForLoot() public view {
+        assert(loot.INITIAL_CHAIN_ID() == chainId);
     }
 
     /// -----------------------------------------------------------------------
