@@ -130,7 +130,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             )
         }
         assembly {
-            chainId := calldataload(add(offset, 0x54))
+            chainId := shr(0xc0, calldataload(add(offset, 0x54)))
         }
     }
 
@@ -245,6 +245,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         // governor has admin privileges to execute without quorum
         if (!governor[msg.sender]) {
             bytes32 digest = getDigest(to, value, data, deleg, nonce);
+
             // starting from the zero address here to ensure that all addresses are greater than
             address prevAddr;
 
