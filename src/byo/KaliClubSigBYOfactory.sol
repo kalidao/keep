@@ -79,11 +79,11 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
         string calldata docs_
     ) external payable returns (ClubLootBYO loot, KaliClubSigBYO clubSig) {
         loot = ClubLootBYO(
-            address(lootMaster).clone(abi.encodePacked(name_, symbol_))
+            address(lootMaster)._clone(abi.encodePacked(name_, symbol_))
         );
 
         clubSig = KaliClubSigBYO(
-            address(clubMaster).clone(
+            address(clubMaster)._clone(
                 abi.encodePacked(name_, symbol_, clubNFT_, address(loot))
             )
         );
