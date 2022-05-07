@@ -306,7 +306,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         uint256 quorum_
     ) external payable onlyClubOrGov {
         if (club_.length != mints_.length) revert NoArrayParity();
-
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
