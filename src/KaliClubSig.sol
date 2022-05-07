@@ -251,7 +251,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                         IERC1271(signer).isValidSignature(
                             digest,
                             abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                        ) != this.isValidSignature.selector // magic value
+                        ) != IERC1271.isValidSignature.selector // magic value
                     ) revert WrongSigner();
                 }
                 // check for NFT balance and duplicates
