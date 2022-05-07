@@ -153,6 +153,7 @@ library ClonesWithImmutableArgs {
     /// @dev returns the address where a contract will be stored
     function computeClone(bytes memory data) external view returns (address) {
         uint256 creationPtr;
+        
         assembly {
             creationPtr := mload(0x40)
         }
@@ -161,10 +162,12 @@ library ClonesWithImmutableArgs {
             uint256 creationSize = 0x41 + data.length + 2;
             bytes32 creationHash;
             bytes32 salt;
+            
             assembly {
                 creationHash := keccak256(creationPtr, creationSize)
                 salt := keccak256(add(data, 0x20), mload(data))
             }
+   
             return 
                 address(
                     uint160(
