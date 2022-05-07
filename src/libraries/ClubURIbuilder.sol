@@ -161,7 +161,7 @@ library ClubURIbuilder {
                 mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
                 resultPtr := add(resultPtr, 1)
             }
-            // padding with "="
+            // padding with '='
             switch mod(mload(data), 3)
             case 1 {
                 mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
