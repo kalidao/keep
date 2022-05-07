@@ -14,7 +14,7 @@ library ClonesWithImmutableArgs {
     /// @param implementation The implementation contract to clone
     /// @param data Encoded immutable args
     /// @return instance The address of the created clone
-    function clone(address implementation, bytes memory data)
+    function _clone(address implementation, bytes memory data)
         internal
         returns (address payable instance)
     {
@@ -147,6 +147,39 @@ library ClonesWithImmutableArgs {
             if (instance == address(0)) {
                 revert Create2fail();
             }
+        }
+    }
+
+    /// @dev returns the address where a contract will be stored
+    function computeClone(bytes memory data) external view returns (address) {
+        uint256 creationPtr;
+        assembly {
+            creationPtr := mload(0x40)
+        }
+        // unrealistic for data length to exceed 256 bits
+        unchecked {
+            uint256 creationSize = 0x41 + data.length + 2;
+            bytes32 creationHash;
+            bytes32 salt;
+            assembly {
+                creationHash := keccak256(creationPtr, creationSize)
+                salt := keccak256(add(data, 0x20), mload(data))
+            }
+            return 
+                address(
+                    uint160(
+                        uint256(
+                            keccak256(
+                                abi.encodePacked(
+                                    bytes1(0xff), 
+                                    address(this), 
+                                    salt, 
+                                    creationHash
+                                )
+                            )
+                        )
+                    )
+                );
         }
     }
 }
