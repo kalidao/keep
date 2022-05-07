@@ -135,7 +135,6 @@ library ClonesWithImmutableArgs {
             assembly {
                 mstore(copyPtr, shl(240, extraLength))
             }
-
             assembly {
                 instance := create2(
                     0,
