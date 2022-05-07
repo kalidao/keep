@@ -182,7 +182,7 @@ contract ClubLoot is IClub, Multicall {
         Club[] calldata club_,
         bool lootPaused_
     ) external payable {
-        if (INITIAL_CHAIN_ID() != 0) revert AlreadyInitialized();
+        if (INITIAL_DOMAIN_SEPARATOR != 0) revert AlreadyInitialized();
 
         uint256 totalSupply_;
 
