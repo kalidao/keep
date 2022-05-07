@@ -82,12 +82,12 @@ contract KaliClubSigFactory is IClub, Multicall {
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
         // uniqueness is enforced on combined club name and symbol
         loot = ClubLoot(
-            address(lootMaster).clone(abi.encodePacked(name_, symbol_))
+            address(lootMaster)._clone(abi.encodePacked(name_, symbol_, block.chainid))
         );
 
         clubSig = KaliClubSig(
-            address(clubMaster).clone(
-                abi.encodePacked(name_, symbol_, address(loot), block.chainid)
+            address(clubMaster)._clone(
+                abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid))
             )
         );
 
