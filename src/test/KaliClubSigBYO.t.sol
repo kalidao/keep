@@ -4,8 +4,8 @@ pragma solidity >=0.8.4;
 import {IClubBYO} from '../interfaces/IClubBYO.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSigBYO, Signature} from '../byo/KaliClubSigBYO.sol';
 import {ClubLootBYO} from '../byo/ClubLootBYO.sol';
+import {Signature, KaliClubSigBYO} from '../byo/KaliClubSigBYO.sol';
 import {KaliClubSigBYOfactory} from '../byo/KaliClubSigBYOfactory.sol';
 
 import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
@@ -16,10 +16,10 @@ import '@std/Test.sol';
 contract ClubSigBYOtest is Test {
     using stdStorage for StdStorage;
 
-    KaliClubSigBYO clubSig;
-    KaliClubSigBYO clubSigRepeat;
     ClubLootBYO loot;
     ClubLootBYO lootRepeat;
+    KaliClubSigBYO clubSig;
+    KaliClubSigBYO clubSigRepeat;
     KaliClubSigBYOfactory factory;
     MockERC20 mockDai;
     MockERC721 mockNFT;
@@ -100,8 +100,8 @@ contract ClubSigBYOtest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        clubSig = new KaliClubSigBYO();
         loot = new ClubLootBYO();
+        clubSig = new KaliClubSigBYO();
         mockDai = new MockERC20('Dai', 'DAI', 18);
         mockNFT = new MockERC721('NFT', 'NFT');
 
@@ -113,7 +113,7 @@ contract ClubSigBYOtest is Test {
         mockNFT.mint(bob, 1);
 
         // Create the factory
-        factory = new KaliClubSigBYOfactory(clubSig, loot, ricardian);
+        factory = new KaliClubSigBYOfactory(loot, clubSig, ricardian);
 
         // Create the Club[]
         IClubBYO.Club[] memory clubs = new IClubBYO.Club[](2);
@@ -125,7 +125,7 @@ contract ClubSigBYOtest is Test {
             : IClubBYO.Club(bob, 100);
 
         // The factory is fully tested in KaliClubSigBYOfactory.t.sol
-        (clubSig, loot) = factory.deployClubSig(
+        (loot, clubSig) = factory.deployClubSig(
             address(mockNFT),
             clubs,
             2,
@@ -152,7 +152,7 @@ contract ClubSigBYOtest is Test {
             ? IClubBYO.Club(alice, 100)
             : IClubBYO.Club(bob, 100);
 
-        (clubSigRepeat, ) = factory.deployClubSig(
+        ( , clubSigRepeat) = factory.deployClubSig(
             address(mockNFT),
             clubs,
             2,
@@ -187,7 +187,7 @@ contract ClubSigBYOtest is Test {
             ? IClubBYO.Club(alice, 100)
             : IClubBYO.Club(bob, 100);
 
-        (, lootRepeat) = factory.deployClubSig(
+        (lootRepeat, ) = factory.deployClubSig(
             address(mockNFT),
             clubs,
             2,
