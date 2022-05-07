@@ -110,6 +110,7 @@ library ClubURIbuilder {
             bstr[k] = b1;
             value /= 10;
         }
+        
         return string(bstr);
     }
 
@@ -136,9 +137,7 @@ library ClubURIbuilder {
             let resultPtr := add(result, 32)
             // run over the input, 3 bytes at a time
             for {
-
             } lt(dataPtr, endPtr) {
-
             } {
                 // read 3 bytes
                 dataPtr := add(dataPtr, 3)
