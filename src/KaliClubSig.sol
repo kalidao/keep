@@ -380,6 +380,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     fallback() external payable {}
+    receive() external payable {}
 
     /// @dev redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
