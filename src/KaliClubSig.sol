@@ -130,7 +130,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             )
         }
         assembly {
-            chainId := calldataload(add(offset, 0x72))
+            chainId := calldataload(add(offset, 0x54))
         }
     }
 
