@@ -200,7 +200,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         totalSupply = totalSupply_;
         baseURI = baseURI_;
         docs = docs_;
-
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
@@ -246,7 +245,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         // governor has admin privileges to execute without quorum
         if (!governor[msg.sender]) {
             bytes32 digest = getDigest(to, value, data, deleg, nonce);
-
             // starting from the zero address here to ensure that all addresses are greater than
             address prevAddr;
 
