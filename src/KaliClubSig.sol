@@ -87,35 +87,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     }
 
     /// -----------------------------------------------------------------------
-    /// EIP-712 Storage/Logic
-    /// -----------------------------------------------------------------------
-
-    uint256 private INITIAL_CHAIN_ID;
-    bytes32 private INITIAL_DOMAIN_SEPARATOR;
-
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
-        return
-            block.chainid == INITIAL_CHAIN_ID
-                ? INITIAL_DOMAIN_SEPARATOR
-                : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() private view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-                    ),
-                    keccak256(bytes(name())),
-                    keccak256('1'),
-                    block.chainid,
-                    address(this)
-                )
-            );
-    }
-
-    /// -----------------------------------------------------------------------
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
@@ -141,6 +112,48 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         } else {
             return baseURI;
         }
+    }
+
+    /// -----------------------------------------------------------------------
+    /// EIP-712 Storage/Logic
+    /// -----------------------------------------------------------------------
+
+    bytes32 private INITIAL_DOMAIN_SEPARATOR;
+
+    function INITIAL_CHAIN_ID() public pure returns (uint256 chainId) {
+        uint256 offset;
+
+        assembly {
+            offset := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+        }
+        assembly {
+            chainId := calldataload(add(offset, 0x72))
+        }
+    }
+
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return
+            block.chainid == INITIAL_CHAIN_ID()
+                ? INITIAL_DOMAIN_SEPARATOR
+                : _computeDomainSeparator();
+    }
+
+    function _computeDomainSeparator() private view returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+                    ),
+                    keccak256(bytes(name())),
+                    keccak256('1'),
+                    block.chainid,
+                    address(this)
+                )
+            );
     }
 
     /// -----------------------------------------------------------------------
@@ -187,7 +200,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         totalSupply = totalSupply_;
         baseURI = baseURI_;
         docs = docs_;
-        INITIAL_CHAIN_ID = block.chainid;
+
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
