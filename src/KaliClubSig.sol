@@ -245,7 +245,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                     sigs[i].s
                 );
                 // check for conformant contract signature using EIP-1271
-                // - branching on whether signer address is an EOA or a contract
+                // - branching on whether signer address is a contract
                 if (signer.code.length != 0) {
                     if (
                         IERC1271(signer).isValidSignature(
