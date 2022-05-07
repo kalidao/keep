@@ -3,15 +3,15 @@ pragma solidity >=0.8.4;
 import {IClub} from '../interfaces/IClub.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig} from '../KaliClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
+import {KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
 
 contract KaliClubSigFactoryTest is Test {
-    KaliClubSig clubSig;
     ClubLoot loot;
+    KaliClubSig clubSig;
     KaliClubSigFactory factory;
 
     /// @dev Users
@@ -34,12 +34,10 @@ contract KaliClubSigFactoryTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        clubSig = new KaliClubSig();
-
         loot = new ClubLoot();
-
+        clubSig = new KaliClubSig();
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
+        factory = new KaliClubSigFactory(loot, clubSig, ricardian);
     }
 
     function testDeployClubSig() public {
@@ -51,7 +49,7 @@ contract KaliClubSigFactoryTest is Test {
         clubs[1] = IClub.Club(bob, 1, 100);
 
         // vm.expectEmit(true, true, false, false);
-        (depClubSig, ) = factory.deployClubSig(
+        ( , depClubSig) = factory.deployClubSig(
             clubs,
             2,
             0,

@@ -6,8 +6,8 @@ import {Multicall} from '../utils/Multicall.sol';
 import {IClubBYO} from '../interfaces/IClubBYO.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSigBYO} from './KaliClubSigBYO.sol';
 import {ClubLootBYO} from './ClubLootBYO.sol';
+import {KaliClubSigBYO} from './KaliClubSigBYO.sol';
 
 import {ClonesWithImmutableArgs} from '../libraries/ClonesWithImmutableArgs.sol';
 
@@ -25,8 +25,8 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
 
     event ClubDeployed(
         address indexed clubNFT_,
-        KaliClubSigBYO indexed clubSig,
         ClubLootBYO indexed loot,
+        KaliClubSigBYO indexed clubSig,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -46,8 +46,8 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
 
-    KaliClubSigBYO private immutable clubMaster;
     ClubLootBYO private immutable lootMaster;
+    KaliClubSigBYO private immutable clubMaster;
     IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
@@ -55,12 +55,12 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
     /// -----------------------------------------------------------------------
 
     constructor(
-        KaliClubSigBYO clubMaster_,
         ClubLootBYO lootMaster_,
+        KaliClubSigBYO clubMaster_,
         IRicardianLLC ricardianLLC_
     ) {
-        clubMaster = clubMaster_;
         lootMaster = lootMaster_;
+        clubMaster = clubMaster_;
         ricardianLLC = ricardianLLC_;
     }
 
@@ -77,7 +77,7 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
         bytes32 symbol_,
         bool lootPaused_,
         string calldata docs_
-    ) external payable returns (KaliClubSigBYO clubSig, ClubLootBYO loot) {
+    ) external payable returns (ClubLootBYO loot, KaliClubSigBYO clubSig) {
         loot = ClubLootBYO(
             address(lootMaster).clone(abi.encodePacked(name_, symbol_))
         );
@@ -88,9 +88,9 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
             )
         );
 
-        clubSig.init(quorum_, redemptionStart_, docs_);
-
         loot.init(address(clubSig), club_, lootPaused_);
+
+        clubSig.init(quorum_, redemptionStart_, docs_);
 
         if (bytes(docs_).length == 0) {
             ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
@@ -98,8 +98,8 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
 
         emit ClubDeployed(
             clubNFT_,
-            clubSig,
             loot,
+            clubSig,
             club_,
             quorum_,
             redemptionStart_,

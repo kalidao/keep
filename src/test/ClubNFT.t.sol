@@ -13,8 +13,8 @@ import '@std/Test.sol';
 contract ClubNFTtest is Test {
     using stdStorage for StdStorage;
 
-    KaliClubSig clubSig;
     ClubLoot loot;
+    KaliClubSig clubSig;
     KaliClubSigFactory factory;
 
     /// @dev Users
@@ -55,11 +55,11 @@ contract ClubNFTtest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        clubSig = new KaliClubSig();
         loot = new ClubLoot();
+        clubSig = new KaliClubSig();
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
+        factory = new KaliClubSigFactory(loot, clubSig, ricardian);
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
@@ -71,7 +71,7 @@ contract ClubNFTtest is Test {
             : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (clubSig, loot) = factory.deployClubSig(
+        (loot, clubSig) = factory.deployClubSig(
             clubs,
             2,
             0,
