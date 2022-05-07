@@ -347,7 +347,7 @@ contract ClubLoot is IClub {
             uint256 nCheckpoints = numCheckpoints[account];
             return
                 nCheckpoints != 0
-                    ? checkpoints[account][nCheckpoints - 1].votes
+                    ? checkpoints[account][nCheckpoints-1].votes
                     : 0;
         }
     }
@@ -366,14 +366,14 @@ contract ClubLoot is IClub {
         // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
         unchecked {
             if (
-                checkpoints[account][nCheckpoints - 1].fromTimestamp <=
+                checkpoints[account][nCheckpoints-1].fromTimestamp <=
                 timestamp
-            ) return checkpoints[account][nCheckpoints - 1].votes;
+            ) return checkpoints[account][nCheckpoints-1].votes;
             if (checkpoints[account][0].fromTimestamp > timestamp) return 0;
 
             uint256 lower;
             // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
-            uint256 upper = nCheckpoints - 1;
+            uint256 upper = --nCheckpoints;
 
             while (upper > lower) {
                 // this is safe from underflow because `upper` ceiling is provided
@@ -386,7 +386,7 @@ contract ClubLoot is IClub {
                 } else if (cp.fromTimestamp < timestamp) {
                     lower = center;
                 } else {
-                    upper = center - 1;
+                    upper = --center;
                 }
             }
 
@@ -412,7 +412,7 @@ contract ClubLoot is IClub {
             if (srcRep != address(0)) {
                 uint256 srcRepNum = numCheckpoints[srcRep];
                 uint256 srcRepOld = srcRepNum != 0
-                    ? checkpoints[srcRep][srcRepNum - 1].votes
+                    ? checkpoints[srcRep][srcRepNum-1].votes
                     : 0;
                 uint256 srcRepNew = srcRepOld - amount;
 
@@ -422,7 +422,7 @@ contract ClubLoot is IClub {
         if (dstRep != address(0)) {
             uint256 dstRepNum = numCheckpoints[dstRep];
             uint256 dstRepOld = dstRepNum != 0
-                ? checkpoints[dstRep][dstRepNum - 1].votes
+                ? checkpoints[dstRep][dstRepNum-1].votes
                 : 0;
             uint256 dstRepNew = dstRepOld + amount;
 
@@ -440,10 +440,10 @@ contract ClubLoot is IClub {
             // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
             if (
                 nCheckpoints != 0 &&
-                checkpoints[delegatee][nCheckpoints - 1].fromTimestamp ==
+                checkpoints[delegatee][nCheckpoints-1].fromTimestamp ==
                 block.timestamp
             ) {
-                checkpoints[delegatee][nCheckpoints - 1].votes = _safeCastTo192(
+                checkpoints[delegatee][nCheckpoints-1].votes = _safeCastTo192(
                     newVotes
                 );
             } else {
