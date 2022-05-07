@@ -4,8 +4,8 @@ pragma solidity >=0.8.4;
 import {IClub} from '../interfaces/IClub.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig, Signature} from '../KaliClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
+import {Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
@@ -13,8 +13,8 @@ import '@std/Test.sol';
 contract ClubLootTest is Test {
     using stdStorage for StdStorage;
 
-    KaliClubSig clubSig;
     ClubLoot loot;
+    KaliClubSig clubSig;
     KaliClubSigFactory factory;
 
     /// @dev Users
@@ -71,11 +71,11 @@ contract ClubLootTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        clubSig = new KaliClubSig();
         loot = new ClubLoot();
+        clubSig = new KaliClubSig();
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig, loot, ricardian);
+        factory = new KaliClubSigFactory(loot, clubSig, ricardian);
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
@@ -87,7 +87,7 @@ contract ClubLootTest is Test {
             : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (clubSig, loot) = factory.deployClubSig(
+        (loot, clubSig) = factory.deployClubSig(
             clubs,
             2,
             0,
@@ -374,7 +374,7 @@ contract ClubLootTest is Test {
         ClubLoot loot1 = new ClubLoot();
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig1, loot1, ricardian);
+        factory = new KaliClubSigFactory(loot1, clubSig1, ricardian);
 
         // Set mint amount
         uint256 tooBigMintAmount = (1 << 192) + 1;
