@@ -51,9 +51,6 @@ contract KaliClubSigFactory is IClub, Multicall {
     KaliClubSig private immutable clubMaster;
     IRicardianLLC private immutable ricardianLLC;
 
-    bytes32 private constant lootByteHash = keccak256(type(ClubLoot).creationCode);
-    bytes32 private constant clubByteHash = keccak256(type(KaliClubSig).creationCode);
-
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
@@ -83,13 +80,14 @@ contract KaliClubSigFactory is IClub, Multicall {
         string calldata baseURI_,
         string memory docs_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
-        // uniqueness is enforced on combined club name and symbol
+        // uniqueness is enforced on club name
         loot = ClubLoot(
-            address(lootMaster).cloneDeterministic(abi.encodePacked(name_, symbol_, uint64(block.chainid)))
+            address(lootMaster)._clone(name_, abi.encodePacked(name_, symbol_, uint64(block.chainid)))
         );
 
         clubSig = KaliClubSig(
-            address(clubMaster).cloneDeterministic(
+            address(clubMaster)._clone(
+                name_,
                 abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid))
             )
         );
@@ -123,21 +121,14 @@ contract KaliClubSigFactory is IClub, Multicall {
         );
     }
     
-    /// @dev returns the addresses where contracts will be stored
-    function computeClones(bytes32 name, bytes32 symbol) external view returns (address loot, bool) {
-        return address(loot).predictDeterministicAddress(abi.encodePacked(name, symbol, uint64(block.chainid)));
-    }
-    /*
-    function computeClones(bytes32 name, bytes32 symbol) external view returns (address loot, address club, bool deployed) {
-        bytes32 lootSalt = keccak256(abi.encodePacked(name, symbol, uint64(block.chainid)));
-        bytes32 lootHash = keccak256(abi.encodePacked(bytes1(0xff), address(this), lootSalt, lootByteHash));
-        loot = address(uint160(uint256(lootHash)));
-
-        bytes32 clubSalt = keccak256(abi.encodePacked(name, symbol, loot, uint64(block.chainid)));
-        bytes32 clubHash = keccak256(abi.encodePacked(bytes1(0xff), address(this), clubSalt, clubByteHash));
-        club = address(uint160(uint256(clubHash)));
-
-        if (club.code.length != 0) deployed = true;
-    }*/
-    
+    function determineClones(
+        bytes32 name, 
+        bytes32 symbol
+    ) external view returns (address loot, address club, bool deployed) {
+        (loot, deployed) = address(lootMaster)._predictDeterministicAddress(
+            name, abi.encodePacked(name, symbol, uint64(block.chainid)));
+            
+        (club, deployed) = address(clubMaster)._predictDeterministicAddress(
+            name, abi.encodePacked(name, symbol, loot, uint64(block.chainid)));
+    } 
 }
