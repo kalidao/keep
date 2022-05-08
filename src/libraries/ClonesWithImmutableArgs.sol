@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: BSD
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity >=0.8.4;
 
 /// @notice Enables creating clone contracts with immutable arguments and CREATE2
 /// @author Modified from wighawag, zefram.eth
