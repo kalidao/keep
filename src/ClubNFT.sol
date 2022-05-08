@@ -62,20 +62,23 @@ abstract contract ClubNFT {
     }
 
     function _getArgUint256(uint256 argOffset)
-        private
+        internal
         pure
         returns (uint256 arg)
     {
-        uint256 offset;
+        uint256 offset = _getImmutableArgsOffset();
 
+        assembly {
+            arg := calldataload(add(offset, argOffset))
+        }
+    }
+
+    function _getImmutableArgsOffset() internal pure returns (uint256 offset) {
         assembly {
             offset := sub(
                 calldatasize(),
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
-        }
-        assembly {
-            arg := calldataload(add(offset, argOffset))
         }
     }
 
