@@ -120,7 +120,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
 
     bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
-    function INITIAL_CHAIN_ID() public pure returns (uint256 chainId) {
+    function INITIAL_CHAIN_ID() private pure returns (uint256 chainId) {
         uint256 offset;
 
         assembly {
