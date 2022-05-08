@@ -379,7 +379,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     /// Asset Management
     /// -----------------------------------------------------------------------
 
-    fallback() external payable {}
     receive() external payable {}
 
     /// @dev redemption is only available for ETH and ERC-20
@@ -391,7 +390,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         if (block.timestamp < redemptionStart) revert NoRedemptionYet();
 
         uint256 lootTotal = loot().totalSupply();
-
         address prevAddr;
 
         for (uint256 i; i < assets.length; ) {
