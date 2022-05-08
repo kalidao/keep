@@ -273,14 +273,6 @@ contract ClubSigTest is Test {
         );
     }
 
-    function testChainIdForClub() public view {
-        assert(clubSig.INITIAL_CHAIN_ID() == chainId);
-    }
-
-    function testChainIdForLoot() public view {
-        assert(loot.INITIAL_CHAIN_ID() == chainId);
-    }
-
     /// -----------------------------------------------------------------------
     /// Club State Tests
     /// -----------------------------------------------------------------------
