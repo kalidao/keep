@@ -102,8 +102,6 @@ contract ClubLoot is IClub, Multicall {
     /// EIP-2612 Storage
     /// -----------------------------------------------------------------------
 
-    bytes32 private INITIAL_DOMAIN_SEPARATOR;
-
     mapping(address => uint256) public nonces;
 
     function INITIAL_CHAIN_ID() private pure returns (uint256 chainId) {
@@ -120,10 +118,14 @@ contract ClubLoot is IClub, Multicall {
         }
     }
 
+    function INITIAL_DOMAIN_SEPARATOR() private pure returns (bytes32) {
+        return bytes32(_getArgUint256(0x48));
+    }
+
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return
             block.chainid == INITIAL_CHAIN_ID()
-                ? INITIAL_DOMAIN_SEPARATOR
+                ? INITIAL_DOMAIN_SEPARATOR()
                 : _computeDomainSeparator();
     }
 
@@ -182,7 +184,7 @@ contract ClubLoot is IClub, Multicall {
         Club[] calldata club_,
         bool lootPaused_
     ) external payable {
-        if (INITIAL_DOMAIN_SEPARATOR != 0) revert AlreadyInitialized();
+        //if (INITIAL_DOMAIN_SEPARATOR != 0) revert AlreadyInitialized();
 
         uint256 totalSupply_;
 
@@ -204,7 +206,6 @@ contract ClubLoot is IClub, Multicall {
         totalSupply = totalSupply_;
         paused = lootPaused_;
         governors[governance_] = true;
-        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
