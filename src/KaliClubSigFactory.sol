@@ -80,15 +80,16 @@ contract KaliClubSigFactory is IClub, Multicall {
         string calldata baseURI_,
         string memory docs_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
+        (bytes32 lootDomain, bytes32 clubDomain) = determineDomains(name_, symbol_);
         // uniqueness is enforced on club name
         loot = ClubLoot(
-            address(lootMaster)._clone(name_, abi.encodePacked(name_, symbol_, uint64(block.chainid)))
+            address(lootMaster)._clone(name_, abi.encodePacked(name_, symbol_, uint64(block.chainid), lootDomain))
         );
 
         clubSig = KaliClubSig(
             address(clubMaster)._clone(
                 name_,
-                abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid))
+                abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid), clubDomain)
             )
         );
 
@@ -124,11 +125,44 @@ contract KaliClubSigFactory is IClub, Multicall {
     function determineClones(
         bytes32 name, 
         bytes32 symbol
-    ) external view returns (address loot, address club, bool deployed) {
+    ) public view returns (address loot, address club, bool deployed) {
         (loot, deployed) = address(lootMaster)._predictDeterministicAddress(
             name, abi.encodePacked(name, symbol, uint64(block.chainid)));
             
         (club, deployed) = address(clubMaster)._predictDeterministicAddress(
             name, abi.encodePacked(name, symbol, loot, uint64(block.chainid)));
-    } 
+    }
+
+    function determineDomains(
+        bytes32 name, 
+        bytes32 symbol
+    ) public view returns (bytes32 lootDomain, bytes32 clubDomain) {
+        (address loot, address club, ) = determineClones(name, symbol);
+
+        lootDomain = 
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+                    ),
+                    abi.encodePacked(name, keccak256(bytes(' LOOT'))),
+                    keccak256('1'),
+                    block.chainid,
+                    loot
+                )
+            );
+
+        clubDomain = 
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+                    ),
+                    name,
+                    keccak256('1'),
+                    block.chainid,
+                    club
+                )
+            ); 
+    }
 }
