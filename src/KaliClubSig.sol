@@ -91,14 +91,8 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     function loot() public pure returns (IClubLoot lootAddr) {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-        }
+        uint256 offset = _getImmutableArgsOffset();
+        
         assembly {
             lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
         }
@@ -121,14 +115,8 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     bytes32 private INITIAL_DOMAIN_SEPARATOR;
 
     function INITIAL_CHAIN_ID() private pure returns (uint256 chainId) {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-        }
+        uint256 offset = _getImmutableArgsOffset();
+        
         assembly {
             chainId := shr(0xc0, calldataload(add(offset, 0x54)))
         }
