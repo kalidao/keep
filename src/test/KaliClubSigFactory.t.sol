@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
@@ -30,6 +31,11 @@ contract KaliClubSigFactoryTest is Test {
         0x5445535400000000000000000000000000000000000000000000000000000000;
     bytes32 symbol =
         0x5445535400000000000000000000000000000000000000000000000000000000;
+
+    bytes32 name2 =
+        0x5445535432000000000000000000000000000000000000000000000000000000;
+    bytes32 symbol2 =
+        0x5445535432000000000000000000000000000000000000000000000000000000;
 
     /// @notice Set up the testing suite
 
@@ -69,7 +75,7 @@ contract KaliClubSigFactoryTest is Test {
         );
     }
 
-    function testCloneAddressComputation() public {
+    function testCloneAddressDetermination() public {
         ClubLoot depLoot;
         KaliClubSig depClubSig;
         // create the Club[]
@@ -89,14 +95,23 @@ contract KaliClubSigFactoryTest is Test {
             'DOCS'
         );
         // check CREATE2 clones match expected outputs
-        (address lootAddr, ) = factory.computeClones(name, symbol);
+        (address lootAddr, address clubAddr, bool deployed) = factory.determineClones(name, symbol);
         assertEq(
             address(depLoot),
             lootAddr
         );
-        //assertEq(
-        //    address(depClubSig),
-        //    clubAddr
-        //);
+        assertEq(
+            address(depClubSig),
+            clubAddr
+        );
+        assertEq(
+            deployed,
+            true
+        );
+        (, , bool deployed2) = factory.determineClones(name2, symbol2);
+        assertEq(
+            deployed2,
+            false
+        );
     }
 }
