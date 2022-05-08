@@ -80,13 +80,14 @@ contract KaliClubSigFactory is IClub, Multicall {
         string calldata baseURI_,
         string memory docs_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
-        // uniqueness is enforced on combined club name and symbol
+        // uniqueness is enforced on club name
         loot = ClubLoot(
-            address(lootMaster)._clone(abi.encodePacked(name_, symbol_, uint64(block.chainid)))
+            address(lootMaster)._clone(name_, abi.encodePacked(name_, symbol_, uint64(block.chainid)))
         );
 
         clubSig = KaliClubSig(
             address(clubMaster)._clone(
+                name_,
                 abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid))
             )
         );
@@ -119,4 +120,15 @@ contract KaliClubSigFactory is IClub, Multicall {
             docs_
         );
     }
+    
+    function determineClones(
+        bytes32 name, 
+        bytes32 symbol
+    ) external view returns (address loot, address club, bool deployed) {
+        (loot, deployed) = address(lootMaster)._predictDeterministicAddress(
+            name, abi.encodePacked(name, symbol, uint64(block.chainid)));
+            
+        (club, deployed) = address(clubMaster)._predictDeterministicAddress(
+            name, abi.encodePacked(name, symbol, loot, uint64(block.chainid)));
+    } 
 }
