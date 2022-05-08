@@ -106,7 +106,7 @@ contract ClubLoot is IClub, Multicall {
 
     mapping(address => uint256) public nonces;
 
-    function INITIAL_CHAIN_ID() public pure returns (uint256 chainId) {
+    function INITIAL_CHAIN_ID() private pure returns (uint256 chainId) {
         uint256 offset;
 
         assembly {
