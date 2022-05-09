@@ -121,7 +121,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (loot, clubSig) = factory.deployClubSig(
+        factory.deployClubSig(
             clubs,
             2,
             0,
@@ -132,6 +132,10 @@ contract ClubSigTest is Test {
             'BASE',
             'DOCS'
         );
+
+        (address payable depLoot, address payable depClubSig, ) = factory.determineClones(name, symbol);
+        loot = ClubLoot(depLoot);
+        clubSig = KaliClubSig(depClubSig);
 
         mockDai.approve(address(clubSig), type(uint256).max);
     }
@@ -149,7 +153,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 0, 100)
             : IClub.Club(bob, 1, 100);
 
-        ( , clubSigRepeat) = factory.deployClubSig(
+        factory.deployClubSig(
             clubs,
             2,
             0,
@@ -160,6 +164,9 @@ contract ClubSigTest is Test {
             'BASE',
             'DOCS'
         );
+
+        ( , address payable depClubSig, ) = factory.determineClones(name2, symbol2);
+        clubSigRepeat = KaliClubSig(depClubSig);
 
         // Create the Club[]
         IClub.Club[] memory clubsRepeat = new IClub.Club[](2);
@@ -185,7 +192,7 @@ contract ClubSigTest is Test {
             ? IClub.Club(alice, 0, 100)
             : IClub.Club(bob, 1, 100);
 
-        (lootRepeat, ) = factory.deployClubSig(
+        factory.deployClubSig(
             clubs,
             2,
             0,
@@ -196,6 +203,9 @@ contract ClubSigTest is Test {
             'BASE',
             'DOCS'
         );
+
+        (address payable depLoot, , ) = factory.determineClones(name, symbol);
+        lootRepeat = ClubLoot(depLoot);
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
         lootRepeat.init(alice, clubs, true);
