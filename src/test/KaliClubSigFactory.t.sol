@@ -53,7 +53,7 @@ contract KaliClubSigFactoryTest is Test {
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
         // vm.expectEmit(true, true, false, false);
-        (, depClubSig) = factory.deployClubSig(
+        factory.deployClubSig(
             clubs,
             2,
             0,
@@ -64,6 +64,8 @@ contract KaliClubSigFactoryTest is Test {
             'BASE',
             'DOCS'
         );
+        ( , address payable depClub, ) = factory.determineClones(name, symbol);
+        depClubSig = KaliClubSig(depClub);
         // sanity check initialization
         assertEq(
             keccak256(bytes(depClubSig.tokenURI(1))),
@@ -76,14 +78,17 @@ contract KaliClubSigFactoryTest is Test {
     }
 
     function testCloneAddressDetermination() public {
-        ClubLoot depLoot;
-        KaliClubSig depClubSig;
         // create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = IClub.Club(alice, 0, 100);
         clubs[1] = IClub.Club(bob, 1, 100);
+        ( , , bool deployed) = factory.determineClones(name, symbol);
+        assertEq(
+            deployed,
+            false
+        );
         // vm.expectEmit(true, true, false, false);
-        (depLoot, depClubSig) = factory.deployClubSig(
+        factory.deployClubSig(
             clubs,
             2,
             0,
@@ -94,23 +99,14 @@ contract KaliClubSigFactoryTest is Test {
             'BASE',
             'DOCS'
         );
-        // check CREATE2 clones match expected outputs
-        (address lootAddr, address clubAddr, bool deployed) = factory.determineClones(name, symbol);
-        assertEq(
-            address(depLoot),
-            lootAddr
-        );
-        assertEq(
-            address(depClubSig),
-            clubAddr
-        );
-        assertEq(
-            deployed,
-            true
-        );
-        (, , bool deployed2) = factory.determineClones(name2, symbol2);
+        (, , bool deployed2) = factory.determineClones(name, symbol);
         assertEq(
             deployed2,
+            true
+        );
+        (, , bool deployed3) = factory.determineClones(name2, symbol2);
+        assertEq(
+            deployed3,
             false
         );
     }
