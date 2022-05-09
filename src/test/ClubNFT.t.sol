@@ -71,7 +71,7 @@ contract ClubNFTtest is Test {
             : IClub.Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (loot, clubSig) = factory.deployClubSig(
+        factory.deployClubSig(
             clubs,
             2,
             0,
@@ -82,6 +82,10 @@ contract ClubNFTtest is Test {
             'BASE',
             'DOCS'
         );
+
+        (address payable depLoot, address payable depClubSig, ) = factory.determineClones(name, symbol);
+        loot = ClubLoot(depLoot);
+        clubSig = KaliClubSig(depClubSig);
     }
 
     /// -----------------------------------------------------------------------
