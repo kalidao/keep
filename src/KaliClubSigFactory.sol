@@ -24,8 +24,6 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     event ClubDeployed(
-        ClubLoot indexed loot,
-        KaliClubSig indexed clubSig,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -107,8 +105,6 @@ contract KaliClubSigFactory is IClub, Multicall {
             ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
 
         emit ClubDeployed(
-            loot,
-            clubSig,
             club_,
             quorum_,
             redemptionStart_,
