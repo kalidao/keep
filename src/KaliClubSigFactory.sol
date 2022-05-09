@@ -24,8 +24,6 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     event ClubDeployed(
-        ClubLoot indexed loot,
-        KaliClubSig indexed clubSig,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -78,14 +76,14 @@ contract KaliClubSigFactory is IClub, Multicall {
         bool lootPaused_,
         bool signerPaused_,
         string calldata baseURI_,
-        string memory docs_
-    ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
+        string calldata docs_
+    ) external payable {
         // uniqueness is enforced on club name
-        loot = ClubLoot(
+        ClubLoot loot = ClubLoot(
             address(lootMaster)._clone(name_, abi.encodePacked(name_, symbol_, uint64(block.chainid)))
         );
 
-        clubSig = KaliClubSig(
+        KaliClubSig clubSig = KaliClubSig(
             address(clubMaster)._clone(
                 name_,
                 abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid))
@@ -107,8 +105,6 @@ contract KaliClubSigFactory is IClub, Multicall {
             ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
 
         emit ClubDeployed(
-            loot,
-            clubSig,
             club_,
             quorum_,
             redemptionStart_,
@@ -124,7 +120,7 @@ contract KaliClubSigFactory is IClub, Multicall {
     function determineClones(
         bytes32 name, 
         bytes32 symbol
-    ) external view returns (address loot, address club, bool deployed) {
+    ) external view returns (address payable loot, address payable club, bool deployed) {
         (loot, deployed) = address(lootMaster)._predictDeterministicAddress(
             name, abi.encodePacked(name, symbol, uint64(block.chainid)));
             
