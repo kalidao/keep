@@ -237,41 +237,39 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         bool deleg,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
-        // governor has admin privileges to execute without quorum
-        if (!governor[msg.sender]) {
-            bytes32 digest = getDigest(to, value, data, deleg, nonce);
+        bytes32 digest = getDigest(to, value, data, deleg, nonce);
 
-            // starting from the zero address here to ensure that all addresses are greater than
-            address prevAddr;
+        // starting from the zero address here to ensure that all addresses are greater than
+        address prevAddr;
 
-            for (uint256 i; i < quorum; ) {
-                address signer = ecrecover(
-                    digest,
-                    sigs[i].v,
-                    sigs[i].r,
-                    sigs[i].s
-                );
-                // check for conformant contract signature using EIP-1271
-                // - branching on whether signer address is a contract
-                if (signer.code.length != 0) {
-                    if (
-                        IERC1271(signer).isValidSignature(
-                            digest,
-                            abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                        ) != IERC1271.isValidSignature.selector // magic value
-                    ) revert WrongSigner();
-                }
-                // check for NFT balance and duplicates
-                if (balanceOf[signer] == 0 || prevAddr >= signer)
-                    revert WrongSigner();
-                // set prevAddr to signer for the next iteration until we've reached quorum
-                prevAddr = signer;
-                // cannot realistically overflow on human timescales
-                unchecked {
-                    ++i;
-                }
+        for (uint256 i; i < quorum; ) {
+            address signer = ecrecover(
+                digest,
+                sigs[i].v,
+                sigs[i].r,
+                sigs[i].s
+            );
+            // check for conformant contract signature using EIP-1271
+            // - branching on whether signer address is a contract
+            if (signer.code.length != 0) {
+                if (
+                    IERC1271(signer).isValidSignature(
+                        digest,
+                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
+                    ) != IERC1271.isValidSignature.selector
+                ) revert WrongSigner();
+            }
+            // check for NFT balance and duplicates
+            if (balanceOf[signer] == 0 || prevAddr >= signer)
+                revert WrongSigner();
+            // set prevAddr to signer for the next iteration until we've reached quorum
+            prevAddr = signer;
+            // cannot realistically overflow on human timescales
+            unchecked {
+                ++i;
             }
         }
+        
         if (!deleg) {
             // if this is not a delegated call
             assembly {
