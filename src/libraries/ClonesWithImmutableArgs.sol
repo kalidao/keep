@@ -200,7 +200,7 @@ library ClonesWithImmutableArgs {
         address implementation,
         bytes32 salt,
         bytes memory data
-    ) internal view returns (address predicted, bool exists) {
+    ) internal view returns (address payable predicted, bool exists) {
         (uint256 creationPtr, uint256 creationSize) = _cloneCreationCode(
             implementation,
             data
@@ -213,15 +213,17 @@ library ClonesWithImmutableArgs {
         }
 
         predicted = 
-            address(
-                uint160(
-                    uint256(
-                        keccak256(
-                            abi.encodePacked(
-                                bytes1(0xff), 
-                                address(this), 
-                                salt, 
-                                creationHash
+            payable(
+                address(
+                    uint160(
+                        uint256(
+                            keccak256(
+                                abi.encodePacked(
+                                    bytes1(0xff), 
+                                    address(this), 
+                                    salt, 
+                                    creationHash
+                                )
                             )
                         )
                     )
