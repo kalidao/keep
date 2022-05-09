@@ -27,6 +27,13 @@ struct Signature {
     bytes32 s;
 }
 
+struct Call {
+    address to;
+    uint256 value;
+    bytes data;
+    bool deleg;
+}
+
 contract KaliClubSig is ClubNFT, IClub, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
@@ -298,6 +305,50 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         }
 
         emit Execute(to, value, data);
+    }
+    
+    function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool success) {
+        address to;
+        uint256 value;
+        bytes memory data;
+
+        for (uint256 i; i < calls.length; ) {
+            to = calls[i].to;
+            value = calls[i].value;
+            data = calls[i].data;
+
+            if (!calls[i].deleg) {
+                // if this is not a delegated call 
+                assembly {
+                    success := call(
+                        gas(),
+                        to,
+                        value,
+                        add(data, 0x20),
+                        mload(data),
+                        0,
+                        0
+                    )
+                }
+            } else {
+                // delegate call
+                assembly {
+                    success := delegatecall(
+                        gas(),
+                        to,
+                        add(data, 0x20),
+                        mload(data),
+                        0,
+                        0
+                    )
+                }
+            }
+            if (!success) revert ExecuteFailed();
+            // cannot realistically overflow on human timescales
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     function govern(
