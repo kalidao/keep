@@ -398,7 +398,7 @@ contract ClubSigTest is Test {
 
         clubSig.batchExecute(call);
         vm.stopPrank();
-        assert(mockdai.balanceOf(alice) == 100);
+        assert(mockDai.balanceOf(alice) == 100);
         uint256 nonceAfter = clubSig.nonce();
         assert((nonceInit + 1) == nonceAfter);
     }
