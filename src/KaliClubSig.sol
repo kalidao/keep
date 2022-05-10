@@ -276,20 +276,10 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     }
     
     function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool[] memory successes) {
-        address to;
-        uint256 value;
-        bytes memory data;
-        bool deleg;
-
         successes = new bool[](calls.length);
 
         for (uint256 i; i < calls.length; ) {
-            to = calls[i].to;
-            value = calls[i].value;
-            data = calls[i].data;
-            deleg = calls[i].deleg;
-
-            successes[i] = _execute(to, value, data, deleg);
+            successes[i] = _execute(calls[i].to, calls[i].value, calls[i].data, calls[i].deleg);
             // cannot realistically overflow
             unchecked {
                 ++i;
@@ -356,12 +346,16 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         unchecked {
             for (uint256 i; i < club_.length; ++i) {
                 if (mints_[i]) {
+                    // mint NFT, update supply
                     _safeMint(club_[i].signer, club_[i].id);
                     ++totalSupply_;
+                    // if loot amount, mint loot
                     if (club_[i].loot != 0) loot().mint(club_[i].signer, club_[i].loot);
                 } else {
+                    // burn NFT, update supply
                     _burn(club_[i].id);
                     --totalSupply_;
+                    // if loot amount, burn loot
                     if (club_[i].loot != 0) loot().govBurn(club_[i].signer, club_[i].loot);
                 }
             }
