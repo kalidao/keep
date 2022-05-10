@@ -5,7 +5,7 @@ import {IClub} from '../interfaces/IClub.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {ClubLoot} from '../ClubLoot.sol';
-import {Signature, KaliClubSig} from '../KaliClubSig.sol';
+import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
@@ -374,8 +374,6 @@ contract ClubSigTest is Test {
 
         address aliceAddress = address(alice);
 
-        Signature[] memory sigs = new Signature[](0);
-
         mockDai.transfer(address(clubSig), 100);
 
         startHoax(address(alice), address(alice), type(uint256).max);
@@ -391,8 +389,16 @@ contract ClubSigTest is Test {
             mstore(0x40, add(data, 0x100))
         }
 
-        clubSig.execute(address(mockDai), 0, data, false, sigs);
+        Call[] memory call = new Call[](1);
+
+        call[0].to = address(mockDai);
+        call[0].value = 0;
+        call[0].data = data;
+        call[0].deleg = false;
+
+        clubSig.batchExecute(call);
         vm.stopPrank();
+        assert(mockdai.balanceOf(alice) == 100);
         uint256 nonceAfter = clubSig.nonce();
         assert((nonceInit + 1) == nonceAfter);
     }
