@@ -208,26 +208,27 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         bytes calldata data,
         bool deleg,
         uint256 tx_nonce
-    ) public view returns (bytes32 digest) {
+    ) public view returns (bytes32) {
         // exposed for the user to precompute a digest when signing
-        digest = keccak256(
-            abi.encodePacked(
-                '\x19\x01',
-                DOMAIN_SEPARATOR(),
-                keccak256(
-                    abi.encode(
-                        keccak256(
-                            'Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)'
-                        ),
-                        to,
-                        value,
-                        data,
-                        deleg,
-                        tx_nonce
+        return 
+            keccak256(
+                abi.encodePacked(
+                    '\x19\x01',
+                    DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            keccak256(
+                                'Exec(address to,uint256 value,bytes data,bool deleg,uint256 nonce)'
+                            ),
+                            to,
+                            value,
+                            data,
+                            deleg,
+                            tx_nonce
+                        )
                     )
                 )
-            )
-        );
+            );
     }
 
     function execute(
@@ -356,12 +357,11 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 if (mints_[i]) {
                     _safeMint(club_[i].signer, club_[i].id);
                     ++totalSupply_;
+                    if (club_[i].loot != 0) loot().mint(club_[i].signer, club_[i].loot);
                 } else {
                     _burn(club_[i].id);
                     --totalSupply_;
-                }
-                if (club_[i].loot != 0) {
-                    loot().mint(club_[i].signer, club_[i].loot);
+                    if (club_[i].loot != 0) loot().govBurn(club_[i].signer, club_[i].loot);
                 }
             }
         }
