@@ -21,17 +21,17 @@ import {NFTreceiver} from './utils/NFTreceiver.sol';
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
 
-struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-}
-
 struct Call {
     address to;
     uint256 value;
     bytes data;
     bool deleg;
+}
+
+struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
 }
 
 contract KaliClubSig is ClubNFT, IClub, Multicall {
@@ -205,7 +205,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     function getDigest(
         address to,
         uint256 value,
-        bytes memory data,
+        bytes calldata data,
         bool deleg,
         uint256 tx_nonce
     ) public view returns (bytes32 digest) {
@@ -233,15 +233,15 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     function execute(
         address to,
         uint256 value,
-        bytes memory data,
+        bytes calldata data,
         bool deleg,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
+        // begin signature validation with payload hash
         bytes32 digest = getDigest(to, value, data, deleg, nonce);
-
-        // starting from the zero address here to ensure that all addresses are greater than
+        // starting from zero address in loop to ensure addresses are ascending
         address prevAddr;
-
+        // validation is length of quorum threshold 
         for (uint256 i; i < quorum; ) {
             address signer = ecrecover(
                 digest,
@@ -250,7 +250,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 sigs[i].s
             );
             // check for conformant contract signature using EIP-1271
-            // - branching on whether signer address is a contract
+            // - branching on whether signer is a contract
             if (signer.code.length != 0) {
                 if (
                     IERC1271(signer).isValidSignature(
@@ -262,7 +262,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             // check for NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
                 revert WrongSigner();
-            // set prevAddr to signer for the next iteration until we've reached quorum
+            // set prevAddr to signer for the next iteration until quorum
             prevAddr = signer;
             // cannot realistically overflow on human timescales
             unchecked {
@@ -270,8 +270,39 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             }
         }
         
+        success = _execute(to, value, data, deleg);
+    }
+    
+    function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool[] memory successes) {
+        address to;
+        uint256 value;
+        bytes memory data;
+        bool deleg;
+
+        successes = new bool[](calls.length);
+
+        for (uint256 i; i < calls.length; ) {
+            to = calls[i].to;
+            value = calls[i].value;
+            data = calls[i].data;
+            deleg = calls[i].deleg;
+
+            successes[i] = _execute(to, value, data, deleg);
+            // cannot realistically overflow on human timescales
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function _execute(
+        address to, 
+        uint256 value, 
+        bytes memory data,
+        bool deleg
+    ) private returns (bool success) {
         if (!deleg) {
-            // if this is not a delegated call
+            // regular call 
             assembly {
                 success := call(
                     gas(),
@@ -303,50 +334,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         }
 
         emit Execute(to, value, data);
-    }
-    
-    function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool success) {
-        address to;
-        uint256 value;
-        bytes memory data;
-
-        for (uint256 i; i < calls.length; ) {
-            to = calls[i].to;
-            value = calls[i].value;
-            data = calls[i].data;
-
-            if (!calls[i].deleg) {
-                // if this is not a delegated call 
-                assembly {
-                    success := call(
-                        gas(),
-                        to,
-                        value,
-                        add(data, 0x20),
-                        mload(data),
-                        0,
-                        0
-                    )
-                }
-            } else {
-                // delegate call
-                assembly {
-                    success := delegatecall(
-                        gas(),
-                        to,
-                        add(data, 0x20),
-                        mload(data),
-                        0,
-                        0
-                    )
-                }
-            }
-            if (!success) revert ExecuteFailed();
-            // cannot realistically overflow on human timescales
-            unchecked {
-                ++i;
-            }
-        }
     }
 
     function govern(
