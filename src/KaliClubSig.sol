@@ -180,7 +180,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             prevAddr = club_[i].signer;
 
             _safeMint(club_[i].signer, club_[i].id);
-            // cannot realistically overflow on human timescales
+            // cannot realistically overflow
             unchecked {
                 ++totalSupply_;
                 ++i;
@@ -243,7 +243,8 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         // starting from zero address in loop to ensure addresses are ascending
         address prevAddr;
         // validation is length of quorum threshold 
-        for (uint256 i; i < quorum; ) {
+        uint256 quorum_ = quorum;
+        for (uint256 i; i < quorum_; ) {
             address signer = ecrecover(
                 digest,
                 sigs[i].v,
@@ -265,7 +266,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 revert WrongSigner();
             // set prevAddr to signer for the next iteration until quorum
             prevAddr = signer;
-            // cannot realistically overflow on human timescales
+            // cannot realistically overflow
             unchecked {
                 ++i;
             }
@@ -289,7 +290,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             deleg = calls[i].deleg;
 
             successes[i] = _execute(to, value, data, deleg);
-            // cannot realistically overflow on human timescales
+            // cannot realistically overflow
             unchecked {
                 ++i;
             }
@@ -329,7 +330,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             }
         }
         if (!success) revert ExecuteFailed();
-        // cannot realistically overflow on human timescales
+        // cannot realistically overflow
         unchecked {
             ++nonce;
         }
@@ -350,7 +351,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         }
 
         uint256 totalSupply_ = totalSupply;
-        // cannot realistically overflow on human timescales, and
+        // cannot realistically overflow, and
         // cannot underflow because ownership is checked in burn()
         unchecked {
             for (uint256 i; i < club_.length; ++i) {
@@ -443,7 +444,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 assets[i] == ETH
                     ? msg.sender._safeTransferETH(amountToRedeem)
                     : assets[i]._safeTransfer(msg.sender, amountToRedeem);
-            // cannot realistically overflow on human timescales
+            // cannot realistically overflow
             unchecked {
                 ++i;
             }
