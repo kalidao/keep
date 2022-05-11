@@ -37,7 +37,7 @@ contract KaliClubSigFactoryTest is Test {
 
     function setUp() public {
         // create the calls
-        Call[] memory calls = new Call[](0);
+        calls = new Call[](0);
         // create the templates
         loot = new ClubLoot();
         clubSig = new KaliClubSig();
