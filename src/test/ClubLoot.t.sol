@@ -5,7 +5,7 @@ import {IClub} from '../interfaces/IClub.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {ClubLoot} from '../ClubLoot.sol';
-import {Signature, KaliClubSig} from '../KaliClubSig.sol';
+import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
@@ -43,6 +43,8 @@ contract ClubLootTest is Test {
 
     /// @dev Helpers
 
+    Call[] calls;
+
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
     bytes32 symbol =
@@ -77,6 +79,9 @@ contract ClubLootTest is Test {
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig, ricardian);
 
+        // Create the calls
+        Call[] memory calls = new Call[](0);
+
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
@@ -88,6 +93,7 @@ contract ClubLootTest is Test {
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -390,6 +396,7 @@ contract ClubLootTest is Test {
 
         vm.expectRevert(bytes4(keccak256('Uint192max()')));
         factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
