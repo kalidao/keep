@@ -156,6 +156,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     function init(
+        Call[] calldata calls_,
         Club[] calldata club_,
         uint256 quorum_,
         uint256 redemptionStart_,
@@ -170,6 +171,10 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             }
         }
         if (quorum_ > club_.length) revert QuorumExceedsSigs();
+
+        for (uint256 i; i < calls_.length; ) {
+            _execute(calls_[i].to, 0, calls_[i].data, false);
+        }
 
         address prevAddr;
         uint256 totalSupply_;
