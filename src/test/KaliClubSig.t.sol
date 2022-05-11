@@ -48,6 +48,8 @@ contract ClubSigTest is Test {
 
     /// @dev Helpers
 
+    Call[] calls;
+
     uint256 chainId;
 
     bytes32 name =
@@ -111,6 +113,9 @@ contract ClubSigTest is Test {
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig, ricardian);
 
+        // Create the calls
+        Call[] memory calls = new Call[](0);
+
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
@@ -122,6 +127,7 @@ contract ClubSigTest is Test {
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -150,6 +156,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 1, 100);
 
         ( , clubSigRepeat) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -171,7 +178,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 3, 100);
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
-        clubSigRepeat.init(clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
+        clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
     }
 
     function testRepeatLootSetup() public {
@@ -186,6 +193,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 1, 100);
 
         (lootRepeat, ) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -213,6 +221,7 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes(''));
         factory.deployClubSig(
+            calls,
             clubs,
             0,
             0,
@@ -237,6 +246,7 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes4(keccak256('QuorumExceedsSigs()')));
         factory.deployClubSig(
+            calls,
             clubs,
             3,
             0,
@@ -261,6 +271,7 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
