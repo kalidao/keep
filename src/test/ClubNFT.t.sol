@@ -4,8 +4,8 @@ pragma solidity >=0.8.4;
 import {IClub} from '../interfaces/IClub.sol';
 import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
-import {KaliClubSig, Signature} from '../KaliClubSig.sol';
 import {ClubLoot} from '../ClubLoot.sol';
+import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
@@ -43,6 +43,8 @@ contract ClubNFTtest is Test {
 
     /// @dev Helpers
 
+    Call[] calls;
+
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
     bytes32 symbol =
@@ -61,6 +63,9 @@ contract ClubNFTtest is Test {
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig, ricardian);
 
+        // Create the calls
+        Call[] memory calls = new Call[](0);
+
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
@@ -72,6 +77,7 @@ contract ClubNFTtest is Test {
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
