@@ -5,7 +5,6 @@ import {ClubLoot} from './ClubLoot.sol';
 import {Call, KaliClubSig} from './KaliClubSig.sol';
 
 import {IClub} from './interfaces/IClub.sol';
-import {IRicardianLLC} from './interfaces/IRicardianLLC.sol';
 
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
@@ -48,20 +47,14 @@ contract KaliClubSigFactory is IClub, Multicall {
     
     ClubLoot private immutable lootMaster;
     KaliClubSig private immutable clubMaster;
-    IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        ClubLoot lootMaster_,
-        KaliClubSig clubMaster_,
-        IRicardianLLC ricardianLLC_
-    ) {
+    constructor(ClubLoot lootMaster_, KaliClubSig clubMaster_) {
         lootMaster = lootMaster_;
         clubMaster = clubMaster_;
-        ricardianLLC = ricardianLLC_;
     }
 
     /// -----------------------------------------------------------------------
@@ -103,9 +96,6 @@ contract KaliClubSigFactory is IClub, Multicall {
             baseURI_,
             docs_
         );
-
-        if (bytes(docs_).length == 0)
-            ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
 
         emit ClubDeployed(
             calls_,
