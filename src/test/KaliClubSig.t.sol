@@ -109,6 +109,12 @@ contract ClubSigTest is Test {
 
         // Create the calls
         calls = new Call[](0);
+        calls[0] = Call(
+            address(0),
+            0,
+            0x,
+            false
+        );
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
