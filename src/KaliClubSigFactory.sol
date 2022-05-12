@@ -2,10 +2,9 @@
 pragma solidity >=0.8.4;
 
 import {ClubLoot} from './ClubLoot.sol';
-import {KaliClubSig} from './KaliClubSig.sol';
+import {Call, KaliClubSig} from './KaliClubSig.sol';
 
 import {IClub} from './interfaces/IClub.sol';
-import {IRicardianLLC} from './interfaces/IRicardianLLC.sol';
 
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
@@ -24,6 +23,7 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     event ClubDeployed(
+        Call[] calls_,
         Club[] club_,
         uint256 quorum,
         uint256 redemptionStart,
@@ -47,20 +47,14 @@ contract KaliClubSigFactory is IClub, Multicall {
     
     ClubLoot private immutable lootMaster;
     KaliClubSig private immutable clubMaster;
-    IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        ClubLoot lootMaster_,
-        KaliClubSig clubMaster_,
-        IRicardianLLC ricardianLLC_
-    ) {
+    constructor(ClubLoot lootMaster_, KaliClubSig clubMaster_) {
         lootMaster = lootMaster_;
         clubMaster = clubMaster_;
-        ricardianLLC = ricardianLLC_;
     }
 
     /// -----------------------------------------------------------------------
@@ -68,14 +62,15 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     function deployClubSig(
-        Club[] calldata club_,
+        Call[] memory calls_,
+        Club[] memory club_,
         uint256 quorum_,
         uint256 redemptionStart_,
         bytes32 name_,
         bytes32 symbol_,
         bool lootPaused_,
         bool signerPaused_,
-        string calldata baseURI_,
+        string memory baseURI_,
         string memory docs_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
         // uniqueness is enforced on club name
@@ -93,6 +88,7 @@ contract KaliClubSigFactory is IClub, Multicall {
         loot.init(address(clubSig), club_, lootPaused_);
 
         clubSig.init(
+            calls_,
             club_,
             quorum_,
             redemptionStart_,
@@ -101,10 +97,8 @@ contract KaliClubSigFactory is IClub, Multicall {
             docs_
         );
 
-        if (bytes(docs_).length == 0)
-            ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
-
         emit ClubDeployed(
+            calls_,
             club_,
             quorum_,
             redemptionStart_,

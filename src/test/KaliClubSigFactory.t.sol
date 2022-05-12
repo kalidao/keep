@@ -2,10 +2,9 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
-import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {ClubLoot} from '../ClubLoot.sol';
-import {KaliClubSig} from '../KaliClubSig.sol';
+import {Call, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
@@ -20,12 +19,9 @@ contract KaliClubSigFactoryTest is Test {
     address public immutable alice = address(0xa);
     address public immutable bob = address(0xb);
 
-    /// @dev Integrations
-
-    IRicardianLLC public immutable ricardian =
-        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
-
     /// @dev Helpers
+
+    Call[] calls;
 
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
@@ -40,10 +36,11 @@ contract KaliClubSigFactoryTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
+        // create the templates
         loot = new ClubLoot();
         clubSig = new KaliClubSig();
         // create the factory
-        factory = new KaliClubSigFactory(loot, clubSig, ricardian);
+        factory = new KaliClubSigFactory(loot, clubSig);
     }
 
     function testDeployClubSig() public {
@@ -54,6 +51,7 @@ contract KaliClubSigFactoryTest is Test {
         clubs[1] = IClub.Club(bob, 1, 100);
         // vm.expectEmit(true, true, false, false);
         (, depClubSig) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -84,6 +82,7 @@ contract KaliClubSigFactoryTest is Test {
         clubs[1] = IClub.Club(bob, 1, 100);
         // vm.expectEmit(true, true, false, false);
         (depLoot, depClubSig) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,

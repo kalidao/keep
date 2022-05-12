@@ -2,7 +2,6 @@
 pragma solidity >=0.8.4;
 
 import {IClub} from '../interfaces/IClub.sol';
-import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {ClubLoot} from '../ClubLoot.sol';
 import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
@@ -41,12 +40,9 @@ contract ClubSigTest is Test {
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
     address public immutable nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
 
-    /// @dev Integrations
-
-    IRicardianLLC public immutable ricardian =
-        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
-
     /// @dev Helpers
+
+    Call[] calls;
 
     uint256 chainId;
 
@@ -109,7 +105,7 @@ contract ClubSigTest is Test {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(loot, clubSig, ricardian);
+        factory = new KaliClubSigFactory(loot, clubSig);
 
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
@@ -122,6 +118,7 @@ contract ClubSigTest is Test {
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -150,6 +147,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 1, 100);
 
         ( , clubSigRepeat) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -171,7 +169,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 3, 100);
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
-        clubSigRepeat.init(clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
+        clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
     }
 
     function testRepeatLootSetup() public {
@@ -186,6 +184,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 1, 100);
 
         (lootRepeat, ) = factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
@@ -213,6 +212,7 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes(''));
         factory.deployClubSig(
+            calls,
             clubs,
             0,
             0,
@@ -237,6 +237,7 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes4(keccak256('QuorumExceedsSigs()')));
         factory.deployClubSig(
+            calls,
             clubs,
             3,
             0,
@@ -261,6 +262,7 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes4(keccak256('WrongSigner()')));
         factory.deployClubSig(
+            calls,
             clubs,
             2,
             0,
