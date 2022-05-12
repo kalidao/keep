@@ -212,7 +212,7 @@ abstract contract ClubNFT {
     function _safeMint(address to, uint256 id) internal {
         if (to == address(0)) revert InvalidRecipient();
         if (ownerOf[id] != address(0)) revert AlreadyMinted();
-        // cannot realistically overflow on human timescales
+        // cannot realistically overflow
         unchecked {
             ++balanceOf[to];
         }
