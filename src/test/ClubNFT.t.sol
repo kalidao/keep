@@ -57,9 +57,6 @@ contract ClubNFTtest is Test {
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig);
 
-        // Create the calls
-        calls = new Call[](0);
-
         // Create the Club[]
         IClub.Club[] memory clubs = new IClub.Club[](2);
         clubs[0] = alice > bob
