@@ -76,7 +76,7 @@ library ClubURIbuilder {
 
             s[2 * i] = _char(hi);
             s[2 * i + 1] = _char(lo);
-            // cannot realistically overflow on human timescales
+            // cannot realistically overflow
             unchecked {
                 ++i;
             }
