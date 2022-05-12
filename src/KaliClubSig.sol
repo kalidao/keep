@@ -172,8 +172,14 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         }
         if (quorum_ > club_.length) revert QuorumExceedsSigs();
 
-        for (uint256 i; i < calls_.length; ) {
-            _execute(calls_[i].to, 0, calls_[i].data, false);
+        if (calls_.length != 0) {
+            for (uint256 i; i < calls_.length; ) {
+                _execute(calls_[i].to, 0, calls_[i].data, false);
+                // cannot realistically overflow
+                unchecked {
+                    ++i;
+                }
+            }
         }
 
         address prevAddr;
