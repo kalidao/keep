@@ -464,7 +464,7 @@ contract ClubLoot is IClub, Multicall {
                     _safeCastTo64(block.timestamp),
                     _safeCastTo192(newVotes)
                 );
-                // cannot realistically overflow on human timescales
+                // cannot realistically overflow
                 numCheckpoints[delegatee] = nCheckpoints + 1;
             }
         }
