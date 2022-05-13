@@ -143,7 +143,7 @@ library ClonesWithImmutableArgs {
             assembly {
                 dataPtr := add(data, 32)
             }
-            for (; counter >= 32; counter -= 32) {
+            for ( ; counter >= 32; counter -= 32) {
                 assembly {
                     mstore(copyPtr, mload(dataPtr))
                 }
