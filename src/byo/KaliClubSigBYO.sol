@@ -378,6 +378,6 @@ contract KaliClubSigBYO is Multicall {
             }
         }
 
-        loot().govBurn(msg.sender, lootToBurn);
+        loot().burnShares(msg.sender, lootToBurn);
     }
 }
