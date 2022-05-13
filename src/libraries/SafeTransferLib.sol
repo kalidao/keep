@@ -30,8 +30,8 @@ library SafeTransferLib {
             let memPointer := mload(0x40)
             // write the abi-encoded calldata into memory, beginning with the function selector
             mstore(0, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
-            mstore(4, to) // Append the "to" argument.
-            mstore(36, amount) // Append the "amount" argument.
+            mstore(4, to) // append the 'to' argument
+            mstore(36, amount) // append the 'amount' argument
 
             success := and(
                 // set success to whether the call reverted, if not we check it either
