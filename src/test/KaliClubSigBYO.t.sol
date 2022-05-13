@@ -2,7 +2,6 @@
 pragma solidity >=0.8.4;
 
 import {IClubBYO} from '../interfaces/IClubBYO.sol';
-import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {ClubLootBYO} from '../byo/ClubLootBYO.sol';
 import {Signature, KaliClubSigBYO} from '../byo/KaliClubSigBYO.sol';
@@ -42,11 +41,6 @@ contract ClubSigBYOtest is Test {
     uint256 immutable nullPk =
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
     address public immutable nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
-
-    /// @dev Integrations
-
-    IRicardianLLC public immutable ricardian =
-        IRicardianLLC(0x2017d429Ad722e1cf8df9F1A2504D4711cDedC49);
 
     /// @dev Helpers
 
@@ -113,7 +107,7 @@ contract ClubSigBYOtest is Test {
         mockNFT.mint(bob, 1);
 
         // Create the factory
-        factory = new KaliClubSigBYOfactory(loot, clubSig, ricardian);
+        factory = new KaliClubSigBYOfactory(loot, clubSig);
 
         // Create the Club[]
         IClubBYO.Club[] memory clubs = new IClubBYO.Club[](2);
