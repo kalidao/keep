@@ -91,27 +91,33 @@ library ClubURIbuilder {
     }
 
     /// @dev converts an unsigned integer to a string
-    function _uintToString(uint256 value) private pure returns (string memory) {
-        if (value == 0) {
-            return '0';
+    function _uintToString(uint256 n) internal pure returns (string memory str) {
+        if (n == 0) return "0"; // otherwise it'd output an empty string for 0
+
+        assembly {
+            let k := 78 // start with the max length a uint256 string could be
+            // we'll store our string at the first chunk of free memory
+            str := mload(0x40)
+            // the length of our string will start off at the max of 78
+            mstore(str, k)
+            // update the free memory pointer to prevent overriding our string
+            // add 128 to the str pointer instead of 78 because we want to maintain
+            // the Solidity convention of keeping the free memory pointer word aligned
+            mstore(0x40, add(str, 128))
+            // we'll populate the string from right to left
+            for {} n {} {
+                // the ASCII digit offset for '0' is 48
+                let char := add(48, mod(n, 10))
+                // write the current character into str
+                mstore(add(str, k), char)
+                k := sub(k, 1)
+                n := div(n, 10)
+            }
+            // shift the pointer to the start of the string
+            str := add(str, k)
+            // set the length of the string to the correct value
+            mstore(str, sub(78, k))
         }
-        uint256 j = value;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint256 k = len;
-        while (value != 0) {
-            k = k - 1;
-            uint8 temp = (48 + uint8(value - (value / 10) * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            value /= 10;
-        }
-        
-        return string(bstr);
     }
 
     /// @dev encodes some bytes to the base64 representation
