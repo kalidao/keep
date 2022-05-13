@@ -486,7 +486,7 @@ contract ClubLoot is IClub, Multicall {
     /// Governance Logic
     /// -----------------------------------------------------------------------
 
-    function mint(address to, uint256 amount) external payable onlyGov {
+    function mintShares(address to, uint256 amount) external payable onlyGov {
         totalSupply += amount;
         // cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value
@@ -499,7 +499,7 @@ contract ClubLoot is IClub, Multicall {
         emit Transfer(address(0), to, amount);
     }
 
-    function govBurn(address from, uint256 amount) external payable onlyGov {
+    function burnShares(address from, uint256 amount) external payable onlyGov {
         _burn(from, amount);
     }
     
