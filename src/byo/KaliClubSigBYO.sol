@@ -360,7 +360,7 @@ contract KaliClubSigBYO is Multicall {
             if (prevAddr >= assets[i]) revert WrongAssetOrder();
             prevAddr = assets[i];
             // calculate fair share of given assets for redemption
-            uint256 amountToRedeem = FixedPointMathLib.mulDivDown(
+            uint256 amountToRedeem = FixedPointMathLib._mulDivDown(
                 lootToBurn,
                 assets[i] == ETH
                     ? address(this).balance
