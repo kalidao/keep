@@ -208,7 +208,7 @@ contract ClubLootTest is Test {
 
     function testGovBurn() public {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        loot.govBurn(alice, 50);
+        loot.burnShares(alice, 50);
         assert(loot.balanceOf(alice) == 50);
         assert(loot.totalSupply() == 150);
         vm.stopPrank();
