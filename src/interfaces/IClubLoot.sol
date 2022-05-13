@@ -8,9 +8,9 @@ interface IClubLoot {
 
     function totalSupply() external view returns (uint256);
 
-    function mint(address to, uint256 amount) external;
+    function mintShares(address to, uint256 amount) external;
 
-    function govBurn(address from, uint256 amount) external;
+    function burnShares(address from, uint256 amount) external;
 
     function setPause(bool paused) external;
 }

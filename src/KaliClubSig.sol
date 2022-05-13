@@ -361,13 +361,13 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                     _safeMint(club_[i].signer, club_[i].id);
                     ++totalSupply_;
                     // if loot amount, mint loot
-                    if (club_[i].loot != 0) loot().mint(club_[i].signer, club_[i].loot);
+                    if (club_[i].loot != 0) loot().mintShares(club_[i].signer, club_[i].loot);
                 } else {
                     // burn NFT, update supply
                     _burn(club_[i].id);
                     --totalSupply_;
                     // if loot amount, burn loot
-                    if (club_[i].loot != 0) loot().govBurn(club_[i].signer, club_[i].loot);
+                    if (club_[i].loot != 0) loot().burnShares(club_[i].signer, club_[i].loot);
                 }
             }
         }
@@ -455,6 +455,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             }
         }
 
-        loot().govBurn(msg.sender, lootToBurn);
+        loot().burnShares(msg.sender, lootToBurn);
     }
 }

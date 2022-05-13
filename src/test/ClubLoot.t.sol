@@ -201,14 +201,14 @@ contract ClubLootTest is Test {
         assert(loot.totalSupply() == 300);
 
         vm.prank(address(clubSig));
-        loot.mint(alice, 100);
+        loot.mintShares(alice, 100);
         assert(loot.balanceOf(alice) == 200);
         assert(loot.totalSupply() == 400);
     }
 
     function testGovBurn() public {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        loot.govBurn(alice, 50);
+        loot.burnShares(alice, 50);
         assert(loot.balanceOf(alice) == 50);
         assert(loot.totalSupply() == 150);
         vm.stopPrank();
@@ -342,7 +342,7 @@ contract ClubLootTest is Test {
         assert(loot.getPriorVotes(db, block.timestamp - 1 days) == 100);
 
         vm.prank(address(clubSig));
-        loot.mint(alice, 100);
+        loot.mintShares(alice, 100);
         assert(loot.balanceOf(alice) == 200);
         assert(loot.totalSupply() == 400);
 
@@ -404,6 +404,6 @@ contract ClubLootTest is Test {
         uint256 tooBigMintAmount = (1 << 192) + 1;
         vm.prank(address(clubSig));
         vm.expectRevert(bytes4(keccak256('Uint192max()')));
-        loot.mint(alice, tooBigMintAmount);
+        loot.mintShares(alice, tooBigMintAmount);
     }
 }
