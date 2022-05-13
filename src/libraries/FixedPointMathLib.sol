@@ -5,7 +5,7 @@ pragma solidity >=0.8.4;
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/FixedPointMathLib.sol)
 /// License-Identifier: AGPL-3.0-only
 library FixedPointMathLib {
-    function mulDivDown(
+    function _mulDivDown(
         uint256 x,
         uint256 y,
         uint256 denominator
@@ -14,12 +14,7 @@ library FixedPointMathLib {
             // store x * y in z for now
             z := mul(x, y)
             // equivalent to require(denominator != 0 && (x == 0 || (x * y) / x == y))
-            if iszero(
-                and(
-                    iszero(iszero(denominator)),
-                    or(iszero(x), eq(div(z, x), y))
-                )
-            ) {
+            if iszero(and(iszero(iszero(denominator)), or(iszero(x), eq(div(z, x), y)))) {
                 revert(0, 0)
             }
             // divide z by the denominator
