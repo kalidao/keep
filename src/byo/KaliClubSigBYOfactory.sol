@@ -4,7 +4,6 @@ pragma solidity >=0.8.4;
 import {Multicall} from '../utils/Multicall.sol';
 
 import {IClubBYO} from '../interfaces/IClubBYO.sol';
-import {IRicardianLLC} from '../interfaces/IRicardianLLC.sol';
 
 import {ClubLootBYO} from './ClubLootBYO.sol';
 import {KaliClubSigBYO} from './KaliClubSigBYO.sol';
@@ -48,20 +47,14 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
 
     ClubLootBYO private immutable lootMaster;
     KaliClubSigBYO private immutable clubMaster;
-    IRicardianLLC private immutable ricardianLLC;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        ClubLootBYO lootMaster_,
-        KaliClubSigBYO clubMaster_,
-        IRicardianLLC ricardianLLC_
-    ) {
+    constructor(ClubLootBYO lootMaster_, KaliClubSigBYO clubMaster_) {
         lootMaster = lootMaster_;
         clubMaster = clubMaster_;
-        ricardianLLC = ricardianLLC_;
     }
 
     /// -----------------------------------------------------------------------
@@ -92,10 +85,6 @@ contract KaliClubSigBYOfactory is Multicall, IClubBYO {
         loot.init(address(clubSig), club_, lootPaused_);
 
         clubSig.init(quorum_, redemptionStart_, docs_);
-
-        if (bytes(docs_).length == 0) {
-            ricardianLLC.mintLLC{value: msg.value}(address(clubSig));
-        }
 
         emit ClubDeployed(
             clubNFT_,
