@@ -455,6 +455,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             }
         }
 
-        loot().govBurn(msg.sender, lootToBurn);
+        loot().burnShares(msg.sender, lootToBurn);
     }
 }
