@@ -386,7 +386,7 @@ contract ClubLoot is IClub, Multicall {
 
             uint256 lower;
             // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
-            uint256 upper = --nCheckpoints;
+            uint256 upper = nCheckpoints - 1;
 
             while (upper > lower) {
                 // this is safe from underflow because `upper` ceiling is provided
@@ -399,7 +399,7 @@ contract ClubLoot is IClub, Multicall {
                 } else if (cp.fromTimestamp < timestamp) {
                     lower = center;
                 } else {
-                    upper = --center;
+                    upper = center - 1;
                 }
             }
 
