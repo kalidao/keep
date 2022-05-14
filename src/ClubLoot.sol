@@ -385,11 +385,9 @@ contract ClubLoot is IClub, Multicall {
             if (checkpoints[account][0].fromTimestamp > timestamp) return 0;
 
             uint256 lower;
-            // this is safe from underflow because decrement only occurs if `nCheckpoints` is positive
             uint256 upper = nCheckpoints - 1;
 
             while (upper > lower) {
-                // this is safe from underflow because `upper` ceiling is provided
                 uint256 center = upper - (upper - lower) / 2;
 
                 Checkpoint memory cp = checkpoints[account][center];
