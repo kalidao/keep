@@ -58,7 +58,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
 
     error AlreadyInitialized();
     error QuorumExceedsSigs();
-    error WrongSigner();
+    error BadSigner();
     error ExecuteFailed();
     error NoArrayParity();
     error NoRedemptionYet();
@@ -187,7 +187,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
 
         for (uint256 i; i < club_.length; ) {
             // prevent null and duplicate signers
-            if (prevAddr >= club_[i].signer) revert WrongSigner();
+            if (prevAddr >= club_[i].signer) revert BadSigner();
             prevAddr = club_[i].signer;
 
             _safeMint(club_[i].signer, club_[i].id);
@@ -270,11 +270,11 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                         digest,
                         abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
                     ) != IERC1271.isValidSignature.selector
-                ) revert WrongSigner();
+                ) revert BadSigner();
             }
             // check for NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
-                revert WrongSigner();
+                revert BadSigner();
             // set prevAddr to signer for the next iteration until quorum
             prevAddr = signer;
             // cannot realistically overflow
