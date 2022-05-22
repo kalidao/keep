@@ -430,6 +430,9 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         if (block.timestamp < redemptionStart) revert NoRedemptionYet();
 
         uint256 lootTotal = loot().totalSupply();
+
+        loot().burnShares(msg.sender, lootToBurn);
+        
         address prevAddr;
 
         for (uint256 i; i < assets.length; ) {
@@ -454,7 +457,5 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 ++i;
             }
         }
-
-        loot().burnShares(msg.sender, lootToBurn);
     }
 }
