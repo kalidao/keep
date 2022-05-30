@@ -45,7 +45,7 @@ library SafeTransferLib {
             if iszero(success) {
                 mstore(0x64, 0x08c379a0) // function selector of the error method
                 mstore(0x84, 0x20) // offset of the error string
-                mstore(0xc3, "\x0fTRANSFER_FAILED") // error string's length and bytes
+                mstore(0xc3, '\x0fTRANSFER_FAILED') // error string's length and bytes
                 revert(0x80, 0x64) // revert with (offset, size)
             }
 
