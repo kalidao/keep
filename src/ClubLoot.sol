@@ -30,7 +30,9 @@ contract ClubLoot is IClub, Multicall {
         uint256 previousBalance,
         uint256 newBalance
     );
-    event GovSet(address indexed governance, bool approved);
+    event GovSet(address indexed account, bool approved);
+    event ListSet(address indexed account, bool approved);
+    event ListActivitySet(bool listActive);
     event PauseSet(bool paused);
 
     /// -----------------------------------------------------------------------
@@ -520,7 +522,17 @@ contract ClubLoot is IClub, Multicall {
         governors[governance_] = approved_;
         emit GovSet(governance_, approved_);
     }
+    
+    function setList(address account, bool approved_) external payable onlyGov {
+        listed[account] = approved_;
+        emit ListSet(account, approved_);
+    }
 
+    function setListActivity(bool listActive_) external payable onlyGov {
+        listActive = listActive_;
+        emit ListActivitySet(listActive_);
+    }
+    
     function setPause(bool paused_) external payable onlyGov {
         paused = paused_;
         emit PauseSet(paused_);
