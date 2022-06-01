@@ -75,7 +75,7 @@ contract KaliClubSigFactory is Multicall {
             )
         );
 
-        loot.init(address(clubSig), club_, lootPaused_);
+        loot.init(address(clubSig), Club(club_), lootPaused_);
 
         clubSig.init{value: msg.value}(
             calls_,
