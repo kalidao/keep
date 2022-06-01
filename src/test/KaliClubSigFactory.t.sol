@@ -2,7 +2,7 @@
 pragma solidity >=0.8.4;
 
 import {ClubLoot} from '../ClubLoot.sol';
-import {Call, KaliClubSig} from '../KaliClubSig.sol';
+import {Club, Call, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
