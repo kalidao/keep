@@ -21,6 +21,7 @@ import {NFTreceiver} from './utils/NFTreceiver.sol';
 /// License-Identifier: AGPL-3.0-only
 /// @dev Lightweight implementation of Moloch v3 
 /// (https://github.com/Moloch-Mystics/Baal/blob/main/contracts/Baal.sol)
+/// License-Identifier: UNLICENSED
 
 struct Call {
     address to;
@@ -215,7 +216,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         bool deleg,
         uint256 tx_nonce
     ) public view returns (bytes32) {
-        // exposed for the user to precompute a digest when signing
+        // exposed to precompute digest when signing
         return 
             keccak256(
                 abi.encodePacked(
@@ -258,7 +259,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 sigs[i].s
             );
             // check for conformant contract signature using EIP-1271
-            // - branching on whether signer is a contract
+            // - branching on whether signer is contract
             if (signer.code.length != 0) {
                 if (
                     IERC1271(signer).isValidSignature(
@@ -270,7 +271,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
             // check for NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
                 revert BadSigner();
-            // set prevAddr to signer for the next iteration until quorum
+            // set prevAddr to signer for next iteration until quorum
             prevAddr = signer;
             // cannot realistically overflow
             unchecked {
@@ -300,7 +301,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         bool deleg
     ) private returns (bool success) {
         if (!deleg) {
-            // regular call 
+            // regular 
             assembly {
                 success := call(
                     gas(),
@@ -313,7 +314,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 )
             }
         } else {
-            // delegate call
+            // delegate
             assembly {
                 success := delegatecall(
                     gas(),
