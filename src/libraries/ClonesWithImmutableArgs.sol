@@ -84,7 +84,7 @@ library ClonesWithImmutableArgs {
                 )
                 mstore(
                     add(ptr, 0x12),
-                    // = keccak256("ReceiveETH(uint256)")
+                    // = keccak256('ReceiveETH(uint256)')
                     0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff
                 )
                 mstore(
