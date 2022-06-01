@@ -7,7 +7,6 @@ import {IClub} from './interfaces/IClub.sol';
 import {IClubLoot} from './interfaces/IClubLoot.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
 
-import {ClubURIbuilder} from './libraries/ClubURIbuilder.sol';
 import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
 import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
 
@@ -20,6 +19,8 @@ import {NFTreceiver} from './utils/NFTreceiver.sol';
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// License-Identifier: AGPL-3.0-only
+/// @dev Lightweight implementation of Moloch v3 
+/// (https://github.com/Moloch-Mystics/Baal/blob/main/contracts/Baal.sol)
 
 struct Call {
     address to;
@@ -105,14 +106,8 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         }
     }
 
-    function tokenURI(uint256 id) external view returns (string memory) {
-        if (bytes(baseURI).length == 0) {
-            address owner = ownerOf[id];
-            uint256 lt = loot().balanceOf(owner) / 1e18;
-            return ClubURIbuilder._buildTokenURI(name(), symbol(), owner, lt);
-        } else {
-            return baseURI;
-        }
+    function tokenURI(uint256) external view returns (string memory) {
+        return baseURI;
     }
 
     /// -----------------------------------------------------------------------
