@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from '../interfaces/IClub.sol';
-
 import {ClubLoot} from '../ClubLoot.sol';
-import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
+import {Club, Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
@@ -58,13 +56,13 @@ contract ClubNFTtest is Test {
         factory = new KaliClubSigFactory(loot, clubSig);
 
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
