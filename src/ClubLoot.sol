@@ -156,7 +156,7 @@ contract ClubLoot is IClub, Multicall {
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     
     modifier listCheck(address from, address to) {
-        if (listActive) if (!listed[from] || !listed[to]);
+        if (listActive) if (!listed[from] || !listed[to])
             revert NotListed();
         _;
     }
