@@ -20,12 +20,7 @@ abstract contract ClubNFT {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
-
-    event Transfer(
-        address indexed from,
-        address indexed to,
-        uint256 indexed id
-    );
+    
     event Approval(
         address indexed owner,
         address indexed spender,
@@ -35,6 +30,11 @@ abstract contract ClubNFT {
         address indexed owner,
         address indexed operator,
         bool approved
+    );
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed id
     );
     event PauseSet(bool paused);
 
