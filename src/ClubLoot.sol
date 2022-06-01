@@ -5,7 +5,8 @@ import {IClub} from './interfaces/IClub.sol';
 import {Multicall} from './utils/Multicall.sol';
 
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
-/// @dev Includes delegation tracking based on Compound governance system, adapted with unix timestamps
+/// @dev Includes delegation tracking based on Compound governance system, adapted with unix timestamps,
+/// as well as restricted transfer
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: MIT
 contract ClubLoot is IClub, Multicall {
@@ -37,6 +38,7 @@ contract ClubLoot is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     error NotGov();
+    error NotListed();
     error Paused();
     error AlreadyInitialized();
     error SignatureExpired();
@@ -143,13 +145,13 @@ contract ClubLoot is IClub, Multicall {
     }
 
     /// -----------------------------------------------------------------------
-    /// DAO Storage
+    /// Checkpoint Storage
     /// -----------------------------------------------------------------------
-
+     
     mapping(address => address) private _delegates;
     mapping(address => uint256) public numCheckpoints;
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
-
+    
     struct Checkpoint {
         uint64 fromTimestamp;
         uint192 votes;
@@ -158,21 +160,29 @@ contract ClubLoot is IClub, Multicall {
     /// -----------------------------------------------------------------------
     /// Governor Storage
     /// -----------------------------------------------------------------------
-
+    
+    bool public listActive;
     bool public paused;
-
+    
+    mapping(address => bool) public listed;
     mapping(address => bool) public governors;
+    
+    modifier listCheck(address from, address to) {
+        if (listActive) if (!listed[from] || !listed[to])
+            revert NotListed();
+        _;
+    }
 
+    modifier pauseCheck() {
+        if (paused) revert Paused();
+        _;
+    }
+    
     modifier onlyGov() {
         if (!governors[msg.sender]) revert NotGov();
         _;
     }
-
-    modifier notPaused() {
-        if (paused) revert Paused();
-        _;
-    }
-
+    
     /// -----------------------------------------------------------------------
     /// Initializer
     /// -----------------------------------------------------------------------
@@ -224,7 +234,8 @@ contract ClubLoot is IClub, Multicall {
     function transfer(address to, uint256 amount)
         external
         payable
-        notPaused
+        listCheck(msg.sender, to)
+        pauseCheck
         returns (bool)
     {
         balanceOf[msg.sender] -= amount;
@@ -245,7 +256,7 @@ contract ClubLoot is IClub, Multicall {
         address from,
         address to,
         uint256 amount
-    ) external payable notPaused returns (bool) {
+    ) external payable listCheck(from, to) pauseCheck returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // saves gas for limited approvals
 
         if (allowed != type(uint256).max)
