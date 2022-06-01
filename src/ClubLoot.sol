@@ -518,18 +518,18 @@ contract ClubLoot is IClub, Multicall {
         _burn(from, amount);
     }
     
-    function setGov(address governance_, bool approved_)
+    function setGov(address account, bool approved)
         external
         payable
         onlyGov
     {
-        governors[governance_] = approved_;
-        emit GovSet(governance_, approved_);
+        governors[account] = approved;
+        emit GovSet(account, approved);
     }
     
-    function setList(address account, bool approved_) external payable onlyGov {
-        listed[account] = approved_;
-        emit ListSet(account, approved_);
+    function setList(address account, bool approved) external payable onlyGov {
+        listed[account] = approved;
+        emit ListSet(account, approved);
     }
 
     function setListActivity(bool listActive_) external payable onlyGov {
