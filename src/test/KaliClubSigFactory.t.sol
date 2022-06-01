@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from '../interfaces/IClub.sol';
-
 import {ClubLoot} from '../ClubLoot.sol';
 import {Call, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
@@ -46,9 +44,9 @@ contract KaliClubSigFactoryTest is Test {
     function testDeployClubSig() public {
         KaliClubSig depClubSig;
         // create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
-        clubs[0] = IClub.Club(alice, 0, 100);
-        clubs[1] = IClub.Club(bob, 1, 100);
+        Club[] memory clubs = new Club[](2);
+        clubs[0] = Club(alice, 0, 100);
+        clubs[1] = Club(bob, 1, 100);
         // vm.expectEmit(true, true, false, false);
         (, depClubSig) = factory.deployClubSig(
             calls,
@@ -77,9 +75,9 @@ contract KaliClubSigFactoryTest is Test {
         ClubLoot depLoot;
         KaliClubSig depClubSig;
         // create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
-        clubs[0] = IClub.Club(alice, 0, 100);
-        clubs[1] = IClub.Club(bob, 1, 100);
+        Club[] memory clubs = new Club[](2);
+        clubs[0] = Club(alice, 0, 100);
+        clubs[1] = Club(bob, 1, 100);
         // vm.expectEmit(true, true, false, false);
         (depLoot, depClubSig) = factory.deployClubSig(
             calls,
