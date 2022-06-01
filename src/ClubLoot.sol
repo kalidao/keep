@@ -145,22 +145,13 @@ contract ClubLoot is IClub, Multicall {
     }
 
     /// -----------------------------------------------------------------------
-    /// DAO Storage
+    /// Checkpoint Storage
     /// -----------------------------------------------------------------------
-    
-    bool public listActive;
-    
-    mapping(address => bool) public listed;
+     
     mapping(address => address) private _delegates;
     mapping(address => uint256) public numCheckpoints;
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     
-    modifier listCheck(address from, address to) {
-        if (listActive) if (!listed[from] || !listed[to])
-            revert NotListed();
-        _;
-    }
-
     struct Checkpoint {
         uint64 fromTimestamp;
         uint192 votes;
@@ -169,18 +160,26 @@ contract ClubLoot is IClub, Multicall {
     /// -----------------------------------------------------------------------
     /// Governor Storage
     /// -----------------------------------------------------------------------
-
+    
+    bool public listActive;
     bool public paused;
-
+    
+    mapping(address => bool) public listed;
     mapping(address => bool) public governors;
-
-    modifier onlyGov() {
-        if (!governors[msg.sender]) revert NotGov();
+    
+    modifier listCheck(address from, address to) {
+        if (listActive) if (!listed[from] || !listed[to])
+            revert NotListed();
         _;
     }
 
     modifier pauseCheck() {
         if (paused) revert Paused();
+        _;
+    }
+    
+    modifier onlyGov() {
+        if (!governors[msg.sender]) revert NotGov();
         _;
     }
     
