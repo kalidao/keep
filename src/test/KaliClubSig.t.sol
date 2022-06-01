@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from '../interfaces/IClub.sol';
-
 import {ClubLoot} from '../ClubLoot.sol';
-import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
+import {Club, Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
@@ -108,13 +106,13 @@ contract ClubSigTest is Test {
         factory = new KaliClubSigFactory(loot, clubSig);
 
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
@@ -138,13 +136,13 @@ contract ClubSigTest is Test {
     function testRepeatClubSetup() public {
         clubSigRepeat = new KaliClubSig();
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         ( , clubSigRepeat) = factory.deployClubSig(
             calls,
@@ -160,13 +158,13 @@ contract ClubSigTest is Test {
         );
 
         // Create the Club[]
-        IClub.Club[] memory clubsRepeat = new IClub.Club[](2);
+        Club[] memory clubsRepeat = new Club[](2);
         clubsRepeat[0] = alice > bob
-            ? IClub.Club(bob, 3, 100)
-            : IClub.Club(alice, 2, 100);
+            ? Club(bob, 3, 100)
+            : Club(alice, 2, 100);
         clubsRepeat[1] = alice > bob
-            ? IClub.Club(alice, 2, 100)
-            : IClub.Club(bob, 3, 100);
+            ? Club(alice, 2, 100)
+            : Club(bob, 3, 100);
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
         clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
@@ -175,13 +173,13 @@ contract ClubSigTest is Test {
     function testRepeatLootSetup() public {
         lootRepeat = new ClubLoot();
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         (lootRepeat, ) = factory.deployClubSig(
             calls,
@@ -202,13 +200,13 @@ contract ClubSigTest is Test {
 
     function testZeroQuorumSetup() public {
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         vm.expectRevert(bytes(''));
         factory.deployClubSig(
@@ -227,13 +225,13 @@ contract ClubSigTest is Test {
 
     function testExcessiveQuorumSetup() public {
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
 
         vm.expectRevert(bytes4(keccak256('QuorumExceedsSigs()')));
         factory.deployClubSig(
@@ -252,13 +250,13 @@ contract ClubSigTest is Test {
 
     function testOutOfOrderSignerSetup() public {
         // Create the Club[]
-        IClub.Club[] memory clubs = new IClub.Club[](2);
+        Club[] memory clubs = new Club[](2);
         clubs[0] = alice > bob
-            ? IClub.Club(alice, 0, 100)
-            : IClub.Club(bob, 1, 100);
+            ? Club(alice, 0, 100)
+            : Club(bob, 1, 100);
         clubs[1] = alice > bob
-            ? IClub.Club(bob, 1, 100)
-            : IClub.Club(alice, 0, 100);
+            ? Club(bob, 1, 100)
+            : Club(alice, 0, 100);
 
         vm.expectRevert(bytes4(keccak256('BadSigner()')));
         factory.deployClubSig(
@@ -291,8 +289,8 @@ contract ClubSigTest is Test {
         assert(clubSig.quorum() == 2);
         address db = address(0xdeadbeef);
 
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(db, 2, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(db, 2, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
@@ -613,8 +611,8 @@ contract ClubSigTest is Test {
     /// @notice Check governance
 
     function testGovernAlreadyMinted() public {
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(alice, 0, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(alice, 0, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
@@ -628,8 +626,8 @@ contract ClubSigTest is Test {
         assert(clubSig.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(db, 2, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(db, 2, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
@@ -642,8 +640,8 @@ contract ClubSigTest is Test {
     }
 
     function testGovernBurn() public {
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(alice, 1, 100);
+        Club[] memory clubs = new Club[](1);
+        clubs[0] = Club(alice, 1, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = false;
