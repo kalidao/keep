@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 /// @notice A generic interface for a contract which properly accepts ERC-721 tokens
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC721.sol)
-/// License-Identifier: AGPL-3.0-only
+/// License-Identifier: MIT
 interface ERC721TokenReceiver {
     function onERC721Received(
         address operator,
