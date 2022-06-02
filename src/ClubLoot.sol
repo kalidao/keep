@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IClub} from './interfaces/IClub.sol';
+import {IMember} from './interfaces/IMember.sol';
 import {Multicall} from './utils/Multicall.sol';
 
 /// @notice Modern, minimalist, and gas efficient ERC-20 + EIP-2612 implementation designed for Kali ClubSig
 /// @dev Includes delegation tracking based on Compound governance system, adapted with unix timestamps,
-/// as well as restricted transfer
+/// as well as restricted transfers
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// License-Identifier: MIT
-contract ClubLoot is IClub, Multicall {
+contract ClubLoot is IMember, Multicall {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -195,24 +195,24 @@ contract ClubLoot is IClub, Multicall {
 
     function init(
         address governance_,
-        Club[] calldata club_,
+        Member[] calldata members_,
         bool lootPaused_
     ) external payable {
         if (INITIAL_DOMAIN_SEPARATOR != 0) revert AlreadyInitialized();
 
         uint256 totalSupply_;
 
-        for (uint256 i; i < club_.length; ) {
-            totalSupply_ += club_[i].loot;
+        for (uint256 i; i < members_.length; ) {
+            totalSupply_ += members_[i].loot;
 
-            _moveDelegates(address(0), club_[i].signer, club_[i].loot);
+            _moveDelegates(address(0), members_[i].signer, members_[i].loot);
 
-            emit Transfer(address(0), club_[i].signer, club_[i].loot);
+            emit Transfer(address(0), members_[i].signer, members_[i].loot);
             // cannot overflow because the sum of all user
             // balances can't exceed the max uint256 value,
             // and incrementing cannot realistically overflow
             unchecked {
-                balanceOf[club_[i].signer] += club_[i].loot;
+                balanceOf[members_[i].signer] += members_[i].loot;
                 ++i;
             }
         }
