@@ -177,7 +177,7 @@ contract ClubSigTest is Test {
         members[0] = alice > bob
             ? IMember.Member(bob, 1, 100)
             : IMember.Member(alice, 0, 100);
-        clubs[1] = alice > bob
+        members[1] = alice > bob
             ? IMember.Member(alice, 0, 100)
             : IMember.Member(bob, 1, 100);
 
@@ -194,7 +194,7 @@ contract ClubSigTest is Test {
         );
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
-        lootRepeat.init(alice, clubs, true);
+        lootRepeat.init(alice, members, true);
     }
 
     function testZeroQuorumSetup() public {
@@ -227,7 +227,7 @@ contract ClubSigTest is Test {
         members[0] = alice > bob
             ? IMember.Member(bob, 1, 100)
             : IMember.Member(alice, 0, 100);
-        clubs[1] = alice > bob
+        members[1] = alice > bob
             ? IMember.Member(alice, 0, 100)
             : IMember.Member(bob, 1, 100);
 
@@ -619,7 +619,7 @@ contract ClubSigTest is Test {
         mints[0] = true;
 
         vm.prank(address(clubSig));
-        clubSig.govern(clubs, mints, 3);
+        clubSig.govern(members, mints, 3);
         assert(clubSig.totalSupply() == 3);
         assert(clubSig.quorum() == 3);
         assert(loot.totalSupply() == 300);
