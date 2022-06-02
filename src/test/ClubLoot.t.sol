@@ -195,7 +195,7 @@ contract ClubLootTest is Test {
         mints[0] = true;
 
         vm.prank(address(clubSig));
-        clubSig.govern(clubs, mints, 3);
+        clubSig.govern(members, mints, 3);
         assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
 
@@ -331,7 +331,7 @@ contract ClubLootTest is Test {
         mints[0] = true;
 
         vm.prank(address(clubSig));
-        clubSig.govern(clubs, mints, 3);
+        clubSig.govern(members, mints, 3);
         assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
 
@@ -387,7 +387,7 @@ contract ClubLootTest is Test {
         vm.expectRevert(bytes4(keccak256('Uint192max()')));
         factory.deployClubSig(
             calls,
-            clubs,
+            members,
             2,
             0,
             name,
