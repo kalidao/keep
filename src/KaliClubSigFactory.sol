@@ -31,8 +31,7 @@ contract KaliClubSigFactory is IClub, Multicall {
         bytes32 symbol,
         bool lootPaused,
         bool signerPaused,
-        string baseURI,
-        string docs
+        string baseURI
     );
 
     /// -----------------------------------------------------------------------
@@ -64,8 +63,7 @@ contract KaliClubSigFactory is IClub, Multicall {
         bytes32 symbol_,
         bool lootPaused_,
         bool signerPaused_,
-        string memory baseURI_,
-        string memory docs_
+        string memory baseURI_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
         // uniqueness is enforced on club name
         loot = ClubLoot(
@@ -87,8 +85,7 @@ contract KaliClubSigFactory is IClub, Multicall {
             quorum_,
             redemptionStart_,
             signerPaused_,
-            baseURI_,
-            docs_
+            baseURI_
         );
 
         emit ClubDeployed(
@@ -100,8 +97,7 @@ contract KaliClubSigFactory is IClub, Multicall {
             symbol_,
             lootPaused_,
             signerPaused_,
-            baseURI_,
-            docs_
+            baseURI_
         );
     }
     

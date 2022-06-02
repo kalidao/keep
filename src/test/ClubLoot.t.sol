@@ -92,8 +92,7 @@ contract ClubLootTest is Test {
             symbol,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
     }
 
@@ -395,8 +394,7 @@ contract ClubLootTest is Test {
             symbol,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
     }
 
