@@ -3,8 +3,8 @@ pragma solidity >=0.8.4;
 
 import {ClubNFT} from './ClubNFT.sol';
 
-import {IClub} from './interfaces/IClub.sol';
-import {IClubLoot} from './interfaces/IClubLoot.sol';
+import {ILoot} from './interfaces/ILoot.sol';
+import {IMember} from './interfaces/IMember.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
 
 import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
@@ -36,7 +36,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClubSig is ClubNFT, IClub, Multicall {
+contract KaliClubSig is ClubNFT, IMember, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -53,7 +53,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         bytes data
     );
     event Govern(
-        Club[] club, 
+        Member[] members, 
         bool[] mints, 
         uint256 quorum
     );
@@ -104,7 +104,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
-    function loot() public pure returns (IClubLoot lootAddr) {
+    function loot() public pure returns (ILoot lootAddr) {
         uint256 offset = _getImmutableArgsOffset();
         
         assembly {
@@ -158,7 +158,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
 
     function init(
         Call[] calldata calls_,
-        Club[] calldata club_,
+        Member[] calldata members_,
         uint256 quorum_,
         uint256 redemptionStart_,
         bool signerPaused_,
@@ -170,7 +170,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 revert(0, 0)
             }
         }
-        if (quorum_ > club_.length) revert QuorumExceedsSigs();
+        if (quorum_ > members_.length) revert QuorumExceedsSigs();
 
         if (calls_.length != 0) {
             for (uint256 i; i < calls_.length; ) {
@@ -185,12 +185,12 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         address prevAddr;
         uint256 totalSupply_;
 
-        for (uint256 i; i < club_.length; ) {
+        for (uint256 i; i < members_.length; ) {
             // prevent null and duplicate signers
-            if (prevAddr >= club_[i].signer) revert BadSigner();
-            prevAddr = club_[i].signer;
+            if (prevAddr >= members_[i].signer) revert BadSigner();
+            prevAddr = members_[i].signer;
 
-            _safeMint(club_[i].signer, club_[i].id);
+            _safeMint(members_[i].signer, members_[i].id);
             // cannot realistically overflow
             unchecked {
                 ++totalSupply_;
@@ -242,12 +242,12 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     }
     
     /// @notice Execute a transaction from the club, providing the required amount of signatures
-	/// @param to The address to send the transaction to
-	/// @param value The amount of ETH to send in the transaction
-	/// @param data The payload to send in the transaction
+    /// @param to The address to send the transaction to
+    /// @param value The amount of ETH to send in the transaction
+    /// @param data The payload to send in the transaction
     /// @param deleg Whether or not to perform a delegatecall
-	/// @param sigs An array of signatures from trusted signers, sorted in ascending order by the signer's addresses
-	/// @dev Make sure the signatures are sorted in ascending order by the signer's addresses - otherwise verification will fail
+    /// @param sigs An array of signatures from trusted signers, sorted in ascending order by the signer's addresses
+    /// @dev Make sure the signatures are sorted in ascending order by the signer's addresses - otherwise verification will fail
     function execute(
         address to,
         uint256 value,
@@ -346,11 +346,11 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     }
 
     function govern(
-        Club[] calldata club_,
+        Member[] calldata members_,
         bool[] calldata mints_,
         uint256 quorum_
     ) external payable onlyClubOrGov {
-        if (club_.length != mints_.length) revert NoArrayParity();
+        if (members_.length != mints_.length) revert NoArrayParity();
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
@@ -361,19 +361,19 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         // cannot realistically overflow, and
         // cannot underflow because ownership is checked in burn()
         unchecked {
-            for (uint256 i; i < club_.length; ++i) {
+            for (uint256 i; i < members_.length; ++i) {
                 if (mints_[i]) {
                     // mint NFT, update supply
-                    _safeMint(club_[i].signer, club_[i].id);
+                    _safeMint(members_[i].signer, members_[i].id);
                     ++totalSupply_;
                     // if loot amount, mint loot
-                    if (club_[i].loot != 0) loot().mintShares(club_[i].signer, club_[i].loot);
+                    if (members_[i].loot != 0) loot().mintShares(members_[i].signer, members_[i].loot);
                 } else {
                     // burn NFT, update supply
-                    _burn(club_[i].id);
+                    _burn(members_[i].id);
                     --totalSupply_;
                     // if loot amount, burn loot
-                    if (club_[i].loot != 0) loot().burnShares(club_[i].signer, club_[i].loot);
+                    if (members_[i].loot != 0) loot().burnShares(members_[i].signer, members_[i].loot);
                 }
             }
         }
@@ -384,7 +384,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         quorum = quorum_;
         totalSupply = totalSupply_;
 
-        emit Govern(club_, mints_, quorum_);
+        emit Govern(members_, mints_, quorum_);
     }
 
     function setGovernor(address account, bool approved)
@@ -445,7 +445,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 lootToBurn,
                 assets[i] == ETH
                     ? address(this).balance
-                    : IClubLoot(assets[i]).balanceOf(address(this)),
+                    : ILoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer

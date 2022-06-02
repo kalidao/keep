@@ -2,8 +2,8 @@
 pragma solidity >=0.8.4;
 
 /// @notice Kali ClubSig membership interface
-interface IClub {
-    struct Club {
+interface IMember {
+    struct Member {
         address signer;
         uint256 id;
         uint256 loot;
