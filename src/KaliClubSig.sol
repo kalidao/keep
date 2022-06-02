@@ -57,7 +57,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         bool[] mints, 
         uint256 quorum
     );
-    event DocsSet(string docs);
     event GovernorSet(address indexed account, bool approved);
     event RedemptionStartSet(uint256 redemptionStart);
     event URIset(string uri);
@@ -379,11 +378,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         totalSupply = totalSupply_;
 
         emit Govern(club_, mints_, quorum_);
-    }
-
-    function setDocs(string calldata docs_) external payable onlyClubOrGov {
-        docs = docs_;
-        emit DocsSet(docs_);
     }
 
     function setGovernor(address account, bool approved)
