@@ -154,7 +154,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         uint256 quorum_,
         uint256 redemptionStart_,
         bool signerPaused_,
-        string calldata baseURI_
+        string calldata tokenURI_
     ) external payable {
         if (nonce != 0) revert AlreadyInitialized();
         assembly {
@@ -196,7 +196,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         quorum = quorum_;
         redemptionStart = redemptionStart_;
         totalSupply = totalSupply_;
-        baseURI = baseURI_;
+        tokenURI = tokenURI_;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
