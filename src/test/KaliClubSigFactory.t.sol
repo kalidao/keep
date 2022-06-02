@@ -59,8 +59,7 @@ contract KaliClubSigFactoryTest is Test {
             symbol,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
         // sanity check initialization
         assertEq(
@@ -90,8 +89,7 @@ contract KaliClubSigFactoryTest is Test {
             symbol,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
         // check CREATE2 clones match expected outputs
         (address lootAddr, address clubAddr, bool deployed) = factory.determineClones(name, symbol);
