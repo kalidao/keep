@@ -88,10 +88,8 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
     uint256 public redemptionStart;
     /// @dev total signer units minted
     uint256 public totalSupply;
-    /// @dev optional metadata signifying club (fetched via tokenURI())
+    /// @dev metadata signifying club (fetched via tokenURI())
     string private baseURI;
-    /// @dev metadata signifying club agreements
-    string public docs;
 
     /// @dev administrative account tracking
     mapping(address => bool) public governor;
@@ -165,8 +163,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         uint256 quorum_,
         uint256 redemptionStart_,
         bool signerPaused_,
-        string calldata baseURI_,
-        string calldata docs_
+        string calldata baseURI_
     ) external payable {
         if (nonce != 0) revert AlreadyInitialized();
         assembly {
@@ -209,7 +206,6 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
         redemptionStart = redemptionStart_;
         totalSupply = totalSupply_;
         baseURI = baseURI_;
-        docs = docs_;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
