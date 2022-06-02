@@ -79,7 +79,7 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
 
     /// @dev ETH reference for redemptions
     address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    /// @dev initialized at `1` for cheaper first tx
+    /// @dev state change tracker - initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev signature (NFT) threshold to execute tx
     uint256 public quorum;
@@ -240,7 +240,14 @@ contract KaliClubSig is ClubNFT, IClub, Multicall {
                 )
             );
     }
-
+    
+    /// @notice Execute a transaction from the club, providing the required amount of signatures
+	/// @param to The address to send the transaction to
+	/// @param value The amount of ETH to send in the transaction
+	/// @param data The payload to send in the transaction
+    /// @param deleg Whether or not to perform a delegatecall
+	/// @param sigs An array of signatures from trusted signers, sorted in ascending order by the signer's addresses
+	/// @dev Make sure the signatures are sorted in ascending order by the signer's addresses - otherwise verification will fail
     function execute(
         address to,
         uint256 value,
