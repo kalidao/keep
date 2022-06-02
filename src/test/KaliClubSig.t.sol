@@ -126,8 +126,7 @@ contract ClubSigTest is Test {
             symbol,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
 
         mockDai.approve(address(clubSig), type(uint256).max);
@@ -155,8 +154,7 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
 
         // Create the Club[]
@@ -169,7 +167,7 @@ contract ClubSigTest is Test {
             : IClub.Club(bob, 3, 100);
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
-        clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE', 'DOCS');
+        clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE');
     }
 
     function testRepeatLootSetup() public {
@@ -192,8 +190,7 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
@@ -220,8 +217,7 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
     }
 
@@ -245,8 +241,7 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
     }
 
@@ -270,8 +265,7 @@ contract ClubSigTest is Test {
             symbol2,
             false,
             false,
-            'BASE',
-            'DOCS'
+            'BASE'
         );
     }
 
@@ -335,16 +329,6 @@ contract ClubSigTest is Test {
         assert(
             keccak256(bytes(clubSig.tokenURI(1))) == keccak256(bytes(updated))
         );
-    }
-
-    function testDocs() public {
-        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes('DOCS')));
-        string memory updated = 'NEW DOCS';
-
-        startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.setDocs(updated);
-        vm.stopPrank();
-        assert(keccak256(bytes(clubSig.docs())) == keccak256(bytes(updated)));
     }
 
     function testTokenURI() public {
@@ -702,22 +686,6 @@ contract ClubSigTest is Test {
         assertEq(
             keccak256(bytes('new_base_uri')),
             keccak256(bytes(clubSig.tokenURI(1)))
-        );
-    }
-
-    function testUpdateDocs(address dave) public {
-        startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        clubSig.setDocs('new_docs');
-        vm.stopPrank();
-
-        // The ClubSig itself should be able to update the docs
-        startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.setDocs('new_docs');
-        vm.stopPrank();
-        assertEq(
-            keccak256(bytes('new_docs')),
-            keccak256(bytes(clubSig.docs()))
         );
     }
 
