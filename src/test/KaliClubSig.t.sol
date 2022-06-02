@@ -285,14 +285,14 @@ contract ClubSigTest is Test {
         assert(clubSig.quorum() == 2);
         address db = address(0xdeadbeef);
 
-        IClub.Club[] memory clubs = new IClub.Club[](1);
-        clubs[0] = IClub.Club(db, 2, 100);
+        IMember.Member[] memory members = new IMember.Member[](1);
+        members[0] = IMember.Member(db, 2, 100);
 
         bool[] memory mints = new bool[](1);
         mints[0] = true;
 
         vm.prank(address(clubSig));
-        clubSig.govern(clubs, mints, 3);
+        clubSig.govern(members, mints, 3);
 
         assert(clubSig.quorum() == 3);
     }
