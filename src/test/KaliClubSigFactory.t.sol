@@ -76,7 +76,7 @@ contract KaliClubSigFactoryTest is Test {
         ClubLoot depLoot;
         KaliClubSig depClubSig;
         // create the Club[]
-        IMember.Club[] memory members = new IMember.Member[](2);
+        IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = IMember.Member(alice, 0, 100);
         members[1] = IMember.Member(bob, 1, 100);
         // vm.expectEmit(true, true, false, false);
