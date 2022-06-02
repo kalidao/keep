@@ -4,14 +4,14 @@ pragma solidity >=0.8.4;
 import {ClubLoot} from './ClubLoot.sol';
 import {Call, KaliClubSig} from './KaliClubSig.sol';
 
-import {IClub} from './interfaces/IClub.sol';
+import {IMember} from './interfaces/IMember.sol';
 
 import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 
 import {Multicall} from './utils/Multicall.sol';
 
 /// @notice Kali ClubSig Factory
-contract KaliClubSigFactory is IClub, Multicall {
+contract KaliClubSigFactory is IMember, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -23,8 +23,8 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     event ClubDeployed(
-        Call[] calls_,
-        Club[] club_,
+        Call[] calls,
+        Member[] members,
         uint256 quorum,
         uint256 redemptionStart,
         bytes32 name,
@@ -56,7 +56,7 @@ contract KaliClubSigFactory is IClub, Multicall {
 
     function deployClubSig(
         Call[] calldata calls_,
-        Club[] calldata club_,
+        Member[] calldata members_,
         uint256 quorum_,
         uint256 redemptionStart_,
         bytes32 name_,
@@ -77,11 +77,11 @@ contract KaliClubSigFactory is IClub, Multicall {
             )
         );
 
-        loot.init(address(clubSig), club_, lootPaused_);
+        loot.init(address(clubSig), members_, lootPaused_);
 
         clubSig.init{value: msg.value}(
             calls_,
-            club_,
+            members_,
             quorum_,
             redemptionStart_,
             signerPaused_,
@@ -90,7 +90,7 @@ contract KaliClubSigFactory is IClub, Multicall {
 
         emit ClubDeployed(
             calls_,
-            club_,
+            members_,
             quorum_,
             redemptionStart_,
             name_,
