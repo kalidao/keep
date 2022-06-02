@@ -63,7 +63,7 @@ contract KaliClubSigFactory is IClub, Multicall {
         bytes32 symbol_,
         bool lootPaused_,
         bool signerPaused_,
-        string calldata baseURI_
+        string memory baseURI_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
         // uniqueness is enforced on club name
         loot = ClubLoot(
