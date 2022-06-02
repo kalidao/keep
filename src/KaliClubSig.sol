@@ -413,9 +413,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         ClubNFT._setPause(paused_);
     }
 
-    function setURI(string calldata baseURI_) external payable onlyClubOrGov {
-        baseURI = baseURI_;
-        emit URIset(baseURI_);
+    function setURI(string calldata tokenURI_) external payable onlyClubOrGov {
+        tokenURI = tokenURI_;
+        emit URIset(tokenURI);
     }
 
     /// -----------------------------------------------------------------------
