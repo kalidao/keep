@@ -69,7 +69,7 @@ contract ClubNFTtest is Test {
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
             calls,
-            clubs,
+            members,
             2,
             0,
             name,
