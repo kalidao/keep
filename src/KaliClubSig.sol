@@ -445,7 +445,7 @@ contract KaliClubSig is ClubNFT, IMember, Multicall {
                 lootToBurn,
                 assets[i] == ETH
                     ? address(this).balance
-                    : IClubLoot(assets[i]).balanceOf(address(this)),
+                    : ILoot(assets[i]).balanceOf(address(this)),
                 lootTotal
             );
             // transfer to redeemer
