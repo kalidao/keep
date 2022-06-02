@@ -55,15 +55,15 @@ contract KaliClubSigFactory is IClub, Multicall {
     /// -----------------------------------------------------------------------
 
     function deployClubSig(
-        Call[] memory calls_,
-        Club[] memory club_,
+        Call[] calldata calls_,
+        Club[] calldata club_,
         uint256 quorum_,
         uint256 redemptionStart_,
         bytes32 name_,
         bytes32 symbol_,
         bool lootPaused_,
         bool signerPaused_,
-        string memory baseURI_
+        string calldata baseURI_
     ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
         // uniqueness is enforced on club name
         loot = ClubLoot(
