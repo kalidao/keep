@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubNFT} from './ClubNFT.sol';
-
 import {ILoot} from './interfaces/ILoot.sol';
 import {IMember} from './interfaces/IMember.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
@@ -10,6 +8,7 @@ import {IERC1271} from './interfaces/IERC1271.sol';
 import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
 import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
 
+import {ClubNFT} from './ClubNFT.sol';
 import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
@@ -36,7 +35,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClubSig is ClubNFT, IMember, Multicall {
+contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -74,46 +73,39 @@ contract KaliClubSig is ClubNFT, IMember, Multicall {
     error WrongAssetOrder();
 
     /// -----------------------------------------------------------------------
-    /// Club Storage
+    /// Club Storage/Logic
     /// -----------------------------------------------------------------------
 
     /// @dev ETH reference for redemptions
     address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    /// @dev state change tracker - initialized at `1` for cheaper first tx
+    /// @dev State change tracker - initialized at `1` for cheaper first tx
     uint256 public nonce;
-    /// @dev signature (NFT) threshold to execute tx
+    /// @dev Signature (NFT) threshold to execute tx
     uint256 public quorum;
-    /// @dev starting period for club redemptions
+    /// @dev Starting period for club redemptions
     uint256 public redemptionStart;
-    /// @dev total signer units minted
+    /// @dev Total signer units minted
     uint256 public totalSupply;
-    /// @dev metadata signifying club (fetched via tokenURI())
-    string private baseURI;
+    /// @dev Metadata signifying club
+    string public tokenURI;
 
-    /// @dev administrative account tracking
+    /// @dev Administrative account tracking
     mapping(address => bool) public governor;
 
-    /// @dev access control for this contract and governors
+    /// @dev Access control for this contract and governors
     modifier onlyClubOrGov() {
         if (msg.sender != address(this) && !governor[msg.sender])
             revert Forbidden();
         _;
     }
-
-    /// -----------------------------------------------------------------------
-    /// Metadata Logic
-    /// -----------------------------------------------------------------------
-
+    
+    /// @dev Access control for this contract and governors
     function loot() public pure returns (ILoot lootAddr) {
         uint256 offset = _getImmutableArgsOffset();
         
         assembly {
             lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
         }
-    }
-
-    function tokenURI(uint256) external view returns (string memory) {
-        return baseURI;
     }
 
     /// -----------------------------------------------------------------------
@@ -241,13 +233,14 @@ contract KaliClubSig is ClubNFT, IMember, Multicall {
             );
     }
     
-    /// @notice Execute a transaction from the club, providing the required amount of signatures
-    /// @param to The address to send the transaction to
-    /// @param value The amount of ETH to send in the transaction
-    /// @param data The payload to send in the transaction
-    /// @param deleg Whether or not to perform a delegatecall
-    /// @param sigs An array of signatures from trusted signers, sorted in ascending order by the signer's addresses
-    /// @dev Make sure the signatures are sorted in ascending order by the signer's addresses - otherwise verification will fail
+    /// @notice Execute transaction from club with signatures
+    /// @param to Address to send transaction to
+    /// @param value Amount of ETH to send in transaction
+    /// @param data Payload to send in transaction
+    /// @param deleg Whether or not to perform delegatecall
+    /// @param sigs Array of signatures from NFT sorted in ascending order by addresses
+    /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail
+    /// @return Fetches whether transaction succeeded
     function execute(
         address to,
         uint256 value,
@@ -292,6 +285,9 @@ contract KaliClubSig is ClubNFT, IMember, Multicall {
         success = _execute(to, value, data, deleg);
     }
     
+    /// @notice Execute array of transactions from club as result of execute() or as governor
+    /// @param calls Arrays of `to, value, data, deleg` for transactions
+    /// @return Fetches whether transactions succeeded
     function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool[] memory successes) {
         successes = new bool[](calls.length);
 
@@ -344,7 +340,11 @@ contract KaliClubSig is ClubNFT, IMember, Multicall {
 
         emit Execute(to, value, data);
     }
-
+    
+    /// @notice Update club configurations for membership and quorum
+    /// @param members_ Arrays of `signer, id, loot` for membership
+    /// @param mints_ Boolean array that determines whether mint or burn
+    /// @param quorum_ Signature threshold to execute transactions
     function govern(
         Member[] calldata members_,
         bool[] calldata mints_,
@@ -421,8 +421,11 @@ contract KaliClubSig is ClubNFT, IMember, Multicall {
     /// -----------------------------------------------------------------------
     /// Redemptions
     /// -----------------------------------------------------------------------
-
-    /// @dev redemption is only available for ETH and ERC-20
+    
+    /// @notice Redemption option for `loot` holders
+    /// @param assets Array of assets to redeem out
+    /// @param lootToBurn Amount of `loot` to burn
+    /// @dev Redemption is only available for ETH and ERC-20
     /// - NFTs will need to be liquidated or fractionalized
     function ragequit(address[] calldata assets, uint256 lootToBurn)
         external
