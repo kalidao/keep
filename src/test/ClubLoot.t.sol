@@ -73,7 +73,7 @@ contract ClubLootTest is Test {
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig);
 
-        // Create the Club[]
+        // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
             ? IMember.Member(bob, 1, 100)
