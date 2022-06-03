@@ -58,7 +58,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     );
     event GovernorSet(address indexed account, bool approved);
     event RedemptionStartSet(uint256 redemptionStart);
-    event URIset(string uri);
+    event URIset(string baseURI);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -428,9 +428,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         ClubNFT._setPause(paused_);
     }
 
-    function setURI(string calldata tokenURI_) external payable onlyClubOrGov {
-        tokenURI = tokenURI_;
-        emit URIset(tokenURI_);
+    function setURI(string calldata baseURI_) external payable onlyClubOrGov {
+        baseURI = baseURI_;
+        emit URIset(baseURI_);
     }
 
     /// -----------------------------------------------------------------------
