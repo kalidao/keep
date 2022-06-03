@@ -52,7 +52,7 @@ contract ClubNFTtest is Test {
 
     function setUp() public {
         loot = new ClubLoot();
-        clubSig = new KaliClubSig();
+        clubSig = new KaliClubSig(alice);
 
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig);
