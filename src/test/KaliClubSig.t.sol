@@ -135,7 +135,7 @@ contract ClubSigTest is Test {
     /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
-        clubSigRepeat = new KaliClubSig();
+        clubSigRepeat = new KaliClubSig(KaliClubSig(alice));
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
