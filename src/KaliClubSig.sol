@@ -78,8 +78,8 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
 
     /// @dev ETH reference for redemptions
     address private constant eth = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    /// @dev Renderer reference for metadata
-    KaliClubSig public immutable renderer;
+    /// @dev Renderer reference for metadata (set in master contract)
+    KaliClubSig private immutable renderer;
     /// @dev State change tracker - initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev Signature (NFT) threshold to execute tx
