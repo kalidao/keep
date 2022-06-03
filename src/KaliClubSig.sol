@@ -255,7 +255,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// @param deleg Whether or not to perform delegatecall
     /// @param sigs Array of signatures from NFT sorted in ascending order by addresses
     /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail
-    /// @return Fetches whether transaction succeeded
+    /// @return success Fetches whether transaction succeeded
     function execute(
         address to,
         uint256 value,
@@ -302,7 +302,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     
     /// @notice Execute array of transactions from club as result of execute() or as governor
     /// @param calls Arrays of `to, value, data, deleg` for transactions
-    /// @return Fetches whether transactions succeeded
+    /// @return successes Fetches whether transactions succeeded
     function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool[] memory successes) {
         successes = new bool[](calls.length);
 
