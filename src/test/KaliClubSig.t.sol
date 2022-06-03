@@ -97,7 +97,7 @@ contract ClubSigTest is Test {
 
     function setUp() public {
         loot = new ClubLoot();
-        clubSig = new KaliClubSig(alice);
+        clubSig = new KaliClubSig(KaliClubSig(alice));
         mockDai = new MockERC20('Dai', 'DAI', 18);
         chainId = block.chainid;
 
