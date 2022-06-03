@@ -68,7 +68,7 @@ contract ClubLootTest is Test {
 
     function setUp() public {
         loot = new ClubLoot();
-        clubSig = new KaliClubSig(alice);
+        clubSig = new KaliClubSig(KaliClubSig(alice));
 
         // Create the factory
         factory = new KaliClubSigFactory(loot, clubSig);
@@ -366,7 +366,7 @@ contract ClubLootTest is Test {
     }
 
     function testSafeCast192forVoteInit() public {
-        KaliClubSig clubSig1 = new KaliClubSig();
+        KaliClubSig clubSig1 = new KaliClubSig(KaliClubSig(alice));
         ClubLoot loot1 = new ClubLoot();
 
         // Create the factory
