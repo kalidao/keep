@@ -113,7 +113,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// @dev Metadata logic that returns external reference if no local
     function tokenURI(uint256 id) external view returns (string memory) {
         if (bytes(baseURI).length == 0) {
-            return renderer(id);
+            return renderer.tokenURI(id);
         } else {
             return baseURI;
         }
