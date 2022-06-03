@@ -97,7 +97,7 @@ contract ClubSigTest is Test {
 
     function setUp() public {
         loot = new ClubLoot();
-        clubSig = new KaliClubSig();
+        clubSig = new KaliClubSig(KaliClubSig(alice));
         mockDai = new MockERC20('Dai', 'DAI', 18);
         chainId = block.chainid;
 
@@ -135,7 +135,7 @@ contract ClubSigTest is Test {
     /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
-        clubSigRepeat = new KaliClubSig();
+        clubSigRepeat = new KaliClubSig(KaliClubSig(alice));
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob

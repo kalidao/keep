@@ -58,7 +58,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     );
     event GovernorSet(address indexed account, bool approved);
     event RedemptionStartSet(uint256 redemptionStart);
-    event URIset(string uri);
+    event URIset(string baseURI);
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -77,7 +77,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
 
     /// @dev ETH reference for redemptions
-    address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address private constant eth = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    /// @dev Renderer reference for metadata
+    KaliClubSig public immutable renderer;
     /// @dev State change tracker - initialized at `1` for cheaper first tx
     uint256 public nonce;
     /// @dev Signature (NFT) threshold to execute tx
@@ -87,7 +89,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// @dev Total signer units minted
     uint256 public totalSupply;
     /// @dev Metadata signifying club
-    string public tokenURI;
+    string private baseURI;
 
     /// @dev Administrative account tracking
     mapping(address => bool) public governor;
@@ -99,12 +101,21 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         _;
     }
     
-    /// @dev Access control for this contract and governors
+    /// @dev Economic share reference for this contract
     function loot() public pure returns (ILoot lootAddr) {
         uint256 offset = _getImmutableArgsOffset();
         
         assembly {
             lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
+        }
+    }
+    
+    /// @dev Metadata logic that returns external reference if no local
+    function tokenURI(uint256 id) external view returns (string memory) {
+        if (bytes(baseURI).length == 0) {
+            return renderer.tokenURI(id);
+        } else {
+            return baseURI;
         }
     }
 
@@ -147,6 +158,10 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// -----------------------------------------------------------------------
     /// Initializer
     /// -----------------------------------------------------------------------
+    
+    constructor(KaliClubSig renderer_) {
+        renderer = renderer_;
+    }
 
     function init(
         Call[] calldata calls_,
@@ -154,7 +169,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         uint256 quorum_,
         uint256 redemptionStart_,
         bool signerPaused_,
-        string calldata tokenURI_
+        string calldata baseURI_
     ) external payable {
         if (nonce != 0) revert AlreadyInitialized();
         assembly {
@@ -196,7 +211,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         quorum = quorum_;
         redemptionStart = redemptionStart_;
         totalSupply = totalSupply_;
-        tokenURI = tokenURI_;
+        baseURI = baseURI_;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
@@ -240,7 +255,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// @param deleg Whether or not to perform delegatecall
     /// @param sigs Array of signatures from NFT sorted in ascending order by addresses
     /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail
-    /// @return Fetches whether transaction succeeded
+    /// @return success Fetches whether transaction succeeded
     function execute(
         address to,
         uint256 value,
@@ -287,7 +302,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     
     /// @notice Execute array of transactions from club as result of execute() or as governor
     /// @param calls Arrays of `to, value, data, deleg` for transactions
-    /// @return Fetches whether transactions succeeded
+    /// @return successes Fetches whether transactions succeeded
     function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool[] memory successes) {
         successes = new bool[](calls.length);
 
@@ -413,9 +428,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         ClubNFT._setPause(paused_);
     }
 
-    function setURI(string calldata tokenURI_) external payable onlyClubOrGov {
-        tokenURI = tokenURI_;
-        emit URIset(tokenURI_);
+    function setURI(string calldata baseURI_) external payable onlyClubOrGov {
+        baseURI = baseURI_;
+        emit URIset(baseURI_);
     }
 
     /// -----------------------------------------------------------------------
@@ -446,16 +461,16 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib._mulDivDown(
                 lootToBurn,
-                assets[i] == ETH
-                    ? address(this).balance
-                    : ILoot(assets[i]).balanceOf(address(this)),
+                assets[i] != eth
+                    ? ILoot(assets[i]).balanceOf(address(this))
+                    : address(this).balance,
                 lootTotal
             );
             // transfer to redeemer
             if (amountToRedeem != 0)
-                assets[i] == ETH
-                    ? msg.sender._safeTransferETH(amountToRedeem)
-                    : assets[i]._safeTransfer(msg.sender, amountToRedeem);
+                assets[i] != eth
+                    ? assets[i]._safeTransfer(msg.sender, amountToRedeem)
+                    : msg.sender._safeTransferETH(amountToRedeem);
             // cannot realistically overflow
             unchecked {
                 ++i;
