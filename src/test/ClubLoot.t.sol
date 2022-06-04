@@ -76,11 +76,11 @@ contract ClubLootTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
@@ -189,13 +189,10 @@ contract ClubLootTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(db, 2, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, db, 2, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
         assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
 
@@ -325,13 +322,10 @@ contract ClubLootTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(db, 2, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, db, 2, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
         assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
 
@@ -378,11 +372,11 @@ contract ClubLootTest is Test {
         // Create the Club[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, tooBigMintAmount)
-            : IMember.Member(alice, 0, tooBigMintAmount);
+            ? IMember.Member(false, bob, 1, tooBigMintAmount)
+            : IMember.Member(false, alice, 0, tooBigMintAmount);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, tooBigMintAmount)
-            : IMember.Member(bob, 1, tooBigMintAmount);
+            ? IMember.Member(false, alice, 0, tooBigMintAmount)
+            : IMember.Member(false, bob, 1, tooBigMintAmount);
 
         vm.expectRevert(bytes4(keccak256('Uint192max()')));
         factory.deployClubSig(

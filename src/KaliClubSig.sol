@@ -51,11 +51,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         uint256 value, 
         bytes data
     );
-    event Govern(
-        Member[] members, 
-        bool[] mints, 
-        uint256 quorum
-    );
+    event Govern(Member[] members, uint256 quorum);
     event GovernorSet(address indexed account, bool approved);
     event RedemptionStartSet(uint256 redemptionStart);
     event URIset(string baseURI);
@@ -68,7 +64,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     error QuorumExceedsSigs();
     error BadSigner();
     error ExecuteFailed();
-    error NoArrayParity();
     error NoRedemptionYet();
     error WrongAssetOrder();
 
@@ -358,14 +353,11 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     
     /// @notice Update club configurations for membership and quorum
     /// @param members_ Arrays of `signer, id, loot` for membership
-    /// @param mints_ Boolean array that determines whether mint or burn
     /// @param quorum_ Signature threshold to execute transactions
     function govern(
         Member[] calldata members_,
-        bool[] calldata mints_,
         uint256 quorum_
     ) external payable onlyClubOrGov {
-        if (members_.length != mints_.length) revert NoArrayParity();
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
@@ -377,7 +369,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         // cannot underflow because ownership is checked in burn()
         unchecked {
             for (uint256 i; i < members_.length; ++i) {
-                if (mints_[i]) {
+                if (members_[i].mint) {
                     // mint NFT, update supply
                     _safeMint(members_[i].signer, members_[i].id);
                     ++totalSupply_;
@@ -399,7 +391,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         quorum = quorum_;
         totalSupply = totalSupply_;
 
-        emit Govern(members_, mints_, quorum_);
+        emit Govern(members_, quorum_);
     }
 
     function setGovernor(address account, bool approved)

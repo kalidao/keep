@@ -110,11 +110,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
@@ -139,11 +139,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         ( , clubSigRepeat) = factory.deployClubSig(
             calls,
@@ -160,11 +160,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory clubsRepeat = new IMember.Member[](2);
         clubsRepeat[0] = alice > bob
-            ? IMember.Member(bob, 3, 100)
-            : IMember.Member(alice, 2, 100);
+            ? IMember.Member(false, bob, 3, 100)
+            : IMember.Member(false, alice, 2, 100);
         clubsRepeat[1] = alice > bob
-            ? IMember.Member(alice, 2, 100)
-            : IMember.Member(bob, 3, 100);
+            ? IMember.Member(false, alice, 2, 100)
+            : IMember.Member(false, bob, 3, 100);
 
         vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
         clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE');
@@ -175,11 +175,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         (lootRepeat, ) = factory.deployClubSig(
             calls,
@@ -201,11 +201,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         vm.expectRevert(bytes(''));
         factory.deployClubSig(
@@ -225,11 +225,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
         members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         vm.expectRevert(bytes4(keccak256('QuorumExceedsSigs()')));
         factory.deployClubSig(
@@ -249,11 +249,11 @@ contract ClubSigTest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
         members[1] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
 
         vm.expectRevert(bytes4(keccak256('BadSigner()')));
         factory.deployClubSig(
@@ -286,13 +286,10 @@ contract ClubSigTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(db, 2, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, db, 2, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
 
         assert(clubSig.quorum() == 3);
     }
@@ -598,14 +595,11 @@ contract ClubSigTest is Test {
 
     function testGovernAlreadyMinted() public {
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(alice, 0, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, alice, 0, 100);
 
         vm.expectRevert(bytes4(keccak256('AlreadyMinted()')));
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
     }
 
     function testGovernMint() public {
@@ -613,13 +607,10 @@ contract ClubSigTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(db, 2, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, db, 2, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
         assert(clubSig.totalSupply() == 3);
         assert(clubSig.quorum() == 3);
         assert(loot.totalSupply() == 300);
@@ -627,13 +618,10 @@ contract ClubSigTest is Test {
 
     function testGovernBurn() public {
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(alice, 1, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = false;
+        members[0] = IMember.Member(false, alice, 1, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 1);
+        clubSig.govern(members, 1);
         assert(clubSig.totalSupply() == 1);
         assert(clubSig.quorum() == 1);
         assert(loot.totalSupply() == 100);

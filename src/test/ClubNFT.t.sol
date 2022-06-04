@@ -60,11 +60,11 @@ contract ClubNFTtest is Test {
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(bob, 1, 100)
-            : IMember.Member(alice, 0, 100);
+            ? IMember.Member(false, bob, 1, 100)
+            : IMember.Member(false, alice, 0, 100);
          members[1] = alice > bob
-            ? IMember.Member(alice, 0, 100)
-            : IMember.Member(bob, 1, 100);
+            ? IMember.Member(false, alice, 0, 100)
+            : IMember.Member(false, bob, 1, 100);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
         (loot, clubSig) = factory.deployClubSig(
