@@ -354,10 +354,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// @notice Update club configurations for membership and quorum
     /// @param members_ Arrays of `signer, id, loot` for membership
     /// @param quorum_ Signature threshold to execute transactions
-    function govern(
-        Member[] calldata members_,
-        uint256 quorum_
-    ) external payable onlyClubOrGov {
+    function govern(Member[] calldata members_, uint256 quorum_) external payable onlyClubOrGov {
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
