@@ -189,13 +189,10 @@ contract ClubLootTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(false, db, 2, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, db, 2, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
         assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
 
@@ -325,13 +322,10 @@ contract ClubLootTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(false, db, 2, 100);
-
-        bool[] memory mints = new bool[](1);
-        mints[0] = true;
+        members[0] = IMember.Member(true, db, 2, 100);
 
         vm.prank(address(clubSig));
-        clubSig.govern(members, mints, 3);
+        clubSig.govern(members, 3);
         assert(loot.balanceOf(db) == 100);
         assert(loot.totalSupply() == 300);
 
