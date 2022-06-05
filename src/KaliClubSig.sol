@@ -189,8 +189,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
 
         for (uint256 i; i < members_.length; ) {
             // prevent null and duplicate signers
-            if (prevAddr >= members_[i].signer) 
-                revert InvalidSig(members_[i].signer);
+            if (prevAddr >= members_[i].signer) revert InvalidSig();
             prevAddr = members_[i].signer;
 
             _safeMint(members_[i].signer, members_[i].id);
@@ -280,11 +279,11 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
                         digest,
                         abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
                     ) != IERC1271.isValidSignature.selector
-                ) revert InvalidSig(signer);
+                ) revert InvalidSig();
             }
             // check for NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
-                revert InvalidSig(signer);
+                revert InvalidSig();
             // set prevAddr to signer for next iteration until quorum
             prevAddr = signer;
             // cannot realistically overflow
