@@ -166,7 +166,7 @@ contract ClubSigTest is Test {
             ? IMember.Member(false, alice, 2, 100)
             : IMember.Member(false, bob, 3, 100);
 
-        vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
+        vm.expectRevert(bytes4(keccak256('AlreadyInit()')));
         clubSigRepeat.init(calls, clubsRepeat, 2, 0, false, 'BASE');
     }
 
@@ -193,7 +193,7 @@ contract ClubSigTest is Test {
             'BASE'
         );
 
-        vm.expectRevert(bytes4(keccak256('AlreadyInitialized()')));
+        vm.expectRevert(bytes4(keccak256('AlreadyInit()')));
         lootRepeat.init(alice, members, true);
     }
 
@@ -231,7 +231,7 @@ contract ClubSigTest is Test {
             ? IMember.Member(false, alice, 0, 100)
             : IMember.Member(false, bob, 1, 100);
 
-        vm.expectRevert(bytes4(keccak256('QuorumExceedsSigs()')));
+        vm.expectRevert(bytes4(keccak256('QuorumOverSigs()')));
         factory.deployClubSig(
             calls,
             members,
@@ -255,7 +255,7 @@ contract ClubSigTest is Test {
             ? IMember.Member(false, bob, 1, 100)
             : IMember.Member(false, alice, 0, 100);
 
-        vm.expectRevert(bytes4(keccak256('BadSigner()')));
+        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         factory.deployClubSig(
             calls,
             members,
@@ -468,7 +468,7 @@ contract ClubSigTest is Test {
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert(bytes4(keccak256('BadSigner()')));
+        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -508,7 +508,7 @@ contract ClubSigTest is Test {
         sigs[0] = alice > bob ? aliceSig : bobSig;
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
-        vm.expectRevert(bytes4(keccak256('BadSigner()')));
+        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -546,7 +546,7 @@ contract ClubSigTest is Test {
         sigs[0] = aliceSig;
         sigs[1] = aliceSig;
 
-        vm.expectRevert(bytes4(keccak256('BadSigner()')));
+        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }
@@ -586,7 +586,7 @@ contract ClubSigTest is Test {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert(bytes4(keccak256('BadSigner()')));
+        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
         clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
     }

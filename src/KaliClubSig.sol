@@ -60,9 +60,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error AlreadyInitialized();
-    error QuorumExceedsSigs();
-    error BadSigner();
+    error AlreadyInit();
+    error QuorumOverSigs();
+    error InvalidSig();
     error ExecuteFailed();
     error NoRedemptionYet();
     error WrongAssetOrder();
@@ -166,13 +166,13 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         bool signerPaused_,
         string calldata baseURI_
     ) external payable {
-        if (nonce != 0) revert AlreadyInitialized();
+        if (nonce != 0) revert AlreadyInit();
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
             }
         }
-        if (quorum_ > members_.length) revert QuorumExceedsSigs();
+        if (quorum_ > members_.length) revert QuorumOverSigs();
 
         if (calls_.length != 0) {
             for (uint256 i; i < calls_.length; ) {
@@ -189,7 +189,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
 
         for (uint256 i; i < members_.length; ) {
             // prevent null and duplicate signers
-            if (prevAddr >= members_[i].signer) revert BadSigner();
+            if (prevAddr >= members_[i].signer) revert InvalidSig();
             prevAddr = members_[i].signer;
 
             _safeMint(members_[i].signer, members_[i].id);
@@ -279,11 +279,11 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
                         digest,
                         abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
                     ) != IERC1271.isValidSignature.selector
-                ) revert BadSigner();
+                ) revert InvalidSig();
             }
             // check for NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
-                revert BadSigner();
+                revert InvalidSig();
             // set prevAddr to signer for next iteration until quorum
             prevAddr = signer;
             // cannot realistically overflow
@@ -352,7 +352,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     }
     
     /// @notice Update club configurations for membership and quorum
-    /// @param members_ Arrays of `signer, id, loot` for membership
+    /// @param members_ Arrays of `mint, signer, id, loot` for membership
     /// @param quorum_ Signature threshold to execute transactions
     function govern(Member[] calldata members_, uint256 quorum_) external payable onlyClubOrGov {
         assembly {
@@ -383,7 +383,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         }
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply_) revert QuorumExceedsSigs();
+        if (quorum_ > totalSupply_) revert QuorumOverSigs();
 
         quorum = quorum_;
         totalSupply = totalSupply_;

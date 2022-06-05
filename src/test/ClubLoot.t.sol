@@ -166,7 +166,7 @@ contract ClubLootTest is Test {
         assert(loot.governors(address(clubSig)));
 
         startHoax(alice, alice, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256('NotGov()')));
+        vm.expectRevert(bytes4(keccak256('Forbidden()')));
         loot.setGov(alice, true);
         vm.stopPrank();
 
