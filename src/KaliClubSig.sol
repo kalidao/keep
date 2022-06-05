@@ -60,9 +60,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error AlreadyInitialized();
-    error QuorumExceedsSigs();
-    error BadSigner(address signer);
+    error AlreadyInit();
+    error QuorumOverSigs();
+    error InvalidSig(address signer);
     error ExecuteFailed();
     error NoRedemptionYet();
     error WrongAssetOrder();
@@ -166,7 +166,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         bool signerPaused_,
         string calldata baseURI_
     ) external payable {
-        if (nonce != 0) revert AlreadyInitialized();
+        if (nonce != 0) revert AlreadyInit();
         assembly {
             if iszero(quorum_) {
                 revert(0, 0)
@@ -189,7 +189,8 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
 
         for (uint256 i; i < members_.length; ) {
             // prevent null and duplicate signers
-            if (prevAddr >= members_[i].signer) revert BadSigner();
+            if (prevAddr >= members_[i].signer) 
+                revert InvalidSig(members_[i].signer);
             prevAddr = members_[i].signer;
 
             _safeMint(members_[i].signer, members_[i].id);
@@ -279,11 +280,11 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
                         digest,
                         abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
                     ) != IERC1271.isValidSignature.selector
-                ) revert BadSigner();
+                ) revert InvalidSig(signer);
             }
             // check for NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
-                revert BadSigner(signer);
+                revert InvalidSig(signer);
             // set prevAddr to signer for next iteration until quorum
             prevAddr = signer;
             // cannot realistically overflow
@@ -383,7 +384,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
         }
         // note: also make sure that signers don't concentrate NFTs,
         // since this could cause issues in reaching quorum
-        if (quorum_ > totalSupply_) revert QuorumExceedsSigs();
+        if (quorum_ > totalSupply_) revert QuorumOverSigs();
 
         quorum = quorum_;
         totalSupply = totalSupply_;
