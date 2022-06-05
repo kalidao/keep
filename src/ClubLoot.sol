@@ -295,7 +295,7 @@ contract ClubLoot is IMember, Multicall {
         bytes32 r,
         bytes32 s
     ) external payable {
-        if (block.timestamp > deadline) revert SignatureExpired();
+        if (block.timestamp > deadline) revert SigExpired();
         // unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow
         unchecked {
