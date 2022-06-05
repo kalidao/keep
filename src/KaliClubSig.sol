@@ -62,7 +62,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
 
     error AlreadyInit();
     error QuorumOverSigs();
-    error InvalidSig(address signer);
+    error InvalidSig();
     error ExecuteFailed();
     error NoRedemptionYet();
     error WrongAssetOrder();
