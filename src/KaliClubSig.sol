@@ -172,7 +172,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
                 revert(0, 0)
             }
         }
-        if (quorum_ > members_.length) revert QuorumExceedsSigs();
+        if (quorum_ > members_.length) revert QuorumOverSigs();
 
         if (calls_.length != 0) {
             for (uint256 i; i < calls_.length; ) {
