@@ -43,13 +43,13 @@ contract ClubLoot is IMember, Multicall {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error NotGov();
-    error NotListed();
+    error Forbidden();
+    error Unlisted();
     error Paused();
-    error AlreadyInitialized();
-    error SignatureExpired();
-    error InvalidSignature();
-    error NotDetermined();
+    error AlreadyInit();
+    error SigExpired();
+    error InvalidSig();
+    error Undetermined();
     error Uint64max();
     error Uint192max();
 
@@ -175,7 +175,7 @@ contract ClubLoot is IMember, Multicall {
     
     modifier listCheck(address from, address to) {
         if (listActive) if (!listed[from] || !listed[to])
-            revert NotListed();
+            revert Unlisted();
         _;
     }
 
@@ -185,7 +185,7 @@ contract ClubLoot is IMember, Multicall {
     }
     
     modifier onlyGov() {
-        if (!governors[msg.sender]) revert NotGov();
+        if (!governors[msg.sender]) revert Forbidden();
         _;
     }
     
@@ -198,7 +198,7 @@ contract ClubLoot is IMember, Multicall {
         Member[] calldata members_,
         bool lootPaused_
     ) external payable {
-        if (INITIAL_DOMAIN_SEPARATOR != 0) revert AlreadyInitialized();
+        if (INITIAL_DOMAIN_SEPARATOR != 0) revert AlreadyInit();
 
         uint256 totalSupply_;
 
@@ -324,7 +324,7 @@ contract ClubLoot is IMember, Multicall {
             );
 
             if (recoveredAddress == address(0) || recoveredAddress != owner)
-                revert InvalidSignature();
+                revert InvalidSig();
 
             allowance[recoveredAddress][spender] = value;
         }
@@ -387,7 +387,7 @@ contract ClubLoot is IMember, Multicall {
         view
         returns (uint256)
     {
-        if (block.timestamp <= timestamp) revert NotDetermined();
+        if (block.timestamp <= timestamp) revert Undetermined();
 
         uint256 nCheckpoints = numCheckpoints[account];
 
