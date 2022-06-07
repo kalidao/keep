@@ -154,7 +154,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall {
     /// Initializer
     /// -----------------------------------------------------------------------
     
-    constructor(KaliClubSig renderer_) {
+    constructor(KaliClubSig renderer_) payable {
         renderer = renderer_;
     }
 
