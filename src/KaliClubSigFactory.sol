@@ -45,7 +45,7 @@ contract KaliClubSigFactory is IMember, Multicall {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ClubLoot lootMaster_, KaliClubSig clubMaster_) {
+    constructor(ClubLoot lootMaster_, KaliClubSig clubMaster_) payable {
         lootMaster = lootMaster_;
         clubMaster = clubMaster_;
     }
