@@ -97,7 +97,7 @@ abstract contract ClubNFT {
 
     bool public paused;
 
-    modifier notPaused() {
+    modifier onlyWhenNotPaused() {
         if (paused) revert Paused();
         _;
     }
@@ -144,7 +144,7 @@ abstract contract ClubNFT {
         address from,
         address to,
         uint256 id
-    ) public payable notPaused {
+    ) public payable onlyWhenNotPaused {
         if (from != ownerOf[id]) revert NotOwner();
         if (to == address(0)) revert InvalidRecipient();
         if (
