@@ -317,6 +317,10 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         bytes memory data,
         bool deleg
     ) private returns (bool success) {
+        // cannot realistically overflow
+        unchecked {
+            ++nonce;
+        }
         if (!deleg) {
             // regular 
             assembly {
@@ -344,10 +348,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
             }
         }
         if (!success) revert ExecuteFailed();
-        // cannot realistically overflow
-        unchecked {
-            ++nonce;
-        }
 
         emit Execute(to, value, data);
     }
