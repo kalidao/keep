@@ -75,16 +75,16 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     address private constant eth = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     /// @dev Renderer reference for metadata (set in master contract)
     KaliClubSig private immutable renderer;
-    /// @dev State change tracker - initialized at `1` for cheaper first tx
-    uint256 public nonce;
-    /// @dev Signature (NFT) threshold to execute tx
-    uint256 public quorum;
-    /// @dev Starting period for club redemptions
-    uint256 public redemptionStart;
-    /// @dev Total signer units minted
-    uint256 public totalSupply;
     /// @dev Metadata signifying club
     string private baseURI;
+    /// @dev State change tracker - initialized at `1` for cheaper first tx
+    uint64 public nonce;
+    /// @dev Signature (NFT) threshold to execute tx
+    uint64 public quorum;
+    /// @dev Starting period for club redemptions
+    uint64 public redemptionStart;
+    /// @dev Total signer units minted
+    uint64 public totalSupply;
 
     /// @dev Administrative account tracking
     mapping(address => bool) public governor;
@@ -187,6 +187,8 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         address prevAddr;
         uint256 totalSupply_;
 
+        nonce = 1;
+
         for (uint256 i; i < members_.length; ) {
             // prevent null and duplicate signers
             if (prevAddr >= members_[i].signer) revert InvalidSig();
@@ -200,14 +202,13 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
             }
         }
 
-        ClubNFT._setPause(signerPaused_);
-
-        nonce = 1;
-        quorum = quorum_;
-        redemptionStart = redemptionStart_;
-        totalSupply = totalSupply_;
+        quorum = uint64(quorum_);
+        redemptionStart = uint64(redemptionStart_);
+        totalSupply = uint64(totalSupply_);
         baseURI = baseURI_;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+
+        ClubNFT._setPause(signerPaused_);
     }
 
     /// -----------------------------------------------------------------------
@@ -385,8 +386,8 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         // since this could cause issues in reaching quorum
         if (quorum_ > totalSupply_) revert QuorumOverSigs();
 
-        quorum = quorum_;
-        totalSupply = totalSupply_;
+        quorum = uint64(quorum_);
+        totalSupply = uint64(totalSupply_);
 
         emit Govern(members_, quorum_);
     }
@@ -405,7 +406,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         payable
         onlyClubOrGov
     {
-        redemptionStart = redemptionStart_;
+        redemptionStart = uint64(redemptionStart_);
         emit RedemptionStartSet(redemptionStart_);
     }
 
