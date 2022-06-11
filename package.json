@@ -1,9 +1,10 @@
 {
   "name": "multi-sig",
-  "version": "1.0.1",
+  "version": "1.0.0",
+  "description": "Ethereum multisig contract with tokenized rights",
   "main": "index.js",
   "repository": "https://github.com/kalidao/multi-sig",
-  "author": "Ross Campbell <rosscampbell9@gmail.com>",
+  "author": "KaliCo LLC <kalidao@protonmail.com>",
   "license": "AGPL-3",
   "private": false,
   "scripts": {
