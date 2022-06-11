@@ -256,7 +256,7 @@ contract ClubNFTtest is Test {
 
         assertEq(clubSig.balanceOf(alice), 0);
         assertEq(clubSig.balanceOf(bob), 0);
-        assertEq(clubSig.balanceOf(address(clubSig), 2);
+        assertEq(clubSig.balanceOf(address(clubSig)), 2);
     }
 
     function testSafeTransferFromToInvalidContract() public {
