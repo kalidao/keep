@@ -273,7 +273,7 @@ contract ClubNFTtest is Test {
         vm.stopPrank();
 
         assertEq(clubSig.balanceOf(alice), 1);
-        assertEq(clubSig.balanceOf(address(clubSig), 0);
+        assertEq(clubSig.balanceOf(address(clubSig)), 0);
     }
     
     function testPausedTransfer() public {
