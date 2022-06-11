@@ -242,7 +242,6 @@ contract ClubNFTtest is Test {
         assertEq(clubSig.ownerOf(1), bob);
     }
 
-    /*
     function testSafeTransferFromToContract() public {
         assertEq(clubSig.balanceOf(alice), 1);
 
@@ -273,7 +272,7 @@ contract ClubNFTtest is Test {
 
         assertEq(clubSig.balanceOf(alice), 1);
     }
-    */
+    
     function testPausedTransfer() public {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
         clubSig.setSignerPause(true);
