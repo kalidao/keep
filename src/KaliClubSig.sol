@@ -35,7 +35,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClubSig is IMember, ClubNFT, Multicall {
+contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
