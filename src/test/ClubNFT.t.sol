@@ -245,35 +245,18 @@ contract ClubNFTtest is Test {
     function testSafeTransferFromToContract() public {
         assertEq(clubSig.balanceOf(alice), 1);
         assertEq(clubSig.balanceOf(bob), 1);
-
+        
         startHoax(alice, alice, type(uint256).max);
         clubSig.safeTransferFrom(alice, address(clubSig), 0);
         vm.stopPrank();
-  
+        
         startHoax(bob, bob, type(uint256).max);
-        clubSig.safeTransferFrom(alice, address(clubSig), 1, "");
+        clubSig.safeTransferFrom(bob, address(clubSig), 1, "");
         vm.stopPrank();
 
         assertEq(clubSig.balanceOf(alice), 0);
         assertEq(clubSig.balanceOf(bob), 0);
         assertEq(clubSig.balanceOf(address(clubSig)), 2);
-    }
-
-    function testSafeTransferFromToInvalidContract() public {
-        assertEq(clubSig.balanceOf(alice), 1);
-
-        startHoax(alice, alice, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
-        clubSig.safeTransferFrom(alice, address(loot), 0);
-        vm.stopPrank();
-
-        startHoax(alice, alice, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
-        clubSig.safeTransferFrom(alice, address(loot), 0, "");
-        vm.stopPrank();
-
-        assertEq(clubSig.balanceOf(alice), 1);
-        assertEq(clubSig.balanceOf(address(clubSig)), 0);
     }
     
     function testPausedTransfer() public {
