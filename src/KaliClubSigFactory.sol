@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ClubLoot} from './ClubLoot.sol';
 import {Call, KaliClubSig} from './KaliClubSig.sol';
 
 import {IMember} from './interfaces/IMember.sol';
@@ -26,10 +25,8 @@ contract KaliClubSigFactory is IMember, Multicall {
         Call[] calls,
         Member[] members,
         uint256 quorum,
-        uint256 redemptionStart,
         bytes32 name,
         bytes32 symbol,
-        bool lootPaused,
         bool signerPaused,
         string baseURI
     );
@@ -38,15 +35,13 @@ contract KaliClubSigFactory is IMember, Multicall {
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
     
-    ClubLoot private immutable lootMaster;
     KaliClubSig private immutable clubMaster;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ClubLoot lootMaster_, KaliClubSig clubMaster_) payable {
-        lootMaster = lootMaster_;
+    constructor(KaliClubSig clubMaster_) payable {
         clubMaster = clubMaster_;
     }
 
@@ -58,32 +53,23 @@ contract KaliClubSigFactory is IMember, Multicall {
         Call[] calldata calls_,
         Member[] calldata members_,
         uint256 quorum_,
-        uint256 redemptionStart_,
         bytes32 name_,
         bytes32 symbol_,
-        bool lootPaused_,
         bool signerPaused_,
         string memory baseURI_
-    ) external payable returns (ClubLoot loot, KaliClubSig clubSig) {
+    ) external payable returns (KaliClubSig clubSig) {
         // uniqueness is enforced on club name
-        loot = ClubLoot(
-            address(lootMaster)._clone(name_, abi.encodePacked(name_, symbol_, uint64(block.chainid)))
-        );
-
         clubSig = KaliClubSig(
             address(clubMaster)._clone(
                 name_,
-                abi.encodePacked(name_, symbol_, address(loot), uint64(block.chainid))
+                abi.encodePacked(name_, symbol_, uint64(block.chainid))
             )
         );
-
-        loot.init(address(clubSig), members_, lootPaused_);
 
         clubSig.init{value: msg.value}(
             calls_,
             members_,
             quorum_,
-            redemptionStart_,
             signerPaused_,
             baseURI_
         );
@@ -92,23 +78,15 @@ contract KaliClubSigFactory is IMember, Multicall {
             calls_,
             members_,
             quorum_,
-            redemptionStart_,
             name_,
             symbol_,
-            lootPaused_,
             signerPaused_,
             baseURI_
         );
     }
     
-    function determineClones(
-        bytes32 name, 
-        bytes32 symbol
-    ) external view returns (address loot, address club, bool deployed) {
-        (loot, deployed) = address(lootMaster)._predictDeterministicAddress(
-            name, abi.encodePacked(name, symbol, uint64(block.chainid)));
-            
+    function determineClone(bytes32 name, bytes32 symbol) external view returns (address club, bool deployed) {   
         (club, deployed) = address(clubMaster)._predictDeterministicAddress(
-            name, abi.encodePacked(name, symbol, loot, uint64(block.chainid)));
+            name, abi.encodePacked(name, symbol, uint64(block.chainid)));
     } 
 }
