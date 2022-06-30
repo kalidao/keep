@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {ILoot} from './interfaces/ILoot.sol';
 import {IMember} from './interfaces/IMember.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
-
-import {FixedPointMathLib} from './libraries/FixedPointMathLib.sol';
-import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
 
 import {ClubNFT} from './ClubNFT.sol';
 import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
 /// @title Kali ClubSig
-/// @notice EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers
+/// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
@@ -37,12 +33,6 @@ struct Signature {
 
 contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     /// -----------------------------------------------------------------------
-    /// Library Usage
-    /// -----------------------------------------------------------------------
-
-    using SafeTransferLib for address;
-
-    /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
@@ -53,7 +43,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     );
     event Govern(Member[] members, uint256 quorum);
     event GovernorSet(address indexed account, bool approved);
-    event RedemptionStartSet(uint256 redemptionStart);
     event URIset(string baseURI);
 
     /// -----------------------------------------------------------------------
@@ -64,15 +53,11 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     error QuorumOverSigs();
     error InvalidSig();
     error ExecuteFailed();
-    error NoRedemptionYet();
-    error WrongAssetOrder();
 
     /// -----------------------------------------------------------------------
     /// Club Storage/Logic
     /// -----------------------------------------------------------------------
 
-    /// @dev ETH reference for redemptions
-    address private constant eth = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     /// @dev Renderer reference for metadata (set in master contract)
     KaliClubSig private immutable renderer;
     /// @dev Metadata signifying club
@@ -81,8 +66,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     uint64 public nonce;
     /// @dev Signature (NFT) threshold to execute tx
     uint64 public quorum;
-    /// @dev Starting period for club redemptions
-    uint64 public redemptionStart;
     /// @dev Total signer units minted
     uint64 public totalSupply;
 
@@ -94,15 +77,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         if (msg.sender != address(this) && !governor[msg.sender])
             revert Forbidden();
         _;
-    }
-    
-    /// @dev Economic share reference for this contract
-    function loot() public pure returns (ILoot lootAddr) {
-        uint256 offset = _getImmutableArgsOffset();
-        
-        assembly {
-            lootAddr := shr(0x60, calldataload(add(offset, 0x40)))
-        }
     }
     
     /// @dev Metadata logic that returns external reference if no local
@@ -162,7 +136,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         Call[] calldata calls_,
         Member[] calldata members_,
         uint256 quorum_,
-        uint256 redemptionStart_,
         bool signerPaused_,
         string calldata baseURI_
     ) external payable {
@@ -203,7 +176,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         }
 
         quorum = uint64(quorum_);
-        redemptionStart = uint64(redemptionStart_);
         totalSupply = uint64(totalSupply_);
         baseURI = baseURI_;
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
@@ -371,14 +343,10 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
                     // mint NFT, update supply
                     _safeMint(members_[i].signer, members_[i].id);
                     ++totalSupply_;
-                    // if loot amount, mint loot
-                    if (members_[i].loot != 0) loot().mintShares(members_[i].signer, members_[i].loot);
                 } else {
                     // burn NFT, update supply
                     _burn(members_[i].id);
                     --totalSupply_;
-                    // if loot amount, burn loot
-                    if (members_[i].loot != 0) loot().burnShares(members_[i].signer, members_[i].loot);
                 }
             }
         }
@@ -401,19 +369,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         emit GovernorSet(account, approved);
     }
 
-    function setRedemptionStart(uint256 redemptionStart_)
-        external
-        payable
-        onlyClubOrGov
-    {
-        redemptionStart = uint64(redemptionStart_);
-        emit RedemptionStartSet(redemptionStart_);
-    }
-
-    function setLootPause(bool paused_) external payable onlyClubOrGov {
-        loot().setPause(paused_);
-    }
-
     function setSignerPause(bool paused_) external payable onlyClubOrGov {
         ClubNFT._setPause(paused_);
     }
@@ -421,50 +376,5 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     function setURI(string calldata baseURI_) external payable onlyClubOrGov {
         baseURI = baseURI_;
         emit URIset(baseURI_);
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Redemptions
-    /// -----------------------------------------------------------------------
-    
-    /// @notice Redemption option for `loot` holders
-    /// @param assets Array of assets to redeem out
-    /// @param lootToBurn Amount of `loot` to burn
-    /// @dev Redemption is only available for ETH and ERC-20
-    /// - NFTs will need to be liquidated or fractionalized
-    function ragequit(address[] calldata assets, uint256 lootToBurn)
-        external
-        payable
-    {
-        if (block.timestamp < redemptionStart) revert NoRedemptionYet();
-
-        uint256 lootTotal = loot().totalSupply();
-
-        loot().burnShares(msg.sender, lootToBurn);
-        
-        address prevAddr;
-
-        for (uint256 i; i < assets.length; ) {
-            // prevent null and duplicate assets
-            if (prevAddr >= assets[i]) revert WrongAssetOrder();
-            prevAddr = assets[i];
-            // calculate fair share of given assets for redemption
-            uint256 amountToRedeem = FixedPointMathLib._mulDivDown(
-                lootToBurn,
-                assets[i] != eth
-                    ? ILoot(assets[i]).balanceOf(address(this))
-                    : address(this).balance,
-                lootTotal
-            );
-            // transfer to redeemer
-            if (amountToRedeem != 0)
-                assets[i] != eth
-                    ? assets[i]._safeTransfer(msg.sender, amountToRedeem)
-                    : msg.sender._safeTransferETH(amountToRedeem);
-            // cannot realistically overflow
-            unchecked {
-                ++i;
-            }
-        }
     }
 }
