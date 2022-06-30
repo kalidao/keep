@@ -7,6 +7,5 @@ interface IMember {
         bool mint;
         address signer;
         uint256 id;
-        uint256 loot;
     }
 }
