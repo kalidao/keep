@@ -3,14 +3,12 @@ pragma solidity >=0.8.4;
 
 import {IMember} from '../interfaces/IMember.sol';
 
-import {ClubLoot} from '../ClubLoot.sol';
 import {Call, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
 import '@std/Test.sol';
 
 contract KaliClubSigFactoryTest is Test {
-    ClubLoot loot;
     KaliClubSig clubSig;
     KaliClubSigFactory factory;
 
@@ -37,27 +35,24 @@ contract KaliClubSigFactoryTest is Test {
 
     function setUp() public {
         // create the templates
-        loot = new ClubLoot();
         clubSig = new KaliClubSig(KaliClubSig(alice));
         // create the factory
-        factory = new KaliClubSigFactory(loot, clubSig);
+        factory = new KaliClubSigFactory(clubSig);
     }
 
     function testDeployClubSig() public {
         KaliClubSig depClubSig;
         // create the Club[]
         IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = IMember.Member(false, alice, 0, 100);
-        members[1] = IMember.Member(false, bob, 1, 100);
+        members[0] = IMember.Member(false, alice, 0);
+        members[1] = IMember.Member(false, bob, 1);
         // vm.expectEmit(true, true, false, false);
-        (, depClubSig) = factory.deployClubSig(
+        depClubSig = factory.deployClubSig(
             calls,
             members,
             2,
-            0,
             name,
             symbol,
-            false,
             false,
             'BASE'
         );
@@ -73,30 +68,23 @@ contract KaliClubSigFactoryTest is Test {
     }
 
     function testCloneAddressDetermination() public {
-        ClubLoot depLoot;
         KaliClubSig depClubSig;
         // create the Club[]
         IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = IMember.Member(false, alice, 0, 100);
-        members[1] = IMember.Member(false, bob, 1, 100);
+        members[0] = IMember.Member(false, alice, 0);
+        members[1] = IMember.Member(false, bob, 1);
         // vm.expectEmit(true, true, false, false);
-        (depLoot, depClubSig) = factory.deployClubSig(
+        depClubSig = factory.deployClubSig(
             calls,
             members,
             2,
-            0,
             name,
             symbol,
-            false,
             false,
             'BASE'
         );
         // check CREATE2 clones match expected outputs
-        (address lootAddr, address clubAddr, bool deployed) = factory.determineClones(name, symbol);
-        assertEq(
-            address(depLoot),
-            lootAddr
-        );
+        (address clubAddr, bool deployed) = factory.determineClone(name, symbol);
         assertEq(
             address(depClubSig),
             clubAddr
@@ -105,7 +93,7 @@ contract KaliClubSigFactoryTest is Test {
             deployed,
             true
         );
-        (, , bool deployed2) = factory.determineClones(name2, symbol2);
+        (, bool deployed2) = factory.determineClone(name2, symbol2);
         assertEq(
             deployed2,
             false
