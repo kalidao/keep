@@ -3,7 +3,6 @@ pragma solidity >=0.8.4;
 
 import {IMember} from '../interfaces/IMember.sol';
 
-import {ClubLoot} from '../ClubLoot.sol';
 import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
 import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
 
@@ -12,7 +11,6 @@ import '@std/Test.sol';
 contract ClubNFTtest is Test {
     using stdStorage for StdStorage;
 
-    ClubLoot loot;
     KaliClubSig clubSig;
     KaliClubSigFactory factory;
 
@@ -51,30 +49,27 @@ contract ClubNFTtest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        loot = new ClubLoot();
         clubSig = new KaliClubSig(KaliClubSig(alice));
 
         // Create the factory
-        factory = new KaliClubSigFactory(loot, clubSig);
+        factory = new KaliClubSigFactory(clubSig);
 
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
-            ? IMember.Member(false, bob, 1, 100)
-            : IMember.Member(false, alice, 0, 100);
+            ? IMember.Member(false, bob, 1)
+            : IMember.Member(false, alice, 0);
          members[1] = alice > bob
-            ? IMember.Member(false, alice, 0, 100)
-            : IMember.Member(false, bob, 1, 100);
+            ? IMember.Member(false, alice, 0)
+            : IMember.Member(false, bob, 1);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        (loot, clubSig) = factory.deployClubSig(
+        (clubSig) = factory.deployClubSig(
             calls,
             members,
             2,
-            0,
             name,
             symbol,
-            false,
             false,
             'BASE'
         );
