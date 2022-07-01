@@ -139,7 +139,7 @@ contract ClubSigTest is Test {
             ? IMember.Member(false, alice, 0)
             : IMember.Member(false, bob, 1);
 
-        ( , clubSigRepeat) = factory.deployClubSig(
+        clubSigRepeat = factory.deployClubSig(
             calls,
             members,
             2,
@@ -241,7 +241,7 @@ contract ClubSigTest is Test {
         address db = address(0xdeadbeef);
 
         IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(true, db, 2, 100);
+        members[0] = IMember.Member(true, db, 2);
 
         vm.prank(address(clubSig));
         clubSig.govern(members, 3);
