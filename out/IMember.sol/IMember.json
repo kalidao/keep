@@ -1,0 +1,158 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "C:\\Users\\rossc\\sign\\src\\interfaces\\IMember.sol",
+    "exportedSymbols": {
+      "IMember": [
+        22259
+      ]
+    },
+    "id": 22260,
+    "license": "AGPL-3.0-only",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 22250,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "43:24:27"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IMember",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 22251,
+          "nodeType": "StructuredDocumentation",
+          "src": "71:47:27",
+          "text": "@notice Kali ClubSig membership interface"
+        },
+        "fullyImplemented": true,
+        "id": 22259,
+        "linearizedBaseContracts": [
+          22259
+        ],
+        "name": "IMember",
+        "nameLocation": "128:7:27",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IMember.Member",
+            "id": 22258,
+            "members": [
+              {
+                "constant": false,
+                "id": 22253,
+                "mutability": "mutable",
+                "name": "mint",
+                "nameLocation": "173:4:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 22258,
+                "src": "168:9:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 22252,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "168:4:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 22255,
+                "mutability": "mutable",
+                "name": "signer",
+                "nameLocation": "196:6:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 22258,
+                "src": "188:14:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 22254,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "188:7:27",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 22257,
+                "mutability": "mutable",
+                "name": "id",
+                "nameLocation": "221:2:27",
+                "nodeType": "VariableDeclaration",
+                "scope": 22258,
+                "src": "213:10:27",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 22256,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "213:7:27",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Member",
+            "nameLocation": "150:6:27",
+            "nodeType": "StructDefinition",
+            "scope": 22259,
+            "src": "143:88:27",
+            "visibility": "public"
+          }
+        ],
+        "scope": 22260,
+        "src": "118:116:27",
+        "usedErrors": []
+      }
+    ],
+    "src": "43:193:27"
+  }
+}

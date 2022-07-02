@@ -56,15 +56,6 @@ contract KaliClubSigFactoryTest is Test {
             false,
             'BASE'
         );
-        // sanity check initialization
-        assertEq(
-            keccak256(bytes(depClubSig.tokenURI(1))),
-            keccak256(bytes('BASE'))
-        );
-        assertEq(
-            depClubSig.totalSupply(),
-            2
-        );
     }
 
     function testCloneAddressDetermination() public {
