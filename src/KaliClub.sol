@@ -8,7 +8,7 @@ import {ClubNFT} from './ClubNFT.sol';
 import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
-/// @title Kali ClubSig
+/// @title Kali Club
 /// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
@@ -38,12 +38,13 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
+contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
     event Execute(
+        Operation op,
         address indexed to, 
         uint256 value, 
         bytes data
@@ -72,7 +73,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     /// -----------------------------------------------------------------------
 
     /// @dev Renderer for metadata (set in master contract)
-    KaliClubSig private immutable renderer;
+    KaliClub private immutable renderer;
     /// @dev Metadata emblem for club
     string private baseURI;
     /// @dev Tx counter - initialized at `1` for cheaper first tx
@@ -141,7 +142,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
     /// Initializer
     /// -----------------------------------------------------------------------
     
-    constructor(KaliClubSig _renderer) payable {
+    constructor(KaliClub _renderer) payable {
         renderer = _renderer;
     }
 
@@ -215,7 +216,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         bytes calldata data,
         uint256 txNonce
     ) public view returns (bytes32) {
-        // exposed to precompute digest when signing
         return 
             keccak256(
                 abi.encodePacked(
@@ -252,9 +252,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         bytes calldata data,
         Signature[] calldata sigs
     ) external payable returns (bool success) {
-        // begin signature validation with payload hash
+        // begin signature validation with call data
         bytes32 digest = getDigest(op, to, value, data, nonce);
-        // starting from zero address in loop to ensure addresses are ascending
+        // start from null in loop to ensure ascending addresses
         address prevAddr;
         // validation is length of quorum threshold 
         uint256 threshold = quorum;
@@ -267,8 +267,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
                 sigs[i].s
             );
 
-            // check for conformant contract signature using EIP-1271
-            // - branching on whether signer is contract
+            // check contract signature using EIP-1271
             if (signer.code.length != 0) {
                 if (
                     IERC1271(signer).isValidSignature(
@@ -278,7 +277,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
                 ) revert InvalidSig();
             }
 
-            // check for NFT balance and duplicates
+            // check NFT balance and duplicates
             if (balanceOf[signer] == 0 || prevAddr >= signer)
                 revert InvalidSig();
 
@@ -332,7 +331,6 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
         }
 
         if (op == Operation.call) {
-            // regular 
             assembly {
                 success := call(
                     gas(),
@@ -344,8 +342,9 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
                     0
                 )
             }
+
+            emit Execute(op, to, value, data);
         } else if (op == Operation.delegateCall) {
-            // delegate
             assembly {
                 success := delegatecall(
                     gas(),
@@ -356,15 +355,21 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
                     0
                 )
             }
-        } else {
+
+            emit Execute(op, to, value, data);
+        } else if (op == Operation.create) {
             assembly {
                 success := create(value, add(data, 0x20), mload(data))
+            }
+        } else {
+            bytes32 salt = bytes32(bytes20(to));
+
+            assembly {
+                success := create2(value, add(0x20, data), mload(data), salt)
             }
         }
 
         if (!success) revert ExecuteFailed();
-
-        emit Execute(to, value, data);
     }
     
     /// @notice Update club configurations for membership and quorum

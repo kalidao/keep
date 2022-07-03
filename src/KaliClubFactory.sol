@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Call, KaliClubSig} from './KaliClubSig.sol';
+import {Call, KaliClub} from './KaliClub.sol';
 
 import {IMember} from './interfaces/IMember.sol';
 
@@ -10,7 +10,7 @@ import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
 import {Multicall} from './utils/Multicall.sol';
 
 /// @notice Kali ClubSig Factory
-contract KaliClubSigFactory is IMember, Multicall {
+contract KaliClubFactory is IMember, Multicall {
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -35,53 +35,53 @@ contract KaliClubSigFactory is IMember, Multicall {
     /// Immutable Parameters
     /// -----------------------------------------------------------------------
     
-    KaliClubSig private immutable clubMaster;
+    KaliClub private immutable clubMaster;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(KaliClubSig clubMaster_) payable {
-        clubMaster = clubMaster_;
+    constructor(KaliClub _clubMaster) payable {
+        clubMaster = _clubMaster;
     }
 
     /// -----------------------------------------------------------------------
     /// Deployment
     /// -----------------------------------------------------------------------
 
-    function deployClubSig(
-        Call[] calldata calls_,
-        Member[] calldata members_,
-        uint256 quorum_,
-        bytes32 name_,
-        bytes32 symbol_,
-        bool signerPaused_,
-        string memory baseURI_
-    ) external payable returns (KaliClubSig clubSig) {
+    function deployClub(
+        Call[] calldata calls,
+        Member[] calldata members,
+        uint256 quorum,
+        bytes32 name,
+        bytes32 symbol,
+        bool signerPaused,
+        string memory baseURI
+    ) external payable returns (KaliClub club) {
         // uniqueness is enforced on club name
-        clubSig = KaliClubSig(
+        club = KaliClubSig(
             address(clubMaster)._clone(
-                name_,
-                abi.encodePacked(name_, symbol_, uint64(block.chainid))
+                name,
+                abi.encodePacked(name, symbol, uint64(block.chainid))
             )
         );
 
-        clubSig.init{value: msg.value}(
-            calls_,
-            members_,
-            quorum_,
-            signerPaused_,
-            baseURI_
+        club.init{value: msg.value}(
+            calls,
+            members,
+            quorum,
+            signerPaused,
+            baseURI
         );
 
         emit ClubDeployed(
-            calls_,
-            members_,
-            quorum_,
-            name_,
-            symbol_,
-            signerPaused_,
-            baseURI_
+            calls,
+            members,
+            quorum,
+            name,
+            symbol,
+            signerPaused,
+            baseURI
         );
     }
     

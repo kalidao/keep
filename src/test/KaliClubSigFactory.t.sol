@@ -3,14 +3,14 @@ pragma solidity >=0.8.4;
 
 import {IMember} from '../interfaces/IMember.sol';
 
-import {Call, KaliClubSig} from '../KaliClubSig.sol';
-import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
+import {Call, KaliClub} from '../KaliClub.sol';
+import {KaliClubFactory} from '../KaliClubFactory.sol';
 
 import '@std/Test.sol';
 
 contract KaliClubSigFactoryTest is Test {
-    KaliClubSig clubSig;
-    KaliClubSigFactory factory;
+    KaliClub clubSig;
+    KaliClubFactory factory;
 
     /// @dev Users
 
@@ -35,19 +35,19 @@ contract KaliClubSigFactoryTest is Test {
 
     function setUp() public {
         // create the templates
-        clubSig = new KaliClubSig(KaliClubSig(alice));
+        clubSig = new KaliClub(KaliClubSig(alice));
         // create the factory
-        factory = new KaliClubSigFactory(clubSig);
+        factory = new KaliClubFactory(clubSig);
     }
 
     function testDeployClubSig() public {
-        KaliClubSig depClubSig;
+        KaliClub depClubSig;
         // create the Club[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = IMember.Member(false, alice, 0);
         members[1] = IMember.Member(false, bob, 1);
         // vm.expectEmit(true, true, false, false);
-        depClubSig = factory.deployClubSig(
+        depClubSig = factory.deployClub(
             calls,
             members,
             2,
@@ -59,13 +59,13 @@ contract KaliClubSigFactoryTest is Test {
     }
 
     function testCloneAddressDetermination() public {
-        KaliClubSig depClubSig;
+        KaliClub depClubSig;
         // create the Club[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = IMember.Member(false, alice, 0);
         members[1] = IMember.Member(false, bob, 1);
         // vm.expectEmit(true, true, false, false);
-        depClubSig = factory.deployClubSig(
+        depClubSig = factory.deployClub(
             calls,
             members,
             2,

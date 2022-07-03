@@ -3,8 +3,8 @@ pragma solidity >=0.8.4;
 
 import {IMember} from '../interfaces/IMember.sol';
 
-import {Call, Signature, KaliClubSig} from '../KaliClubSig.sol';
-import {KaliClubSigFactory} from '../KaliClubSigFactory.sol';
+import {Operation, Call, Signature, KaliClub} from '../KaliClub.sol';
+import {KaliClubFactory} from '../KaliClubFactory.sol';
 
 import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
 
@@ -13,9 +13,9 @@ import '@std/Test.sol';
 contract ClubSigTest is Test {
     using stdStorage for StdStorage;
 
-    KaliClubSig clubSig;
-    KaliClubSig clubSigRepeat;
-    KaliClubSigFactory factory;
+    KaliClub clubSig;
+    KaliClub clubSigRepeat;
+    KaliClubFactory factory;
     MockERC20 mockDai;
 
     /// @dev Users
@@ -38,13 +38,6 @@ contract ClubSigTest is Test {
     address public immutable nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
 
     /// @dev Helpers
-
-    enum Operation {
-        call,
-        delegateCall,
-        create,
-        create2
-    }
 
     Call[] calls;
 
@@ -100,7 +93,7 @@ contract ClubSigTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        clubSig = new KaliClubSig(KaliClubSig(alice));
+        clubSig = new KaliClub(KaliClub(alice));
         mockDai = new MockERC20('Dai', 'DAI', 18);
         chainId = block.chainid;
 
@@ -108,7 +101,7 @@ contract ClubSigTest is Test {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubSigFactory(clubSig);
+        factory = new KaliClubFactory(clubSig);
 
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
@@ -120,7 +113,7 @@ contract ClubSigTest is Test {
             : IMember.Member(false, bob, 1);
 
         // The factory is fully tested in KaliClubSigFactory.t.sol
-        clubSig = factory.deployClubSig(
+        clubSig = factory.deployClub(
             calls,
             members,
             2,
@@ -136,7 +129,7 @@ contract ClubSigTest is Test {
     /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
-        clubSigRepeat = new KaliClubSig(KaliClubSig(alice));
+        clubSigRepeat = new KaliClub(KaliClub(alice));
         // Create the Member[]
         IMember.Member[] memory members = new IMember.Member[](2);
         members[0] = alice > bob
@@ -146,7 +139,7 @@ contract ClubSigTest is Test {
             ? IMember.Member(false, alice, 0)
             : IMember.Member(false, bob, 1);
 
-        clubSigRepeat = factory.deployClubSig(
+        clubSigRepeat = factory.deployClub(
             calls,
             members,
             2,
@@ -180,7 +173,7 @@ contract ClubSigTest is Test {
             : IMember.Member(false, bob, 1);
 
         vm.expectRevert(bytes(''));
-        factory.deployClubSig(
+        factory.deployClub(
             calls,
             members,
             0,
@@ -202,7 +195,7 @@ contract ClubSigTest is Test {
             : IMember.Member(false, bob, 1);
 
         vm.expectRevert(bytes4(keccak256('QuorumOverSigs()')));
-        factory.deployClubSig(
+        factory.deployClub(
             calls,
             members,
             3,
@@ -224,7 +217,7 @@ contract ClubSigTest is Test {
             : IMember.Member(false, alice, 0);
 
         vm.expectRevert(bytes4(keccak256('InvalidSig()')));
-        factory.deployClubSig(
+        factory.deployClub(
             calls,
             members,
             2,
@@ -328,7 +321,7 @@ contract ClubSigTest is Test {
 
         Call[] memory call = new Call[](1);
 
-        call[0].op = 0;
+        call[0].op = Operation.call;
         call[0].to = address(mockDai);
         call[0].value = 0;
         call[0].data = data;
@@ -345,7 +338,7 @@ contract ClubSigTest is Test {
         address aliceAddress = alice;
         bytes memory tx_data = '';
 
-        if (op == 0) {
+        if (op == Operation.call) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -354,7 +347,7 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        } else if (op == 1) {
+        } else if (op == Operation.delegateCall) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -362,6 +355,8 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x60))
             }
+        } else {
+            return;
         }
 
         Signature[] memory sigs = new Signature[](2);
@@ -381,12 +376,12 @@ contract ClubSigTest is Test {
 
     /// @notice Check execution malconditions
 
-    function testExecuteWithImproperSignatures(bool deleg) public {
+    function testExecuteWithImproperSignatures(Operation op) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = '';
 
-        if (!deleg) {
+        if (op == Operation.call) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -395,7 +390,7 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        } else {
+        } else if (op == Operation.delegateCall) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -403,6 +398,8 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x60))
             }
+        } else {
+            return;
         }
 
         Signature[] memory sigs = new Signature[](2);
@@ -410,13 +407,13 @@ contract ClubSigTest is Test {
         Signature memory aliceSig;
         Signature memory charlieSig;
 
-        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        aliceSig = signExecution(op, alicesPk, address(mockDai), 0, tx_data);
         charlieSig = signExecution(
+            op,
             charliesPk,
             address(mockDai),
             0,
-            tx_data,
-            deleg
+            tx_data
         );
 
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
@@ -424,15 +421,15 @@ contract ClubSigTest is Test {
 
         vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(op, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteWithSignaturesOutOfOrder(bool deleg) public {
+    function testExecuteWithSignaturesOutOfOrder(Operation op) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = '';
 
-        if (!deleg) {
+        if (op == Operation.call) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -441,7 +438,7 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        } else {
+        } else if (op == Operation.delegateCall) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -449,6 +446,8 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x60))
             }
+        } else {
+            return;
         }
 
         Signature[] memory sigs = new Signature[](2);
@@ -456,23 +455,23 @@ contract ClubSigTest is Test {
         Signature memory aliceSig;
         Signature memory bobSig;
 
-        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
-        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+        aliceSig = signExecution(alicesPk, op, address(mockDai), 0, tx_data);
+        bobSig = signExecution(bobsPk, op, address(mockDai), 0, tx_data);
 
         sigs[0] = alice > bob ? aliceSig : bobSig;
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
         vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(op, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteWithSignaturesRepeated(bool deleg) public {
+    function testExecuteWithSignaturesRepeated(Operation op) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = '';
 
-        if (!deleg) {
+        if (op == Operation.call) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -481,7 +480,7 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        } else {
+        } else if (op == Operation.delegateCall) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -489,28 +488,30 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x60))
             }
+        } else {
+            return;
         }
 
         Signature[] memory sigs = new Signature[](2);
 
         Signature memory aliceSig;
 
-        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
+        aliceSig = signExecution(alicesPk, op, address(mockDai), 0, tx_data);
 
         sigs[0] = aliceSig;
         sigs[1] = aliceSig;
 
         vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(op, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteWithNullSignatures(bool deleg) public {
+    function testExecuteWithNullSignatures(Operation op) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = '';
 
-        if (!deleg) {
+        if (op == Operation.call) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -519,7 +520,7 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        } else {
+        } else if (op == Operation.delegateCall) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -527,6 +528,8 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x60))
             }
+        } else {
+            return;
         }
 
         Signature[] memory sigs = new Signature[](2);
@@ -534,15 +537,15 @@ contract ClubSigTest is Test {
         Signature memory aliceSig;
         Signature memory nullSig;
 
-        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
-        nullSig = signExecution(nullPk, address(mockDai), 0, tx_data, deleg);
+        aliceSig = signExecution(alicesPk, op, address(mockDai), 0, tx_data);
+        nullSig = signExecution(nullPk, op, address(mockDai), 0, tx_data);
 
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
         vm.expectRevert(bytes4(keccak256('InvalidSig()')));
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(op, address(mockDai), 0, tx_data, sigs);
     }
 
     /// @notice Check governance
