@@ -331,7 +331,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
             ++nonce;
         }
 
-        if (op.call) {
+        if (op == Operation.call) {
             // regular 
             assembly {
                 success := call(
@@ -344,7 +344,7 @@ contract KaliClubSig is IMember, ClubNFT, Multicall, NFTreceiver {
                     0
                 )
             }
-        } else if (op.delegateCall) {
+        } else if (op == Operation.delegateCall) {
             // delegate
             assembly {
                 success := delegatecall(
