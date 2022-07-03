@@ -31,7 +31,7 @@
       "versionRequirement": ">=0.5.0",
       "artifacts": {
         "DSTest": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "test.sol\\DSTest.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "test.sol\\DSTest.json"
         }
       }
     },
@@ -70,16 +70,16 @@
       "versionRequirement": ">=0.6.0, <0.9.0",
       "artifacts": {
         "Test": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\Test.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\Test.json"
         },
         "stdError": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\stdError.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdError.json"
         },
         "stdMath": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\stdMath.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdMath.json"
         },
         "stdStorage": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\stdStorage.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdStorage.json"
         }
       }
     },
@@ -113,7 +113,7 @@
       "versionRequirement": ">=0.6.0",
       "artifacts": {
         "Vm": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "Vm.sol\\Vm.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "Vm.sol\\Vm.json"
         }
       }
     },
@@ -147,7 +147,7 @@
       "versionRequirement": ">=0.4.22, <0.9.0",
       "artifacts": {
         "console": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "console.sol\\console.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "console.sol\\console.json"
         }
       }
     },
@@ -181,7 +181,7 @@
       "versionRequirement": ">=0.4.22, <0.9.0",
       "artifacts": {
         "console2": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "console2.sol\\console2.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "console2.sol\\console2.json"
         }
       }
     },
@@ -217,7 +217,7 @@
       "versionRequirement": ">=0.8.0",
       "artifacts": {
         "MockERC20": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "MockERC20.sol\\MockERC20.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "MockERC20.sol\\MockERC20.json"
         }
       }
     },
@@ -251,7 +251,7 @@
       "versionRequirement": ">=0.8.0",
       "artifacts": {
         "ERC20": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "ERC20.sol\\ERC20.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC20.sol\\ERC20.json"
         }
       }
     },
@@ -285,10 +285,10 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ClubNFT": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "ClubNFT.sol\\ClubNFT.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClubNFT.sol\\ClubNFT.json"
         },
         "ERC721TokenReceiver": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "ClubNFT.sol\\ERC721TokenReceiver.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClubNFT.sol\\ERC721TokenReceiver.json"
         }
       }
     },
@@ -328,7 +328,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "KaliClub": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClub.sol\\KaliClub.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.sol\\KaliClub.json"
         }
       }
     },
@@ -370,7 +370,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "KaliClubFactory": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
         }
       }
     },
@@ -404,7 +404,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "IERC1271": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "IERC1271.sol\\IERC1271.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "IERC1271.sol\\IERC1271.json"
         }
       }
     },
@@ -438,7 +438,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ILoot": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "ILoot.sol\\ILoot.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ILoot.sol\\ILoot.json"
         }
       }
     },
@@ -472,7 +472,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "IMember": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "IMember.sol\\IMember.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "IMember.sol\\IMember.json"
         }
       }
     },
@@ -506,7 +506,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ClonesWithImmutableArgs": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
         }
       }
     },
@@ -540,7 +540,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "FixedPointMathLib": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
         }
       }
     },
@@ -574,7 +574,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "SafeTransferLib": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
         }
       }
     },
@@ -622,7 +622,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ClubNFTtest": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "ClubNFT.t.sol\\ClubNFTtest.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClubNFT.t.sol\\ClubNFTtest.json"
         }
       }
     },
@@ -672,7 +672,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ClubTest": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
         }
       }
     },
@@ -720,7 +720,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "KaliClubSigFactoryTest": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
         }
       }
     },
@@ -754,7 +754,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "Multicall": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "Multicall.sol\\Multicall.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "Multicall.sol\\Multicall.json"
         }
       }
     },
@@ -788,7 +788,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "NFTreceiver": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
         }
       }
     }
