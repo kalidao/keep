@@ -59,7 +59,7 @@ contract KaliClubFactory is IMember, Multicall {
         string memory baseURI
     ) external payable returns (KaliClub club) {
         // uniqueness is enforced on club name
-        club = KaliClubSig(
+        club = KaliClub(
             address(clubMaster)._clone(
                 name,
                 abi.encodePacked(name, symbol, uint64(block.chainid))

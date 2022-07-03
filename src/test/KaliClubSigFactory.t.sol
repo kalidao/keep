@@ -35,7 +35,7 @@ contract KaliClubSigFactoryTest is Test {
 
     function setUp() public {
         // create the templates
-        clubSig = new KaliClub(KaliClubSig(alice));
+        clubSig = new KaliClub(KaliClub(alice));
         // create the factory
         factory = new KaliClubFactory(clubSig);
     }

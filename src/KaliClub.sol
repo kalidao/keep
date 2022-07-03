@@ -20,7 +20,7 @@ import {NFTreceiver} from './utils/NFTreceiver.sol';
 
 enum Operation {
     call,
-    delegateCall,
+    delegatecall,
     create,
     create2
 }
@@ -344,7 +344,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
             }
 
             emit Execute(op, to, value, data);
-        } else if (op == Operation.delegateCall) {
+        } else if (op == Operation.delegatecall) {
             assembly {
                 success := delegatecall(
                     gas(),

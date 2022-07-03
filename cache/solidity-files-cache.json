@@ -29,7 +29,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.5.0",
-      "artifacts": {}
+      "artifacts": {
+        "DSTest": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "test.sol\\DSTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib/forge-std/src/Test.sol": {
       "lastModificationDate": 1656863796764,
@@ -64,7 +68,20 @@
         "lib\\forge-std\\src\\console2.sol"
       ],
       "versionRequirement": ">=0.6.0, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "Test": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\Test.json"
+        },
+        "stdError": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\stdError.json"
+        },
+        "stdMath": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\stdMath.json"
+        },
+        "stdStorage": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "Test.sol\\stdStorage.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\Vm.sol": {
       "lastModificationDate": 1656863796767,
@@ -94,7 +111,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.6.0",
-      "artifacts": {}
+      "artifacts": {
+        "Vm": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "Vm.sol\\Vm.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console.sol": {
       "lastModificationDate": 1656863796769,
@@ -124,7 +145,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "console": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "console.sol\\console.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console2.sol": {
       "lastModificationDate": 1656863796771,
@@ -154,7 +179,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "console2": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "console2.sol\\console2.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
       "lastModificationDate": 1656863801095,
@@ -186,7 +215,11 @@
         "lib\\solmate\\src\\tokens\\ERC20.sol"
       ],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {}
+      "artifacts": {
+        "MockERC20": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "MockERC20.sol\\MockERC20.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\solmate\\src\\tokens\\ERC20.sol": {
       "lastModificationDate": 1656863801109,
@@ -216,7 +249,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {}
+      "artifacts": {
+        "ERC20": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "ERC20.sol\\ERC20.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\ClubNFT.sol": {
       "lastModificationDate": 1656863777025,
@@ -246,11 +283,18 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClubNFT": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "ClubNFT.sol\\ClubNFT.json"
+        },
+        "ERC721TokenReceiver": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "ClubNFT.sol\\ERC721TokenReceiver.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
-      "lastModificationDate": 1656869716087,
-      "contentHash": "cf5afced04ca913a3721db4c6c7bce50",
+      "lastModificationDate": 1656871769605,
+      "contentHash": "4b9ff55ec38dc1310c5d4bcee8dd19e4",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -282,11 +326,15 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClub": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClub.sol\\KaliClub.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1656869718057,
-      "contentHash": "bbd2c6171e56a6a07d1cabebac1a2dcc",
+      "lastModificationDate": 1656869954751,
+      "contentHash": "44f2255f8f7aaf5a794b9e80c5fda707",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
         "settings": {
@@ -320,7 +368,11 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubFactory": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IERC1271.sol": {
       "lastModificationDate": 1656863777040,
@@ -350,7 +402,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "IERC1271": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "IERC1271.sol\\IERC1271.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\interfaces\\ILoot.sol": {
       "lastModificationDate": 1656863777040,
@@ -380,7 +436,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ILoot": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "ILoot.sol\\ILoot.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IMember.sol": {
       "lastModificationDate": 1656863787647,
@@ -410,7 +470,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "IMember": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "IMember.sol\\IMember.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\ClonesWithImmutableArgs.sol": {
       "lastModificationDate": 1656863777040,
@@ -440,7 +504,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClonesWithImmutableArgs": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\FixedPointMathLib.sol": {
       "lastModificationDate": 1656863777040,
@@ -470,7 +538,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "FixedPointMathLib": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\SafeTransferLib.sol": {
       "lastModificationDate": 1656863777054,
@@ -500,7 +572,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "SafeTransferLib": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\ClubNFT.t.sol": {
       "lastModificationDate": 1656869400739,
@@ -544,11 +620,15 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClubNFTtest": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "ClubNFT.t.sol\\ClubNFTtest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubSig.t.sol": {
-      "lastModificationDate": 1656869285741,
-      "contentHash": "30238383435b05be3784625dfde1ae36",
+      "lastModificationDate": 1656872353699,
+      "contentHash": "97efb435c93f7985fb8d986dcdbd5ecc",
       "sourceName": "src\\test\\KaliClubSig.t.sol",
       "solcConfig": {
         "settings": {
@@ -590,11 +670,15 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClubTest": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubSig.t.sol\\ClubTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubSigFactory.t.sol": {
-      "lastModificationDate": 1656869539101,
-      "contentHash": "27bc31194d4404b2b7f3dc608a026a63",
+      "lastModificationDate": 1656869980756,
+      "contentHash": "2f7e9899a8d98e6f8de7256f90a661b2",
       "sourceName": "src\\test\\KaliClubSigFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -634,7 +718,11 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubSigFactoryTest": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubSigFactory.t.sol\\KaliClubSigFactoryTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\utils\\Multicall.sol": {
       "lastModificationDate": 1656863777058,
@@ -664,7 +752,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "Multicall": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "Multicall.sol\\Multicall.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\utils\\NFTreceiver.sol": {
       "lastModificationDate": 1656863777058,
@@ -694,7 +786,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "NFTreceiver": {
+          "0.8.14+commit.80d49f37.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
+        }
+      }
     }
   }
 }
