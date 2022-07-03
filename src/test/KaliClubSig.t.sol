@@ -39,6 +39,13 @@ contract ClubSigTest is Test {
 
     /// @dev Helpers
 
+    enum Operation {
+        call,
+        delegateCall,
+        create,
+        create2
+    }
+
     Call[] calls;
 
     uint256 chainId;
@@ -67,10 +74,10 @@ contract ClubSigTest is Test {
 
     function signExecution(
         uint256 pk,
+        Operation op,
         address to,
         uint256 value,
-        bytes memory data,
-        bool deleg
+        bytes memory data
     ) internal returns (Signature memory sig) {
         uint8 v;
         bytes32 r;
@@ -78,7 +85,7 @@ contract ClubSigTest is Test {
 
         (v, r, s) = vm.sign(
             pk,
-            clubSig.getDigest(address(to), value, data, deleg, clubSig.nonce())
+            clubSig.getDigest(op, address(to), value, data, clubSig.nonce())
         );
         // set 'wrong v' to return null signer for tests
         if (pk == nullPk) v = 17;
@@ -321,10 +328,10 @@ contract ClubSigTest is Test {
 
         Call[] memory call = new Call[](1);
 
+        call[0].op = 0;
         call[0].to = address(mockDai);
         call[0].value = 0;
         call[0].data = data;
-        call[0].deleg = false;
 
         clubSig.batchExecute(call);
         vm.stopPrank();
@@ -333,12 +340,12 @@ contract ClubSigTest is Test {
         assert((nonceInit + 1) == nonceAfter);
     }
 
-    function testExecuteWithSignatures(bool deleg) public {
+    function testExecuteWithSignatures(Operation op) public {
         mockDai.transfer(address(clubSig), 100);
         address aliceAddress = alice;
         bytes memory tx_data = '';
 
-        if (!deleg) {
+        if (op == 0) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -347,7 +354,7 @@ contract ClubSigTest is Test {
                 // Update free memory pointer
                 mstore(0x40, add(tx_data, 0x80))
             }
-        } else {
+        } else if (op == 1) {
             assembly {
                 mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
                 mstore(add(tx_data, 0x24), aliceAddress)
@@ -362,14 +369,14 @@ contract ClubSigTest is Test {
         Signature memory aliceSig;
         Signature memory bobSig;
 
-        aliceSig = signExecution(alicesPk, address(mockDai), 0, tx_data, deleg);
-        bobSig = signExecution(bobsPk, address(mockDai), 0, tx_data, deleg);
+        aliceSig = signExecution(alicesPk, op, address(mockDai), 0, tx_data);
+        bobSig = signExecution(bobsPk, op, address(mockDai), 0, tx_data);
 
         sigs[0] = alice > bob ? bobSig : aliceSig;
         sigs[1] = alice > bob ? aliceSig : bobSig;
 
         // Execute tx
-        clubSig.execute(address(mockDai), 0, tx_data, deleg, sigs);
+        clubSig.execute(op, address(mockDai), 0, tx_data, sigs);
     }
 
     /// @notice Check execution malconditions
