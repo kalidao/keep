@@ -626,10 +626,10 @@
         }
       }
     },
-    "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubSig.t.sol": {
+    "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClub.t.sol": {
       "lastModificationDate": 1656872353699,
       "contentHash": "97efb435c93f7985fb8d986dcdbd5ecc",
-      "sourceName": "src\\test\\KaliClubSig.t.sol",
+      "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -672,14 +672,14 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ClubTest": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubSig.t.sol\\ClubTest.json"
+          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
         }
       }
     },
-    "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubSigFactory.t.sol": {
-      "lastModificationDate": 1656869980756,
+    "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubFactory.t.sol": {
+      "lastModificationDate": 1656872541239,
       "contentHash": "2f7e9899a8d98e6f8de7256f90a661b2",
-      "sourceName": "src\\test\\KaliClubSigFactory.t.sol",
+      "sourceName": "src\\test\\KaliClubFactory.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -720,7 +720,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "KaliClubSigFactoryTest": {
-          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubSigFactory.t.sol\\KaliClubSigFactoryTest.json"
+          "0.8.14+commit.80d49f37.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
         }
       }
     },
