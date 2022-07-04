@@ -256,7 +256,7 @@ contract ClubNFTtest is Test {
     
     function testPausedTransfer() public {
         startHoax(address(clubSig), address(clubSig), type(uint256).max);
-        clubSig.setSignerPause(true);
+        clubSig.setPause(true);
         vm.stopPrank();
         assertTrue(clubSig.paused());
 

@@ -145,7 +145,7 @@
     "absolutePath": "C:\\Users\\rossc\\shivaz\\lib/forge-std/src/Test.sol",
     "exportedSymbols": {
       "DSTest": [
-        28131
+        28139
       ],
       "StdStorage": [
         1068
@@ -154,13 +154,13 @@
         970
       ],
       "Vm": [
-        28332
+        28340
       ],
       "console": [
-        36396
+        36404
       ],
       "console2": [
-        44460
+        44468
       ],
       "stdError": [
         1040
@@ -197,7 +197,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 2170,
-        "sourceUnit": 28333,
+        "sourceUnit": 28341,
         "src": "74:18:15",
         "symbolAliases": [],
         "unitAlias": ""
@@ -209,7 +209,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 2170,
-        "sourceUnit": 28132,
+        "sourceUnit": 28140,
         "src": "94:26:15",
         "symbolAliases": [],
         "unitAlias": ""
@@ -221,7 +221,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 2170,
-        "sourceUnit": 36397,
+        "sourceUnit": 36405,
         "src": "122:23:15",
         "symbolAliases": [],
         "unitAlias": ""
@@ -233,7 +233,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 2170,
-        "sourceUnit": 44461,
+        "sourceUnit": 44469,
         "src": "147:24:15",
         "symbolAliases": [],
         "unitAlias": ""
@@ -246,7 +246,7 @@
               "id": 6,
               "name": "DSTest",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 28131,
+              "referencedDeclaration": 28139,
               "src": "250:6:15"
             },
             "id": 7,
@@ -261,7 +261,7 @@
         "id": 970,
         "linearizedBaseContracts": [
           970,
-          28131
+          28139
         ],
         "name": "Test",
         "nameLocation": "242:4:15",
@@ -354,7 +354,7 @@
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_Vm_$28332",
+              "typeIdentifier": "t_contract$_Vm_$28340",
               "typeString": "contract Vm"
             },
             "typeName": {
@@ -364,13 +364,13 @@
                 "id": 16,
                 "name": "Vm",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 28332,
+                "referencedDeclaration": 28340,
                 "src": "349:2:15"
               },
-              "referencedDeclaration": 28332,
+              "referencedDeclaration": 28340,
               "src": "349:2:15",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Vm_$28332",
+                "typeIdentifier": "t_contract$_Vm_$28340",
                 "typeString": "contract Vm"
               }
             },
@@ -381,7 +381,7 @@
                   "name": "HEVM_ADDRESS",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 26452,
+                  "referencedDeclaration": 26460,
                   "src": "376:12:15",
                   "typeDescriptions": {
                     "typeIdentifier": "t_address",
@@ -400,10 +400,10 @@
                 "name": "Vm",
                 "nodeType": "Identifier",
                 "overloadedDeclarations": [],
-                "referencedDeclaration": 28332,
+                "referencedDeclaration": 28340,
                 "src": "373:2:15",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_type$_t_contract$_Vm_$28332_$",
+                  "typeIdentifier": "t_type$_t_contract$_Vm_$28340_$",
                   "typeString": "type(contract Vm)"
                 }
               },
@@ -418,7 +418,7 @@
               "src": "373:16:15",
               "tryCall": false,
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Vm_$28332",
+                "typeIdentifier": "t_contract$_Vm_$28340",
                 "typeString": "contract Vm"
               }
             },
@@ -539,7 +539,7 @@
                         "referencedDeclaration": 21,
                         "src": "764:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -550,7 +550,7 @@
                       "lValueRequested": false,
                       "memberName": "warp",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28139,
+                      "referencedDeclaration": 28147,
                       "src": "764:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_uint256_$returns$__$",
@@ -713,7 +713,7 @@
                         "referencedDeclaration": 21,
                         "src": "859:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -724,7 +724,7 @@
                       "lValueRequested": false,
                       "memberName": "warp",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28139,
+                      "referencedDeclaration": 28147,
                       "src": "859:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_uint256_$returns$__$",
@@ -897,7 +897,7 @@
                         "referencedDeclaration": 21,
                         "src": "1009:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -908,7 +908,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1009:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -965,7 +965,7 @@
                         "referencedDeclaration": 21,
                         "src": "1042:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -976,7 +976,7 @@
                       "lValueRequested": false,
                       "memberName": "prank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28219,
+                      "referencedDeclaration": 28227,
                       "src": "1042:8:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$__$",
@@ -1112,7 +1112,7 @@
                         "referencedDeclaration": 21,
                         "src": "1130:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1123,7 +1123,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1130:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -1180,7 +1180,7 @@
                         "referencedDeclaration": 21,
                         "src": "1159:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1191,7 +1191,7 @@
                       "lValueRequested": false,
                       "memberName": "prank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28219,
+                      "referencedDeclaration": 28227,
                       "src": "1159:8:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$__$",
@@ -1392,7 +1392,7 @@
                         "referencedDeclaration": 21,
                         "src": "1249:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1403,7 +1403,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1249:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -1476,7 +1476,7 @@
                         "referencedDeclaration": 21,
                         "src": "1282:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1487,7 +1487,7 @@
                       "lValueRequested": false,
                       "memberName": "prank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28231,
+                      "referencedDeclaration": 28239,
                       "src": "1282:8:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -1651,7 +1651,7 @@
                         "referencedDeclaration": 21,
                         "src": "1394:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1662,7 +1662,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1394:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -1735,7 +1735,7 @@
                         "referencedDeclaration": 21,
                         "src": "1423:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1746,7 +1746,7 @@
                       "lValueRequested": false,
                       "memberName": "prank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28231,
+                      "referencedDeclaration": 28239,
                       "src": "1423:8:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -1975,7 +1975,7 @@
                         "referencedDeclaration": 21,
                         "src": "1576:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -1986,7 +1986,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1576:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -2043,7 +2043,7 @@
                         "referencedDeclaration": 21,
                         "src": "1609:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2054,7 +2054,7 @@
                       "lValueRequested": false,
                       "memberName": "startPrank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28224,
+                      "referencedDeclaration": 28232,
                       "src": "1609:13:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$__$",
@@ -2190,7 +2190,7 @@
                         "referencedDeclaration": 21,
                         "src": "1707:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2201,7 +2201,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1707:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -2258,7 +2258,7 @@
                         "referencedDeclaration": 21,
                         "src": "1736:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2269,7 +2269,7 @@
                       "lValueRequested": false,
                       "memberName": "startPrank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28224,
+                      "referencedDeclaration": 28232,
                       "src": "1736:13:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$__$",
@@ -2470,7 +2470,7 @@
                         "referencedDeclaration": 21,
                         "src": "1951:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2481,7 +2481,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "1951:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -2554,7 +2554,7 @@
                         "referencedDeclaration": 21,
                         "src": "1984:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2565,7 +2565,7 @@
                       "lValueRequested": false,
                       "memberName": "startPrank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28238,
+                      "referencedDeclaration": 28246,
                       "src": "1984:13:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -2729,7 +2729,7 @@
                         "referencedDeclaration": 21,
                         "src": "2106:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2740,7 +2740,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "2106:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -2813,7 +2813,7 @@
                         "referencedDeclaration": 21,
                         "src": "2135:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -2824,7 +2824,7 @@
                       "lValueRequested": false,
                       "memberName": "startPrank",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28238,
+                      "referencedDeclaration": 28246,
                       "src": "2135:13:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -3415,7 +3415,7 @@
                         "referencedDeclaration": 21,
                         "src": "2675:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -3426,7 +3426,7 @@
                       "lValueRequested": false,
                       "memberName": "deal",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28248,
+                      "referencedDeclaration": 28256,
                       "src": "2675:7:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -5246,7 +5246,7 @@
                             "referencedDeclaration": 21,
                             "src": "4215:2:15",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_contract$_Vm_$28332",
+                              "typeIdentifier": "t_contract$_Vm_$28340",
                               "typeString": "contract Vm"
                             }
                           },
@@ -5257,7 +5257,7 @@
                           "lValueRequested": false,
                           "memberName": "getCode",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 28319,
+                          "referencedDeclaration": 28327,
                           "src": "4215:10:15",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_external_nonpayable$_t_string_memory_ptr_$returns$_t_bytes_memory_ptr_$",
@@ -5632,7 +5632,7 @@
                         "referencedDeclaration": 21,
                         "src": "4526:2:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -5643,7 +5643,7 @@
                       "lValueRequested": false,
                       "memberName": "getCode",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28319,
+                      "referencedDeclaration": 28327,
                       "src": "4526:10:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_string_memory_ptr_$returns$_t_bytes_memory_ptr_$",
@@ -5905,10 +5905,10 @@
                       "name": "assertTrue",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        26614,
-                        26635
+                        26622,
+                        26643
                       ],
-                      "referencedDeclaration": 26614,
+                      "referencedDeclaration": 26622,
                       "src": "4980:10:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bool_$returns$__$",
@@ -6053,10 +6053,10 @@
                       "name": "assertTrue",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        26614,
-                        26635
+                        26622,
+                        26643
                       ],
-                      "referencedDeclaration": 26635,
+                      "referencedDeclaration": 26643,
                       "src": "5092:10:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bool_$_t_string_memory_ptr_$returns$__$",
@@ -6252,7 +6252,7 @@
                             "name": "log",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26350,
+                            "referencedDeclaration": 26358,
                             "src": "5216:3:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$returns$__$",
@@ -6370,7 +6370,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "5293:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -6488,7 +6488,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "5368:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -6523,7 +6523,7 @@
                             "name": "fail",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26561,
+                            "referencedDeclaration": 26569,
                             "src": "5438:4:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -6738,7 +6738,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "5576:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -6811,16 +6811,16 @@
                               522,
                               556,
                               585,
-                              26665,
-                              26690,
-                              26720,
-                              26745,
-                              26804,
-                              26829,
-                              26859,
-                              26884,
-                              27984,
-                              28019
+                              26673,
+                              26698,
+                              26728,
+                              26753,
+                              26812,
+                              26837,
+                              26867,
+                              26892,
+                              27992,
+                              28027
                             ],
                             "referencedDeclaration": 497,
                             "src": "5621:8:15",
@@ -7120,7 +7120,7 @@
                             "name": "log",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26350,
+                            "referencedDeclaration": 26358,
                             "src": "5786:3:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$returns$__$",
@@ -7193,7 +7193,7 @@
                             "name": "log_named_bytes",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26424,
+                            "referencedDeclaration": 26432,
                             "src": "5860:15:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_bytes_memory_ptr_$returns$__$",
@@ -7266,7 +7266,7 @@
                             "name": "log_named_bytes",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26424,
+                            "referencedDeclaration": 26432,
                             "src": "5912:15:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_bytes_memory_ptr_$returns$__$",
@@ -7301,7 +7301,7 @@
                             "name": "fail",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26561,
+                            "referencedDeclaration": 26569,
                             "src": "5959:4:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -7588,7 +7588,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "6135:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -7661,16 +7661,16 @@
                               522,
                               556,
                               585,
-                              26665,
-                              26690,
-                              26720,
-                              26745,
-                              26804,
-                              26829,
-                              26859,
-                              26884,
-                              27984,
-                              28019
+                              26673,
+                              26698,
+                              26728,
+                              26753,
+                              26812,
+                              26837,
+                              26867,
+                              26892,
+                              27992,
+                              28027
                             ],
                             "referencedDeclaration": 556,
                             "src": "6183:8:15",
@@ -8014,7 +8014,7 @@
                             "name": "log",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26350,
+                            "referencedDeclaration": 26358,
                             "src": "6443:3:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$returns$__$",
@@ -8087,7 +8087,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "6516:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -8160,7 +8160,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "6568:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -8233,7 +8233,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "6620:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -8306,7 +8306,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "6679:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -8341,7 +8341,7 @@
                             "name": "fail",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26561,
+                            "referencedDeclaration": 26569,
                             "src": "6730:4:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -8699,7 +8699,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "7010:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -9158,7 +9158,7 @@
                             "name": "log",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26350,
+                            "referencedDeclaration": 26358,
                             "src": "7335:3:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$returns$__$",
@@ -9231,7 +9231,7 @@
                             "name": "log_named_int",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26412,
+                            "referencedDeclaration": 26420,
                             "src": "7407:13:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_int256_$returns$__$",
@@ -9304,7 +9304,7 @@
                             "name": "log_named_int",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26412,
+                            "referencedDeclaration": 26420,
                             "src": "7459:13:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_int256_$returns$__$",
@@ -9377,7 +9377,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "7511:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -9450,7 +9450,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "7570:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -9485,7 +9485,7 @@
                             "name": "fail",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26561,
+                            "referencedDeclaration": 26569,
                             "src": "7621:4:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -9843,7 +9843,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "7899:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -10201,18 +10201,18 @@
                           522,
                           556,
                           585,
-                          26665,
-                          26690,
-                          26720,
-                          26745,
-                          26804,
-                          26829,
-                          26859,
-                          26884,
-                          27984,
-                          28019
+                          26673,
+                          26698,
+                          26728,
+                          26753,
+                          26812,
+                          26837,
+                          26867,
+                          26892,
+                          27992,
+                          28027
                         ],
-                        "referencedDeclaration": 26859,
+                        "referencedDeclaration": 26867,
                         "src": "8218:8:15",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_uint256_$returns$__$",
@@ -10438,7 +10438,7 @@
                             "name": "log",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26350,
+                            "referencedDeclaration": 26358,
                             "src": "8408:3:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$returns$__$",
@@ -10511,7 +10511,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "8489:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -10584,7 +10584,7 @@
                             "name": "log_named_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26418,
+                            "referencedDeclaration": 26426,
                             "src": "8551:14:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -10677,7 +10677,7 @@
                             "name": "log_named_decimal_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26406,
+                            "referencedDeclaration": 26414,
                             "src": "8613:22:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$_t_uint256_$returns$__$",
@@ -10770,7 +10770,7 @@
                             "name": "log_named_decimal_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26406,
+                            "referencedDeclaration": 26414,
                             "src": "8693:22:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$_t_uint256_$returns$__$",
@@ -10805,7 +10805,7 @@
                             "name": "fail",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26561,
+                            "referencedDeclaration": 26569,
                             "src": "8765:4:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -11046,18 +11046,18 @@
                           522,
                           556,
                           585,
-                          26665,
-                          26690,
-                          26720,
-                          26745,
-                          26804,
-                          26829,
-                          26859,
-                          26884,
-                          27984,
-                          28019
+                          26673,
+                          26698,
+                          26728,
+                          26753,
+                          26812,
+                          26837,
+                          26867,
+                          26892,
+                          27992,
+                          28027
                         ],
-                        "referencedDeclaration": 26859,
+                        "referencedDeclaration": 26867,
                         "src": "9037:8:15",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_uint256_$returns$__$",
@@ -11299,7 +11299,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "9227:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -11657,18 +11657,18 @@
                           522,
                           556,
                           585,
-                          26665,
-                          26690,
-                          26720,
-                          26745,
-                          26804,
-                          26829,
-                          26859,
-                          26884,
-                          27984,
-                          28019
+                          26673,
+                          26698,
+                          26728,
+                          26753,
+                          26812,
+                          26837,
+                          26867,
+                          26892,
+                          27992,
+                          28027
                         ],
-                        "referencedDeclaration": 26804,
+                        "referencedDeclaration": 26812,
                         "src": "9499:8:15",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_nonpayable$_t_int256_$_t_int256_$returns$__$",
@@ -11894,7 +11894,7 @@
                             "name": "log",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26350,
+                            "referencedDeclaration": 26358,
                             "src": "9689:3:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$returns$__$",
@@ -11967,7 +11967,7 @@
                             "name": "log_named_int",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26412,
+                            "referencedDeclaration": 26420,
                             "src": "9768:13:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_int256_$returns$__$",
@@ -12040,7 +12040,7 @@
                             "name": "log_named_int",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26412,
+                            "referencedDeclaration": 26420,
                             "src": "9829:13:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_int256_$returns$__$",
@@ -12133,7 +12133,7 @@
                             "name": "log_named_decimal_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26406,
+                            "referencedDeclaration": 26414,
                             "src": "9890:22:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$_t_uint256_$returns$__$",
@@ -12226,7 +12226,7 @@
                             "name": "log_named_decimal_uint",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26406,
+                            "referencedDeclaration": 26414,
                             "src": "9969:22:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$_t_uint256_$returns$__$",
@@ -12261,7 +12261,7 @@
                             "name": "fail",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26561,
+                            "referencedDeclaration": 26569,
                             "src": "10040:4:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -12502,18 +12502,18 @@
                           522,
                           556,
                           585,
-                          26665,
-                          26690,
-                          26720,
-                          26745,
-                          26804,
-                          26829,
-                          26859,
-                          26884,
-                          27984,
-                          28019
+                          26673,
+                          26698,
+                          26728,
+                          26753,
+                          26812,
+                          26837,
+                          26867,
+                          26892,
+                          27992,
+                          28027
                         ],
-                        "referencedDeclaration": 26804,
+                        "referencedDeclaration": 26812,
                         "src": "10254:8:15",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_nonpayable$_t_int256_$_t_int256_$returns$__$",
@@ -12755,7 +12755,7 @@
                             "name": "log_named_string",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 26430,
+                            "referencedDeclaration": 26438,
                             "src": "10444:16:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -14703,7 +14703,7 @@
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_Vm_$28332",
+              "typeIdentifier": "t_contract$_Vm_$28340",
               "typeString": "contract Vm"
             },
             "typeName": {
@@ -14713,13 +14713,13 @@
                 "id": 1085,
                 "name": "Vm",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 28332,
+                "referencedDeclaration": 28340,
                 "src": "12418:2:15"
               },
-              "referencedDeclaration": 28332,
+              "referencedDeclaration": 28340,
               "src": "12418:2:15",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Vm_$28332",
+                "typeIdentifier": "t_contract$_Vm_$28340",
                 "typeString": "contract Vm"
               }
             },
@@ -14921,10 +14921,10 @@
                 "name": "Vm",
                 "nodeType": "Identifier",
                 "overloadedDeclarations": [],
-                "referencedDeclaration": 28332,
+                "referencedDeclaration": 28340,
                 "src": "12453:2:15",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_type$_t_contract$_Vm_$28332_$",
+                  "typeIdentifier": "t_type$_t_contract$_Vm_$28340_$",
                   "typeString": "type(contract Vm)"
                 }
               },
@@ -14939,7 +14939,7 @@
               "src": "12453:59:15",
               "tryCall": false,
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Vm_$28332",
+                "typeIdentifier": "t_contract$_Vm_$28340",
                 "typeString": "contract Vm"
               }
             },
@@ -16038,7 +16038,7 @@
                         "referencedDeclaration": 1101,
                         "src": "13783:12:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -16049,7 +16049,7 @@
                       "lValueRequested": false,
                       "memberName": "record",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28271,
+                      "referencedDeclaration": 28279,
                       "src": "13783:19:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -16468,7 +16468,7 @@
                         "referencedDeclaration": 1101,
                         "src": "14008:12:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -16479,7 +16479,7 @@
                       "lValueRequested": false,
                       "memberName": "accesses",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28282,
+                      "referencedDeclaration": 28290,
                       "src": "14008:21:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$_t_array$_t_bytes32_$dyn_memory_ptr_$_t_array$_t_bytes32_$dyn_memory_ptr_$",
@@ -16832,7 +16832,7 @@
                                       "referencedDeclaration": 1101,
                                       "src": "14857:12:15",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_contract$_Vm_$28332",
+                                        "typeIdentifier": "t_contract$_Vm_$28340",
                                         "typeString": "contract Vm"
                                       }
                                     },
@@ -16843,7 +16843,7 @@
                                     "lValueRequested": false,
                                     "memberName": "load",
                                     "nodeType": "MemberAccess",
-                                    "referencedDeclaration": 28163,
+                                    "referencedDeclaration": 28171,
                                     "src": "14857:17:15",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$returns$_t_bytes32_$",
@@ -17244,7 +17244,7 @@
                                       "referencedDeclaration": 1101,
                                       "src": "15068:12:15",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_contract$_Vm_$28332",
+                                        "typeIdentifier": "t_contract$_Vm_$28340",
                                         "typeString": "contract Vm"
                                       }
                                     },
@@ -17255,7 +17255,7 @@
                                     "lValueRequested": false,
                                     "memberName": "store",
                                     "nodeType": "MemberAccess",
-                                    "referencedDeclaration": 28172,
+                                    "referencedDeclaration": 28180,
                                     "src": "15068:18:15",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$_t_bytes32_$returns$__$",
@@ -18644,7 +18644,7 @@
                                             "referencedDeclaration": 1101,
                                             "src": "15833:12:15",
                                             "typeDescriptions": {
-                                              "typeIdentifier": "t_contract$_Vm_$28332",
+                                              "typeIdentifier": "t_contract$_Vm_$28340",
                                               "typeString": "contract Vm"
                                             }
                                           },
@@ -18655,7 +18655,7 @@
                                           "lValueRequested": false,
                                           "memberName": "store",
                                           "nodeType": "MemberAccess",
-                                          "referencedDeclaration": 28172,
+                                          "referencedDeclaration": 28180,
                                           "src": "15833:18:15",
                                           "typeDescriptions": {
                                             "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$_t_bytes32_$returns$__$",
@@ -18777,7 +18777,7 @@
                                       "referencedDeclaration": 1101,
                                       "src": "15938:12:15",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_contract$_Vm_$28332",
+                                        "typeIdentifier": "t_contract$_Vm_$28340",
                                         "typeString": "contract Vm"
                                       }
                                     },
@@ -18788,7 +18788,7 @@
                                     "lValueRequested": false,
                                     "memberName": "store",
                                     "nodeType": "MemberAccess",
-                                    "referencedDeclaration": 28172,
+                                    "referencedDeclaration": 28180,
                                     "src": "15938:18:15",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$_t_bytes32_$returns$__$",
@@ -19081,7 +19081,7 @@
                               "referencedDeclaration": 1101,
                               "src": "14107:12:15",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_Vm_$28332",
+                                "typeIdentifier": "t_contract$_Vm_$28340",
                                 "typeString": "contract Vm"
                               }
                             },
@@ -19092,7 +19092,7 @@
                             "lValueRequested": false,
                             "memberName": "load",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 28163,
+                            "referencedDeclaration": 28171,
                             "src": "14107:17:15",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$returns$_t_bytes32_$",
@@ -24923,7 +24923,7 @@
                         "referencedDeclaration": 1101,
                         "src": "18837:12:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -24934,7 +24934,7 @@
                       "lValueRequested": false,
                       "memberName": "load",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28163,
+                      "referencedDeclaration": 28171,
                       "src": "18837:17:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$returns$_t_bytes32_$",
@@ -25156,7 +25156,7 @@
                         "referencedDeclaration": 1101,
                         "src": "19031:12:15",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$28332",
+                          "typeIdentifier": "t_contract$_Vm_$28340",
                           "typeString": "contract Vm"
                         }
                       },
@@ -25167,7 +25167,7 @@
                       "lValueRequested": false,
                       "memberName": "store",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28172,
+                      "referencedDeclaration": 28180,
                       "src": "19031:18:15",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_bytes32_$_t_bytes32_$returns$__$",

@@ -14,15 +14,15 @@
     "absolutePath": "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IMember.sol",
     "exportedSymbols": {
       "IMember": [
-        22305
+        22313
       ]
     },
-    "id": 22306,
+    "id": 22314,
     "license": "AGPL-3.0-only",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 22296,
+        "id": 22304,
         "literals": [
           "solidity",
           ">=",
@@ -39,15 +39,15 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 22297,
+          "id": 22305,
           "nodeType": "StructuredDocumentation",
           "src": "71:47:27",
           "text": "@notice Kali ClubSig membership interface"
         },
         "fullyImplemented": true,
-        "id": 22305,
+        "id": 22313,
         "linearizedBaseContracts": [
-          22305
+          22313
         ],
         "name": "IMember",
         "nameLocation": "128:7:27",
@@ -55,16 +55,16 @@
         "nodes": [
           {
             "canonicalName": "IMember.Member",
-            "id": 22304,
+            "id": 22312,
             "members": [
               {
                 "constant": false,
-                "id": 22299,
+                "id": 22307,
                 "mutability": "mutable",
                 "name": "mint",
                 "nameLocation": "173:4:27",
                 "nodeType": "VariableDeclaration",
-                "scope": 22304,
+                "scope": 22312,
                 "src": "168:9:27",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -73,7 +73,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 22298,
+                  "id": 22306,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "168:4:27",
@@ -86,12 +86,12 @@
               },
               {
                 "constant": false,
-                "id": 22301,
+                "id": 22309,
                 "mutability": "mutable",
                 "name": "signer",
                 "nameLocation": "196:6:27",
                 "nodeType": "VariableDeclaration",
-                "scope": 22304,
+                "scope": 22312,
                 "src": "188:14:27",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -100,7 +100,7 @@
                   "typeString": "address"
                 },
                 "typeName": {
-                  "id": 22300,
+                  "id": 22308,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "188:7:27",
@@ -114,12 +114,12 @@
               },
               {
                 "constant": false,
-                "id": 22303,
+                "id": 22311,
                 "mutability": "mutable",
                 "name": "id",
                 "nameLocation": "221:2:27",
                 "nodeType": "VariableDeclaration",
-                "scope": 22304,
+                "scope": 22312,
                 "src": "213:10:27",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -128,7 +128,7 @@
                   "typeString": "uint256"
                 },
                 "typeName": {
-                  "id": 22302,
+                  "id": 22310,
                   "name": "uint256",
                   "nodeType": "ElementaryTypeName",
                   "src": "213:7:27",
@@ -143,12 +143,12 @@
             "name": "Member",
             "nameLocation": "150:6:27",
             "nodeType": "StructDefinition",
-            "scope": 22305,
+            "scope": 22313,
             "src": "143:88:27",
             "visibility": "public"
           }
         ],
-        "scope": 22306,
+        "scope": 22314,
         "src": "118:116:27",
         "usedErrors": []
       }

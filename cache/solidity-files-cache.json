@@ -293,8 +293,8 @@
       }
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
-      "lastModificationDate": 1656871769605,
-      "contentHash": "4b9ff55ec38dc1310c5d4bcee8dd19e4",
+      "lastModificationDate": 1656898109205,
+      "contentHash": "77855a4969f6fa62f0d2a0ce4af40829",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -579,8 +579,8 @@
       }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\ClubNFT.t.sol": {
-      "lastModificationDate": 1656869400739,
-      "contentHash": "a55d766ff152324f9f653ca5a7d6254f",
+      "lastModificationDate": 1656898187207,
+      "contentHash": "9415e8cb95d0335a2f4f6fe97381b6ec",
       "sourceName": "src\\test\\ClubNFT.t.sol",
       "solcConfig": {
         "settings": {
@@ -627,8 +627,8 @@
       }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1656872353699,
-      "contentHash": "97efb435c93f7985fb8d986dcdbd5ecc",
+      "lastModificationDate": 1656898390818,
+      "contentHash": "2ad854793a650b3a012bb24147dfd76d",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {

@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
+/// @dev Interfaces
 import {IMember} from './interfaces/IMember.sol';
 import {IERC1271} from './interfaces/IERC1271.sol';
 
+/// @dev Contracts
 import {ClubNFT} from './ClubNFT.sol';
 import {Multicall} from './utils/Multicall.sol';
 import {NFTreceiver} from './utils/NFTreceiver.sol';
 
 /// @title Kali Club
-/// @notice EIP-712-signed multi-signature contract with NFT identifiers for signers
+/// @notice EIP-712-signed multi-sig with ERC-1155 NFT ids for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
@@ -43,6 +45,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
     /// Events
     /// -----------------------------------------------------------------------
 
+    /// @notice Emitted when multi-sig executes operation
     event Execute(
         Operation op,
         address indexed to, 
@@ -50,53 +53,65 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
         bytes data
     );
 
-    event Govern(Member[] members, uint256 quorum);
+    /// @notice Emitted when members and quorum threshold are updated
+    event Govern(Member[] members, uint256 threshold);
 
-    event GovernorSet(address indexed account, bool approved);
+    /// @notice Emitted when governance access is updated
+    event GovernanceSet(address indexed account, bool approve);
 
+    /// @notice Emitted when metadata base for club is updated
     event URIset(string baseURI);
 
     /// -----------------------------------------------------------------------
     /// Errors
     /// -----------------------------------------------------------------------
 
+    /// @notice Throws if init() is called more than once
     error AlreadyInit();
 
+    /// @notice Throws if quorum threshold exceeds signer supply
     error QuorumOverSigs();
 
+    /// @notice Throws if signature doesn't verify execute()
     error InvalidSig();
 
+    /// @notice Throws if execute() doesn't complete operation
     error ExecuteFailed();
 
     /// -----------------------------------------------------------------------
     /// Club Storage/Logic
     /// -----------------------------------------------------------------------
 
-    /// @dev Renderer for metadata (set in master contract)
-    KaliClub private immutable renderer;
-    /// @dev Metadata emblem for club
-    string private baseURI;
-    /// @dev Tx counter - initialized at `1` for cheaper first tx
+    /// @notice Renderer for metadata (set in master contract)
+    KaliClub internal immutable uriFetcher;
+
+    /// @notice Metadata base for club
+    string internal baseURI;
+
+    /// @notice Club tx counter
     uint64 public nonce;
-    /// @dev Signature (NFT) threshold to execute tx
+
+    /// @notice Signature (NFT) threshold to execute tx
     uint64 public quorum;
-    /// @dev Total signer units minted
+
+    /// @notice Total key signers minted
     uint64 public totalSupply;
 
-    /// @dev Administrative account tracking
-    mapping(address => bool) public governor;
+    /// @notice Governance access tracking
+    mapping(address => bool) public governance;
 
-    /// @dev Access control for this contract and governors
-    modifier onlyClubOrGov() {
-        if (msg.sender != address(this) && !governor[msg.sender])
+    /// @notice Access control for club and governance
+    modifier onlyClubOrGovernance() {
+        if (msg.sender != address(this) && !governance[msg.sender])
             revert Forbidden();
+
         _;
     }
     
-    /// @dev Metadata logic that returns external reference if no local
+    /// @notice Metadata logic that returns external reference if no local
     function tokenURI(uint256 id) external view returns (string memory) {
         if (bytes(baseURI).length == 0) {
-            return renderer.tokenURI(id);
+            return uriFetcher.tokenURI(id);
         } else {
             return baseURI;
         }
@@ -106,9 +121,9 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    bytes32 private INITIAL_DOMAIN_SEPARATOR;
+    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
-    function INITIAL_CHAIN_ID() private pure returns (uint256 chainId) {
+    function INITIAL_CHAIN_ID() internal pure returns (uint256 chainId) {
         uint256 offset = _getImmutableArgsOffset();
         
         assembly {
@@ -123,7 +138,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
                 : _computeDomainSeparator();
     }
 
-    function _computeDomainSeparator() private view returns (bytes32) {
+    function _computeDomainSeparator() internal view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -142,8 +157,8 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
     /// Initializer
     /// -----------------------------------------------------------------------
     
-    constructor(KaliClub _renderer) payable {
-        renderer = _renderer;
+    constructor(KaliClub _uriFetcher) payable {
+        uriFetcher = _uriFetcher;
     }
 
     function init(
@@ -172,7 +187,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
                     calls[i].data
                 );
 
-                // cannot realistically overflow
+                // won't realistically overflow
                 unchecked {
                     ++i;
                 }
@@ -181,7 +196,6 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
 
         address prevAddr;
         uint256 supply;
-        nonce = 1;
 
         for (uint256 i; i < members.length; ) {
             // prevent null and duplicate signers
@@ -191,17 +205,18 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
 
             _safeMint(members[i].signer, members[i].id);
 
-            // cannot realistically overflow
+            // won't realistically overflow
             unchecked {
                 ++supply;
                 ++i;
             }
         }
-
+     
+        nonce = 1;
         quorum = uint64(threshold);
         totalSupply = uint64(supply);
-        baseURI = uri;
-        ClubNFT._setPause(paused);
+        if (bytes(uri).length != 0) baseURI = uri;
+        // if (nontransferable) ClubNFT._setPause(true);
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
@@ -284,7 +299,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
             // set prevAddr to signer for next iteration until quorum
             prevAddr = signer;
 
-            // cannot realistically overflow
+            // won't realistically overflow
             unchecked {
                 ++i;
             }
@@ -301,7 +316,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
     /// @notice Execute operations from club with signed execute() or as governor
     /// @param calls Arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
-    function batchExecute(Call[] calldata calls) external payable onlyClubOrGov returns (bool[] memory successes) {
+    function batchExecute(Call[] calldata calls) external payable onlyClubOrGovernance returns (bool[] memory successes) {
         successes = new bool[](calls.length);
 
         for (uint256 i; i < calls.length; ) {
@@ -312,7 +327,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
                 calls[i].data
             );
 
-            // cannot realistically overflow
+            // won't realistically overflow
             unchecked {
                 ++i;
             }
@@ -324,8 +339,8 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
         address to, 
         uint256 value, 
         bytes memory data
-    ) private returns (bool success) {
-        // cannot realistically overflow
+    ) internal returns (bool success) {
+        // won't realistically overflow
         unchecked {
             ++nonce;
         }
@@ -375,7 +390,7 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
     /// @notice Update club configurations for membership and quorum
     /// @param members Arrays of `mint, signer, id` for membership
     /// @param threshold Signature threshold to execute() operations
-    function govern(Member[] calldata members, uint256 threshold) external payable onlyClubOrGov {
+    function govern(Member[] calldata members, uint256 threshold) external payable onlyClubOrGovernance {
         assembly {
             if iszero(threshold) {
                 revert(0, 0)
@@ -384,24 +399,26 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
 
         uint256 supply = totalSupply;
 
-        // cannot realistically overflow, and
-        // cannot underflow because ownership is checked in burn()
+        // won't realistically overflow, and
+        // won't underflow because checked in burn()
         unchecked {
             for (uint256 i; i < members.length; ++i) {
                 if (members[i].mint) {
                     // mint NFT, update supply
                     _safeMint(members[i].signer, members[i].id);
+
                     ++supply;
                 } else {
                     // burn NFT, update supply
                     _burn(members[i].id);
+                    
                     --supply;
                 }
             }
         }
 
-        // note: also make sure that signers don't concentrate NFTs,
-        // since this could cause issues in reaching quorum
+        // note: also make sure signers don't concentrate NFTs,
+        // as this could cause issues in reaching quorum
         if (threshold > supply) revert QuorumOverSigs();
 
         quorum = uint64(threshold);
@@ -410,21 +427,23 @@ contract KaliClub is IMember, ClubNFT, Multicall, NFTreceiver {
         emit Govern(members, threshold);
     }
 
-    function setGovernor(address account, bool approved)
+    function setGovernance(address account, bool approve)
         external
         payable
-        onlyClubOrGov
+        onlyClubOrGovernance
     {
-        governor[account] = approved;
-        emit GovernorSet(account, approved);
+        governance[account] = approve;
+
+        emit GovernanceSet(account, approve);
     }
 
-    function setSignerPause(bool paused_) external payable onlyClubOrGov {
-        ClubNFT._setPause(paused_);
+    function setPause(bool pause) external payable onlyClubOrGovernance {
+        ClubNFT._setPause(pause);
     }
 
-    function setURI(string calldata baseURI_) external payable onlyClubOrGov {
-        baseURI = baseURI_;
-        emit URIset(baseURI_);
+    function setBaseURI(string calldata uri) external payable onlyClubOrGovernance {
+        baseURI = uri;
+
+        emit URIset(uri);
     }
 }

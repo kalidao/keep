@@ -268,7 +268,7 @@ contract ClubTest is Test {
 
         string memory updated = 'NEW BASE';
         startHoax(address(club), address(club), type(uint256).max);
-        club.setURI(updated);
+        club.setBaseURI(updated);
         vm.stopPrank();
         assert(
             keccak256(bytes(club.tokenURI(1))) == keccak256(bytes(updated))
@@ -282,7 +282,7 @@ contract ClubTest is Test {
         string memory updated = 'NEW BASE';
 
         startHoax(address(club), address(club), type(uint256).max);
-        club.setURI(updated);
+        club.setBaseURI(updated);
         vm.stopPrank();
         assert(
             keccak256(bytes(club.tokenURI(1))) == keccak256(bytes(updated))
@@ -295,12 +295,12 @@ contract ClubTest is Test {
 
     /// @notice Check execution
 
-    function testExecuteGovernor() public {
+    function testExecuteGovernance() public {
         uint256 nonceInit = club.nonce();
         startHoax(address(club), address(club), type(uint256).max);
-        club.setGovernor(alice, true);
+        club.setGovernance(alice, true);
         vm.stopPrank();
-        assertTrue(club.governor(alice));
+        assertTrue(club.governance(alice));
 
         address aliceAddress = address(alice);
 
@@ -550,29 +550,29 @@ contract ClubTest is Test {
         assert(club.quorum() == 1);
     }
 
-    function testSetGovernor(address dave) public {
+    function testSetGovernance(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        club.setGovernor(dave, true);
+        club.setGovernance(dave, true);
         vm.stopPrank();
 
         // The club itself should be able to flip governor
         startHoax(address(club), address(club), type(uint256).max);
-        club.setGovernor(dave, true);
+        club.setGovernance(dave, true);
         vm.stopPrank();
-        assertTrue(club.governor(dave));
+        assertTrue(club.governance(dave));
     }
 
-    function testSetSignerPause(address dave) public {
+    function testSetPause(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        club.setSignerPause(true);
+        club.setPause(true);
         vm.stopPrank();
         assertTrue(!club.paused());
 
         // The club itself should be able to flip pause
         startHoax(address(club), address(club), type(uint256).max);
-        club.setSignerPause(true);
+        club.setPause(true);
         vm.stopPrank();
         assertTrue(club.paused());
     }
@@ -580,12 +580,12 @@ contract ClubTest is Test {
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        club.setURI('new_base_uri');
+        club.setBaseURI('new_base_uri');
         vm.stopPrank();
 
         // The club itself should be able to update the base uri
         startHoax(address(club), address(club), type(uint256).max);
-        club.setURI('new_base_uri');
+        club.setBaseURI('new_base_uri');
         vm.stopPrank();
         assertEq(
             keccak256(bytes('new_base_uri')),
