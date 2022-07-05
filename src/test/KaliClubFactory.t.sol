@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IMember} from '../interfaces/IMember.sol';
+import {Call, KaliClub} from "../KaliClub.sol";
+import {KaliClubFactory} from "../KaliClubFactory.sol";
 
-import {Call, KaliClub} from '../KaliClub.sol';
-import {KaliClubFactory} from '../KaliClubFactory.sol';
-
-import '@std/Test.sol';
+import "@std/Test.sol";
 
 contract KaliClubSigFactoryTest is Test {
     KaliClub clubSig;
@@ -23,12 +21,8 @@ contract KaliClubSigFactoryTest is Test {
 
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol =
-        0x5445535400000000000000000000000000000000000000000000000000000000;
-
+    
     bytes32 name2 =
-        0x5445535432000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol2 =
         0x5445535432000000000000000000000000000000000000000000000000000000;
 
     /// @notice Set up the testing suite
@@ -42,40 +36,46 @@ contract KaliClubSigFactoryTest is Test {
 
     function testDeployClubSig() public {
         KaliClub depClubSig;
-        // create the Club[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = IMember.Member(false, alice, 0);
-        members[1] = IMember.Member(false, bob, 1);
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? bob
+            : alice;
+        signers[1] = alice > bob
+            ? alice
+            : bob;
         // vm.expectEmit(true, true, false, false);
-        depClubSig = factory.deployClub(
+        (depClubSig, ) = determineClone(name); 
+
+        factory.deployClub(
             calls,
-            members,
+            signers,
             2,
-            name,
-            symbol,
-            false,
-            'BASE'
+            name
         );
     }
 
     function testCloneAddressDetermination() public {
         KaliClub depClubSig;
-        // create the Club[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = IMember.Member(false, alice, 0);
-        members[1] = IMember.Member(false, bob, 1);
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? bob
+            : alice;
+        signers[1] = alice > bob
+            ? alice
+            : bob;
         // vm.expectEmit(true, true, false, false);
-        depClubSig = factory.deployClub(
+        (depClubSig, ) = determineClone(name); 
+
+        factory.deployClub(
             calls,
-            members,
+            signers,
             2,
-            name,
-            symbol,
-            false,
-            'BASE'
+            name
         );
         // check CREATE2 clones match expected outputs
-        (address clubAddr, bool deployed) = factory.determineClone(name, symbol);
+        (address clubAddr, bool deployed) = factory.determineClone(name);
         assertEq(
             address(depClubSig),
             clubAddr
@@ -84,7 +84,7 @@ contract KaliClubSigFactoryTest is Test {
             deployed,
             true
         );
-        (, bool deployed2) = factory.determineClone(name2, symbol2);
+        (, bool deployed2) = factory.determineClone(name2);
         assertEq(
             deployed2,
             false

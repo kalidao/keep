@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {IMember} from '../interfaces/IMember.sol';
+import {
+    Operation, 
+    Call, 
+    Signature, 
+    Signer, 
+    KaliClub
+} from "../KaliClub.sol";
+import {
+    KaliClubFactory
+} from "../KaliClubFactory.sol";
 
-import {Operation, Call, Signature, KaliClub} from '../KaliClub.sol';
-import {KaliClubFactory} from '../KaliClubFactory.sol';
+import {MockERC20} from "@solmate/test/utils/mocks/MockERC20.sol";
 
-import {MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
-
-import '@std/Test.sol';
+import "@std/Test.sol";
 
 contract ClubTest is Test {
     using stdStorage for StdStorage;
@@ -45,12 +51,8 @@ contract ClubTest is Test {
 
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol =
-        0x5445535400000000000000000000000000000000000000000000000000000000;
 
     bytes32 name2 =
-        0x5445535432000000000000000000000000000000000000000000000000000000;
-    bytes32 symbol2 =
         0x5445535432000000000000000000000000000000000000000000000000000000;
 
     function writeTokenBalance(
@@ -103,24 +105,22 @@ contract ClubTest is Test {
         // Create the factory
         factory = new KaliClubFactory(club);
 
-        // Create the Member[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = alice > bob
-            ? IMember.Member(false, bob, 1)
-            : IMember.Member(false, alice, 0);
-        members[1] = alice > bob
-            ? IMember.Member(false, alice, 0)
-            : IMember.Member(false, bob, 1);
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? bob
+            : alice;
+        signers[1] = alice > bob
+            ? alice
+            : bob;
 
+        (club, ) = determineClone(name); 
         // The factory is fully tested in KaliClubFactory.t.sol
-        club = factory.deployClub(
+        factory.deployClub(
             calls,
-            members,
+            signers,
             2,
-            name,
-            symbol,
-            false,
-            'BASE'
+            name
         );
 
         mockDai.approve(address(club), type(uint256).max);
@@ -130,101 +130,83 @@ contract ClubTest is Test {
 
     function testRepeatClubSetup() public {
         clubRepeat = new KaliClub(KaliClub(alice));
-        // Create the Member[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = alice > bob
-            ? IMember.Member(false, bob, 1)
-            : IMember.Member(false, alice, 0);
-        members[1] = alice > bob
-            ? IMember.Member(false, alice, 0)
-            : IMember.Member(false, bob, 1);
 
-        clubRepeat = factory.deployClub(
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? bob
+            : alice;
+        signers[1] = alice > bob
+            ? alice
+            : bob;
+        
+        (clubRepeat, ) = determineClone(name2); 
+  
+        factory.deployClub(
             calls,
-            members,
+            signers,
             2,
-            name2,
-            symbol2,
-            false,
-            'BASE'
+            name2
         );
 
-        // Create the Member[]
-        IMember.Member[] memory clubsRepeat = new IMember.Member[](2);
-        clubsRepeat[0] = alice > bob
-            ? IMember.Member(false, bob, 3)
-            : IMember.Member(false, alice, 2);
-        clubsRepeat[1] = alice > bob
-            ? IMember.Member(false, alice, 2)
-            : IMember.Member(false, bob, 3);
-
-        vm.expectRevert(bytes4(keccak256('AlreadyInit()')));
-        clubRepeat.init(calls, clubsRepeat, 2, false, 'BASE');
+        vm.expectRevert(bytes4(keccak256("ALREADY_INIT()")));
+        clubRepeat.init(calls, signers, 2);
     }
 
     function testZeroQuorumSetup() public {
-        // Create the Member[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = alice > bob
-            ? IMember.Member(false, bob, 1)
-            : IMember.Member(false, alice, 0);
-        members[1] = alice > bob
-            ? IMember.Member(false, alice, 0)
-            : IMember.Member(false, bob, 1);
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? bob
+            : alice;
+        signers[1] = alice > bob
+            ? alice
+            : bob;
 
         vm.expectRevert(bytes(''));
         factory.deployClub(
             calls,
-            members,
+            signers,
             0,
-            name2,
-            symbol2,
-            false,
-            'BASE'
+            name2
         );
     }
 
     function testExcessiveQuorumSetup() public {
-        // Create the Member[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = alice > bob
-            ? IMember.Member(false, bob, 1)
-            : IMember.Member(false, alice, 0);
-        members[1] = alice > bob
-            ? IMember.Member(false, alice, 0)
-            : IMember.Member(false, bob, 1);
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? bob
+            : alice;
+        signers[1] = alice > bob
+            ? alice
+            : bob;
 
-        vm.expectRevert(bytes4(keccak256('QuorumOverSigs()')));
+        vm.expectRevert(bytes4(keccak256("QUORUM_OVER_SIGS()")));
         factory.deployClub(
             calls,
-            members,
+            signers,
             3,
-            name2,
-            symbol2,
-            false,
-            'BASE'
+            name2
         );
     }
 
     function testOutOfOrderSignerSetup() public {
-        // Create the Member[]
-        IMember.Member[] memory members = new IMember.Member[](2);
-        members[0] = alice > bob
-            ? IMember.Member(false, alice, 0)
-            : IMember.Member(false, bob, 1);
-        members[1] = alice > bob
-            ? IMember.Member(false, bob, 1)
-            : IMember.Member(false, alice, 0);
+        // Create the Signer[]
+        address[] memory signers = new address[](2);
+        signers[0] = alice > bob
+            ? alice
+            : bob;
+        signers[1] = alice > bob
+            ? bob
+            : alice;
 
-        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
+        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
         factory.deployClub(
             calls,
-            members,
+            signers,
             2,
-            name2,
-            symbol2,
-            false,
-            'BASE'
+            name2
         );
     }
 
@@ -240,53 +222,17 @@ contract ClubTest is Test {
         assert(club.quorum() == 2);
         address db = address(0xdeadbeef);
 
-        IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(true, db, 2);
+        Signer[] memory signers = new Signer[](1);
+        signers[0] = Signer(true, db);
 
         vm.prank(address(club));
-        club.govern(members, 3);
+        club.govern(signers, 3);
 
         assert(club.quorum() == 3);
     }
 
     function testTotalSupply() public view {
         assert(club.totalSupply() == 2);
-    }
-
-    function testClubName() public {
-        assertEq(club.name(), string(abi.encodePacked(name)));
-    }
-
-    function testClubSymbol() public {
-        assertEq(club.symbol(), string(abi.encodePacked(symbol)));
-    }
-
-    function testBaseURI() public {
-        assert(
-            keccak256(bytes(club.tokenURI(1))) == keccak256(bytes('BASE'))
-        );
-
-        string memory updated = 'NEW BASE';
-        startHoax(address(club), address(club), type(uint256).max);
-        club.setBaseURI(updated);
-        vm.stopPrank();
-        assert(
-            keccak256(bytes(club.tokenURI(1))) == keccak256(bytes(updated))
-        );
-    }
-
-    function testTokenURI() public {
-        assert(
-            keccak256(bytes(club.tokenURI(1))) == keccak256(bytes('BASE'))
-        );
-        string memory updated = 'NEW BASE';
-
-        startHoax(address(club), address(club), type(uint256).max);
-        club.setBaseURI(updated);
-        vm.stopPrank();
-        assert(
-            keccak256(bytes(club.tokenURI(1))) == keccak256(bytes(updated))
-        );
     }
 
     /// -----------------------------------------------------------------------
@@ -308,7 +254,7 @@ contract ClubTest is Test {
 
         startHoax(address(alice), address(alice), type(uint256).max);
 
-        bytes memory data = '';
+        bytes memory data = "";
 
         assembly {
             mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -423,7 +369,7 @@ contract ClubTest is Test {
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
+        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
         // Execute tx
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -431,7 +377,7 @@ contract ClubTest is Test {
     function testExecuteWithSignaturesOutOfOrder() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = '';
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -453,7 +399,7 @@ contract ClubTest is Test {
         sigs[0] = alice > bob ? aliceSig : bobSig;
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
-        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
+        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
         // Execute tx
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -461,7 +407,7 @@ contract ClubTest is Test {
     function testExecuteWithSignaturesRepeated() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = '';
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -481,7 +427,7 @@ contract ClubTest is Test {
         sigs[0] = aliceSig;
         sigs[1] = aliceSig;
 
-        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
+        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
         // Execute tx
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -489,7 +435,7 @@ contract ClubTest is Test {
     function testExecuteWithNullSignatures() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = '';
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -511,48 +457,39 @@ contract ClubTest is Test {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert(bytes4(keccak256('InvalidSig()')));
+        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
         // Execute tx
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
     
     /// @notice Check governance
 
-    function testGovernAlreadyMinted() public {
-        IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(true, alice, 0);
-
-        vm.expectRevert(bytes4(keccak256('AlreadyMinted()')));
-        vm.prank(address(club));
-        club.govern(members, 3);
-    }
-
     function testGovernMint() public {
         assert(club.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
-        IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(true, db, 2);
+        Signer[] memory signers = new Signer[](1);
+        signers[0] = Signer(true, db);
 
         vm.prank(address(club));
-        club.govern(members, 3);
+        club.govern(signers, 3);
         assert(club.totalSupply() == 3);
         assert(club.quorum() == 3);
     }
 
     function testGovernBurn() public {
-        IMember.Member[] memory members = new IMember.Member[](1);
-        members[0] = IMember.Member(false, alice, 1);
+        Signer[] memory signers = new Signer[](1);
+        signers[0] = Signer(false, alice);
 
         vm.prank(address(club));
-        club.govern(members, 1);
+        club.govern(signers, 1);
         assert(club.totalSupply() == 1);
         assert(club.quorum() == 1);
     }
 
     function testSetGovernance(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256('Forbidden()')));
+        vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
         club.setGovernance(dave, true);
         vm.stopPrank();
 
@@ -562,34 +499,34 @@ contract ClubTest is Test {
         vm.stopPrank();
         assertTrue(club.governance(dave));
     }
-
+    /*
     function testSetPause(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        club.setPause(true);
+        club.setPause(0, true);
         vm.stopPrank();
         assertTrue(!club.paused());
 
         // The club itself should be able to flip pause
         startHoax(address(club), address(club), type(uint256).max);
-        club.setPause(true);
+        club.setPause(0, true);
         vm.stopPrank();
         assertTrue(club.paused());
     }
-
+    */
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        club.setBaseURI('new_base_uri');
+        vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
+        club.setTokenURI(0, "new_base_uri");
         vm.stopPrank();
 
         // The club itself should be able to update the base uri
         startHoax(address(club), address(club), type(uint256).max);
-        club.setBaseURI('new_base_uri');
+        club.setTokenURI(0, "new_base_uri");
         vm.stopPrank();
         assertEq(
-            keccak256(bytes('new_base_uri')),
-            keccak256(bytes(club.tokenURI(1)))
+            keccak256(bytes("new_base_uri")),
+            keccak256(bytes(club.uri(0)))
         );
     }
 }

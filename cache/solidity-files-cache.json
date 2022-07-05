@@ -29,11 +29,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.5.0",
-      "artifacts": {
-        "DSTest": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "test.sol\\DSTest.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\lib/forge-std/src/Test.sol": {
       "lastModificationDate": 1656863796764,
@@ -68,20 +64,7 @@
         "lib\\forge-std\\src\\console2.sol"
       ],
       "versionRequirement": ">=0.6.0, <0.9.0",
-      "artifacts": {
-        "Test": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\Test.json"
-        },
-        "stdError": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdError.json"
-        },
-        "stdMath": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdMath.json"
-        },
-        "stdStorage": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdStorage.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\Vm.sol": {
       "lastModificationDate": 1656863796767,
@@ -111,11 +94,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.6.0",
-      "artifacts": {
-        "Vm": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "Vm.sol\\Vm.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console.sol": {
       "lastModificationDate": 1656863796769,
@@ -145,11 +124,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {
-        "console": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "console.sol\\console.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console2.sol": {
       "lastModificationDate": 1656863796771,
@@ -179,11 +154,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {
-        "console2": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "console2.sol\\console2.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
       "lastModificationDate": 1656863801095,
@@ -215,11 +186,7 @@
         "lib\\solmate\\src\\tokens\\ERC20.sol"
       ],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {
-        "MockERC20": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "MockERC20.sol\\MockERC20.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\lib\\solmate\\src\\tokens\\ERC20.sol": {
       "lastModificationDate": 1656863801109,
@@ -249,16 +216,12 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {
-        "ERC20": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ERC20.sol\\ERC20.json"
-        }
-      }
+      "artifacts": {}
     },
-    "C:\\Users\\rossc\\shivaz\\src\\ClubNFT.sol": {
-      "lastModificationDate": 1656863777025,
-      "contentHash": "b34793be06d3d345fbe040d50c659f28",
-      "sourceName": "src\\ClubNFT.sol",
+    "C:\\Users\\rossc\\shivaz\\src\\ERC1155votes.sol": {
+      "lastModificationDate": 1657052972915,
+      "contentHash": "51c62169246387d6fb3fb7119e10ff25",
+      "sourceName": "src\\ERC1155votes.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -283,18 +246,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ClubNFT": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ClubNFT.sol\\ClubNFT.json"
-        },
-        "ERC721TokenReceiver": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ClubNFT.sol\\ERC721TokenReceiver.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
-      "lastModificationDate": 1656898109205,
-      "contentHash": "77855a4969f6fa62f0d2a0ce4af40829",
+      "lastModificationDate": 1657055315761,
+      "contentHash": "738c9ca70a28294e388f0336c94098f9",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -319,22 +275,17 @@
         }
       },
       "imports": [
-        "src\\ClubNFT.sol",
+        "src\\ERC1155votes.sol",
         "src\\interfaces\\IERC1271.sol",
-        "src\\interfaces\\IMember.sol",
         "src\\utils\\Multicall.sol",
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "KaliClub": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.sol\\KaliClub.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1656869954751,
-      "contentHash": "44f2255f8f7aaf5a794b9e80c5fda707",
+      "lastModificationDate": 1657054816723,
+      "contentHash": "25dfea5591116c3cebc58a4fab478495",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
         "settings": {
@@ -359,20 +310,10 @@
         }
       },
       "imports": [
-        "src\\ClubNFT.sol",
-        "src\\KaliClub.sol",
-        "src\\interfaces\\IERC1271.sol",
-        "src\\interfaces\\IMember.sol",
-        "src\\libraries\\ClonesWithImmutableArgs.sol",
-        "src\\utils\\Multicall.sol",
-        "src\\utils\\NFTreceiver.sol"
+        "src\\libraries\\ClonesWithImmutableArgs.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "KaliClubFactory": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IERC1271.sol": {
       "lastModificationDate": 1656863777040,
@@ -402,79 +343,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "IERC1271": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "IERC1271.sol\\IERC1271.json"
-        }
-      }
-    },
-    "C:\\Users\\rossc\\shivaz\\src\\interfaces\\ILoot.sol": {
-      "lastModificationDate": 1656863777040,
-      "contentHash": "3351f21a2e6779078d775896a84794a5",
-      "sourceName": "src\\interfaces\\ILoot.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ILoot": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ILoot.sol\\ILoot.json"
-        }
-      }
-    },
-    "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IMember.sol": {
-      "lastModificationDate": 1656863787647,
-      "contentHash": "a9da7b823d379e20464036cd71ec3c73",
-      "sourceName": "src\\interfaces\\IMember.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "IMember": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "IMember.sol\\IMember.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\ClonesWithImmutableArgs.sol": {
       "lastModificationDate": 1656863777040,
@@ -504,11 +373,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ClonesWithImmutableArgs": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\FixedPointMathLib.sol": {
       "lastModificationDate": 1656863777040,
@@ -538,11 +403,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "FixedPointMathLib": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\SafeTransferLib.sol": {
       "lastModificationDate": 1656863777054,
@@ -572,63 +433,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "SafeTransferLib": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
-        }
-      }
-    },
-    "C:\\Users\\rossc\\shivaz\\src\\test\\ClubNFT.t.sol": {
-      "lastModificationDate": 1656898187207,
-      "contentHash": "9415e8cb95d0335a2f4f6fe97381b6ec",
-      "sourceName": "src\\test\\ClubNFT.t.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [
-        "lib\\ds-test\\src/test.sol",
-        "lib/forge-std/src/Test.sol",
-        "lib\\forge-std\\src\\Vm.sol",
-        "lib\\forge-std\\src\\console.sol",
-        "lib\\forge-std\\src\\console2.sol",
-        "src\\ClubNFT.sol",
-        "src\\KaliClub.sol",
-        "src\\KaliClubFactory.sol",
-        "src\\interfaces\\IERC1271.sol",
-        "src\\interfaces\\IMember.sol",
-        "src\\libraries\\ClonesWithImmutableArgs.sol",
-        "src\\utils\\Multicall.sol",
-        "src\\utils\\NFTreceiver.sol"
-      ],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ClubNFTtest": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ClubNFT.t.sol\\ClubNFTtest.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1656898390818,
-      "contentHash": "2ad854793a650b3a012bb24147dfd76d",
+      "lastModificationDate": 1657055640237,
+      "contentHash": "4437bfce110542bb9f4d40d33ef5559c",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
@@ -660,25 +469,20 @@
         "lib\\forge-std\\src\\console2.sol",
         "lib/solmate/src/test/utils/mocks/MockERC20.sol",
         "lib\\solmate\\src\\tokens\\ERC20.sol",
-        "src\\ClubNFT.sol",
+        "src\\ERC1155votes.sol",
         "src\\KaliClub.sol",
         "src\\KaliClubFactory.sol",
         "src\\interfaces\\IERC1271.sol",
-        "src\\interfaces\\IMember.sol",
         "src\\libraries\\ClonesWithImmutableArgs.sol",
         "src\\utils\\Multicall.sol",
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ClubTest": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubFactory.t.sol": {
-      "lastModificationDate": 1656872541239,
-      "contentHash": "2f7e9899a8d98e6f8de7256f90a661b2",
+      "lastModificationDate": 1657055677868,
+      "contentHash": "cce150f8c74bee61de11001802b2c801",
       "sourceName": "src\\test\\KaliClubFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -708,21 +512,16 @@
         "lib\\forge-std\\src\\Vm.sol",
         "lib\\forge-std\\src\\console.sol",
         "lib\\forge-std\\src\\console2.sol",
-        "src\\ClubNFT.sol",
+        "src\\ERC1155votes.sol",
         "src\\KaliClub.sol",
         "src\\KaliClubFactory.sol",
         "src\\interfaces\\IERC1271.sol",
-        "src\\interfaces\\IMember.sol",
         "src\\libraries\\ClonesWithImmutableArgs.sol",
         "src\\utils\\Multicall.sol",
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "KaliClubSigFactoryTest": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\utils\\Multicall.sol": {
       "lastModificationDate": 1656863777058,
@@ -752,11 +551,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "Multicall": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "Multicall.sol\\Multicall.json"
-        }
-      }
+      "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\utils\\NFTreceiver.sol": {
       "lastModificationDate": 1656863777058,
@@ -786,11 +581,7 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "NFTreceiver": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
-        }
-      }
+      "artifacts": {}
     }
   }
 }

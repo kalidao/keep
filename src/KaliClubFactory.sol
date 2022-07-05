@@ -1,44 +1,43 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Call, KaliClub} from './KaliClub.sol';
+/// @dev Contracts
+import {
+    Call, 
+    Multicall, 
+    KaliClub
+} from "./KaliClub.sol";
 
-import {IMember} from './interfaces/IMember.sol';
+/// @dev Libraries
+import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
 
-import {ClonesWithImmutableArgs} from './libraries/ClonesWithImmutableArgs.sol';
-
-import {Multicall} from './utils/Multicall.sol';
-
-/// @notice Kali ClubSig Factory
-contract KaliClubFactory is IMember, Multicall {
+/// @notice Kali Club Factory
+contract KaliClubFactory is Multicall {
     /// -----------------------------------------------------------------------
-    /// Library Usage
+    /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
 
     using ClonesWithImmutableArgs for address;
 
     /// -----------------------------------------------------------------------
-    /// Events
+    /// EVENTS
     /// -----------------------------------------------------------------------
 
     event ClubDeployed(
         Call[] calls,
-        Member[] members,
-        uint256 quorum,
-        bytes32 name,
-        bytes32 symbol,
-        bool signerPaused,
-        string baseURI
+        address[] signers,
+        uint256 threshold,
+        bytes32 name
     );
 
     /// -----------------------------------------------------------------------
-    /// Immutable Parameters
+    /// IMMUTABLES
     /// -----------------------------------------------------------------------
     
-    KaliClub private immutable clubMaster;
+    KaliClub internal immutable clubMaster;
 
     /// -----------------------------------------------------------------------
-    /// Constructor
+    /// CONSTRUCTOR
     /// -----------------------------------------------------------------------
 
     constructor(KaliClub _clubMaster) payable {
@@ -46,47 +45,38 @@ contract KaliClubFactory is IMember, Multicall {
     }
 
     /// -----------------------------------------------------------------------
-    /// Deployment
+    /// DEPLOYMENT LOGIC
     /// -----------------------------------------------------------------------
 
     function deployClub(
         Call[] calldata calls,
-        Member[] calldata members,
-        uint256 quorum,
-        bytes32 name,
-        bytes32 symbol,
-        bool signerPaused,
-        string memory baseURI
-    ) external payable returns (KaliClub club) {
-        // uniqueness is enforced on club name
-        club = KaliClub(
+        address[] calldata signers,
+        uint256 threshold,
+        bytes32 name // salt
+    ) external payable {
+        KaliClub club = KaliClub(
             address(clubMaster)._clone(
                 name,
-                abi.encodePacked(name, symbol, uint64(block.chainid))
+                abi.encodePacked(name, block.chainid)
             )
         );
 
         club.init{value: msg.value}(
             calls,
-            members,
-            quorum,
-            signerPaused,
-            baseURI
+            signers,
+            threshold
         );
 
         emit ClubDeployed(
             calls,
-            members,
-            quorum,
-            name,
-            symbol,
-            signerPaused,
-            baseURI
+            signers,
+            threshold,
+            name
         );
     }
     
-    function determineClone(bytes32 name, bytes32 symbol) external view returns (address club, bool deployed) {   
+    function determineClone(bytes32 name) external view returns (address club, bool deployed) {   
         (club, deployed) = address(clubMaster)._predictDeterministicAddress(
-            name, abi.encodePacked(name, symbol, uint64(block.chainid)));
+            name, abi.encodePacked(name, block.chainid));
     } 
 }
