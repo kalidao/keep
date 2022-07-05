@@ -45,7 +45,7 @@ contract KaliClubSigFactoryTest is Test {
             ? alice
             : bob;
         // vm.expectEmit(true, true, false, false);
-        (depClubSig, ) = determineClone(name); 
+        (depClubSig, ) = factory.determineClone(name); 
 
         factory.deployClub(
             calls,
@@ -66,7 +66,7 @@ contract KaliClubSigFactoryTest is Test {
             ? alice
             : bob;
         // vm.expectEmit(true, true, false, false);
-        (depClubSig, ) = determineClone(name); 
+        (depClubSig, ) = factory.determineClone(name); 
 
         factory.deployClub(
             calls,

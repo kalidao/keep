@@ -114,7 +114,7 @@ contract ClubTest is Test {
             ? alice
             : bob;
 
-        (club, ) = determineClone(name); 
+        (club, ) = factory.determineClone(name); 
         // The factory is fully tested in KaliClubFactory.t.sol
         factory.deployClub(
             calls,
@@ -140,7 +140,7 @@ contract ClubTest is Test {
             ? alice
             : bob;
         
-        (clubRepeat, ) = determineClone(name2); 
+        (clubRepeat, ) = factory.determineClone(name2); 
   
         factory.deployClub(
             calls,

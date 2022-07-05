@@ -249,8 +249,8 @@
       "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657055315761,
-      "contentHash": "738c9ca70a28294e388f0336c94098f9",
+      "lastModificationDate": 1657055930757,
+      "contentHash": "30360f0530b5339d956d3674ad96d774",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -284,8 +284,8 @@
       "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1657054816723,
-      "contentHash": "25dfea5591116c3cebc58a4fab478495",
+      "lastModificationDate": 1657055954664,
+      "contentHash": "3305567e8391533c0e958cf90f34a19d",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
         "settings": {

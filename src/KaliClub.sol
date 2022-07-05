@@ -10,14 +10,11 @@ import {Multicall} from "./utils/Multicall.sol";
 import {NFTreceiver} from "./utils/NFTreceiver.sol";
 
 /// @title Kali Club
-/// @notice EIP-712-signed multi-sig with voteable ERC-1155 NFT for signers
+/// @notice EIP-712-signed multi-sig with ERC-1155 NFT for signers
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
-/// License-Identifier: MIT
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
-/// License-Identifier: AGPL-3.0-only
 /// @dev Lightweight implementation of Moloch v3 
 /// (https://github.com/Moloch-Mystics/Baal/blob/main/contracts/Baal.sol)
-/// License-Identifier: UNLICENSED
 
 enum Operation {
     call,
@@ -85,6 +82,8 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// -----------------------------------------------------------------------
     /// Club Storage/Logic
     /// -----------------------------------------------------------------------
+    
+    address public admin;
     
     /// @notice Renderer for metadata (set in master contract)
     KaliClub internal immutable uriFetcher;
@@ -233,7 +232,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         nonce = 1;
         quorum = uint64(threshold);
         totalSupply = uint64(supply);
-        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
@@ -332,7 +331,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// @notice Execute operations from club with signed execute() or as governor
     /// @param calls Arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
-    function batchExecute(Call[] calldata calls) external payable onlyClubOrGovernance returns (bool[] memory successes) {
+    function batchExecute(Call[] calldata calls) external payable onlyClubGovernance returns (bool[] memory successes) {
         successes = new bool[](calls.length);
 
         for (uint256 i; i < calls.length; ) {
@@ -449,7 +448,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) external payable onlyClubOrGovernance {
+    ) external payable onlyClubGovernance {
         if (id == 0) revert SIGNER_ID();
 
         _mint(to, id, amount, data);
