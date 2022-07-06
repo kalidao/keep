@@ -152,7 +152,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
             );
     }
 
-    function _INITIAL_CHAIN_ID() internal pure returns (uint256 chainId) {
+    function _INITIAL_CHAIN_ID() public pure returns (uint256 chainId) {
         uint256 offset;
 
         assembly {
