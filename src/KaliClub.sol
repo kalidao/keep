@@ -52,7 +52,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// @notice Emitted when club executes contract creation
     event ContractCreated(
         Operation op,
-        address deployment,
+        address indexed deployment,
         uint256 value
     );
 
