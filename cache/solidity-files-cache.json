@@ -1,0 +1,671 @@
+{
+  "_format": "ethers-rs-sol-cache-2",
+  "files": {
+    "C:\\Users\\rossc\\shivaz\\lib\\ds-test\\src/test.sol": {
+      "lastModificationDate": 1656863795108,
+      "contentHash": "2c9806925f5d78ba4f4fb0570611cca3",
+      "sourceName": "lib\\ds-test\\src/test.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.5.0",
+      "artifacts": {
+        "DSTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "test.sol\\DSTest.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\lib/forge-std/src/Test.sol": {
+      "lastModificationDate": 1656863796764,
+      "contentHash": "1ece9d35c29f52812986b580299aa708",
+      "sourceName": "lib/forge-std/src/Test.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\ds-test\\src/test.sol",
+        "lib\\forge-std\\src\\Vm.sol",
+        "lib\\forge-std\\src\\console.sol",
+        "lib\\forge-std\\src\\console2.sol"
+      ],
+      "versionRequirement": ">=0.6.0, <0.9.0",
+      "artifacts": {
+        "Test": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\Test.json"
+        },
+        "stdError": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdError.json"
+        },
+        "stdMath": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdMath.json"
+        },
+        "stdStorage": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdStorage.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\Vm.sol": {
+      "lastModificationDate": 1656863796767,
+      "contentHash": "a22fa01e11b459780d75741f9831bf77",
+      "sourceName": "lib\\forge-std\\src\\Vm.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.6.0",
+      "artifacts": {
+        "Vm": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Vm.sol\\Vm.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console.sol": {
+      "lastModificationDate": 1656863796769,
+      "contentHash": "c8cf989d04bc2e3069e3d91facf3b69c",
+      "sourceName": "lib\\forge-std\\src\\console.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.4.22, <0.9.0",
+      "artifacts": {
+        "console": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "console.sol\\console.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console2.sol": {
+      "lastModificationDate": 1656863796771,
+      "contentHash": "84e14285f3171a14073d0f81363094ac",
+      "sourceName": "lib\\forge-std\\src\\console2.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.4.22, <0.9.0",
+      "artifacts": {
+        "console2": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "console2.sol\\console2.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
+      "lastModificationDate": 1656863801095,
+      "contentHash": "a43ff973f6fc1afad3fb92e761b233fc",
+      "sourceName": "lib/solmate/src/test/utils/mocks/MockERC20.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\solmate\\src\\tokens\\ERC20.sol"
+      ],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "MockERC20": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "MockERC20.sol\\MockERC20.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\lib\\solmate\\src\\tokens\\ERC20.sol": {
+      "lastModificationDate": 1656863801109,
+      "contentHash": "d2ad526807a28c2037b29b17aa2dbbc1",
+      "sourceName": "lib\\solmate\\src\\tokens\\ERC20.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "ERC20": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC20.sol\\ERC20.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\ERC1155votes.sol": {
+      "lastModificationDate": 1657062222591,
+      "contentHash": "7e31653be1b953d47f0d758a4022993f",
+      "sourceName": "src\\ERC1155votes.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "ERC1155TokenReceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155votes.sol\\ERC1155TokenReceiver.json"
+        },
+        "ERC1155votes": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155votes.sol\\ERC1155votes.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
+      "lastModificationDate": 1657074326177,
+      "contentHash": "f1c82cb3415b318658e8369a3c81ecf7",
+      "sourceName": "src\\KaliClub.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src\\ERC1155votes.sol",
+        "src\\interfaces\\IERC1271.sol",
+        "src\\utils\\Multicall.sol",
+        "src\\utils\\NFTreceiver.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "KaliClub": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.sol\\KaliClub.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\KaliClubFactory.sol": {
+      "lastModificationDate": 1657074313761,
+      "contentHash": "569c025eb1e5395b709caa26fca7e0a1",
+      "sourceName": "src\\KaliClubFactory.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src\\libraries\\ClonesWithImmutableArgs.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "KaliClubFactory": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IERC1271.sol": {
+      "lastModificationDate": 1656863777040,
+      "contentHash": "1d237d6efe99fe2f3f2873508e97327a",
+      "sourceName": "src\\interfaces\\IERC1271.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "IERC1271": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IERC1271.sol\\IERC1271.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\libraries\\ClonesWithImmutableArgs.sol": {
+      "lastModificationDate": 1656863777040,
+      "contentHash": "9fabda5a263cbd538c11c6eb5e42b00d",
+      "sourceName": "src\\libraries\\ClonesWithImmutableArgs.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "ClonesWithImmutableArgs": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\libraries\\FixedPointMathLib.sol": {
+      "lastModificationDate": 1656863777040,
+      "contentHash": "f7f23a259ab29739400f6a8eb83b315c",
+      "sourceName": "src\\libraries\\FixedPointMathLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "FixedPointMathLib": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\libraries\\SafeTransferLib.sol": {
+      "lastModificationDate": 1656863777054,
+      "contentHash": "d0fca59173a8edd3b69ec9f7f347124c",
+      "sourceName": "src\\libraries\\SafeTransferLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "SafeTransferLib": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClub.t.sol": {
+      "lastModificationDate": 1657067913020,
+      "contentHash": "2effa5a1acefb5ca373e00a2185a8847",
+      "sourceName": "src\\test\\KaliClub.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\ds-test\\src/test.sol",
+        "lib/forge-std/src/Test.sol",
+        "lib\\forge-std\\src\\Vm.sol",
+        "lib\\forge-std\\src\\console.sol",
+        "lib\\forge-std\\src\\console2.sol",
+        "lib/solmate/src/test/utils/mocks/MockERC20.sol",
+        "lib\\solmate\\src\\tokens\\ERC20.sol",
+        "src\\ERC1155votes.sol",
+        "src\\KaliClub.sol",
+        "src\\KaliClubFactory.sol",
+        "src\\interfaces\\IERC1271.sol",
+        "src\\libraries\\ClonesWithImmutableArgs.sol",
+        "src\\utils\\Multicall.sol",
+        "src\\utils\\NFTreceiver.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "ClubTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubFactory.t.sol": {
+      "lastModificationDate": 1657067846760,
+      "contentHash": "fd85a955ec5101a6fad7ebe72c8a5d0f",
+      "sourceName": "src\\test\\KaliClubFactory.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\ds-test\\src/test.sol",
+        "lib/forge-std/src/Test.sol",
+        "lib\\forge-std\\src\\Vm.sol",
+        "lib\\forge-std\\src\\console.sol",
+        "lib\\forge-std\\src\\console2.sol",
+        "src\\ERC1155votes.sol",
+        "src\\KaliClub.sol",
+        "src\\KaliClubFactory.sol",
+        "src\\interfaces\\IERC1271.sol",
+        "src\\libraries\\ClonesWithImmutableArgs.sol",
+        "src\\utils\\Multicall.sol",
+        "src\\utils\\NFTreceiver.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "KaliClubSigFactoryTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\utils\\Multicall.sol": {
+      "lastModificationDate": 1656863777058,
+      "contentHash": "2fe1ec9f2ef4cdd1ec27e36b06a4ddce",
+      "sourceName": "src\\utils\\Multicall.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "Multicall": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Multicall.sol\\Multicall.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\shivaz\\src\\utils\\NFTreceiver.sol": {
+      "lastModificationDate": 1656863777058,
+      "contentHash": "13a6a75b50a455b9fdacdf8e0949fc1c",
+      "sourceName": "src\\utils\\NFTreceiver.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "NFTreceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
+        }
+      }
+    }
+  }
+}

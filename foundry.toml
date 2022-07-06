@@ -6,11 +6,14 @@
 [default]
 # Sets the concrete solc version to use
 # This overrides the `auto_detect_solc` value
-solc_version = '0.8.14'
+solc_version = '0.8.15'
 auto_detect_solc = false
+# EVM setting
+evm_version = 'london'
 # Increase optimizer_runs
 optimizer = true
 optimizer_runs = 1_000
+via_ir = false
 # Fuzz more than the default 256
 fuzz_runs = 1_000
 # Configure remappings
