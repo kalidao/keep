@@ -2,7 +2,7 @@
 
 # multi-sig • [![tests](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/multi-sig)  ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/multi-sig)
 
-EIP-712 signed multi-signature contract with ragequit and NFT identifiers for signers.
+EIP-712 multi-sig with ERC-1155 for signers.
 
 ## Blueprint
 
@@ -13,10 +13,9 @@ lib
 src
 ├─ tests
 │  └─ ...
-├─ ClubNFT — "Modern, minimalist, and gas efficient ERC-721 implementation designed for governance"
-├─ KaliClubSig — "EIP-712-signed multi-signature contract with ragequit and NFT identifiers for signers"
-├─ ClubLoot — "Modern and gas efficient ERC20 + EIP-2612 implementation designed for Kali ClubSig"
-└─ KaliClubSigFactory — "KaliClubSig Contract Factory"
+├─ ERC1155votes — "Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting"
+├─ KaliClub — "EIP-712 multi-sig with ERC-1155 for signers"
+└─ KaliClubFactory — "Kali Club Factory"
 ```
 
 ## Development
