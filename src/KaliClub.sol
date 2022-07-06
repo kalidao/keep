@@ -41,12 +41,19 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// EVENTS
     /// -----------------------------------------------------------------------
 
-    /// @notice Emitted when club executes operation
+    /// @notice Emitted when club executes call
     event Executed(
         Operation op,
         address indexed to, 
         uint256 value, 
         bytes data
+    );
+
+    /// @notice Emitted when club executes contract creation
+    event ContractCreated(
+        Operation op,
+        address deployment,
+        uint256 value
     );
 
     /// @notice Emitted when quorum threshold is updated
@@ -404,15 +411,31 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
 
             emit Executed(op, to, value, data);
         } else if (op == Operation.create) {
+            address deployment;
+
             assembly {
-                success := create(value, add(data, 0x20), mload(data))
+                deployment := create(value, add(data, 0x20), mload(data))
+
+                if iszero(deployment) {
+                    revert(0, 0)
+                }
             }
+
+            emit ContractCreated(op, deployment, value);
         } else {
+            address deployment;
+
             bytes32 salt = bytes32(bytes20(to));
 
             assembly {
-                success := create2(value, add(0x20, data), mload(data), salt)
+                deployment := create2(value, add(0x20, data), mload(data), salt)
+
+                if iszero(deployment) {
+                    revert(0, 0)
+                }
             }
+
+            emit ContractCreated(op, deployment, value);
         }
 
         if (!success) revert EXECUTE_FAILED();
