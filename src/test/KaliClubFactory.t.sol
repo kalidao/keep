@@ -7,8 +7,11 @@ import {KaliClubFactory} from "../KaliClubFactory.sol";
 import "@std/Test.sol";
 
 contract KaliClubSigFactoryTest is Test {
+    address clubAddr;
     KaliClub clubSig;
     KaliClubFactory factory;
+
+    address[] signers;
 
     /// @dev Users
 
@@ -32,21 +35,12 @@ contract KaliClubSigFactoryTest is Test {
         clubSig = new KaliClub(KaliClub(alice));
         // create the factory
         factory = new KaliClubFactory(clubSig);
+        // Create the signers
+        signers.push(alice);
+        signers.push(bob);
     }
 
     function testDeployClubSig() public {
-        KaliClub depClubSig;
-        // Create the Signer[]
-        address[] memory signers = new address[](2);
-        signers[0] = alice > bob
-            ? bob
-            : alice;
-        signers[1] = alice > bob
-            ? alice
-            : bob;
-        // vm.expectEmit(true, true, false, false);
-        (depClubSig, ) = factory.determineClone(name); 
-
         factory.deployClub(
             calls,
             signers,
@@ -56,18 +50,8 @@ contract KaliClubSigFactoryTest is Test {
     }
 
     function testCloneAddressDetermination() public {
-        KaliClub depClubSig;
-        // Create the Signer[]
-        address[] memory signers = new address[](2);
-        signers[0] = alice > bob
-            ? bob
-            : alice;
-        signers[1] = alice > bob
-            ? alice
-            : bob;
-        // vm.expectEmit(true, true, false, false);
-        (depClubSig, ) = factory.determineClone(name); 
-
+        (clubAddr, ) = factory.determineClone(name); 
+        clubSig = KaliClub(clubAddr);
         factory.deployClub(
             calls,
             signers,
@@ -75,9 +59,10 @@ contract KaliClubSigFactoryTest is Test {
             name
         );
         // check CREATE2 clones match expected outputs
-        (address clubAddr, bool deployed) = factory.determineClone(name);
+        bool deployed;
+        (clubAddr, deployed) = factory.determineClone(name);
         assertEq(
-            address(depClubSig),
+            address(clubSig),
             clubAddr
         );
         assertEq(

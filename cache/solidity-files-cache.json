@@ -219,8 +219,8 @@
       "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\ERC1155votes.sol": {
-      "lastModificationDate": 1657052972915,
-      "contentHash": "51c62169246387d6fb3fb7119e10ff25",
+      "lastModificationDate": 1657062222591,
+      "contentHash": "7e31653be1b953d47f0d758a4022993f",
       "sourceName": "src\\ERC1155votes.sol",
       "solcConfig": {
         "settings": {
@@ -249,8 +249,8 @@
       "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657055930757,
-      "contentHash": "30360f0530b5339d956d3674ad96d774",
+      "lastModificationDate": 1657067466532,
+      "contentHash": "43be706aeb8491db1e9da7ce59bcc8c4",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -281,11 +281,15 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClub": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.sol\\KaliClub.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1657055954664,
-      "contentHash": "3305567e8391533c0e958cf90f34a19d",
+      "lastModificationDate": 1657058556926,
+      "contentHash": "08ba007d458ff582546d67a7439f700d",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
         "settings": {
@@ -436,8 +440,8 @@
       "artifacts": {}
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1657055640237,
-      "contentHash": "4437bfce110542bb9f4d40d33ef5559c",
+      "lastModificationDate": 1657066975718,
+      "contentHash": "229499396453cff4b19a91add9d5e65f",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
@@ -478,11 +482,15 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClubTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubFactory.t.sol": {
-      "lastModificationDate": 1657055677868,
-      "contentHash": "cce150f8c74bee61de11001802b2c801",
+      "lastModificationDate": 1657057254537,
+      "contentHash": "190b21e1e5596234635e0f3eb31514b3",
       "sourceName": "src\\test\\KaliClubFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -521,7 +529,11 @@
         "src\\utils\\NFTreceiver.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubSigFactoryTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\utils\\Multicall.sol": {
       "lastModificationDate": 1656863777058,

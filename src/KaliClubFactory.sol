@@ -57,7 +57,7 @@ contract KaliClubFactory is Multicall {
         KaliClub club = KaliClub(
             address(clubMaster)._clone(
                 name,
-                abi.encodePacked(name, block.chainid)
+                abi.encodePacked(name, uint64(block.chainid))
             )
         );
 
@@ -77,6 +77,6 @@ contract KaliClubFactory is Multicall {
     
     function determineClone(bytes32 name) external view returns (address club, bool deployed) {   
         (club, deployed) = address(clubMaster)._predictDeterministicAddress(
-            name, abi.encodePacked(name, block.chainid));
+            name, abi.encodePacked(name, uint64(block.chainid)));
     } 
 }

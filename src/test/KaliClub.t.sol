@@ -5,7 +5,6 @@ import {
     Operation, 
     Call, 
     Signature, 
-    Signer, 
     KaliClub
 } from "../KaliClub.sol";
 import {
@@ -19,6 +18,8 @@ import "@std/Test.sol";
 contract ClubTest is Test {
     using stdStorage for StdStorage;
 
+    address clubAddr;
+    address clubAddrRepeat;
     KaliClub club;
     KaliClub clubRepeat;
     KaliClubFactory factory;
@@ -114,7 +115,8 @@ contract ClubTest is Test {
             ? alice
             : bob;
 
-        (club, ) = factory.determineClone(name); 
+        (clubAddr, ) = factory.determineClone(name); 
+        club = KaliClub(clubAddr);
         // The factory is fully tested in KaliClubFactory.t.sol
         factory.deployClub(
             calls,
@@ -140,8 +142,8 @@ contract ClubTest is Test {
             ? alice
             : bob;
         
-        (clubRepeat, ) = factory.determineClone(name2); 
-  
+        (clubAddrRepeat, ) = factory.determineClone(name2); 
+        clubRepeat = KaliClub(clubAddrRepeat);
         factory.deployClub(
             calls,
             signers,
@@ -182,7 +184,7 @@ contract ClubTest is Test {
             ? alice
             : bob;
 
-        vm.expectRevert(bytes4(keccak256("QUORUM_OVER_SIGS()")));
+        vm.expectRevert(bytes4(keccak256("QUORUM_OVER_SUPPLY()")));
         factory.deployClub(
             calls,
             signers,
@@ -220,13 +222,14 @@ contract ClubTest is Test {
 
     function testQuorum() public {
         assert(club.quorum() == 2);
-        address db = address(0xdeadbeef);
-
-        Signer[] memory signers = new Signer[](1);
-        signers[0] = Signer(true, db);
 
         vm.prank(address(club));
-        club.govern(signers, 3);
+        club.mintSigner(charlie);
+        vm.stopPrank();
+
+        vm.prank(address(club));
+        club.setQuorum(3);
+        vm.stopPrank();
 
         assert(club.quorum() == 3);
     }
@@ -468,21 +471,23 @@ contract ClubTest is Test {
         assert(club.totalSupply() == 2);
         address db = address(0xdeadbeef);
 
-        Signer[] memory signers = new Signer[](1);
-        signers[0] = Signer(true, db);
-
         vm.prank(address(club));
-        club.govern(signers, 3);
+        club.mintSigner(db);
+        vm.stopPrank();
+
         assert(club.totalSupply() == 3);
-        assert(club.quorum() == 3);
+        assert(club.quorum() == 2);
     }
 
     function testGovernBurn() public {
-        Signer[] memory signers = new Signer[](1);
-        signers[0] = Signer(false, alice);
+        vm.prank(address(club));
+        club.setQuorum(1);
+        vm.stopPrank();
 
         vm.prank(address(club));
-        club.govern(signers, 1);
+        club.burnSigner(alice);
+        vm.stopPrank();
+
         assert(club.totalSupply() == 1);
         assert(club.quorum() == 1);
     }
@@ -499,21 +504,25 @@ contract ClubTest is Test {
         vm.stopPrank();
         assertTrue(club.governance(dave));
     }
-    /*
-    function testSetPause(address dave) public {
+    
+    function testSetTransferability(
+        address dave, 
+        uint256 id, 
+        bool transferability
+    ) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256('Forbidden()')));
-        club.setPause(0, true);
+        vm.expectRevert(bytes4(keccak256('NOT_AUTHORIZED()')));
+        club.setTokenTransferability(0, transferability);
         vm.stopPrank();
-        assertTrue(!club.paused());
+        assertTrue(!club.transferable(0));
 
         // The club itself should be able to flip pause
         startHoax(address(club), address(club), type(uint256).max);
-        club.setPause(0, true);
+        club.setTokenTransferability(0, transferability);
         vm.stopPrank();
-        assertTrue(club.paused());
+        assertTrue(club.transferable(0) == transferability);
     }
-    */
+    
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
