@@ -163,7 +163,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         }
         
         assembly {
-            chainId := calldataload(add(offset, 0))
+            chainId := shr(0xc0, calldataload(add(offset, 0)))
         }
     }
 
