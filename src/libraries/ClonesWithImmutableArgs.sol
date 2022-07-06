@@ -4,7 +4,6 @@ pragma solidity >=0.8.4;
 /// @notice Enables creating clone contracts with immutable arguments and CREATE2
 /// @author Modified from wighawag, zefram.eth
 /// (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
-/// License-Identifier: BSD
 /// @dev extended by will@0xsplits.xyz to add receive() without DELEGECALL & create2 support
 /// (h/t WyseNynja https://github.com/wighawag/clones-with-immutable-args/issues/4)
 library ClonesWithImmutableArgs {
@@ -17,7 +16,7 @@ library ClonesWithImmutableArgs {
     /// @return ptr The ptr to the clone's bytecode
     /// @return creationSize The size of the clone to be created
     function _cloneCreationCode(address implementation, bytes memory data)
-        private
+        internal
         pure
         returns (uint256 ptr, uint256 creationSize)
     {
@@ -40,6 +39,7 @@ library ClonesWithImmutableArgs {
                     ptr,
                     0x6100000000000000000000000000000000000000000000000000000000000000
                 )
+                
                 mstore(add(ptr, 0x01), shl(240, runSize)) // size of the contract running bytecode (16 bits)
 
                 // creation size = 0a
@@ -82,15 +82,18 @@ library ClonesWithImmutableArgs {
                     add(ptr, 0x03),
                     0x3d81600a3d39f336602f57343d527f0000000000000000000000000000000000
                 )
+                
                 mstore(
                     add(ptr, 0x12),
                     // = keccak256('ReceiveETH(uint256)')
                     0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff
                 )
+                
                 mstore(
                     add(ptr, 0x32),
                     0x60203da13d3df35b3d3d3d3d363d3d3761000000000000000000000000000000
                 )
+                
                 mstore(add(ptr, 0x43), shl(240, extraLength))
 
                 // 60 0x67     | PUSH1 0x67            | 0x67 extra 0 0 0 0      | [0, cds) = calldata // 0x67 (103) is runtime size - data
@@ -102,6 +105,7 @@ library ClonesWithImmutableArgs {
                     add(ptr, 0x45),
                     0x6067363936610000000000000000000000000000000000000000000000000000
                 )
+                
                 mstore(add(ptr, 0x4b), shl(240, extraLength))
 
                 // 01          | ADD                   | cds+extra 0 0 0 0       | [0, cds) = calldata, [cds, cds+0x37) = extraData
@@ -111,6 +115,7 @@ library ClonesWithImmutableArgs {
                     add(ptr, 0x4d),
                     0x013d730000000000000000000000000000000000000000000000000000000000
                 )
+                
                 mstore(add(ptr, 0x50), shl(0x60, implementation))
 
                 // 5a          | GAS                   | gas addr 0 cds 0 0 0 0  | [0, cds) = calldata, [cds, cds+0x37) = extraData
@@ -143,6 +148,7 @@ library ClonesWithImmutableArgs {
             assembly {
                 dataPtr := add(data, 32)
             }
+            
             for ( ; counter >= 32; counter -= 32) {
                 assembly {
                     mstore(copyPtr, mload(dataPtr))
@@ -151,11 +157,13 @@ library ClonesWithImmutableArgs {
                 copyPtr += 32;
                 dataPtr += 32;
             }
+            
             uint256 mask = ~(256**(32 - counter) - 1);
 
             assembly {
                 mstore(copyPtr, and(mload(dataPtr), mask))
             }
+            
             copyPtr += counter;
 
             assembly {
@@ -183,6 +191,7 @@ library ClonesWithImmutableArgs {
         assembly {
             instance := create2(0, creationPtr, creationSize, salt)
         }
+        
         // if the create2 failed, the instance address won't be set
         if (instance == address(0)) {
             revert Create2fail();
