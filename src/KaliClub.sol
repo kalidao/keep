@@ -52,12 +52,12 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// @notice Emitted when club executes contract creation
     event ContractCreated(
         Operation op,
-        address indexed deployment,
+        address indexed creation,
         uint256 value
     );
 
     /// @notice Emitted when quorum threshold is updated
-    event QuorumSet(address indexed caller, uint256 threshold);
+    event QuorumSet(address indexed caller, uint64 threshold);
 
     /// @notice Emitted when admin access is set
     event AdminSet(address indexed to);
@@ -128,8 +128,10 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// @notice Token URI metadata fetcher
     /// @dev Fetches external reference if no local
     function uri(uint256 id) external view returns (string memory) {
-        if (bytes(_tokenURIs[id]).length == 0) return uriFetcher.uri(id);
-        else return _tokenURIs[id];
+        string memory tokenURI = _tokenURIs[id];
+
+        if (bytes(tokenURI).length == 0) return uriFetcher.uri(id);
+        else return tokenURI;
     }
 
     /// -----------------------------------------------------------------------
@@ -142,21 +144,6 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
             block.chainid == _INITIAL_CHAIN_ID()
                 ? _INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() internal view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-                    ),
-                    keccak256(bytes('KaliClub')),
-                    keccak256('1'),
-                    block.chainid,
-                    address(this)
-                )
-            );
     }
 
     function _INITIAL_CHAIN_ID() internal pure returns (uint256 chainId) {
@@ -172,6 +159,21 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         assembly {
             chainId := calldataload(add(offset, 5))
         }
+    }
+
+    function _computeDomainSeparator() internal view returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+                    ),
+                    keccak256(bytes('KaliClub')),
+                    keccak256('1'),
+                    block.chainid,
+                    address(this)
+                )
+            );
     }
 
     /// -----------------------------------------------------------------------
@@ -200,7 +202,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
                 revert(0, 0)
             }
         }
-
+        
         if (threshold > signers.length) revert QUORUM_OVER_SUPPLY();
 
         if (calls.length != 0) {
@@ -306,8 +308,10 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     ) external payable returns (bool success) {
         // begin signature validation with call data
         bytes32 digest = getDigest(op, to, value, data, nonce);
+        
         // start from null in loop to ensure ascending addresses
         address prevAddr;
+        
         // validation is length of quorum threshold 
         uint256 threshold = quorum;
 
@@ -329,9 +333,11 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
                 ) revert INVALID_SIG();
             }
 
-            // check NFT balance and duplicates
-            if (balanceOf[signer][0] == 0 || prevAddr >= signer)
-                revert INVALID_SIG();
+            // check NFT balance
+            if (balanceOf[signer][0] == 0) revert INVALID_SIG();
+
+            // check duplicates
+            if (prevAddr >= signer) revert INVALID_SIG();
 
             // set prevAddr to signer for next iteration until quorum
             prevAddr = signer;
@@ -396,6 +402,8 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
                 )
             }
 
+            if (!success) revert EXECUTE_FAILED();
+
             emit Executed(op, to, value, data);
         } else if (op == Operation.delegatecall) {
             assembly {
@@ -409,46 +417,41 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
                 )
             }
 
+            if (!success) revert EXECUTE_FAILED();
+
             emit Executed(op, to, value, data);
         } else if (op == Operation.create) {
-            address deployment;
+            address creation;
 
             assembly {
-                deployment := create(value, add(data, 0x20), mload(data))
-
-                if iszero(deployment) {
-                    revert(0, 0)
-                }
+                creation := create(value, add(data, 0x20), mload(data))
             }
 
-            emit ContractCreated(op, deployment, value);
-        } else {
-            address deployment;
+            if (creation == address(0)) revert EXECUTE_FAILED();
 
+            emit ContractCreated(op, creation, value);
+        } else {
+            address creation;
             bytes32 salt = bytes32(bytes20(to));
 
             assembly {
-                deployment := create2(value, add(0x20, data), mload(data), salt)
-
-                if iszero(deployment) {
-                    revert(0, 0)
-                }
+                creation := create2(value, add(0x20, data), mload(data), salt)
             }
 
-            emit ContractCreated(op, deployment, value);
-        }
+            if (creation == address(0)) revert EXECUTE_FAILED();
 
-        if (!success) revert EXECUTE_FAILED();
+            emit ContractCreated(op, creation, value);
+        }
     }
     
     /// @notice Update club quorum
     /// @param threshold Signature threshold to execute() operations
-    function setQuorum(uint256 threshold) external payable onlyClubGovernance {
+    function setQuorum(uint64 threshold) external payable onlyClubGovernance {
         // note: also make sure signers don't concentrate NFTs,
         // as this could cause issues in reaching quorum
         if (threshold > totalSupply) revert QUORUM_OVER_SUPPLY();
 
-        quorum = _safeCastTo64(threshold);
+        quorum = threshold;
 
         emit QuorumSet(msg.sender, threshold);
     }
