@@ -1,6 +1,5 @@
-out
-cache
-node_modules
+out/
+cache/
 .env
 .env.prod
 .idea
