@@ -50,7 +50,7 @@ contract KaliClubSigFactoryTest is Test {
     }
 
     function testCloneAddressDetermination() public {
-        (clubAddr, ) = factory.determineClone(name); 
+        (clubAddr, ) = factory.determineClub(name); 
         clubSig = KaliClub(clubAddr);
         factory.deployClub(
             calls,
@@ -60,7 +60,7 @@ contract KaliClubSigFactoryTest is Test {
         );
         // check CREATE2 clones match expected outputs
         bool deployed;
-        (clubAddr, deployed) = factory.determineClone(name);
+        (clubAddr, deployed) = factory.determineClub(name);
         assertEq(
             address(clubSig),
             clubAddr
@@ -69,7 +69,7 @@ contract KaliClubSigFactoryTest is Test {
             deployed,
             true
         );
-        (, bool deployed2) = factory.determineClone(name2);
+        (, bool deployed2) = factory.determineClub(name2);
         assertEq(
             deployed2,
             false

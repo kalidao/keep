@@ -115,7 +115,7 @@ contract ClubTest is Test {
             ? alice
             : bob;
 
-        (clubAddr, ) = factory.determineClone(name); 
+        (clubAddr, ) = factory.determineClub(name); 
         club = KaliClub(clubAddr);
         // The factory is fully tested in KaliClubFactory.t.sol
         factory.deployClub(
@@ -142,7 +142,7 @@ contract ClubTest is Test {
             ? alice
             : bob;
         
-        (clubAddrRepeat, ) = factory.determineClone(name2); 
+        (clubAddrRepeat, ) = factory.determineClub(name2); 
         clubRepeat = KaliClub(clubAddrRepeat);
         factory.deployClub(
             calls,
@@ -512,15 +512,15 @@ contract ClubTest is Test {
     ) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('NOT_AUTHORIZED()')));
-        club.setTokenTransferability(0, transferability);
+        club.setTokenTransferability(id, transferability);
         vm.stopPrank();
-        assertTrue(!club.transferable(0));
+        assertTrue(!club.transferable(id));
 
         // The club itself should be able to flip pause
         startHoax(address(club), address(club), type(uint256).max);
-        club.setTokenTransferability(0, transferability);
+        club.setTokenTransferability(id, transferability);
         vm.stopPrank();
-        assertTrue(club.transferable(0) == transferability);
+        assertTrue(club.transferable(id) == transferability);
     }
     
     function testUpdateURI(address dave) public {

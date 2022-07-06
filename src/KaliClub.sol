@@ -58,7 +58,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// @notice Emitted when governance access is updated
     event GovernanceSet(
         address indexed caller, 
-        address indexed account, 
+        address indexed to, 
         bool approve
     );
 
@@ -78,9 +78,6 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     /// @notice Throws if execute() doesn't complete operation
     error EXECUTE_FAILED();
 
-    /// @notice Throws if mint() or burn() is called for signers
-    error NO_SIGNER_ID();
-
     /// -----------------------------------------------------------------------
     /// CLUB STORAGE/LOGIC
     /// -----------------------------------------------------------------------
@@ -95,7 +92,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     uint64 public quorum;
 
     /// @notice Total signers minted 
-    uint64 public totalSupply;
+    uint128 public totalSupply;
 
     /// @notice Initial club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
@@ -215,12 +212,13 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
                 }
             }
         }
-
+        
+        address signer;
         address prevAddr;
-        uint256 supply;
+        uint128 supply;
 
         for (uint256 i; i < signers.length; ) {
-            address signer = signers[i];
+            signer = signers[i];
 
             // prevent null and duplicate signers
             if (prevAddr >= signer) revert INVALID_SIG();
@@ -238,10 +236,10 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
 
             emit TransferSingle(msg.sender, address(0), signer, 0, 1);
         }
-     
+
         nonce = 1;
         quorum = uint64(threshold);
-        totalSupply = uint64(supply);
+        totalSupply = supply;
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
@@ -427,22 +425,34 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         // as this could cause issues in reaching quorum
         if (threshold > totalSupply) revert QUORUM_OVER_SUPPLY();
 
-        quorum = uint64(threshold);
+        quorum = _safeCastTo64(threshold);
 
         emit QuorumSet(msg.sender, threshold);
     }
 
+    /// @notice Club token ID minter
+    /// @param to The recipient of mint
+    /// @param id The token ID to mint
+    /// @param amount The amount to mint
+    /// @param data Optional data payload
+    /// @dev Token ID cannot be null
     function mint(
         address to,
         uint256 id,
         uint256 amount,
         bytes calldata data
     ) external payable onlyClubGovernance {
-        if (id == 0) revert NO_SIGNER_ID();
+        assembly {
+            if iszero(id) {
+                revert(0, 0)
+            }
+        }
 
         _mint(to, id, amount, data);
     }
 
+    /// @notice Club signer minter
+    /// @param to The recipient of signer mint
     function mintSigner(address to) public payable onlyClubGovernance {
         // won't realistically overflow
         unchecked {
@@ -454,28 +464,51 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         emit TransferSingle(msg.sender, address(0), to, 0, 1);
     }
 
+    /// @notice Club token ID burner
+    /// @param from The account to burn from
+    /// @param id The token ID to burn
+    /// @param amount The amount to burn
+    /// @dev Token ID cannot be null
     function burn(
         address from, 
         uint256 id, 
         uint256 amount
     ) external payable {
-        if (id == 0) revert NO_SIGNER_ID();
+        assembly {
+            if iszero(id) {
+                revert(0, 0)
+            }
+        }
 
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert NOT_AUTHORIZED();
+        if (
+            msg.sender != from
+            && !isApprovedForAll[from][msg.sender] 
+            && msg.sender != address(this)
+            && !governance[msg.sender]
+            && !admin[msg.sender]
+        )
+            revert NOT_AUTHORIZED();
 
         _burn(from, id, amount);
     }
 
+    /// @notice Club signer burner
+    /// @param from The account to burn signer from
     function burnSigner(address from) external payable onlyClubGovernance {
         --balanceOf[from][0];
 
-        --totalSupply;
+        // won't underflow as supply is checked above
+        unchecked {
+            --totalSupply;
+        }
 
         if (quorum > totalSupply) revert QUORUM_OVER_SUPPLY();
 
         emit TransferSingle(msg.sender, from, address(0), 0, 1);
     } 
 
+    /// @notice Club admin setter
+    /// @param to The account to set admin to
     function setAdmin(address to) external payable {
         if (msg.sender != address(this)) revert NOT_AUTHORIZED();
 
@@ -484,22 +517,31 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
         emit AdminSet(to);
     }
 
-    function setGovernance(address account, bool approve)
+    /// @notice Club governance setter
+    /// @param to The account to set governance to
+    /// @param approve The approval setting
+    function setGovernance(address to, bool approve)
         external
         payable
         onlyClubGovernance
     {
-        governance[account] = approve;
+        governance[to] = approve;
 
-        emit GovernanceSet(msg.sender, account, approve);
+        emit GovernanceSet(msg.sender, to, approve);
     }
 
+    /// @notice Club token ID transferability setter
+    /// @param id The token ID to set transferability for
+    /// @param transferability The transferability setting
     function setTokenTransferability(uint256 id, bool transferability) external payable onlyClubGovernance {
         transferable[id] = transferability;
 
         emit TokenTransferabilitySet(msg.sender, id, transferability);
     }
 
+    /// @notice Club token ID metadata setter
+    /// @param id The token ID to set metadata for
+    /// @param tokenURI The metadata setting
     function setTokenURI(uint256 id, string calldata tokenURI) external payable onlyClubGovernance {
         _tokenURIs[id] = tokenURI;
 

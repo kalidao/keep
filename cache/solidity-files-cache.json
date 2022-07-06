@@ -29,7 +29,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.5.0",
-      "artifacts": {}
+      "artifacts": {
+        "DSTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "test.sol\\DSTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib/forge-std/src/Test.sol": {
       "lastModificationDate": 1656863796764,
@@ -64,7 +68,20 @@
         "lib\\forge-std\\src\\console2.sol"
       ],
       "versionRequirement": ">=0.6.0, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "Test": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\Test.json"
+        },
+        "stdError": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdError.json"
+        },
+        "stdMath": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdMath.json"
+        },
+        "stdStorage": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdStorage.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\Vm.sol": {
       "lastModificationDate": 1656863796767,
@@ -94,7 +111,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.6.0",
-      "artifacts": {}
+      "artifacts": {
+        "Vm": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Vm.sol\\Vm.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console.sol": {
       "lastModificationDate": 1656863796769,
@@ -124,7 +145,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "console": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "console.sol\\console.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\forge-std\\src\\console2.sol": {
       "lastModificationDate": 1656863796771,
@@ -154,7 +179,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "console2": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "console2.sol\\console2.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
       "lastModificationDate": 1656863801095,
@@ -186,7 +215,11 @@
         "lib\\solmate\\src\\tokens\\ERC20.sol"
       ],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {}
+      "artifacts": {
+        "MockERC20": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "MockERC20.sol\\MockERC20.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\lib\\solmate\\src\\tokens\\ERC20.sol": {
       "lastModificationDate": 1656863801109,
@@ -216,7 +249,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {}
+      "artifacts": {
+        "ERC20": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC20.sol\\ERC20.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\ERC1155votes.sol": {
       "lastModificationDate": 1657062222591,
@@ -246,11 +283,18 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ERC1155TokenReceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155votes.sol\\ERC1155TokenReceiver.json"
+        },
+        "ERC1155votes": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155votes.sol\\ERC1155votes.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657067466532,
-      "contentHash": "43be706aeb8491db1e9da7ce59bcc8c4",
+      "lastModificationDate": 1657074326177,
+      "contentHash": "f1c82cb3415b318658e8369a3c81ecf7",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -288,8 +332,8 @@
       }
     },
     "C:\\Users\\rossc\\shivaz\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1657058556926,
-      "contentHash": "08ba007d458ff582546d67a7439f700d",
+      "lastModificationDate": 1657074313761,
+      "contentHash": "569c025eb1e5395b709caa26fca7e0a1",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
         "settings": {
@@ -317,7 +361,11 @@
         "src\\libraries\\ClonesWithImmutableArgs.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubFactory": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\interfaces\\IERC1271.sol": {
       "lastModificationDate": 1656863777040,
@@ -347,7 +395,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "IERC1271": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IERC1271.sol\\IERC1271.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\ClonesWithImmutableArgs.sol": {
       "lastModificationDate": 1656863777040,
@@ -377,7 +429,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClonesWithImmutableArgs": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\FixedPointMathLib.sol": {
       "lastModificationDate": 1656863777040,
@@ -407,7 +463,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "FixedPointMathLib": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\libraries\\SafeTransferLib.sol": {
       "lastModificationDate": 1656863777054,
@@ -437,11 +497,15 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "SafeTransferLib": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1657066975718,
-      "contentHash": "229499396453cff4b19a91add9d5e65f",
+      "lastModificationDate": 1657067913020,
+      "contentHash": "2effa5a1acefb5ca373e00a2185a8847",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
@@ -489,8 +553,8 @@
       }
     },
     "C:\\Users\\rossc\\shivaz\\src\\test\\KaliClubFactory.t.sol": {
-      "lastModificationDate": 1657057254537,
-      "contentHash": "190b21e1e5596234635e0f3eb31514b3",
+      "lastModificationDate": 1657067846760,
+      "contentHash": "fd85a955ec5101a6fad7ebe72c8a5d0f",
       "sourceName": "src\\test\\KaliClubFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -563,7 +627,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "Multicall": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Multicall.sol\\Multicall.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\shivaz\\src\\utils\\NFTreceiver.sol": {
       "lastModificationDate": 1656863777058,
@@ -593,7 +661,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "NFTreceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
+        }
+      }
     }
   }
 }

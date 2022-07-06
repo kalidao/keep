@@ -48,6 +48,13 @@ contract KaliClubFactory is Multicall {
     /// DEPLOYMENT LOGIC
     /// -----------------------------------------------------------------------
 
+    function determineClub(bytes32 name) external view returns (
+        address club, bool deployed
+    ) {   
+        (club, deployed) = address(clubMaster)._predictDeterministicAddress(
+            name, abi.encodePacked(name, uint40(block.chainid)));
+    } 
+
     function deployClub(
         Call[] calldata calls,
         address[] calldata signers,
@@ -57,7 +64,7 @@ contract KaliClubFactory is Multicall {
         KaliClub club = KaliClub(
             address(clubMaster)._clone(
                 name,
-                abi.encodePacked(name, uint64(block.chainid))
+                abi.encodePacked(name, uint40(block.chainid))
             )
         );
 
@@ -74,9 +81,4 @@ contract KaliClubFactory is Multicall {
             name
         );
     }
-    
-    function determineClone(bytes32 name) external view returns (address club, bool deployed) {   
-        (club, deployed) = address(clubMaster)._predictDeterministicAddress(
-            name, abi.encodePacked(name, uint64(block.chainid)));
-    } 
 }
