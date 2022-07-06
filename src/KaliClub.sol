@@ -476,7 +476,7 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
 
     /// @notice Club signer minter
     /// @param to The recipient of signer mint
-    function mintSigner(address to) public payable onlyClubGovernance {
+    function mintSigner(address to) external payable onlyClubGovernance {
         // won't realistically overflow
         unchecked {
             ++balanceOf[to][0];
