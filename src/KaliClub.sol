@@ -5,9 +5,9 @@ pragma solidity >=0.8.4;
 import {IERC1271} from "./interfaces/IERC1271.sol";
 
 /// @dev Contracts
-import {ERC1155votes} from "./ERC1155votes.sol";
+import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
+import {ERC1155TokenReceiver, ERC1155Votes} from "./ERC1155Votes.sol";
 import {Multicall} from "./utils/Multicall.sol";
-import {NFTreceiver} from "./utils/NFTreceiver.sol";
 
 /// @title Kali Club
 /// @notice EIP-712 multi-sig with ERC-1155 for signers
@@ -36,7 +36,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
+contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Multicall {
     /// -----------------------------------------------------------------------
     /// EVENTS
     /// -----------------------------------------------------------------------
@@ -126,12 +126,28 @@ contract KaliClub is ERC1155votes, Multicall, NFTreceiver {
     }
     
     /// @notice Token URI metadata fetcher
+    /// @param id The token ID to fetch from
     /// @dev Fetches external reference if no local
+    /// @return Token URI metadata reference
     function uri(uint256 id) external view returns (string memory) {
         string memory tokenURI = _tokenURIs[id];
 
         if (bytes(tokenURI).length == 0) return uriFetcher.uri(id);
         else return tokenURI;
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC-165 LOGIC
+    /// --------------  ---------------------------------------------------------
+
+    /// @notice ERC-165 interface detection
+    /// @param interfaceId The interface ID to check
+    /// @return Interface detection success
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        return
+            interfaceId == this.onERC721Received.selector || // ERC-165 Interface ID for ERC721TokenReceiver 
+            interfaceId == 0x4e2312e0 || // ERC-165 Interface ID for ERC1155TokenReceiver
+            super.supportsInterface(interfaceId); // ERC-165 Interface IDs for ERC-1155
     }
 
     /// -----------------------------------------------------------------------

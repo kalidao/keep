@@ -39,15 +39,15 @@
     "absolutePath": "C:\\Users\\rossc\\julo\\src\\interfaces\\IERC1271.sol",
     "exportedSymbols": {
       "IERC1271": [
-        23809
+        23832
       ]
     },
-    "id": 23810,
+    "id": 23833,
     "license": "AGPL-3.0-only",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 23798,
+        "id": 23821,
         "literals": [
           "solidity",
           ">=",
@@ -64,15 +64,15 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 23799,
+          "id": 23822,
           "nodeType": "StructuredDocumentation",
           "src": "71:82:26",
           "text": "@notice ERC-1271 interface\n @dev https://eips.ethereum.org/EIPS/eip-1271"
         },
         "fullyImplemented": false,
-        "id": 23809,
+        "id": 23832,
         "linearizedBaseContracts": [
-          23809
+          23832
         ],
         "name": "IERC1271",
         "nameLocation": "163:8:26",
@@ -80,7 +80,7 @@
         "nodes": [
           {
             "functionSelector": "1626ba7e",
-            "id": 23808,
+            "id": 23831,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
@@ -88,17 +88,17 @@
             "nameLocation": "188:16:26",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 23804,
+              "id": 23827,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 23801,
+                  "id": 23824,
                   "mutability": "mutable",
                   "name": "hash",
                   "nameLocation": "213:4:26",
                   "nodeType": "VariableDeclaration",
-                  "scope": 23808,
+                  "scope": 23831,
                   "src": "205:12:26",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -107,7 +107,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 23800,
+                    "id": 23823,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "205:7:26",
@@ -120,12 +120,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 23803,
+                  "id": 23826,
                   "mutability": "mutable",
                   "name": "signature",
                   "nameLocation": "234:9:26",
                   "nodeType": "VariableDeclaration",
-                  "scope": 23808,
+                  "scope": 23831,
                   "src": "219:24:26",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -134,7 +134,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 23802,
+                    "id": 23825,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "219:5:26",
@@ -149,17 +149,17 @@
               "src": "204:40:26"
             },
             "returnParameters": {
-              "id": 23807,
+              "id": 23830,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 23806,
+                  "id": 23829,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 23808,
+                  "scope": 23831,
                   "src": "295:6:26",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -168,7 +168,7 @@
                     "typeString": "bytes4"
                   },
                   "typeName": {
-                    "id": 23805,
+                    "id": 23828,
                     "name": "bytes4",
                     "nodeType": "ElementaryTypeName",
                     "src": "295:6:26",
@@ -182,14 +182,14 @@
               ],
               "src": "294:8:26"
             },
-            "scope": 23809,
+            "scope": 23832,
             "src": "179:124:26",
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 23810,
+        "scope": 23833,
         "src": "153:153:26",
         "usedErrors": []
       }

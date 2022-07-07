@@ -294,10 +294,10 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\ERC1155votes.sol": {
-      "lastModificationDate": 1657138308797,
-      "contentHash": "7e31653be1b953d47f0d758a4022993f",
-      "sourceName": "src\\ERC1155votes.sol",
+    "C:\\Users\\rossc\\julo\\src\\ERC1155Votes.sol": {
+      "lastModificationDate": 1657173101976,
+      "contentHash": "44ab5215692b7ebdccdbb0b56700848c",
+      "sourceName": "src\\ERC1155Votes.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -324,16 +324,16 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ERC1155TokenReceiver": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155votes.sol\\ERC1155TokenReceiver.json"
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155Votes.sol\\ERC1155TokenReceiver.json"
         },
-        "ERC1155votes": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155votes.sol\\ERC1155votes.json"
+        "ERC1155Votes": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155Votes.sol\\ERC1155Votes.json"
         }
       }
     },
     "C:\\Users\\rossc\\julo\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657157789759,
-      "contentHash": "6c690f452acbbab99feb5f956cc32a1c",
+      "lastModificationDate": 1657173415005,
+      "contentHash": "1155e94ff2d9cd2527d1e1a19a72124f",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -358,10 +358,10 @@
         }
       },
       "imports": [
-        "src\\ERC1155votes.sol",
+        "src\\ERC1155Votes.sol",
         "src\\interfaces\\IERC1271.sol",
-        "src\\utils\\Multicall.sol",
-        "src\\utils\\NFTreceiver.sol"
+        "src\\utils\\ERC721TokenReceiver.sol",
+        "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
       "artifacts": {
@@ -441,7 +441,7 @@
       }
     },
     "C:\\Users\\rossc\\julo\\src\\libraries\\ClonesWithImmutableArgs.sol": {
-      "lastModificationDate": 1657158696638,
+      "lastModificationDate": 1657159071961,
       "contentHash": "8fa88e49570d7140b2aabc604be4515f",
       "sourceName": "src\\libraries\\ClonesWithImmutableArgs.sol",
       "solcConfig": {
@@ -577,13 +577,13 @@
         "lib\\forge-std\\src\\console2.sol",
         "lib/solmate/src/test/utils/mocks/MockERC20.sol",
         "lib\\solmate\\src\\tokens\\ERC20.sol",
-        "src\\ERC1155votes.sol",
+        "src\\ERC1155Votes.sol",
         "src\\KaliClub.sol",
         "src\\KaliClubFactory.sol",
         "src\\interfaces\\IERC1271.sol",
         "src\\libraries\\ClonesWithImmutableArgs.sol",
-        "src\\utils\\Multicall.sol",
-        "src\\utils\\NFTreceiver.sol"
+        "src\\utils\\ERC721TokenReceiver.sol",
+        "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
       "artifacts": {
@@ -625,18 +625,52 @@
         "lib\\forge-std\\src\\Vm.sol",
         "lib\\forge-std\\src\\console.sol",
         "lib\\forge-std\\src\\console2.sol",
-        "src\\ERC1155votes.sol",
+        "src\\ERC1155Votes.sol",
         "src\\KaliClub.sol",
         "src\\KaliClubFactory.sol",
         "src\\interfaces\\IERC1271.sol",
         "src\\libraries\\ClonesWithImmutableArgs.sol",
-        "src\\utils\\Multicall.sol",
-        "src\\utils\\NFTreceiver.sol"
+        "src\\utils\\ERC721TokenReceiver.sol",
+        "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "KaliClubSigFactoryTest": {
           "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\julo\\src\\utils\\ERC721TokenReceiver.sol": {
+      "lastModificationDate": 1657172178690,
+      "contentHash": "e721b268e74b305ba3e2214ffe1f59aa",
+      "sourceName": "src\\utils\\ERC721TokenReceiver.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "ERC721TokenReceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC721TokenReceiver.sol\\ERC721TokenReceiver.json"
         }
       }
     },
@@ -671,40 +705,6 @@
       "artifacts": {
         "Multicall": {
           "0.8.15+commit.e14f2714.Windows.msvc": "Multicall.sol\\Multicall.json"
-        }
-      }
-    },
-    "C:\\Users\\rossc\\julo\\src\\utils\\NFTreceiver.sol": {
-      "lastModificationDate": 1657138308809,
-      "contentHash": "13a6a75b50a455b9fdacdf8e0949fc1c",
-      "sourceName": "src\\utils\\NFTreceiver.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "NFTreceiver": {
-          "0.8.15+commit.e14f2714.Windows.msvc": "NFTreceiver.sol\\NFTreceiver.json"
         }
       }
     }

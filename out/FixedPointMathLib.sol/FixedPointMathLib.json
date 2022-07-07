@@ -14,15 +14,15 @@
     "absolutePath": "C:\\Users\\rossc\\julo\\src\\libraries\\FixedPointMathLib.sol",
     "exportedSymbols": {
       "FixedPointMathLib": [
-        24018
+        24041
       ]
     },
-    "id": 24019,
+    "id": 24042,
     "license": "AGPL-3.0-only",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 24003,
+        "id": 24026,
         "literals": [
           "solidity",
           ">=",
@@ -39,15 +39,15 @@
         "contractDependencies": [],
         "contractKind": "library",
         "documentation": {
-          "id": 24004,
+          "id": 24027,
           "nodeType": "StructuredDocumentation",
           "src": "71:230:28",
           "text": "@notice Arithmetic library with operations for fixed-point numbers\n @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/FixedPointMathLib.sol)\n License-Identifier: AGPL-3.0-only"
         },
         "fullyImplemented": true,
-        "id": 24018,
+        "id": 24041,
         "linearizedBaseContracts": [
-          24018
+          24041
         ],
         "name": "FixedPointMathLib",
         "nameLocation": "309:17:28",
@@ -55,7 +55,7 @@
         "nodes": [
           {
             "body": {
-              "id": 24016,
+              "id": 24039,
               "nodeType": "Block",
               "src": "466:415:28",
               "statements": [
@@ -285,90 +285,90 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 24010,
+                      "declaration": 24033,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "686:11:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24010,
+                      "declaration": 24033,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "851:11:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24006,
+                      "declaration": 24029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "551:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24006,
+                      "declaration": 24029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "711:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24006,
+                      "declaration": 24029,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "725:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24008,
+                      "declaration": 24031,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "554:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24008,
+                      "declaration": 24031,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "729:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24013,
+                      "declaration": 24036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "542:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24013,
+                      "declaration": 24036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "722:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24013,
+                      "declaration": 24036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "839:1:28",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24013,
+                      "declaration": 24036,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "848:1:28",
                       "valueSize": 1
                     }
                   ],
-                  "id": 24015,
+                  "id": 24038,
                   "nodeType": "InlineAssembly",
                   "src": "477:397:28"
                 }
               ]
             },
-            "id": 24017,
+            "id": 24040,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -376,17 +376,17 @@
             "nameLocation": "343:11:28",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24011,
+              "id": 24034,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 24006,
+                  "id": 24029,
                   "mutability": "mutable",
                   "name": "x",
                   "nameLocation": "373:1:28",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24017,
+                  "scope": 24040,
                   "src": "365:9:28",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -395,7 +395,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 24005,
+                    "id": 24028,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "365:7:28",
@@ -408,12 +408,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24008,
+                  "id": 24031,
                   "mutability": "mutable",
                   "name": "y",
                   "nameLocation": "393:1:28",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24017,
+                  "scope": 24040,
                   "src": "385:9:28",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -422,7 +422,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 24007,
+                    "id": 24030,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "385:7:28",
@@ -435,12 +435,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24010,
+                  "id": 24033,
                   "mutability": "mutable",
                   "name": "denominator",
                   "nameLocation": "413:11:28",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24017,
+                  "scope": 24040,
                   "src": "405:19:28",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -449,7 +449,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 24009,
+                    "id": 24032,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "405:7:28",
@@ -464,17 +464,17 @@
               "src": "354:77:28"
             },
             "returnParameters": {
-              "id": 24014,
+              "id": 24037,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 24013,
+                  "id": 24036,
                   "mutability": "mutable",
                   "name": "z",
                   "nameLocation": "463:1:28",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24017,
+                  "scope": 24040,
                   "src": "455:9:28",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -483,7 +483,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 24012,
+                    "id": 24035,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "455:7:28",
@@ -497,14 +497,14 @@
               ],
               "src": "454:11:28"
             },
-            "scope": 24018,
+            "scope": 24041,
             "src": "334:547:28",
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
           }
         ],
-        "scope": 24019,
+        "scope": 24042,
         "src": "301:583:28",
         "usedErrors": []
       }

@@ -44,13 +44,13 @@
         4532
       ],
       "Vm": [
-        28789
+        28770
       ],
       "console": [
-        36853
+        36834
       ],
       "console2": [
-        44917
+        44898
       ]
     },
     "id": 4533,
@@ -78,7 +78,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 4533,
-        "sourceUnit": 28790,
+        "sourceUnit": 28771,
         "src": "74:18:18",
         "symbolAliases": [],
         "unitAlias": ""
@@ -90,7 +90,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 4533,
-        "sourceUnit": 36854,
+        "sourceUnit": 36835,
         "src": "94:23:18",
         "symbolAliases": [],
         "unitAlias": ""
@@ -102,7 +102,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 4533,
-        "sourceUnit": 44918,
+        "sourceUnit": 44899,
         "src": "119:24:18",
         "symbolAliases": [],
         "unitAlias": ""
@@ -435,7 +435,7 @@
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_Vm_$28789",
+              "typeIdentifier": "t_contract$_Vm_$28770",
               "typeString": "contract Vm"
             },
             "typeName": {
@@ -445,13 +445,13 @@
                 "id": 4526,
                 "name": "Vm",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 28789,
+                "referencedDeclaration": 28770,
                 "src": "334:2:18"
               },
-              "referencedDeclaration": 28789,
+              "referencedDeclaration": 28770,
               "src": "334:2:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Vm_$28789",
+                "typeIdentifier": "t_contract$_Vm_$28770",
                 "typeString": "contract Vm"
               }
             },
@@ -481,10 +481,10 @@
                 "name": "Vm",
                 "nodeType": "Identifier",
                 "overloadedDeclarations": [],
-                "referencedDeclaration": 28789,
+                "referencedDeclaration": 28770,
                 "src": "358:2:18",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_type$_t_contract$_Vm_$28789_$",
+                  "typeIdentifier": "t_type$_t_contract$_Vm_$28770_$",
                   "typeString": "type(contract Vm)"
                 }
               },
@@ -499,7 +499,7 @@
               "src": "358:14:18",
               "tryCall": false,
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Vm_$28789",
+                "typeIdentifier": "t_contract$_Vm_$28770",
                 "typeString": "contract Vm"
               }
             },
