@@ -108,6 +108,8 @@ abstract contract ERC1155Votes {
     /// -----------------------------------------------------------------------
     
     mapping(uint256 => bool) public transferable;
+
+    mapping(uint256 => uint256) public totalSupply;
     
     mapping(address => mapping(uint256 => address)) internal _delegates;
 
@@ -173,7 +175,12 @@ abstract contract ERC1155Votes {
         if (!transferable[id]) revert NONTRANSFERABLE();
 
         balanceOf[from][id] -= amount;
-        balanceOf[to][id] += amount;
+        
+        // cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value
+        unchecked {
+            balanceOf[to][id] += amount;
+        }
 
         emit TransferSingle(msg.sender, from, to, id, amount);
 
@@ -207,7 +214,12 @@ abstract contract ERC1155Votes {
             if (!transferable[id]) revert NONTRANSFERABLE();
 
             balanceOf[from][id] -= amount;
-            balanceOf[to][id] += amount;
+            
+            // cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value
+            unchecked {
+                balanceOf[to][id] += amount;
+            }
 
             if (id != 0) _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
 
@@ -388,7 +400,13 @@ abstract contract ERC1155Votes {
         uint256 amount,
         bytes calldata data
     ) internal {
-        balanceOf[to][id] += amount;
+        totalSupply[id] += amount;
+        
+        // cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value 
+        unchecked {
+            balanceOf[to][id] += amount;
+        }
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
@@ -406,6 +424,12 @@ abstract contract ERC1155Votes {
         uint256 amount
     ) internal {
         balanceOf[from][id] -= amount;
+        
+        // cannot underflow because a user's balance
+        // will never be larger than the total supply
+        unchecked {
+            totalSupply[id] -= amount;
+        }
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
