@@ -9,9 +9,12 @@ import {IKaliClub} from "../../interfaces/IKaliClub.sol";
 import {FixedPointMathLib} from "../../libraries/FixedPointMathLib.sol";
 import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 
+/// @dev Contracts
+import {Multicall} from "../../utils/Multicall.sol";
+
 /// @title Kali Club Redemption
 /// @notice Fair share redemptions for burnt Kali Club tokens
-contract KaliClubRedemption {
+contract KaliClubRedemption is Multicall {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
@@ -24,9 +27,9 @@ contract KaliClubRedemption {
     /// EVENTS
     /// -----------------------------------------------------------------------
 
-    event ExtensionSet(address indexed club, uint256 id, uint256 redemptionStart);
+    event RedemptionStartSet(address indexed club, uint256 id, uint256 redemptionStart);
 
-    event ExtensionCalled(address indexed club, address indexed member, address[] assets, uint256 id, uint256 burnAmount);
+    event Redeemed(address indexed redeemer, address indexed club, address[] assets, uint256 id, uint256 burnAmount);
 
     /// -----------------------------------------------------------------------
     /// ERRORS
@@ -45,9 +48,14 @@ contract KaliClubRedemption {
     /// -----------------------------------------------------------------------
     /// CONFIGURATIONS
     /// -----------------------------------------------------------------------
-
-    function setRedemption(uint256 id, uint256 redemptionStart) external payable {
+    
+    /// @notice Redemption configuration for clubs
+    /// @param id The token ID to set redemption configuration for
+    /// @param redemptionStart The unix timestamp at which redemption starts
+    function setRedemptionStart(uint256 id, uint256 redemptionStart) external payable {
         redemptionStarts[msg.sender][id] = redemptionStart;
+        
+        emit RedemptionStartSet(msg.sender, id, redemptionStart);
     }
 
     /// -----------------------------------------------------------------------
@@ -93,7 +101,7 @@ contract KaliClubRedemption {
                 supply
             );
 
-            // transfer to redeemer
+            // transfer from club to redeemer
             if (amountToRedeem != 0) 
                 assets[i]._safeTransferFrom(
                     club, 
@@ -101,10 +109,13 @@ contract KaliClubRedemption {
                     amountToRedeem
                 );
 
-            // cannot realistically overflow
+            // an array can't have a total length
+            // larger than the max uint256 value
             unchecked {
                 ++i;
             }
         }
+        
+        emit Redeemed(msg.sender, club, assets, id, burnAmount);
     }
 }
