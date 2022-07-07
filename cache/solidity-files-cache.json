@@ -1,8 +1,8 @@
 {
   "_format": "ethers-rs-sol-cache-2",
   "files": {
-    "C:\\Users\\rossc\\julo\\lib\\ds-test\\src/test.sol": {
-      "lastModificationDate": 1657138324366,
+    "C:\\Users\\rossc\\bji\\lib\\ds-test\\src/test.sol": {
+      "lastModificationDate": 1657230045447,
       "contentHash": "a85cb92e605e48103a5375f81c8233f2",
       "sourceName": "lib\\ds-test\\src/test.sol",
       "solcConfig": {
@@ -35,8 +35,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib\\forge-std\\src\\Script.sol": {
-      "lastModificationDate": 1657138326921,
+    "C:\\Users\\rossc\\bji\\lib\\forge-std\\src\\Script.sol": {
+      "lastModificationDate": 1657230049007,
       "contentHash": "4216168db1101b2afcc999821ce29b04",
       "sourceName": "lib\\forge-std\\src\\Script.sol",
       "solcConfig": {
@@ -73,8 +73,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib/forge-std/src/Test.sol": {
-      "lastModificationDate": 1657138326923,
+    "C:\\Users\\rossc\\bji\\lib/forge-std/src/Test.sol": {
+      "lastModificationDate": 1657230049010,
       "contentHash": "b1c1309d6773186ac88fee197a14749f",
       "sourceName": "lib/forge-std/src/Test.sol",
       "solcConfig": {
@@ -122,8 +122,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib\\forge-std\\src\\Vm.sol": {
-      "lastModificationDate": 1657138326925,
+    "C:\\Users\\rossc\\bji\\lib\\forge-std\\src\\Vm.sol": {
+      "lastModificationDate": 1657230049011,
       "contentHash": "2cf09e87459249da9cef51cb3ecbd038",
       "sourceName": "lib\\forge-std\\src\\Vm.sol",
       "solcConfig": {
@@ -156,8 +156,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib\\forge-std\\src\\console.sol": {
-      "lastModificationDate": 1657138326926,
+    "C:\\Users\\rossc\\bji\\lib\\forge-std\\src\\console.sol": {
+      "lastModificationDate": 1657230049013,
       "contentHash": "c8cf989d04bc2e3069e3d91facf3b69c",
       "sourceName": "lib\\forge-std\\src\\console.sol",
       "solcConfig": {
@@ -190,8 +190,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib\\forge-std\\src\\console2.sol": {
-      "lastModificationDate": 1657138326928,
+    "C:\\Users\\rossc\\bji\\lib\\forge-std\\src\\console2.sol": {
+      "lastModificationDate": 1657230049015,
       "contentHash": "84e14285f3171a14073d0f81363094ac",
       "sourceName": "lib\\forge-std\\src\\console2.sol",
       "solcConfig": {
@@ -224,8 +224,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
-      "lastModificationDate": 1657138334979,
+    "C:\\Users\\rossc\\bji\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
+      "lastModificationDate": 1657230057108,
       "contentHash": "a43ff973f6fc1afad3fb92e761b233fc",
       "sourceName": "lib/solmate/src/test/utils/mocks/MockERC20.sol",
       "solcConfig": {
@@ -260,8 +260,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\lib\\solmate\\src\\tokens\\ERC20.sol": {
-      "lastModificationDate": 1657138335003,
+    "C:\\Users\\rossc\\bji\\lib\\solmate\\src\\tokens\\ERC20.sol": {
+      "lastModificationDate": 1657230057132,
       "contentHash": "d2ad526807a28c2037b29b17aa2dbbc1",
       "sourceName": "lib\\solmate\\src\\tokens\\ERC20.sol",
       "solcConfig": {
@@ -294,9 +294,9 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\ERC1155Votes.sol": {
-      "lastModificationDate": 1657175665423,
-      "contentHash": "3f383432af2c9834eec57d9aafa4bf86",
+    "C:\\Users\\rossc\\bji\\src\\ERC1155Votes.sol": {
+      "lastModificationDate": 1657230028562,
+      "contentHash": "c048224ef7c155c70a114f3fc1a495c3",
       "sourceName": "src\\ERC1155Votes.sol",
       "solcConfig": {
         "settings": {
@@ -331,9 +331,9 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657176000123,
-      "contentHash": "2b9ec1c1c7794e44475c82a4b5a433a7",
+    "C:\\Users\\rossc\\bji\\src\\KaliClub.sol": {
+      "lastModificationDate": 1657230028566,
+      "contentHash": "63ebc09f3f3f9d4404cf27abe65cc1a2",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -370,8 +370,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1657173517270,
+    "C:\\Users\\rossc\\bji\\src\\KaliClubFactory.sol": {
+      "lastModificationDate": 1657230028567,
       "contentHash": "569c025eb1e5395b709caa26fca7e0a1",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
@@ -406,8 +406,48 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\interfaces\\IERC1271.sol": {
-      "lastModificationDate": 1657138308801,
+    "C:\\Users\\rossc\\bji\\src\\extensions\\redemption\\KaliClubRedemption.sol": {
+      "lastModificationDate": 1657230028571,
+      "contentHash": "ca12cc8076d3e815142b24c088f94f4e",
+      "sourceName": "src\\extensions\\redemption\\KaliClubRedemption.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src\\interfaces\\IERC20Balances.sol",
+        "src\\interfaces\\IKaliClub.sol",
+        "src\\libraries\\FixedPointMathLib.sol",
+        "src\\libraries\\SafeTransferLib.sol",
+        "src\\utils\\Multicall.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "KaliClubRedemption": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubRedemption.sol\\KaliClubRedemption.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\bji\\src\\interfaces\\IERC1271.sol": {
+      "lastModificationDate": 1657230028572,
       "contentHash": "1d237d6efe99fe2f3f2873508e97327a",
       "sourceName": "src\\interfaces\\IERC1271.sol",
       "solcConfig": {
@@ -440,8 +480,76 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\libraries\\ClonesWithImmutableArgs.sol": {
-      "lastModificationDate": 1657159071961,
+    "C:\\Users\\rossc\\bji\\src\\interfaces\\IERC20Balances.sol": {
+      "lastModificationDate": 1657230028575,
+      "contentHash": "1255f8499e7885e40fd0f8379a21eeb5",
+      "sourceName": "src\\interfaces\\IERC20Balances.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "IERC20Balances": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IERC20Balances.sol\\IERC20Balances.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\bji\\src\\interfaces\\IKaliClub.sol": {
+      "lastModificationDate": 1657230028577,
+      "contentHash": "b2b1165e0ebd4e42308fc9abb2033169",
+      "sourceName": "src\\interfaces\\IKaliClub.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "IKaliClub": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IKaliClub.sol\\IKaliClub.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\bji\\src\\libraries\\ClonesWithImmutableArgs.sol": {
+      "lastModificationDate": 1657230028578,
       "contentHash": "8fa88e49570d7140b2aabc604be4515f",
       "sourceName": "src\\libraries\\ClonesWithImmutableArgs.sol",
       "solcConfig": {
@@ -474,9 +582,9 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\libraries\\FixedPointMathLib.sol": {
-      "lastModificationDate": 1657138308803,
-      "contentHash": "f7f23a259ab29739400f6a8eb83b315c",
+    "C:\\Users\\rossc\\bji\\src\\libraries\\FixedPointMathLib.sol": {
+      "lastModificationDate": 1657230028579,
+      "contentHash": "39f933567990c94eb9749464dff8f0ee",
       "sourceName": "src\\libraries\\FixedPointMathLib.sol",
       "solcConfig": {
         "settings": {
@@ -508,9 +616,9 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\libraries\\SafeTransferLib.sol": {
-      "lastModificationDate": 1657138308804,
-      "contentHash": "d0fca59173a8edd3b69ec9f7f347124c",
+    "C:\\Users\\rossc\\bji\\src\\libraries\\SafeTransferLib.sol": {
+      "lastModificationDate": 1657230028580,
+      "contentHash": "ace44243b829342cbd09f850de64de00",
       "sourceName": "src\\libraries\\SafeTransferLib.sol",
       "solcConfig": {
         "settings": {
@@ -542,9 +650,9 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1657177649580,
-      "contentHash": "dd29b0c5ac54bf6ad2ab22cf5ed6606a",
+    "C:\\Users\\rossc\\bji\\src\\test\\KaliClub.t.sol": {
+      "lastModificationDate": 1657230028581,
+      "contentHash": "8d13da00b271b6b8a28ddb71629ca05e",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
@@ -592,8 +700,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\test\\KaliClubFactory.t.sol": {
-      "lastModificationDate": 1657138308806,
+    "C:\\Users\\rossc\\bji\\src\\test\\KaliClubFactory.t.sol": {
+      "lastModificationDate": 1657230028582,
       "contentHash": "fd85a955ec5101a6fad7ebe72c8a5d0f",
       "sourceName": "src\\test\\KaliClubFactory.t.sol",
       "solcConfig": {
@@ -640,8 +748,63 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\utils\\ERC721TokenReceiver.sol": {
-      "lastModificationDate": 1657172178690,
+    "C:\\Users\\rossc\\bji\\src\\test\\KaliClubRedemption.t.sol": {
+      "lastModificationDate": 1657236500366,
+      "contentHash": "b57ed80c8ad3f824a70ce1fdd4effcb5",
+      "sourceName": "src\\test\\KaliClubRedemption.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\ds-test\\src/test.sol",
+        "lib\\forge-std\\src\\Script.sol",
+        "lib/forge-std/src/Test.sol",
+        "lib\\forge-std\\src\\Vm.sol",
+        "lib\\forge-std\\src\\console.sol",
+        "lib\\forge-std\\src\\console2.sol",
+        "lib/solmate/src/test/utils/mocks/MockERC20.sol",
+        "lib\\solmate\\src\\tokens\\ERC20.sol",
+        "src\\ERC1155Votes.sol",
+        "src\\KaliClub.sol",
+        "src\\KaliClubFactory.sol",
+        "src\\extensions\\redemption\\KaliClubRedemption.sol",
+        "src\\interfaces\\IERC1271.sol",
+        "src\\interfaces\\IERC20Balances.sol",
+        "src\\interfaces\\IKaliClub.sol",
+        "src\\libraries\\ClonesWithImmutableArgs.sol",
+        "src\\libraries\\FixedPointMathLib.sol",
+        "src\\libraries\\SafeTransferLib.sol",
+        "src\\utils\\ERC721TokenReceiver.sol",
+        "src\\utils\\Multicall.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "RedemptionTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubRedemption.t.sol\\RedemptionTest.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\bji\\src\\utils\\ERC721TokenReceiver.sol": {
+      "lastModificationDate": 1657230028588,
       "contentHash": "e721b268e74b305ba3e2214ffe1f59aa",
       "sourceName": "src\\utils\\ERC721TokenReceiver.sol",
       "solcConfig": {
@@ -674,8 +837,8 @@
         }
       }
     },
-    "C:\\Users\\rossc\\julo\\src\\utils\\Multicall.sol": {
-      "lastModificationDate": 1657138308807,
+    "C:\\Users\\rossc\\bji\\src\\utils\\Multicall.sol": {
+      "lastModificationDate": 1657230028592,
       "contentHash": "61c192a0b14915e94e87fd81128d8cc7",
       "sourceName": "src\\utils\\Multicall.sol",
       "solcConfig": {
