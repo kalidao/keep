@@ -76,7 +76,9 @@ contract KaliClubRedemption is Multicall {
         external
         payable
     {
-        if (block.timestamp < redemptionStarts[club][id]) revert NOT_STARTED();
+        uint256 start = redemptionStarts[club][id];
+        
+        if (start == 0 || block.timestamp < start) revert NOT_STARTED();
 
         uint256 supply = IKaliClub(club).totalSupply(id);
 
