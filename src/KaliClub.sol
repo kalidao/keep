@@ -450,6 +450,11 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Update club quorum
     /// @param threshold Signature threshold to execute() operations
     function setQuorum(uint64 threshold) external payable onlyClubGovernance {
+        assembly {
+            if iszero(threshold) {
+                revert(0, 0)
+            }
+        }
         // note: also make sure signers don't concentrate NFTs,
         // as this could cause issues in reaching quorum
         if (threshold > totalSupply) revert QUORUM_OVER_SUPPLY();
