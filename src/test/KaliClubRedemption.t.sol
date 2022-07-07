@@ -128,6 +128,7 @@ contract RedemptionTest is Test {
         vm.stopPrank();
 
         assertTrue(club.balanceOf(alice, 1) == 0);
+        assertTrue(club.totalSupply(1) == 0);
         assertTrue(mockDai.balanceOf(alice) == 100);
     }
 }
