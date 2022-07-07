@@ -488,8 +488,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         }
 
         _mint(to, id, amount, data);
-        
-        totalSupply[id] += amount;
     }
 
     /// @notice Club signer minter
@@ -530,9 +528,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         )
             revert NOT_AUTHORIZED();
 
-        _burn(from, id, amount);
-        
-        totalSupply[id] -= amount;
+        _burn(from, id, amount); 
     }
 
     /// @notice Club signer burner
