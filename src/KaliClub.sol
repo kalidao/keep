@@ -110,9 +110,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Token URI metadata tracking
     mapping(uint256 => string) internal _tokenURIs;
     
-    /// @notice Token ID supply tracking
-    mapping(uint256 => uint256) public totalSupply;
-
     /// @notice Access control for club and governance
     modifier onlyClubGovernance() {
         if (
