@@ -81,7 +81,7 @@ contract KaliClubRedemption is Multicall {
         address club, 
         address[] calldata assets, 
         uint256 id,
-        uint256 burnAmount
+        uint256 redemption
     )
         external
         payable
