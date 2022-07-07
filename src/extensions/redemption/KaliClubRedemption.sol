@@ -63,12 +63,6 @@ contract KaliClubRedemption is Multicall {
     /// @param id The token ID to set redemption configuration for
     /// @param redemptionStart The unix timestamp at which redemption starts
     function setRedemptionStart(uint256 id, uint256 redemptionStart) external payable {
-        assembly {
-            if iszero(redemptionStart) {
-                revert(0, 0)
-            }
-        }
-        
         redemptionStarts[msg.sender][id] = redemptionStart;
         
         emit RedemptionStartSet(msg.sender, id, redemptionStart);
