@@ -5,6 +5,8 @@ pragma solidity >=0.8.4;
 interface IKaliClub {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 
+    function totalSupply(uint256 id) external view returns (uint256);
+
     function mint(
         address to,
         uint256 id,
