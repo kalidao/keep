@@ -98,9 +98,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Signature NFT threshold to execute tx
     uint64 public quorum;
 
-    /// @notice Total signers minted 
-    uint128 public totalSupply;
-
     /// @notice Initial club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
@@ -112,6 +109,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
     /// @notice Token URI metadata tracking
     mapping(uint256 => string) internal _tokenURIs;
+    
+    /// @notice Token ID supply tracking
+    mapping(uint256 => uint256) public totalSupply;
 
     /// @notice Access control for club and governance
     modifier onlyClubGovernance() {
@@ -264,7 +264,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
         nonce = 1;
         quorum = uint64(threshold);
-        totalSupply = supply;
+        totalSupply[0] = supply;
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
@@ -458,7 +458,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         
         // note: also make sure signers don't concentrate NFTs,
         // as this could cause issues in reaching quorum
-        if (threshold > totalSupply) revert QUORUM_OVER_SUPPLY();
+        if (threshold > totalSupply[0]) revert QUORUM_OVER_SUPPLY();
 
         quorum = threshold;
 
@@ -488,6 +488,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         }
 
         _mint(to, id, amount, data);
+        
+        totalSupply[id] += amount;
     }
 
     /// @notice Club signer minter
@@ -497,7 +499,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         unchecked {
             ++balanceOf[to][0];
 
-            ++totalSupply;
+            ++totalSupply[0];
         }
 
         emit TransferSingle(msg.sender, address(0), to, 0, 1);
@@ -529,6 +531,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
             revert NOT_AUTHORIZED();
 
         _burn(from, id, amount);
+        
+        totalSupply[id] -= amount;
     }
 
     /// @notice Club signer burner
@@ -538,10 +542,10 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
         // won't underflow as supply is checked above
         unchecked {
-            --totalSupply;
+            --totalSupply[0];
         }
-
-        if (quorum > totalSupply) revert QUORUM_OVER_SUPPLY();
+        
+        if (quorum > totalSupply[0]) revert QUORUM_OVER_SUPPLY();
 
         emit TransferSingle(msg.sender, from, address(0), 0, 1);
     }
