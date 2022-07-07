@@ -2,12 +2,12 @@
 pragma solidity >=0.8.4;
 
 /// @dev Interfaces
-import {IERC20Balances} from "./interfaces/IERC20Balances.sol";
-import {IKaliClub} from "./interfaces/IKaliClub.sol";
+import {IERC20Balances} from "../../interfaces/IERC20Balances.sol";
+import {IKaliClub} from "../../interfaces/IKaliClub.sol";
 
 /// @dev Libraries
-import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
-import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
+import {FixedPointMathLib} from "../../libraries/FixedPointMathLib.sol";
+import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 
 /// @title Kali Club Redemption
 /// @notice Fair share redemptions for burnt Kali Club tokens
