@@ -272,41 +272,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// OPERATIONS LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Fetches digest from club operation
-    /// @param op The enum operation to execute
-    /// @param to Address to send operation to
-    /// @param value Amount of ETH to send in operation
-    /// @param data Payload to send in operation
-    /// @param txNonce Club tx index
-    /// @return Digest for operation
-    function getDigest(
-        Operation op,
-        address to,
-        uint256 value,
-        bytes calldata data,
-        uint256 txNonce
-    ) public view returns (bytes32) {
-        return 
-            keccak256(
-                abi.encodePacked(
-                    '\x19\x01',
-                    DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(
-                            keccak256(
-                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 txNonce)'
-                            ),
-                            op,
-                            to,
-                            value,
-                            data,
-                            txNonce
-                        )
-                    )
-                )
-            );
-    }
-    
     /// @notice Execute operation from club with signatures
     /// @param op The enum operation to execute
     /// @param to Address to send operation to
@@ -323,7 +288,25 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         Signature[] calldata sigs
     ) external payable returns (bool success) {
         // begin signature validation with call data
-        bytes32 digest = getDigest(op, to, value, data, nonce);
+        bytes32 digest = 
+            keccak256(
+                abi.encodePacked(
+                    '\x19\x01',
+                    DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            keccak256(
+                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 txNonce)'
+                            ),
+                            op,
+                            to,
+                            value,
+                            data,
+                            nonce
+                        )
+                    )
+                )
+            );
         
         // start from null in loop to ensure ascending addresses
         address prevAddr;

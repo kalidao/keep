@@ -50,11 +50,57 @@ contract ClubTest is Test {
 
     uint256 chainId;
 
+    bytes32 domainSeparator;
+
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
 
     bytes32 name2 =
         0x5445535432000000000000000000000000000000000000000000000000000000;
+
+    function getDigest(
+        Operation op,
+        address to,
+        uint256 value,
+        bytes memory data,
+        uint256 txNonce,
+        bytes32 domainSeparator
+    ) internal pure returns (bytes32) {
+        return 
+            keccak256(
+                abi.encodePacked(
+                    '\x19\x01',
+                    domainSeparator,
+                    keccak256(
+                        abi.encode(
+                            keccak256(
+                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 txNonce)'
+                            ),
+                            op,
+                            to,
+                            value,
+                            data,
+                            txNonce
+                        )
+                    )
+                )
+            );
+    }
+
+    function computeDomainSeparator(address clubAddr) internal view returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+                    ),
+                    keccak256(bytes('KaliClub')),
+                    keccak256('1'),
+                    block.chainid,
+                    clubAddr
+                )
+            );
+    }
 
     function writeTokenBalance(
         address who,
@@ -81,7 +127,7 @@ contract ClubTest is Test {
 
         (v, r, s) = vm.sign(
             pk,
-            club.getDigest(op, address(to), value, data, club.nonce())
+            getDigest(op, address(to), value, data, club.nonce(), computeDomainSeparator(address(club)))
         );
         // set 'wrong v' to return null signer for tests
         if (pk == nullPk) v = 17;
