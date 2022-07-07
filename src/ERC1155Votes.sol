@@ -124,7 +124,7 @@ abstract contract ERC1155Votes {
     /// ERC-165 LOGIC
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) external view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
         return
             interfaceId == this.supportsInterface.selector || // ERC-165 Interface ID for ERC-165
             interfaceId == 0xd9b67a26 || // ERC-165 Interface ID for ERC-1155
