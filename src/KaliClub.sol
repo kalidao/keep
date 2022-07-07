@@ -138,7 +138,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
     /// -----------------------------------------------------------------------
     /// ERC-165 LOGIC
-    /// --------------  ---------------------------------------------------------
+    /// -----------------------------------------------------------------------
 
     /// @notice ERC-165 interface detection
     /// @param interfaceId The interface ID to check
@@ -269,7 +269,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     }
 
     /// -----------------------------------------------------------------------
-    /// OPERATIONAL LOGIC
+    /// OPERATIONS LOGIC
     /// -----------------------------------------------------------------------
 
     /// @notice Fetches digest from club operation
@@ -460,6 +460,10 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         }
     }
     
+    /// -----------------------------------------------------------------------
+    /// THRESHOLD LOGIC
+    /// -----------------------------------------------------------------------
+    
     /// @notice Update club quorum
     /// @param threshold Signature threshold to execute() operations
     function setQuorum(uint64 threshold) external payable onlyClubGovernance {
@@ -471,6 +475,10 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
         emit QuorumSet(msg.sender, threshold);
     }
+    
+    /// -----------------------------------------------------------------------
+    /// MINT/BURN LOGIC
+    /// -----------------------------------------------------------------------
 
     /// @notice Club token ID minter
     /// @param to The recipient of mint
@@ -547,7 +555,11 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         if (quorum > totalSupply) revert QUORUM_OVER_SUPPLY();
 
         emit TransferSingle(msg.sender, from, address(0), 0, 1);
-    } 
+    }
+    
+    /// -----------------------------------------------------------------------
+    /// GOVERNANCE LOGIC
+    /// -----------------------------------------------------------------------
 
     /// @notice Club admin setter
     /// @param to The account to set admin to
