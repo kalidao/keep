@@ -27,9 +27,19 @@ contract KaliClubRedemption is Multicall {
     /// EVENTS
     /// -----------------------------------------------------------------------
 
-    event RedemptionStartSet(address indexed club, uint256 id, uint256 redemptionStart);
+    event RedemptionStartSet(
+        address indexed club, 
+        uint256 id, 
+        uint256 redemptionStart
+    );
 
-    event Redeemed(address indexed redeemer, address indexed club, address[] assets, uint256 id, uint256 burnAmount);
+    event Redeemed(
+        address indexed redeemer, 
+        address indexed club, 
+        address[] assets, 
+        uint256 id, 
+        uint256 redemption
+    );
 
     /// -----------------------------------------------------------------------
     /// ERRORS
@@ -53,6 +63,12 @@ contract KaliClubRedemption is Multicall {
     /// @param id The token ID to set redemption configuration for
     /// @param redemptionStart The unix timestamp at which redemption starts
     function setRedemptionStart(uint256 id, uint256 redemptionStart) external payable {
+        assembly {
+            if iszero(redemptionStart) {
+                revert(0, 0)
+            }
+        }
+        
         redemptionStarts[msg.sender][id] = redemptionStart;
         
         emit RedemptionStartSet(msg.sender, id, redemptionStart);
@@ -63,10 +79,10 @@ contract KaliClubRedemption is Multicall {
     /// -----------------------------------------------------------------------
     
     /// @notice Redemption option for club members
-    /// @param club Kali Club contract address
+    /// @param club Club contract address
     /// @param assets Array of assets to redeem out
     /// @param id The token ID to burn from
-    /// @param burnAmount Amount of token ID to burn
+    /// @param redemption Amount of token ID to burn
     function redeem(
         address club, 
         address[] calldata assets, 
@@ -85,7 +101,7 @@ contract KaliClubRedemption is Multicall {
         IKaliClub(club).burn(
             msg.sender, 
             id,
-            burnAmount
+            redemption
         );
         
         address prevAddr;
@@ -98,7 +114,7 @@ contract KaliClubRedemption is Multicall {
 
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = FixedPointMathLib._mulDivDown(
-                burnAmount,
+                redemption,
                 IERC20Balances(assets[i]).balanceOf(club),
                 supply
             );
@@ -118,6 +134,6 @@ contract KaliClubRedemption is Multicall {
             }
         }
         
-        emit Redeemed(msg.sender, club, assets, id, burnAmount);
+        emit Redeemed(msg.sender, club, assets, id, redemption);
     }
 }
