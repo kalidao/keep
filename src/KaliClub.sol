@@ -455,6 +455,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
                 revert(0, 0)
             }
         }
+        
         // note: also make sure signers don't concentrate NFTs,
         // as this could cause issues in reaching quorum
         if (threshold > totalSupply) revert QUORUM_OVER_SUPPLY();
