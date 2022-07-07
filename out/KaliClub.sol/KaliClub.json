@@ -1302,22 +1302,22 @@
         22682
       ],
       "ERC1155TokenReceiver": [
-        45688
+        46015
       ],
       "ERC1155Votes": [
-        46828
+        47155
       ],
       "ERC721TokenReceiver": [
-        46863
+        47190
       ],
       "IERC1271": [
-        46841
+        47168
       ],
       "KaliClub": [
         23689
       ],
       "Multicall": [
-        46942
+        47269
       ],
       "Operation": [
         22672
@@ -1348,7 +1348,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 23690,
-        "sourceUnit": 46842,
+        "sourceUnit": 47169,
         "src": "92:51:29",
         "symbolAliases": [
           {
@@ -1357,7 +1357,7 @@
               "name": "IERC1271",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46841,
+              "referencedDeclaration": 47168,
               "src": "100:8:29",
               "typeDescriptions": {}
             },
@@ -1373,7 +1373,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 23690,
-        "sourceUnit": 46864,
+        "sourceUnit": 47191,
         "src": "167:68:29",
         "symbolAliases": [
           {
@@ -1382,7 +1382,7 @@
               "name": "ERC721TokenReceiver",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46863,
+              "referencedDeclaration": 47190,
               "src": "175:19:29",
               "typeDescriptions": {}
             },
@@ -1398,7 +1398,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 23690,
-        "sourceUnit": 46829,
+        "sourceUnit": 47156,
         "src": "237:70:29",
         "symbolAliases": [
           {
@@ -1407,7 +1407,7 @@
               "name": "ERC1155TokenReceiver",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 45688,
+              "referencedDeclaration": 46015,
               "src": "245:20:29",
               "typeDescriptions": {}
             },
@@ -1419,7 +1419,7 @@
               "name": "ERC1155Votes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46828,
+              "referencedDeclaration": 47155,
               "src": "267:12:29",
               "typeDescriptions": {}
             },
@@ -1435,7 +1435,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 23690,
-        "sourceUnit": 46943,
+        "sourceUnit": 47270,
         "src": "309:48:29",
         "symbolAliases": [
           {
@@ -1444,7 +1444,7 @@
               "name": "Multicall",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46942,
+              "referencedDeclaration": 47269,
               "src": "317:9:29",
               "typeDescriptions": {}
             },
@@ -1720,7 +1720,7 @@
               "id": 22690,
               "name": "ERC721TokenReceiver",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 46863,
+              "referencedDeclaration": 47190,
               "src": "1021:19:29"
             },
             "id": 22691,
@@ -1732,7 +1732,7 @@
               "id": 22692,
               "name": "ERC1155TokenReceiver",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 45688,
+              "referencedDeclaration": 46015,
               "src": "1042:20:29"
             },
             "id": 22693,
@@ -1744,7 +1744,7 @@
               "id": 22694,
               "name": "ERC1155Votes",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 46828,
+              "referencedDeclaration": 47155,
               "src": "1064:12:29"
             },
             "id": 22695,
@@ -1756,7 +1756,7 @@
               "id": 22696,
               "name": "Multicall",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 46942,
+              "referencedDeclaration": 47269,
               "src": "1078:9:29"
             },
             "id": 22697,
@@ -1771,10 +1771,10 @@
         "id": 23689,
         "linearizedBaseContracts": [
           23689,
-          46942,
-          46828,
-          45688,
-          46863
+          47269,
+          47155,
+          46015,
+          47190
         ],
         "name": "KaliClub",
         "nameLocation": "1009:8:29",
@@ -2940,7 +2940,7 @@
                         "name": "NOT_AUTHORIZED",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45761,
+                        "referencedDeclaration": 46088,
                         "src": "3665:14:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_error_pure$__$returns$__$",
@@ -3362,7 +3362,7 @@
           },
           {
             "baseFunctions": [
-              45844
+              46171
             ],
             "body": {
               "id": 22862,
@@ -3435,7 +3435,7 @@
                             "lValueRequested": false,
                             "memberName": "onERC721Received",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 46862,
+                            "referencedDeclaration": 47189,
                             "src": "4595:21:29",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_external_pure$_t_address_$_t_address_$_t_uint256_$_t_bytes_memory_ptr_$returns$_t_bytes4_$",
@@ -3558,7 +3558,7 @@
                         "lValueRequested": false,
                         "memberName": "supportsInterface",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 45844,
+                        "referencedDeclaration": 46171,
                         "src": "4782:23:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_view$_t_bytes4_$returns$_t_bool_$",
@@ -5833,7 +5833,7 @@
                                     "name": "balanceOf",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 45780,
+                                    "referencedDeclaration": 46107,
                                     "src": "8086:9:29",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_uint256_$_t_uint256_$_$",
@@ -6128,7 +6128,7 @@
                             "name": "TransferSingle",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 45722,
+                            "referencedDeclaration": 46049,
                             "src": "8196:14:29",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$_t_address_$_t_uint256_$_t_uint256_$returns$__$",
@@ -6400,7 +6400,7 @@
                         "name": "totalSupply",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45795,
+                        "referencedDeclaration": 46122,
                         "src": "8329:11:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
@@ -7770,10 +7770,10 @@
                                         "name": "IERC1271",
                                         "nodeType": "Identifier",
                                         "overloadedDeclarations": [],
-                                        "referencedDeclaration": 46841,
+                                        "referencedDeclaration": 47168,
                                         "src": "10607:8:29",
                                         "typeDescriptions": {
-                                          "typeIdentifier": "t_type$_t_contract$_IERC1271_$46841_$",
+                                          "typeIdentifier": "t_type$_t_contract$_IERC1271_$47168_$",
                                           "typeString": "type(contract IERC1271)"
                                         }
                                       },
@@ -7788,7 +7788,7 @@
                                       "src": "10607:16:29",
                                       "tryCall": false,
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_contract$_IERC1271_$46841",
+                                        "typeIdentifier": "t_contract$_IERC1271_$47168",
                                         "typeString": "contract IERC1271"
                                       }
                                     },
@@ -7799,7 +7799,7 @@
                                     "lValueRequested": false,
                                     "memberName": "isValidSignature",
                                     "nodeType": "MemberAccess",
-                                    "referencedDeclaration": 46840,
+                                    "referencedDeclaration": 47167,
                                     "src": "10607:33:29",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_external_view$_t_bytes32_$_t_bytes_memory_ptr_$returns$_t_bytes4_$",
@@ -7830,10 +7830,10 @@
                                       "name": "IERC1271",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 46841,
+                                      "referencedDeclaration": 47168,
                                       "src": "10776:8:29",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IERC1271_$46841_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IERC1271_$47168_$",
                                         "typeString": "type(contract IERC1271)"
                                       }
                                     },
@@ -7844,7 +7844,7 @@
                                     "lValueRequested": false,
                                     "memberName": "isValidSignature",
                                     "nodeType": "MemberAccess",
-                                    "referencedDeclaration": 46840,
+                                    "referencedDeclaration": 47167,
                                     "src": "10776:25:29",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_declaration_view$_t_bytes32_$_t_bytes_calldata_ptr_$returns$_t_bytes4_$",
@@ -7930,7 +7930,7 @@
                                 "name": "balanceOf",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 45780,
+                                "referencedDeclaration": 46107,
                                 "src": "10920:9:29",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_uint256_$_t_uint256_$_$",
@@ -11381,7 +11381,7 @@
                         "name": "totalSupply",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45795,
+                        "referencedDeclaration": 46122,
                         "src": "14689:11:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
@@ -11820,7 +11820,7 @@
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 46777,
+                      "referencedDeclaration": 47104,
                       "src": "15536:5:29",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$_t_uint256_$_t_bytes_calldata_ptr_$returns$__$",
@@ -12033,7 +12033,7 @@
                               "name": "balanceOf",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 45780,
+                              "referencedDeclaration": 46107,
                               "src": "15810:9:29",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_uint256_$_t_uint256_$_$",
@@ -12118,7 +12118,7 @@
                             "name": "totalSupply",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 45795,
+                            "referencedDeclaration": 46122,
                             "src": "15845:11:29",
                             "typeDescriptions": {
                               "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
@@ -12325,7 +12325,7 @@
                       "name": "TransferSingle",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 45722,
+                      "referencedDeclaration": 46049,
                       "src": "15888:14:29",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$_t_address_$_t_uint256_$_t_uint256_$returns$__$",
@@ -12626,7 +12626,7 @@
                                   "name": "isApprovedForAll",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 45786,
+                                  "referencedDeclaration": 46113,
                                   "src": "16437:16:29",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_address_$_t_bool_$_$",
@@ -12974,7 +12974,7 @@
                         "name": "NOT_AUTHORIZED",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45761,
+                        "referencedDeclaration": 46088,
                         "src": "16623:14:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_error_pure$__$returns$__$",
@@ -13060,7 +13060,7 @@
                       "name": "_burn",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 46827,
+                      "referencedDeclaration": 47154,
                       "src": "16652:5:29",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$_t_uint256_$returns$__$",
@@ -13227,7 +13227,7 @@
                           "name": "balanceOf",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 45780,
+                          "referencedDeclaration": 46107,
                           "src": "16864:9:29",
                           "typeDescriptions": {
                             "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_uint256_$_t_uint256_$_$",
@@ -13317,7 +13317,7 @@
                             "name": "totalSupply",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 45795,
+                            "referencedDeclaration": 46122,
                             "src": "16977:11:29",
                             "typeDescriptions": {
                               "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
@@ -13394,7 +13394,7 @@
                         "name": "totalSupply",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45795,
+                        "referencedDeclaration": 46122,
                         "src": "17036:11:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
@@ -13635,7 +13635,7 @@
                       "name": "TransferSingle",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 45722,
+                      "referencedDeclaration": 46049,
                       "src": "17097:14:29",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$_t_address_$_t_uint256_$_t_uint256_$returns$__$",
@@ -13857,7 +13857,7 @@
                         "name": "NOT_AUTHORIZED",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45761,
+                        "referencedDeclaration": 46088,
                         "src": "17537:14:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_error_pure$__$returns$__$",
@@ -14368,7 +14368,7 @@
                         "name": "transferable",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 45791,
+                        "referencedDeclaration": 46118,
                         "src": "18276:12:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_uint256_$_t_bool_$",
@@ -14496,7 +14496,7 @@
                       "name": "TokenTransferabilitySet",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 45752,
+                      "referencedDeclaration": 46079,
                       "src": "18328:23:29",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_uint256_$_t_bool_$returns$__$",
@@ -14742,7 +14742,7 @@
                       "name": "URI",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 45758,
+                      "referencedDeclaration": 46085,
                       "src": "18694:3:29",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_string_memory_ptr_$_t_uint256_$returns$__$",
@@ -14879,13 +14879,13 @@
           22746,
           22749,
           22752,
-          45761,
-          45763,
-          45765,
-          45767,
-          45769,
-          45771,
-          45773
+          46088,
+          46090,
+          46092,
+          46094,
+          46096,
+          46098,
+          46100
         ]
       }
     ],

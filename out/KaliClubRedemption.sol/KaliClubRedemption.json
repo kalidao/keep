@@ -176,22 +176,22 @@
     "absolutePath": "C:\\Users\\rossc\\bji\\src\\extensions\\redemption\\KaliClubRedemption.sol",
     "exportedSymbols": {
       "FixedPointMathLib": [
-        48240
+        48567
       ],
       "IERC20Balances": [
-        48183
+        48510
       ],
       "IKaliClub": [
-        48223
+        48550
       ],
       "KaliClubRedemption": [
         24025
       ],
       "Multicall": [
-        46942
+        47269
       ],
       "SafeTransferLib": [
-        48257
+        48584
       ]
     },
     "id": 24026,
@@ -216,7 +216,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 24026,
-        "sourceUnit": 48184,
+        "sourceUnit": 48511,
         "src": "92:67:31",
         "symbolAliases": [
           {
@@ -225,7 +225,7 @@
               "name": "IERC20Balances",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 48183,
+              "referencedDeclaration": 48510,
               "src": "100:14:31",
               "typeDescriptions": {}
             },
@@ -241,7 +241,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 24026,
-        "sourceUnit": 48224,
+        "sourceUnit": 48551,
         "src": "161:57:31",
         "symbolAliases": [
           {
@@ -250,7 +250,7 @@
               "name": "IKaliClub",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 48223,
+              "referencedDeclaration": 48550,
               "src": "169:9:31",
               "typeDescriptions": {}
             },
@@ -266,7 +266,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 24026,
-        "sourceUnit": 48241,
+        "sourceUnit": 48568,
         "src": "242:72:31",
         "symbolAliases": [
           {
@@ -275,7 +275,7 @@
               "name": "FixedPointMathLib",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 48240,
+              "referencedDeclaration": 48567,
               "src": "250:17:31",
               "typeDescriptions": {}
             },
@@ -291,7 +291,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 24026,
-        "sourceUnit": 48258,
+        "sourceUnit": 48585,
         "src": "316:68:31",
         "symbolAliases": [
           {
@@ -300,7 +300,7 @@
               "name": "SafeTransferLib",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 48257,
+              "referencedDeclaration": 48584,
               "src": "324:15:31",
               "typeDescriptions": {}
             },
@@ -316,7 +316,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 24026,
-        "sourceUnit": 46943,
+        "sourceUnit": 47270,
         "src": "408:52:31",
         "symbolAliases": [
           {
@@ -325,7 +325,7 @@
               "name": "Multicall",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46942,
+              "referencedDeclaration": 47269,
               "src": "416:9:31",
               "typeDescriptions": {}
             },
@@ -342,7 +342,7 @@
               "id": 23835,
               "name": "Multicall",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 46942,
+              "referencedDeclaration": 47269,
               "src": "591:9:31"
             },
             "id": 23836,
@@ -363,7 +363,7 @@
         "id": 24025,
         "linearizedBaseContracts": [
           24025,
-          46942
+          47269
         ],
         "name": "KaliClubRedemption",
         "nameLocation": "569:18:31",
@@ -376,7 +376,7 @@
               "id": 23837,
               "name": "FixedPointMathLib",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 48240,
+              "referencedDeclaration": 48567,
               "src": "801:17:31"
             },
             "nodeType": "UsingForDirective",
@@ -399,7 +399,7 @@
               "id": 23840,
               "name": "SafeTransferLib",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 48257,
+              "referencedDeclaration": 48584,
               "src": "845:15:31"
             },
             "nodeType": "UsingForDirective",
@@ -1445,10 +1445,10 @@
                           "name": "IKaliClub",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 48223,
+                          "referencedDeclaration": 48550,
                           "src": "3187:9:31",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IKaliClub_$48223_$",
+                            "typeIdentifier": "t_type$_t_contract$_IKaliClub_$48550_$",
                             "typeString": "type(contract IKaliClub)"
                           }
                         },
@@ -1463,7 +1463,7 @@
                         "src": "3187:15:31",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IKaliClub_$48223",
+                          "typeIdentifier": "t_contract$_IKaliClub_$48550",
                           "typeString": "contract IKaliClub"
                         }
                       },
@@ -1474,7 +1474,7 @@
                       "lValueRequested": false,
                       "memberName": "totalSupply",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 48202,
+                      "referencedDeclaration": 48529,
                       "src": "3187:27:31",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_uint256_$returns$_t_uint256_$",
@@ -1594,10 +1594,10 @@
                           "name": "IKaliClub",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 48223,
+                          "referencedDeclaration": 48550,
                           "src": "3231:9:31",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IKaliClub_$48223_$",
+                            "typeIdentifier": "t_type$_t_contract$_IKaliClub_$48550_$",
                             "typeString": "type(contract IKaliClub)"
                           }
                         },
@@ -1612,7 +1612,7 @@
                         "src": "3231:15:31",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IKaliClub_$48223",
+                          "typeIdentifier": "t_contract$_IKaliClub_$48550",
                           "typeString": "contract IKaliClub"
                         }
                       },
@@ -1623,7 +1623,7 @@
                       "lValueRequested": false,
                       "memberName": "burn",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 48222,
+                      "referencedDeclaration": 48549,
                       "src": "3231:20:31",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_payable$_t_address_$_t_uint256_$_t_uint256_$returns$__$",
@@ -1989,10 +1989,10 @@
                                     "name": "IERC20Balances",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 48183,
+                                    "referencedDeclaration": 48510,
                                     "src": "3761:14:31",
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_type$_t_contract$_IERC20Balances_$48183_$",
+                                      "typeIdentifier": "t_type$_t_contract$_IERC20Balances_$48510_$",
                                       "typeString": "type(contract IERC20Balances)"
                                     }
                                   },
@@ -2007,7 +2007,7 @@
                                   "src": "3761:25:31",
                                   "tryCall": false,
                                   "typeDescriptions": {
-                                    "typeIdentifier": "t_contract$_IERC20Balances_$48183",
+                                    "typeIdentifier": "t_contract$_IERC20Balances_$48510",
                                     "typeString": "contract IERC20Balances"
                                   }
                                 },
@@ -2018,7 +2018,7 @@
                                 "lValueRequested": false,
                                 "memberName": "balanceOf",
                                 "nodeType": "MemberAccess",
-                                "referencedDeclaration": 48177,
+                                "referencedDeclaration": 48504,
                                 "src": "3761:35:31",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
@@ -2073,10 +2073,10 @@
                               "name": "FixedPointMathLib",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 48240,
+                              "referencedDeclaration": 48567,
                               "src": "3684:17:31",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_type$_t_contract$_FixedPointMathLib_$48240_$",
+                                "typeIdentifier": "t_type$_t_contract$_FixedPointMathLib_$48567_$",
                                 "typeString": "type(library FixedPointMathLib)"
                               }
                             },
@@ -2087,7 +2087,7 @@
                             "lValueRequested": false,
                             "memberName": "_mulDivDown",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 48239,
+                            "referencedDeclaration": 48566,
                             "src": "3684:29:31",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$_t_uint256_$returns$_t_uint256_$",
@@ -2275,7 +2275,7 @@
                               "lValueRequested": false,
                               "memberName": "_safeTransferFrom",
                               "nodeType": "MemberAccess",
-                              "referencedDeclaration": 48256,
+                              "referencedDeclaration": 48583,
                               "src": "3949:27:31",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_address_$_t_address_$_t_uint256_$returns$__$bound_to$_t_address_$",

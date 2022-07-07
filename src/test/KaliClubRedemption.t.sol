@@ -23,6 +23,7 @@ contract RedemptionTest is Test {
     KaliClub club;
     KaliClubFactory factory;
     MockERC20 mockDai;
+    MockERC20 mockWeth;
     KaliClubRedemption redemption;
 
     /// @dev Users
@@ -72,10 +73,14 @@ contract RedemptionTest is Test {
     function setUp() public {
         club = new KaliClub(KaliClub(alice));
         mockDai = new MockERC20('Dai', 'DAI', 18);
+        mockWeth = new MockERC20('wETH', 'WETH', 18);
         redemption = new KaliClubRedemption();
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
+
+        // 1B mockWeth!
+        mockWeth.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
         factory = new KaliClubFactory(club);
@@ -98,8 +103,6 @@ contract RedemptionTest is Test {
             2,
             name
         );
-
-        mockDai.approve(address(club), type(uint256).max);
     }
 
     function testRedemption() public {
@@ -130,5 +133,48 @@ contract RedemptionTest is Test {
         assertTrue(club.balanceOf(alice, 1) == 0);
         assertTrue(club.totalSupply(1) == 0);
         assertTrue(mockDai.balanceOf(alice) == 100);
+    }
+
+    function testMultiRedemption() public {
+        startHoax(address(club), address(club), type(uint256).max);
+        club.setGovernance(address(redemption), true);
+        club.mint(alice, 1, 100, '');
+        vm.stopPrank();
+
+        assertTrue(club.governance(address(redemption)));
+        assertTrue(club.balanceOf(alice, 1) == 100);
+
+        mockDai.transfer(address(club), 1000);
+        mockWeth.transfer(address(club), 10);
+
+        startHoax(address(club), address(club), type(uint256).max);
+        mockDai.approve(address(redemption), 1000);
+        mockWeth.approve(address(redemption), 10);
+        redemption.setRedemptionStart(1, 100);
+        vm.stopPrank();
+
+        vm.warp(1641070800);
+
+        address[] memory assets = new address[](2);
+        assets[0] = address(mockDai);
+        assets[1] = address(mockWeth);
+
+        startHoax(address(alice), address(alice), type(uint256).max);
+        redemption.redeem(address(club), assets, 1, 50);
+        vm.stopPrank();
+
+        assertTrue(club.balanceOf(alice, 1) == 50);
+        assertTrue(club.totalSupply(1) == 50);
+        assertTrue(mockDai.balanceOf(alice) == 500);
+        assertTrue(mockWeth.balanceOf(alice) == 5);
+
+        startHoax(address(alice), address(alice), type(uint256).max);
+        redemption.redeem(address(club), assets, 1, 50);
+        vm.stopPrank();
+
+        assertTrue(club.balanceOf(alice, 1) == 0);
+        assertTrue(club.totalSupply(1) == 0);
+        assertTrue(mockDai.balanceOf(alice) == 1000);
+        assertTrue(mockWeth.balanceOf(alice) == 10);
     }
 }

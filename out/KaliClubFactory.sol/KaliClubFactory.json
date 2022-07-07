@@ -189,19 +189,19 @@
     "absolutePath": "C:\\Users\\rossc\\bji\\src\\KaliClubFactory.sol",
     "exportedSymbols": {
       "Call": [
-        46968
+        47295
       ],
       "ClonesWithImmutableArgs": [
-        48167
+        48494
       ],
       "KaliClub": [
-        47975
+        48302
       ],
       "KaliClubFactory": [
         23821
       ],
       "Multicall": [
-        46942
+        47269
       ]
     },
     "id": 23822,
@@ -226,7 +226,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 23822,
-        "sourceUnit": 47976,
+        "sourceUnit": 48303,
         "src": "91:77:30",
         "symbolAliases": [
           {
@@ -235,7 +235,7 @@
               "name": "Call",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46968,
+              "referencedDeclaration": 47295,
               "src": "105:4:30",
               "typeDescriptions": {}
             },
@@ -247,7 +247,7 @@
               "name": "Multicall",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 46942,
+              "referencedDeclaration": 47269,
               "src": "117:9:30",
               "typeDescriptions": {}
             },
@@ -259,7 +259,7 @@
               "name": "KaliClub",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 47975,
+              "referencedDeclaration": 48302,
               "src": "134:8:30",
               "typeDescriptions": {}
             },
@@ -275,7 +275,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 23822,
-        "sourceUnit": 48168,
+        "sourceUnit": 48495,
         "src": "192:80:30",
         "symbolAliases": [
           {
@@ -284,7 +284,7 @@
               "name": "ClonesWithImmutableArgs",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 48167,
+              "referencedDeclaration": 48494,
               "src": "200:23:30",
               "typeDescriptions": {}
             },
@@ -301,7 +301,7 @@
               "id": 23699,
               "name": "Multicall",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 46942,
+              "referencedDeclaration": 47269,
               "src": "335:9:30"
             },
             "id": 23700,
@@ -322,7 +322,7 @@
         "id": 23821,
         "linearizedBaseContracts": [
           23821,
-          46942
+          47269
         ],
         "name": "KaliClubFactory",
         "nameLocation": "316:15:30",
@@ -335,7 +335,7 @@
               "id": 23701,
               "name": "ClonesWithImmutableArgs",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 48167,
+              "referencedDeclaration": 48494,
               "src": "545:23:30"
             },
             "nodeType": "UsingForDirective",
@@ -382,7 +382,7 @@
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Call_$46968_memory_ptr_$dyn_memory_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Call_$47295_memory_ptr_$dyn_memory_ptr",
                     "typeString": "struct Call[]"
                   },
                   "typeName": {
@@ -393,13 +393,13 @@
                         "id": 23705,
                         "name": "Call",
                         "nodeType": "IdentifierPath",
-                        "referencedDeclaration": 46968,
+                        "referencedDeclaration": 47295,
                         "src": "798:4:30"
                       },
-                      "referencedDeclaration": 46968,
+                      "referencedDeclaration": 47295,
                       "src": "798:4:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Call_$46968_storage_ptr",
+                        "typeIdentifier": "t_struct$_Call_$47295_storage_ptr",
                         "typeString": "struct Call"
                       }
                     },
@@ -407,7 +407,7 @@
                     "nodeType": "ArrayTypeName",
                     "src": "798:6:30",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_array$_t_struct$_Call_$46968_storage_$dyn_storage_ptr",
+                      "typeIdentifier": "t_array$_t_struct$_Call_$47295_storage_$dyn_storage_ptr",
                       "typeString": "struct Call[]"
                     }
                   },
@@ -530,7 +530,7 @@
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_KaliClub_$47975",
+              "typeIdentifier": "t_contract$_KaliClub_$48302",
               "typeString": "contract KaliClub"
             },
             "typeName": {
@@ -540,13 +540,13 @@
                 "id": 23719,
                 "name": "KaliClub",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 47975,
+                "referencedDeclaration": 48302,
                 "src": "1093:8:30"
               },
-              "referencedDeclaration": 47975,
+              "referencedDeclaration": 48302,
               "src": "1093:8:30",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_KaliClub_$47975",
+                "typeIdentifier": "t_contract$_KaliClub_$48302",
                 "typeString": "contract KaliClub"
               }
             },
@@ -573,7 +573,7 @@
                       "referencedDeclaration": 23721,
                       "src": "1378:10:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_KaliClub_$47975",
+                        "typeIdentifier": "t_contract$_KaliClub_$48302",
                         "typeString": "contract KaliClub"
                       }
                     },
@@ -587,13 +587,13 @@
                       "referencedDeclaration": 23725,
                       "src": "1391:11:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_KaliClub_$47975",
+                        "typeIdentifier": "t_contract$_KaliClub_$48302",
                         "typeString": "contract KaliClub"
                       }
                     },
                     "src": "1378:24:30",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_KaliClub_$47975",
+                      "typeIdentifier": "t_contract$_KaliClub_$48302",
                       "typeString": "contract KaliClub"
                     }
                   },
@@ -632,7 +632,7 @@
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_KaliClub_$47975",
+                    "typeIdentifier": "t_contract$_KaliClub_$48302",
                     "typeString": "contract KaliClub"
                   },
                   "typeName": {
@@ -642,13 +642,13 @@
                       "id": 23723,
                       "name": "KaliClub",
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 47975,
+                      "referencedDeclaration": 48302,
                       "src": "1337:8:30"
                     },
-                    "referencedDeclaration": 47975,
+                    "referencedDeclaration": 48302,
                     "src": "1337:8:30",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_KaliClub_$47975",
+                      "typeIdentifier": "t_contract$_KaliClub_$48302",
                       "typeString": "contract KaliClub"
                     }
                   },
@@ -896,7 +896,7 @@
                               "referencedDeclaration": 23721,
                               "src": "1754:10:30",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_KaliClub_$47975",
+                                "typeIdentifier": "t_contract$_KaliClub_$48302",
                                 "typeString": "contract KaliClub"
                               }
                             }
@@ -904,7 +904,7 @@
                           "expression": {
                             "argumentTypes": [
                               {
-                                "typeIdentifier": "t_contract$_KaliClub_$47975",
+                                "typeIdentifier": "t_contract$_KaliClub_$48302",
                                 "typeString": "contract KaliClub"
                               }
                             ],
@@ -949,7 +949,7 @@
                         "lValueRequested": false,
                         "memberName": "_predictDeterministicAddress",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 48166,
+                        "referencedDeclaration": 48493,
                         "src": "1746:48:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_view$_t_address_$_t_bytes32_$_t_bytes_memory_ptr_$returns$_t_address_$_t_bool_$bound_to$_t_address_$",
@@ -1122,7 +1122,7 @@
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_KaliClub_$47975",
+                        "typeIdentifier": "t_contract$_KaliClub_$48302",
                         "typeString": "contract KaliClub"
                       },
                       "typeName": {
@@ -1132,13 +1132,13 @@
                           "id": 23779,
                           "name": "KaliClub",
                           "nodeType": "IdentifierPath",
-                          "referencedDeclaration": 47975,
+                          "referencedDeclaration": 48302,
                           "src": "2061:8:30"
                         },
-                        "referencedDeclaration": 47975,
+                        "referencedDeclaration": 48302,
                         "src": "2061:8:30",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_KaliClub_$47975",
+                          "typeIdentifier": "t_contract$_KaliClub_$48302",
                           "typeString": "contract KaliClub"
                         }
                       },
@@ -1320,7 +1320,7 @@
                                 "referencedDeclaration": 23721,
                                 "src": "2108:10:30",
                                 "typeDescriptions": {
-                                  "typeIdentifier": "t_contract$_KaliClub_$47975",
+                                  "typeIdentifier": "t_contract$_KaliClub_$48302",
                                   "typeString": "contract KaliClub"
                                 }
                               }
@@ -1328,7 +1328,7 @@
                             "expression": {
                               "argumentTypes": [
                                 {
-                                  "typeIdentifier": "t_contract$_KaliClub_$47975",
+                                  "typeIdentifier": "t_contract$_KaliClub_$48302",
                                   "typeString": "contract KaliClub"
                                 }
                               ],
@@ -1373,7 +1373,7 @@
                           "lValueRequested": false,
                           "memberName": "_clone",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 48103,
+                          "referencedDeclaration": 48430,
                           "src": "2100:26:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes32_$_t_bytes_memory_ptr_$returns$_t_address_payable_$bound_to$_t_address_$",
@@ -1407,10 +1407,10 @@
                       "name": "KaliClub",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 47975,
+                      "referencedDeclaration": 48302,
                       "src": "2077:8:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_type$_t_contract$_KaliClub_$47975_$",
+                        "typeIdentifier": "t_type$_t_contract$_KaliClub_$48302_$",
                         "typeString": "type(contract KaliClub)"
                       }
                     },
@@ -1425,7 +1425,7 @@
                     "src": "2077:162:30",
                     "tryCall": false,
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_KaliClub_$47975",
+                      "typeIdentifier": "t_contract$_KaliClub_$48302",
                       "typeString": "contract KaliClub"
                     }
                   },
@@ -1443,7 +1443,7 @@
                         "referencedDeclaration": 23769,
                         "src": "2294:5:30",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_array$_t_struct$_Call_$46968_calldata_ptr_$dyn_calldata_ptr",
+                          "typeIdentifier": "t_array$_t_struct$_Call_$47295_calldata_ptr_$dyn_calldata_ptr",
                           "typeString": "struct Call calldata[] calldata"
                         }
                       },
@@ -1475,7 +1475,7 @@
                     "expression": {
                       "argumentTypes": [
                         {
-                          "typeIdentifier": "t_array$_t_struct$_Call_$46968_calldata_ptr_$dyn_calldata_ptr",
+                          "typeIdentifier": "t_array$_t_struct$_Call_$47295_calldata_ptr_$dyn_calldata_ptr",
                           "typeString": "struct Call calldata[] calldata"
                         },
                         {
@@ -1490,7 +1490,7 @@
                       "expression": {
                         "argumentTypes": [
                           {
-                            "typeIdentifier": "t_array$_t_struct$_Call_$46968_calldata_ptr_$dyn_calldata_ptr",
+                            "typeIdentifier": "t_array$_t_struct$_Call_$47295_calldata_ptr_$dyn_calldata_ptr",
                             "typeString": "struct Call calldata[] calldata"
                           },
                           {
@@ -1510,7 +1510,7 @@
                           "referencedDeclaration": 23781,
                           "src": "2252:4:30",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_KaliClub_$47975",
+                            "typeIdentifier": "t_contract$_KaliClub_$48302",
                             "typeString": "contract KaliClub"
                           }
                         },
@@ -1521,10 +1521,10 @@
                         "lValueRequested": false,
                         "memberName": "init",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 47370,
+                        "referencedDeclaration": 47697,
                         "src": "2252:9:30",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_function_external_payable$_t_array$_t_struct$_Call_$46968_memory_ptr_$dyn_memory_ptr_$_t_array$_t_address_$dyn_memory_ptr_$_t_uint256_$returns$__$",
+                          "typeIdentifier": "t_function_external_payable$_t_array$_t_struct$_Call_$47295_memory_ptr_$dyn_memory_ptr_$_t_array$_t_address_$dyn_memory_ptr_$_t_uint256_$returns$__$",
                           "typeString": "function (struct Call memory[] memory,address[] memory,uint256) payable external"
                         }
                       },
@@ -1567,7 +1567,7 @@
                       ],
                       "src": "2252:27:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_payable$_t_array$_t_struct$_Call_$46968_memory_ptr_$dyn_memory_ptr_$_t_array$_t_address_$dyn_memory_ptr_$_t_uint256_$returns$__$value",
+                        "typeIdentifier": "t_function_external_payable$_t_array$_t_struct$_Call_$47295_memory_ptr_$dyn_memory_ptr_$_t_array$_t_address_$dyn_memory_ptr_$_t_uint256_$returns$__$value",
                         "typeString": "function (struct Call memory[] memory,address[] memory,uint256) payable external"
                       }
                     },
@@ -1601,7 +1601,7 @@
                         "referencedDeclaration": 23769,
                         "src": "2401:5:30",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_array$_t_struct$_Call_$46968_calldata_ptr_$dyn_calldata_ptr",
+                          "typeIdentifier": "t_array$_t_struct$_Call_$47295_calldata_ptr_$dyn_calldata_ptr",
                           "typeString": "struct Call calldata[] calldata"
                         }
                       },
@@ -1645,7 +1645,7 @@
                     "expression": {
                       "argumentTypes": [
                         {
-                          "typeIdentifier": "t_array$_t_struct$_Call_$46968_calldata_ptr_$dyn_calldata_ptr",
+                          "typeIdentifier": "t_array$_t_struct$_Call_$47295_calldata_ptr_$dyn_calldata_ptr",
                           "typeString": "struct Call calldata[] calldata"
                         },
                         {
@@ -1668,7 +1668,7 @@
                       "referencedDeclaration": 23717,
                       "src": "2374:12:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_event_nonpayable$_t_array$_t_struct$_Call_$46968_memory_ptr_$dyn_memory_ptr_$_t_array$_t_address_$dyn_memory_ptr_$_t_uint256_$_t_bytes32_$returns$__$",
+                        "typeIdentifier": "t_function_event_nonpayable$_t_array$_t_struct$_Call_$47295_memory_ptr_$dyn_memory_ptr_$_t_array$_t_address_$dyn_memory_ptr_$_t_uint256_$_t_bytes32_$returns$__$",
                         "typeString": "function (struct Call memory[] memory,address[] memory,uint256,bytes32)"
                       }
                     },
@@ -1717,7 +1717,7 @@
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Call_$46968_calldata_ptr_$dyn_calldata_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Call_$47295_calldata_ptr_$dyn_calldata_ptr",
                     "typeString": "struct Call[]"
                   },
                   "typeName": {
@@ -1728,13 +1728,13 @@
                         "id": 23766,
                         "name": "Call",
                         "nodeType": "IdentifierPath",
-                        "referencedDeclaration": 46968,
+                        "referencedDeclaration": 47295,
                         "src": "1908:4:30"
                       },
-                      "referencedDeclaration": 46968,
+                      "referencedDeclaration": 47295,
                       "src": "1908:4:30",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Call_$46968_storage_ptr",
+                        "typeIdentifier": "t_struct$_Call_$47295_storage_ptr",
                         "typeString": "struct Call"
                       }
                     },
@@ -1742,7 +1742,7 @@
                     "nodeType": "ArrayTypeName",
                     "src": "1908:6:30",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_array$_t_struct$_Call_$46968_storage_$dyn_storage_ptr",
+                      "typeIdentifier": "t_array$_t_struct$_Call_$47295_storage_$dyn_storage_ptr",
                       "typeString": "struct Call[]"
                     }
                   },
@@ -1858,7 +1858,7 @@
         "scope": 23822,
         "src": "307:2186:30",
         "usedErrors": [
-          47980
+          48307
         ]
       }
     ],
