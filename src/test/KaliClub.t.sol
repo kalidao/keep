@@ -281,7 +281,7 @@ contract ClubTest is Test {
     }
 
     function testTotalSupply() public view {
-        assert(club.totalSupply() == 2);
+        assert(club.totalSupply(0) == 2);
     }
 
     /// -----------------------------------------------------------------------
@@ -514,14 +514,14 @@ contract ClubTest is Test {
     /// @notice Check governance
 
     function testGovernMint() public {
-        assert(club.totalSupply() == 2);
+        assert(club.totalSupply(0) == 2);
         address db = address(0xdeadbeef);
 
         vm.prank(address(club));
         club.mintSigner(db);
         vm.stopPrank();
 
-        assert(club.totalSupply() == 3);
+        assert(club.totalSupply(0) == 3);
         assert(club.quorum() == 2);
     }
 
@@ -534,7 +534,7 @@ contract ClubTest is Test {
         club.burnSigner(alice);
         vm.stopPrank();
 
-        assert(club.totalSupply() == 1);
+        assert(club.totalSupply(0) == 1);
         assert(club.quorum() == 1);
     }
 
