@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Enables creating clone contracts with immutable arguments and CREATE2
+/// @notice Enables creating clone contracts with immutable arguments
 /// @author Modified from wighawag, zefram.eth
 /// (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
-/// @dev extended by will@0xsplits.xyz to add receive() without DELEGECALL & create2 support
+/// @dev extended by will@0xsplits.xyz to add receive() with CREATE2 support and without DELEGATECALL
 /// (h/t WyseNynja https://github.com/wighawag/clones-with-immutable-args/issues/4)
 library ClonesWithImmutableArgs {
-    error Create2fail();
+    error CREATE2_FAILED();
 
     /// @notice Creates a clone proxy of the implementation contract with immutable args
-    /// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length
+    /// @dev `data` cannot exceed 65535 bytes, since 2 bytes are used to store the data length
     /// @param implementation The implementation contract to clone
     /// @param data Encoded immutable args
     /// @return ptr The ptr to the clone's bytecode
@@ -23,8 +23,11 @@ library ClonesWithImmutableArgs {
         // unrealistic for memory ptr or data length to exceed 256 bits
         unchecked {
             uint256 extraLength = data.length + 2; // +2 bytes for telling how much data there is appended to the call
+            
             creationSize = 0x71 + extraLength;
+            
             uint256 runSize = creationSize - 10;
+            
             uint256 dataPtr;
 
             assembly {
@@ -85,7 +88,7 @@ library ClonesWithImmutableArgs {
                 
                 mstore(
                     add(ptr, 0x12),
-                    // = keccak256('ReceiveETH(uint256)')
+                    // = keccak256("ReceiveETH(uint256)")
                     0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff
                 )
                 
@@ -142,7 +145,9 @@ library ClonesWithImmutableArgs {
             // -------------------------------------------------------------------------------------------------------------
 
             extraLength -= 2;
+
             uint256 counter = extraLength;
+            
             uint256 copyPtr = ptr + 0x71;
 
             assembly {
@@ -155,6 +160,7 @@ library ClonesWithImmutableArgs {
                 }
 
                 copyPtr += 32;
+
                 dataPtr += 32;
             }
             
@@ -192,9 +198,9 @@ library ClonesWithImmutableArgs {
             instance := create2(0, creationPtr, creationSize, salt)
         }
         
-        // if the create2 failed, the instance address won't be set
+        // if create2 failed, the instance address won't be set
         if (instance == address(0)) {
-            revert Create2fail();
+            revert CREATE2_FAILED();
         }
     }
 
