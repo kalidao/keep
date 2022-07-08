@@ -63,7 +63,7 @@ contract ClubTest is Test {
         address to,
         uint256 value,
         bytes memory data,
-        uint256 txNonce,
+        uint256 nonce,
         bytes32 domainSeparator
     ) internal pure returns (bytes32) {
         return 
@@ -74,13 +74,13 @@ contract ClubTest is Test {
                     keccak256(
                         abi.encode(
                             keccak256(
-                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 txNonce)'
+                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 nonce)'
                             ),
                             op,
                             to,
                             value,
                             data,
-                            txNonce
+                            nonce
                         )
                     )
                 )
