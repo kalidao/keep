@@ -232,7 +232,7 @@ abstract contract ERC1155Votes {
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
-         if (to.code.length == 0 ? to == address(0) :
+        if (to.code.length == 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
                 ERC1155TokenReceiver.onERC1155BatchReceived.selector
         ) revert INVALID_RECIPIENT();
