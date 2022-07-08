@@ -9,7 +9,7 @@ abstract contract ERC721TokenReceiver {
         address,
         uint256,
         bytes calldata
-    ) external pure returns (bytes4) {
+    ) external payable pure returns (bytes4) {
         return this.onERC721Received.selector;
     }
 }
