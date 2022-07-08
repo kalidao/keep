@@ -307,7 +307,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         
         // start from null in loop to ensure ascending addresses
         address prevAddr;
-        
         // validation is length of quorum threshold 
         uint256 threshold = quorum;
 
@@ -331,7 +330,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
             // check NFT balance
             if (balanceOf[signer][0] == 0) revert INVALID_SIG();
-
             // check duplicates
             if (prevAddr >= signer) revert INVALID_SIG();
 
