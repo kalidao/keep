@@ -293,7 +293,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
                     keccak256(
                         abi.encode(
                             keccak256(
-                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 txNonce)'
+                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 nonce)'
                             ),
                             op,
                             to,
