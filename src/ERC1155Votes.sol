@@ -25,7 +25,7 @@ abstract contract ERC1155TokenReceiver {
     }
 }
 
-/// @notice Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting
+/// @notice Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting and default non-transferability.
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
 /// and Compound Finance (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
 abstract contract ERC1155Votes {
@@ -69,7 +69,7 @@ abstract contract ERC1155Votes {
         bool approved
     );
 
-    event TokenTransferabilitySet(
+    event IdTransferabilitySet(
         address indexed operator, 
         uint256 indexed id, 
         bool transferability
@@ -391,7 +391,7 @@ abstract contract ERC1155Votes {
     }
 
     /// -----------------------------------------------------------------------
-    /// INTERNAL MINT/BURN LOGIC
+    /// INTERNAL ID LOGIC
     /// -----------------------------------------------------------------------
 
     function _mint(
@@ -434,5 +434,11 @@ abstract contract ERC1155Votes {
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
         _moveDelegates(delegates(from, id), address(0), id, amount);
-    } 
+    }
+    
+    function _setIdTransferability(uint256 id, bool transferability) internal {
+        transferable[id] = transferability;
+        
+        emit IdTransferabilitySet(msg.sender, id, transferability);
+    }
 }
