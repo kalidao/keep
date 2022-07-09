@@ -10,7 +10,7 @@ abstract contract ERC1155TokenReceiver {
         uint256,
         uint256,
         bytes calldata
-    ) external payable returns (bytes4) {
+    ) external payable virtual returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
@@ -20,7 +20,7 @@ abstract contract ERC1155TokenReceiver {
         uint256[] calldata,
         uint256[] calldata,
         bytes calldata
-    ) external payable returns (bytes4) {
+    ) external payable virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
 }
@@ -121,6 +121,12 @@ abstract contract ERC1155Votes {
         uint64 fromTimestamp;
         uint192 votes;
     }
+    
+    /// -----------------------------------------------------------------------
+    /// METADATA LOGIC
+    /// -----------------------------------------------------------------------
+    
+    function uri(uint256 id) public view virtual returns (string memory);
 
     /// -----------------------------------------------------------------------
     /// ERC-165 LOGIC
@@ -140,6 +146,7 @@ abstract contract ERC1155Votes {
     function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
         external
         view
+        virtual
         returns (uint256[] memory balances)
     {
         if (owners.length != ids.length) revert LENGTH_MISMATCH();
@@ -157,7 +164,7 @@ abstract contract ERC1155Votes {
         }
     }
 
-    function setApprovalForAll(address operator, bool approved) external payable {
+    function setApprovalForAll(address operator, bool approved) external payable virtual {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -169,7 +176,7 @@ abstract contract ERC1155Votes {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) external payable {
+    ) external payable virtual {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert NOT_AUTHORIZED();
 
         if (!transferable[id]) revert NONTRANSFERABLE();
@@ -198,7 +205,7 @@ abstract contract ERC1155Votes {
         uint256[] calldata ids,
         uint256[] calldata amounts,
         bytes calldata data
-    ) external payable {
+    ) external payable virtual {
         if (ids.length != amounts.length) revert LENGTH_MISMATCH();
 
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert NOT_AUTHORIZED();
@@ -242,13 +249,13 @@ abstract contract ERC1155Votes {
     /// VOTING LOGIC
     /// -----------------------------------------------------------------------
 
-    function delegates(address account, uint256 id) public view returns (address) {
+    function delegates(address account, uint256 id) public view virtual returns (address) {
         address current = _delegates[account][id];
 
         return current == address(0) ? account : current;
     }
 
-    function getCurrentVotes(address account, uint256 id) external view returns (uint256) {
+    function getCurrentVotes(address account, uint256 id) external view virtual returns (uint256) {
         // won't underflow because decrement only occurs if positive `nCheckpoints`
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
@@ -267,6 +274,7 @@ abstract contract ERC1155Votes {
     )
         external
         view
+        virtual
         returns (uint256)
     {
         if (block.timestamp <= timestamp) revert UNDETERMINED();
@@ -306,7 +314,7 @@ abstract contract ERC1155Votes {
         }
     }
 
-    function delegate(address delegatee, uint256 id) external payable {
+    function delegate(address delegatee, uint256 id) external payable virtual {
         address currentDelegate = delegates(msg.sender, id);
 
         _delegates[msg.sender][id] = delegatee;
@@ -321,7 +329,7 @@ abstract contract ERC1155Votes {
         address dstRep,
         uint256 id,
         uint256 amount
-    ) internal {
+    ) internal virtual {
         if (srcRep != dstRep && amount != 0) {
             if (srcRep != address(0)) {
                 uint256 srcRepNum = numCheckpoints[srcRep][id];
@@ -351,7 +359,7 @@ abstract contract ERC1155Votes {
         uint256 nCheckpoints,
         uint256 oldVotes,
         uint256 newVotes
-    ) internal {
+    ) internal virtual {
         unchecked {
             uint64 timestamp = _safeCastTo64(block.timestamp);
 
@@ -378,13 +386,13 @@ abstract contract ERC1155Votes {
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
     }
     
-    function _safeCastTo64(uint256 x) internal pure returns (uint64 y) {
+    function _safeCastTo64(uint256 x) internal pure virtual returns (uint64 y) {
         if (x > 1 << 64) revert UINT64_MAX();
 
         y = uint64(x);
     }
 
-    function _safeCastTo192(uint256 x) internal pure returns (uint192 y) {
+    function _safeCastTo192(uint256 x) internal pure virtual returns (uint192 y) {
         if (x > 1 << 192) revert UINT192_MAX();
 
         y = uint192(x);
@@ -399,7 +407,7 @@ abstract contract ERC1155Votes {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) internal {
+    ) internal virtual {
         totalSupply[id] += amount;
         
         // cannot overflow because the sum of all user
@@ -422,7 +430,7 @@ abstract contract ERC1155Votes {
         address from,
         uint256 id,
         uint256 amount
-    ) internal {
+    ) internal virtual {
         balanceOf[from][id] -= amount;
         
         // cannot underflow because a user's balance
@@ -436,7 +444,7 @@ abstract contract ERC1155Votes {
         _moveDelegates(delegates(from, id), address(0), id, amount);
     }
     
-    function _setIdTransferability(uint256 id, bool transferability) internal {
+    function _setIdTransferability(uint256 id, bool transferability) internal virtual {
         transferable[id] = transferability;
         
         emit IdTransferabilitySet(msg.sender, id, transferability);
