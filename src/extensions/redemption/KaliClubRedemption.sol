@@ -6,7 +6,7 @@ import {IERC20Balances} from "../../interfaces/IERC20Balances.sol";
 import {IKaliClub} from "../../interfaces/IKaliClub.sol";
 
 /// @dev Libraries
-import {FixedPointMathLib} from "../../libraries/FixedPointMathLib.sol";
+import {MulDivDownLib} from "../../libraries/MulDivDownLib.sol";
 import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 
 /// @dev Contracts
@@ -20,7 +20,7 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
 
-    using FixedPointMathLib for uint256;
+    using MulDivDownLib for uint256;
 
     using SafeTransferLib for address;
 
@@ -108,8 +108,7 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
             prevAddr = assets[i];
 
             // calculate fair share of given assets for redemption
-            uint256 amountToRedeem = FixedPointMathLib._mulDivDown(
-                redemption,
+            uint256 amountToRedeem = redemption._mulDivDown(
                 IERC20Balances(assets[i]).balanceOf(club),
                 supply
             );
