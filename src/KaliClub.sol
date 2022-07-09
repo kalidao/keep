@@ -76,12 +76,27 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     error EXECUTE_FAILED();
 
     /// -----------------------------------------------------------------------
+    /// CLUB CONSTANTS
+    /// -----------------------------------------------------------------------
+
+    uint256 internal constant EXECUTE_ID = uint256(bytes32(this.execute.selector));
+
+    uint256 internal constant BATCH_EXECUTE_ID = uint256(bytes32(this.batchExecute.selector));
+
+    uint256 internal constant MINT_ID = uint256(bytes32(this.mint.selector));
+
+    uint256 internal constant BURN_ID = uint256(bytes32(this.burn.selector));
+
+    uint256 internal constant SET_QUORUM_ID = uint256(bytes32(this.setQuorum.selector));
+
+    uint256 internal constant SET_TOKEN_TRANSFERABILITY_ID = uint256(bytes32(this.setTokenTransferability.selector));
+    
+    uint256 internal constant SET_TOKEN_URI_ID = uint256(bytes32(this.setTokenURI.selector));
+
+    /// -----------------------------------------------------------------------
     /// CLUB STORAGE/LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Renderer for metadata set in master contract
-    KaliClub internal immutable uriFetcher;
-
     /// @notice Club tx counter
     uint64 public nonce;
 
@@ -106,10 +121,11 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     }
 
     /// @notice Access control for governance
-    function _onlyGovernance(bytes4 selector) internal view {
-        if (msg.sender != address(this) && 
-            balanceOf[msg.sender][uint256(bytes32(selector))] == 0
-        ) revert NOT_AUTHORIZED();
+    function _onlyGovernance(uint256 id) internal view returns (bool) {
+        if (
+            msg.sender == address(this) 
+            || balanceOf[msg.sender][id] != 0
+        ) return true; else revert NOT_AUTHORIZED();
     }
 
     /// -----------------------------------------------------------------------
@@ -169,14 +185,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     }
 
     /// -----------------------------------------------------------------------
-    /// INITIALIZER LOGIC
+    /// INITIALIZATION LOGIC
     /// -----------------------------------------------------------------------
-    
-    /// @notice Deploys master contract template
-    /// @param _uriFetcher ID metadata manager
-    constructor(KaliClub _uriFetcher) payable {
-        uriFetcher = _uriFetcher;
-    }
 
     /// @notice Initializes club configuration
     /// @param calls Initial club operations
@@ -228,24 +238,24 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
             // won't realistically overflow
             unchecked {
-                ++balanceOf[signer][0];
+                ++balanceOf[signer][EXECUTE_ID];
 
                 ++supply;
 
                 ++i;
             }
 
-            emit TransferSingle(msg.sender, address(0), signer, 0, 1);
+            emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
         }
 
         nonce = 1;
         quorum = uint64(threshold);
-        totalSupply[0] = supply;
+        totalSupply[EXECUTE_ID] = supply;
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
-    /// OPERATIONS LOGIC
+    /// EXECUTION LOGIC
     /// -----------------------------------------------------------------------
 
     /// @notice Execute operation from club with signatures
@@ -308,7 +318,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
             }
 
             // check NFT balance
-            if (balanceOf[signer][0] == 0) revert INVALID_SIG();
+            if (balanceOf[signer][EXECUTE_ID] == 0) revert INVALID_SIG();
             // check duplicates
             if (prevAddr >= signer) revert INVALID_SIG();
 
@@ -333,7 +343,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @param calls Club operations as arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
     function batchExecute(Call[] calldata calls) external payable returns (bool[] memory successes) {
-        _onlyGovernance(this.batchExecute.selector);
+        _onlyGovernance(BATCH_EXECUTE_ID);
 
         successes = new bool[](calls.length);
 
@@ -420,30 +430,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     }
     
     /// -----------------------------------------------------------------------
-    /// THRESHOLD LOGIC
-    /// -----------------------------------------------------------------------
-    
-    /// @notice Update club quorum
-    /// @param threshold Signature threshold to execute() operations
-    function setQuorum(uint64 threshold) external payable {
-        _onlyGovernance(this.setQuorum.selector);
-
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
-        
-        // note: also make sure signers don't concentrate NFTs,
-        // as this could cause issues in reaching quorum
-        if (threshold > totalSupply[0]) revert QUORUM_OVER_SUPPLY();
-
-        quorum = threshold;
-
-        emit QuorumSet(msg.sender, threshold);
-    }
-    
-    /// -----------------------------------------------------------------------
     /// MINT/BURN LOGIC
     /// -----------------------------------------------------------------------
 
@@ -459,7 +445,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         uint256 amount,
         bytes calldata data
     ) external payable {
-        _onlyGovernance(this.mint.selector);
+        _onlyGovernance(MINT_ID);
 
         assembly {
             if iszero(id) {
@@ -468,21 +454,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         }
 
         _mint(to, id, amount, data);
-    }
-
-    /// @notice Club signer minter
-    /// @param to The recipient of signer mint
-    function mintSigner(address to) external payable {
-        _onlyGovernance(this.mintSigner.selector);
-
-        // won't realistically overflow
-        unchecked {
-            ++balanceOf[to][0];
-
-            ++totalSupply[0];
-        }
-
-        emit TransferSingle(msg.sender, address(0), to, 0, 1);
     }
 
     /// @notice Club token ID burner
@@ -495,54 +466,46 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         uint256 id, 
         uint256 amount
     ) external payable {
+        uint256 exId = EXECUTE_ID;
+
         assembly {
-            if iszero(id) {
+            if eq(exId, id) {
                 revert(0, 0)
             }
         }
 
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) 
+        if (
+            msg.sender != from 
+            && !isApprovedForAll[from][msg.sender] 
+            && !_onlyGovernance(BURN_ID)
+        ) 
             revert NOT_AUTHORIZED();
 
         _burn(from, id, amount); 
     }
 
-    /// @notice Governed club token ID burner
-    /// @param from The account to burn from
-    /// @param id The token ID to burn
-    /// @param amount The amount to burn
-    /// @dev Token ID cannot be null
-    function burnFrom(
-        address from, 
-        uint256 id, 
-        uint256 amount
-    ) external payable {
+    /// -----------------------------------------------------------------------
+    /// THRESHOLD SETTING LOGIC
+    /// -----------------------------------------------------------------------
+    
+    /// @notice Update club quorum
+    /// @param threshold Signature threshold to execute() operations
+    function setQuorum(uint64 threshold) external payable {
+        _onlyGovernance(SET_QUORUM_ID);
+
         assembly {
-            if iszero(id) {
+            if iszero(threshold) {
                 revert(0, 0)
             }
         }
-
-        _onlyGovernance(this.burnFrom.selector);
-
-        _burn(from, id, amount); 
-    }
-
-    /// @notice Club signer burner
-    /// @param from The account to burn signer from
-    function burnSigner(address from) external payable {
-        _onlyGovernance(this.burnSigner.selector);
-
-        --balanceOf[from][0];
-
-        // won't underflow as supply is checked above
-        unchecked {
-            --totalSupply[0];
-        }
         
-        if (quorum > totalSupply[0]) revert QUORUM_OVER_SUPPLY();
+        // note: also make sure signers don't concentrate NFTs,
+        // as this could cause issues in reaching quorum
+        if (threshold > totalSupply[EXECUTE_ID]) revert QUORUM_OVER_SUPPLY();
 
-        emit TransferSingle(msg.sender, from, address(0), 0, 1);
+        quorum = threshold;
+
+        emit QuorumSet(msg.sender, threshold);
     }
     
     /// -----------------------------------------------------------------------
@@ -553,7 +516,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @param id The token ID to set transferability for
     /// @param transferability The transferability setting
     function setTokenTransferability(uint256 id, bool transferability) external payable {
-        _onlyGovernance(this.setTokenTransferability.selector);
+        _onlyGovernance(SET_TOKEN_TRANSFERABILITY_ID);
 
         transferable[id] = transferability;
 
@@ -564,7 +527,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @param id The token ID to set metadata for
     /// @param tokenURI The metadata setting
     function setTokenURI(uint256 id, string calldata tokenURI) external payable {
-        _onlyGovernance(this.setTokenURI.selector);
+        _onlyGovernance(SET_TOKEN_URI_ID);
 
         _tokenURIs[id] = tokenURI;
 

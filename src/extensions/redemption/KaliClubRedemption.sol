@@ -93,7 +93,7 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
 
         uint256 supply = IKaliClub(club).totalSupply(id);
 
-        IKaliClub(club).burnFrom(
+        IKaliClub(club).burn(
             msg.sender, 
             id,
             redemption

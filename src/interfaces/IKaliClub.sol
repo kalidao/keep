@@ -14,7 +14,7 @@ interface IKaliClub {
         bytes calldata data
     ) external payable;
 
-    function burnFrom(
+    function burn(
         address from, 
         uint256 id, 
         uint256 amount
