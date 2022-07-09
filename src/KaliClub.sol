@@ -57,7 +57,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     );
 
     /// @notice Emitted when quorum threshold is updated
-    event QuorumSet(address indexed caller, uint64 threshold);
+    event QuorumSet(address indexed caller, uint32 threshold);
 
     /// -----------------------------------------------------------------------
     /// ERRORS
@@ -100,8 +100,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Club tx counter
     uint64 public nonce;
 
-    /// @notice Signature NFT [0] threshold to execute() tx
-    uint64 public quorum;
+    /// @notice Signature NFT threshold to execute()
+    uint32 public quorum;
 
     /// @notice Initial club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
@@ -116,8 +116,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         return _tokenURIs[id];
     }
 
-    /// @notice Access control for governance
-    function _onlyGovernance(uint256 id) internal view returns (bool) {
+    /// @notice Access control for club and authorized ID holders
+    function _authorized(uint256 id) internal view returns (bool) {
         if (
             msg.sender == address(this) 
             || balanceOf[msg.sender][id] != 0
@@ -245,7 +245,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         }
 
         nonce = 1;
-        quorum = uint64(threshold);
+        quorum = uint32(threshold);
         totalSupply[EXECUTE_ID] = supply;
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
@@ -339,7 +339,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @param calls Club operations as arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
     function batchExecute(Call[] calldata calls) external payable returns (bool[] memory successes) {
-        _onlyGovernance(BATCH_EXECUTE_ID);
+        _authorized(BATCH_EXECUTE_ID);
 
         successes = new bool[](calls.length);
 
@@ -441,7 +441,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         uint256 amount,
         bytes calldata data
     ) external payable {
-        _onlyGovernance(MINT_ID);
+        _authorized(MINT_ID);
 
         _mint(to, id, amount, data);
     }
@@ -459,9 +459,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         if (
             msg.sender != from 
             && !isApprovedForAll[from][msg.sender] 
-            && !_onlyGovernance(BURN_ID)
-        ) 
-            revert NOT_AUTHORIZED();
+            && !_authorized(BURN_ID)
+        ) revert NOT_AUTHORIZED();
 
         _burn(from, id, amount);
 
@@ -476,8 +475,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     
     /// @notice Update club quorum
     /// @param threshold Signature threshold to execute() operations
-    function setQuorum(uint64 threshold) external payable {
-        _onlyGovernance(SET_QUORUM_ID);
+    function setQuorum(uint32 threshold) external payable {
+        _authorized(SET_QUORUM_ID);
 
         assembly {
             if iszero(threshold) {
@@ -502,7 +501,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @param id The token ID to set transferability for
     /// @param transferability The transferability setting
     function setTokenTransferability(uint256 id, bool transferability) external payable {
-        _onlyGovernance(SET_TOKEN_TRANSFERABILITY_ID);
+        _authorized(SET_TOKEN_TRANSFERABILITY_ID);
 
         transferable[id] = transferability;
 
@@ -513,7 +512,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @param id The token ID to set metadata for
     /// @param tokenURI The metadata setting
     function setTokenURI(uint256 id, string calldata tokenURI) external payable {
-        _onlyGovernance(SET_TOKEN_URI_ID);
+        _authorized(SET_TOKEN_URI_ID);
 
         _tokenURIs[id] = tokenURI;
 
