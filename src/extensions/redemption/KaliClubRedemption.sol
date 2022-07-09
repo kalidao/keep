@@ -10,11 +10,12 @@ import {FixedPointMathLib} from "../../libraries/FixedPointMathLib.sol";
 import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 
 /// @dev Contracts
+import {ERC1155TokenReceiver} from "../../ERC1155Votes.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 
 /// @title Kali Club Redemption
 /// @notice Fair share redemptions for burnt Kali Club tokens
-contract KaliClubRedemption is Multicall {
+contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
@@ -92,7 +93,7 @@ contract KaliClubRedemption is Multicall {
 
         uint256 supply = IKaliClub(club).totalSupply(id);
 
-        IKaliClub(club).burn(
+        IKaliClub(club).burnFrom(
             msg.sender, 
             id,
             redemption

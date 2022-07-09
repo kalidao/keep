@@ -107,11 +107,10 @@ contract RedemptionTest is Test {
 
     function testRedemption() public {
         startHoax(address(club), address(club), type(uint256).max);
-        club.setGovernance(address(redemption), true);
+        club.mint(address(redemption), uint256(bytes32(club.burnFrom.selector)), 1, '');
         club.mint(alice, 1, 100, '');
         vm.stopPrank();
-
-        assertTrue(club.governance(address(redemption)));
+        
         assertTrue(club.balanceOf(alice, 1) == 100);
 
         mockDai.transfer(address(club), 100);
@@ -120,28 +119,27 @@ contract RedemptionTest is Test {
         mockDai.approve(address(redemption), 100);
         redemption.setRedemptionStart(1, 100);
         vm.stopPrank();
-
+        
         vm.warp(1641070800);
 
         address[] memory assets = new address[](1);
         assets[0] = address(mockDai);
 
-        startHoax(address(alice), address(alice), type(uint256).max);
+        startHoax(alice, alice, type(uint256).max);
         redemption.redeem(address(club), assets, 1, 100);
         vm.stopPrank();
-
+        
         assertTrue(club.balanceOf(alice, 1) == 0);
         assertTrue(club.totalSupply(1) == 0);
         assertTrue(mockDai.balanceOf(alice) == 100);
     }
-
+    
     function testMultiRedemption() public {
         startHoax(address(club), address(club), type(uint256).max);
-        club.setGovernance(address(redemption), true);
+        club.mint(address(redemption), uint256(bytes32(club.burnFrom.selector)), 1, '');
         club.mint(alice, 1, 100, '');
         vm.stopPrank();
 
-        assertTrue(club.governance(address(redemption)));
         assertTrue(club.balanceOf(alice, 1) == 100);
 
         mockDai.transfer(address(club), 1000);

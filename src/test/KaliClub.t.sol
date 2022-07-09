@@ -50,8 +50,6 @@ contract ClubTest is Test {
 
     uint256 chainId;
 
-    bytes32 domainSeparator;
-
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
 
@@ -87,7 +85,7 @@ contract ClubTest is Test {
             );
     }
 
-    function computeDomainSeparator(address clubAddr) internal view returns (bytes32) {
+    function computeDomainSeparator(address addr) internal view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -97,7 +95,7 @@ contract ClubTest is Test {
                     keccak256(bytes('KaliClub')),
                     keccak256('1'),
                     block.chainid,
-                    clubAddr
+                    addr
                 )
             );
     }
@@ -289,17 +287,16 @@ contract ClubTest is Test {
     /// -----------------------------------------------------------------------
 
     /// @notice Check execution
-
+    
     function testExecuteGovernance() public {
         uint256 nonceInit = club.nonce();
-        startHoax(address(club), address(club), type(uint256).max);
-        club.setGovernance(alice, true);
-        vm.stopPrank();
-        assertTrue(club.governance(alice));
-
         address aliceAddress = address(alice);
 
         mockDai.transfer(address(club), 100);
+
+        startHoax(address(club), address(club), type(uint256).max);
+        club.mint(alice, uint256(bytes32(club.batchExecute.selector)), 1, '');
+        vm.stopPrank();
 
         startHoax(address(alice), address(alice), type(uint256).max);
 
@@ -327,7 +324,7 @@ contract ClubTest is Test {
         uint256 nonceAfter = club.nonce();
         assert((nonceInit + 1) == nonceAfter);
     }
-
+    
     function testExecuteCallWithSignatures() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
@@ -537,18 +534,22 @@ contract ClubTest is Test {
         assert(club.totalSupply(0) == 1);
         assert(club.quorum() == 1);
     }
-
-    function testSetGovernance(address dave) public {
-        startHoax(dave, dave, type(uint256).max);
+    
+    function testMintGovernance() public {
+        startHoax(charlie, charlie, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
-        club.setGovernance(dave, true);
+        club.mint(alice, 1, 100, '');
         vm.stopPrank();
-
+        
         // The club itself should be able to flip governor
         startHoax(address(club), address(club), type(uint256).max);
-        club.setGovernance(dave, true);
+        club.mint(charlie, uint256(bytes32(club.mint.selector)), 1, '');
         vm.stopPrank();
-        assertTrue(club.governance(dave));
+
+        startHoax(charlie, charlie, type(uint256).max);
+        club.mint(alice, 1, 100, '');
+        vm.stopPrank();
+        assert(club.balanceOf(alice, 1) == 100);
     }
     
     function testSetTransferability(
@@ -556,6 +557,7 @@ contract ClubTest is Test {
         uint256 id, 
         bool transferability
     ) public {
+        if (id == 0) id = 1;
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('NOT_AUTHORIZED()')));
         club.setTokenTransferability(id, transferability);
@@ -567,6 +569,18 @@ contract ClubTest is Test {
         club.setTokenTransferability(id, transferability);
         vm.stopPrank();
         assertTrue(club.transferable(id) == transferability);
+        /*
+        startHoax(address(club), address(club), type(uint256).max);
+        club.mint(charlie, id, 1, '');
+        vm.stopPrank();
+
+        startHoax(charlie, charlie, type(uint256).max);
+        if (transferability == false) {
+            vm.expectRevert(bytes4(keccak256('NONTRANSFERABLE)')));
+            club.safeTransferFrom(charlie, alice, id, 1, '');
+        }
+        vm.stopPrank();*/
+        
     }
     
     function testUpdateURI(address dave) public {

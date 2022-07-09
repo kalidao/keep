@@ -10,7 +10,7 @@ import {ERC1155TokenReceiver, ERC1155Votes} from "./ERC1155Votes.sol";
 import {Multicall} from "./utils/Multicall.sol";
 
 /// @title Kali Club
-/// @notice EIP-712 multi-sig with ERC-1155 for signers
+/// @notice EIP-712 multi-sig with ERC-1155 interface
 /// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
 /// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 /// @dev Lightweight implementation of Moloch v3 
@@ -49,7 +49,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         bytes data
     );
 
-    /// @notice Emitted when club executes contract creation
+    /// @notice Emitted when club creates contract
     event ContractCreated(
         Operation op,
         address indexed creation,
@@ -58,16 +58,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
     /// @notice Emitted when quorum threshold is updated
     event QuorumSet(address indexed caller, uint64 threshold);
-
-    /// @notice Emitted when admin access is set
-    event AdminSet(address indexed to);
-
-    /// @notice Emitted when governance access is updated
-    event GovernanceSet(
-        address indexed caller, 
-        address indexed to, 
-        bool approve
-    );
 
     /// -----------------------------------------------------------------------
     /// ERRORS
@@ -95,32 +85,14 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Club tx counter
     uint64 public nonce;
 
-    /// @notice Signature NFT threshold to execute tx
+    /// @notice Signature NFT [0] threshold to execute() tx
     uint64 public quorum;
 
     /// @notice Initial club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
-    /// @notice Admin access tracking
-    mapping(address => bool) public admin;
-
-    /// @notice Governance access tracking
-    mapping(address => bool) public governance;
-
     /// @notice Token URI metadata tracking
     mapping(uint256 => string) internal _tokenURIs;
-    
-    /// @notice Access control for club and governance
-    modifier onlyClubGovernance() {
-        if (
-            msg.sender != address(this) 
-            && !governance[msg.sender]
-            && !admin[msg.sender]
-        )
-            revert NOT_AUTHORIZED();
-
-        _;
-    }
     
     /// @notice Token URI metadata fetcher
     /// @param id The token ID to fetch from
@@ -131,6 +103,13 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
         if (bytes(tokenURI).length == 0) return uriFetcher.uri(id);
         else return tokenURI;
+    }
+
+    /// @notice Access control for governance
+    function _onlyGovernance(bytes4 selector) internal view {
+        if (msg.sender != address(this) && 
+            balanceOf[msg.sender][uint256(bytes32(selector))] == 0
+        ) revert NOT_AUTHORIZED();
     }
 
     /// -----------------------------------------------------------------------
@@ -353,7 +332,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Execute operations from club with signed execute() or as governance
     /// @param calls Club operations as arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
-    function batchExecute(Call[] calldata calls) external payable onlyClubGovernance returns (bool[] memory successes) {
+    function batchExecute(Call[] calldata calls) external payable returns (bool[] memory successes) {
+        _onlyGovernance(this.batchExecute.selector);
+
         successes = new bool[](calls.length);
 
         for (uint256 i; i < calls.length; ) {
@@ -444,7 +425,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     
     /// @notice Update club quorum
     /// @param threshold Signature threshold to execute() operations
-    function setQuorum(uint64 threshold) external payable onlyClubGovernance {
+    function setQuorum(uint64 threshold) external payable {
+        _onlyGovernance(this.setQuorum.selector);
+
         assembly {
             if iszero(threshold) {
                 revert(0, 0)
@@ -475,7 +458,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) external payable onlyClubGovernance {
+    ) external payable {
+        _onlyGovernance(this.mint.selector);
+
         assembly {
             if iszero(id) {
                 revert(0, 0)
@@ -487,7 +472,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
     /// @notice Club signer minter
     /// @param to The recipient of signer mint
-    function mintSigner(address to) external payable onlyClubGovernance {
+    function mintSigner(address to) external payable {
+        _onlyGovernance(this.mintSigner.selector);
+
         // won't realistically overflow
         unchecked {
             ++balanceOf[to][0];
@@ -514,21 +501,38 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
             }
         }
 
-        if (
-            msg.sender != from
-            && !isApprovedForAll[from][msg.sender] 
-            && msg.sender != address(this)
-            && !governance[msg.sender]
-            && !admin[msg.sender]
-        )
+        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) 
             revert NOT_AUTHORIZED();
+
+        _burn(from, id, amount); 
+    }
+
+    /// @notice Governed club token ID burner
+    /// @param from The account to burn from
+    /// @param id The token ID to burn
+    /// @param amount The amount to burn
+    /// @dev Token ID cannot be null
+    function burnFrom(
+        address from, 
+        uint256 id, 
+        uint256 amount
+    ) external payable {
+        assembly {
+            if iszero(id) {
+                revert(0, 0)
+            }
+        }
+
+        _onlyGovernance(this.burnFrom.selector);
 
         _burn(from, id, amount); 
     }
 
     /// @notice Club signer burner
     /// @param from The account to burn signer from
-    function burnSigner(address from) external payable onlyClubGovernance {
+    function burnSigner(address from) external payable {
+        _onlyGovernance(this.burnSigner.selector);
+
         --balanceOf[from][0];
 
         // won't underflow as supply is checked above
@@ -542,36 +546,15 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     }
     
     /// -----------------------------------------------------------------------
-    /// GOVERNANCE LOGIC
+    /// TOKEN SETTING LOGIC
     /// -----------------------------------------------------------------------
-
-    /// @notice Club admin setter
-    /// @param to The account to set admin to
-    function setAdmin(address to) external payable {
-        if (msg.sender != address(this)) revert NOT_AUTHORIZED();
-
-        admin[to] = true;
-
-        emit AdminSet(to);
-    }
-
-    /// @notice Club governance setter
-    /// @param to The account to set governance to
-    /// @param approve The approval setting
-    function setGovernance(address to, bool approve)
-        external
-        payable
-        onlyClubGovernance
-    {
-        governance[to] = approve;
-
-        emit GovernanceSet(msg.sender, to, approve);
-    }
 
     /// @notice Club token ID transferability setter
     /// @param id The token ID to set transferability for
     /// @param transferability The transferability setting
-    function setTokenTransferability(uint256 id, bool transferability) external payable onlyClubGovernance {
+    function setTokenTransferability(uint256 id, bool transferability) external payable {
+        _onlyGovernance(this.setTokenTransferability.selector);
+
         transferable[id] = transferability;
 
         emit TokenTransferabilitySet(msg.sender, id, transferability);
@@ -580,7 +563,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Club token ID metadata setter
     /// @param id The token ID to set metadata for
     /// @param tokenURI The metadata setting
-    function setTokenURI(uint256 id, string calldata tokenURI) external payable onlyClubGovernance {
+    function setTokenURI(uint256 id, string calldata tokenURI) external payable {
+        _onlyGovernance(this.setTokenURI.selector);
+
         _tokenURIs[id] = tokenURI;
 
         emit URI(tokenURI, id);
