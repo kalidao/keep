@@ -332,8 +332,8 @@
       }
     },
     "C:\\Users\\rossc\\slyir\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657401196864,
-      "contentHash": "2d9d580ec5d813953e4e76b94d5b02ed",
+      "lastModificationDate": 1657404139712,
+      "contentHash": "471f08235515c8119e715bce722c5f6a",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -652,8 +652,8 @@
       }
     },
     "C:\\Users\\rossc\\slyir\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1657396349768,
-      "contentHash": "d1c41a7ac14b3b601eeab1368d427221",
+      "lastModificationDate": 1657404083755,
+      "contentHash": "0d9c2fa2903fd9bbdcdef92bb9fdf60e",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
@@ -750,8 +750,8 @@
       }
     },
     "C:\\Users\\rossc\\slyir\\src\\test\\KaliClubRedemption.t.sol": {
-      "lastModificationDate": 1657396364999,
-      "contentHash": "91f8a7939323a1b48a5540695c198f6b",
+      "lastModificationDate": 1657403173149,
+      "contentHash": "324c93a51b9a14c23f9a4b5b7a5f725f",
       "sourceName": "src\\test\\KaliClubRedemption.t.sol",
       "solcConfig": {
         "settings": {

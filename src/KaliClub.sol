@@ -79,19 +79,16 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// CLUB CONSTANTS
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant EXECUTE_ID = uint256(bytes32(this.execute.selector));
+    bytes32 internal constant DOMAIN_TYPEHASH = keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)');
+    bytes32 internal constant EXECUTE_TYPEHASH = keccak256('Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)');
 
-    uint256 internal constant BATCH_EXECUTE_ID = uint256(bytes32(this.batchExecute.selector));
-
-    uint256 internal constant MINT_ID = uint256(bytes32(this.mint.selector));
-
-    uint256 internal constant BURN_ID = uint256(bytes32(this.burn.selector));
-
-    uint256 internal constant SET_QUORUM_ID = uint256(bytes32(this.setQuorum.selector));
-
-    uint256 internal constant SET_TOKEN_TRANSFERABILITY_ID = uint256(bytes32(this.setTokenTransferability.selector));
-    
-    uint256 internal constant SET_TOKEN_URI_ID = uint256(bytes32(this.setTokenURI.selector));
+    uint32 internal constant EXECUTE_ID = uint32(uint256(bytes32(this.execute.selector)));
+    uint32 internal constant BATCH_EXECUTE_ID =  uint32(uint256(bytes32(this.batchExecute.selector)));
+    uint32 internal constant MINT_ID = uint32(uint256(bytes32(this.mint.selector)));
+    uint32 internal constant BURN_ID = uint32(uint256(bytes32(this.burn.selector)));
+    uint32 internal constant SET_QUORUM_ID = uint32(uint256(bytes32(this.setQuorum.selector)));
+    uint32 internal constant SET_TOKEN_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setTokenTransferability.selector)));
+    uint32 internal constant SET_TOKEN_URI_ID = uint32(uint256(bytes32(this.setTokenURI.selector)));
 
     /// -----------------------------------------------------------------------
     /// CLUB STORAGE/LOGIC
@@ -118,9 +115,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
 
     /// @notice Access control for club and authorized ID holders
     function _authorized(uint256 id) internal view returns (bool) {
-        if (
-            msg.sender == address(this) 
-            || balanceOf[msg.sender][id] != 0
+        if (msg.sender == address(this) || balanceOf[msg.sender][id] != 0
         ) return true; else revert NOT_AUTHORIZED();
     }
 
@@ -169,9 +164,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         return
             keccak256(
                 abi.encode(
-                    keccak256(
-                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-                    ),
+                    DOMAIN_TYPEHASH,
                     keccak256(bytes('KaliClub')),
                     keccak256('1'),
                     block.chainid,
@@ -277,9 +270,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
                     DOMAIN_SEPARATOR(),
                     keccak256(
                         abi.encode(
-                            keccak256(
-                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 nonce)'
-                            ),
+                            EXECUTE_TYPEHASH,
                             op,
                             to,
                             value,

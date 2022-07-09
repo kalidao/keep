@@ -14,15 +14,15 @@
     "absolutePath": "C:\\Users\\rossc\\slyir\\src\\libraries\\SafeTransferLib.sol",
     "exportedSymbols": {
       "SafeTransferLib": [
-        24225
+        24252
       ]
     },
-    "id": 24226,
+    "id": 24253,
     "license": "AGPL-3.0-only",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 24210,
+        "id": 24237,
         "literals": [
           "solidity",
           ">=",
@@ -39,15 +39,15 @@
         "contractDependencies": [],
         "contractKind": "library",
         "documentation": {
-          "id": 24211,
+          "id": 24238,
           "nodeType": "StructuredDocumentation",
           "src": "71:314:37",
           "text": "@notice Safe ERC-20 transfer library that gracefully handles missing return values\n @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)\n @dev Caution! This library won't check that a token has code, responsibility is delegated to the caller"
         },
         "fullyImplemented": true,
-        "id": 24225,
+        "id": 24252,
         "linearizedBaseContracts": [
-          24225
+          24252
         ],
         "name": "SafeTransferLib",
         "nameLocation": "393:15:37",
@@ -55,7 +55,7 @@
         "nodes": [
           {
             "body": {
-              "id": 24223,
+              "id": 24250,
               "nodeType": "Block",
               "src": "552:1696:37",
               "statements": [
@@ -572,41 +572,41 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 24219,
+                      "declaration": 24246,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "982:6:37",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24215,
+                      "declaration": 24242,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "862:4:37",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24217,
+                      "declaration": 24244,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "924:2:37",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24213,
+                      "declaration": 24240,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1662:5:37",
                       "valueSize": 1
                     }
                   ],
-                  "id": 24222,
+                  "id": 24249,
                   "nodeType": "InlineAssembly",
                   "src": "563:1678:37"
                 }
               ]
             },
-            "id": 24224,
+            "id": 24251,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -614,17 +614,17 @@
             "nameLocation": "425:17:37",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24220,
+              "id": 24247,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 24213,
+                  "id": 24240,
                   "mutability": "mutable",
                   "name": "token",
                   "nameLocation": "461:5:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24224,
+                  "scope": 24251,
                   "src": "453:13:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -633,7 +633,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 24212,
+                    "id": 24239,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "453:7:37",
@@ -647,12 +647,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24215,
+                  "id": 24242,
                   "mutability": "mutable",
                   "name": "from",
                   "nameLocation": "485:4:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24224,
+                  "scope": 24251,
                   "src": "477:12:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -661,7 +661,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 24214,
+                    "id": 24241,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "477:7:37",
@@ -675,12 +675,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24217,
+                  "id": 24244,
                   "mutability": "mutable",
                   "name": "to",
                   "nameLocation": "508:2:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24224,
+                  "scope": 24251,
                   "src": "500:10:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -689,7 +689,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 24216,
+                    "id": 24243,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "500:7:37",
@@ -703,12 +703,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24219,
+                  "id": 24246,
                   "mutability": "mutable",
                   "name": "amount",
                   "nameLocation": "529:6:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24224,
+                  "scope": 24251,
                   "src": "521:14:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -717,7 +717,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 24218,
+                    "id": 24245,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "521:7:37",
@@ -732,19 +732,19 @@
               "src": "442:100:37"
             },
             "returnParameters": {
-              "id": 24221,
+              "id": 24248,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "552:0:37"
             },
-            "scope": 24225,
+            "scope": 24252,
             "src": "416:1832:37",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
           }
         ],
-        "scope": 24226,
+        "scope": 24253,
         "src": "385:1866:37",
         "usedErrors": []
       }

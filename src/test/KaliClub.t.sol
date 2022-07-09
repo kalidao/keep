@@ -25,7 +25,7 @@ contract ClubTest is Test {
     KaliClubFactory factory;
     MockERC20 mockDai;
 
-    uint256 internal EXECUTE_ID;
+    uint32 internal EXECUTE_ID;
 
     /// @dev Users
 
@@ -74,7 +74,7 @@ contract ClubTest is Test {
                     keccak256(
                         abi.encode(
                             keccak256(
-                                'Exec(Operation op,address to,uint256 value,bytes data,uint256 nonce)'
+                                'Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)'
                             ),
                             op,
                             to,
@@ -171,7 +171,7 @@ contract ClubTest is Test {
             name
         );
 
-        EXECUTE_ID = uint256(bytes32(club.execute.selector));
+        EXECUTE_ID = uint32(uint256(bytes32(club.execute.selector)));
 
         mockDai.approve(address(club), type(uint256).max);
     }
@@ -547,7 +547,7 @@ contract ClubTest is Test {
         
         // The club itself should be able to flip governor
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(charlie, uint256(bytes32(club.mint.selector)), 1, '');
+        club.mint(charlie, uint32(uint256(bytes32(club.mint.selector))), 1, '');
         vm.stopPrank();
 
         startHoax(charlie, charlie, type(uint256).max);
