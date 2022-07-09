@@ -29,7 +29,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.5.0",
-      "artifacts": {}
+      "artifacts": {
+        "DSTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "test.sol\\DSTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib\\forge-std\\src\\Script.sol": {
       "lastModificationDate": 1657389890050,
@@ -63,7 +67,11 @@
         "lib\\forge-std\\src\\console2.sol"
       ],
       "versionRequirement": ">=0.6.0, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "Script": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Script.sol\\Script.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib/forge-std/src/Test.sol": {
       "lastModificationDate": 1657389890052,
@@ -99,7 +107,20 @@
         "lib\\forge-std\\src\\console2.sol"
       ],
       "versionRequirement": ">=0.6.0, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "Test": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\Test.json"
+        },
+        "stdError": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdError.json"
+        },
+        "stdMath": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdMath.json"
+        },
+        "stdStorage": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Test.sol\\stdStorage.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib\\forge-std\\src\\Vm.sol": {
       "lastModificationDate": 1657389890054,
@@ -129,7 +150,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.6.0",
-      "artifacts": {}
+      "artifacts": {
+        "Vm": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Vm.sol\\Vm.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib\\forge-std\\src\\console.sol": {
       "lastModificationDate": 1657389890057,
@@ -159,7 +184,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "console": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "console.sol\\console.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib\\forge-std\\src\\console2.sol": {
       "lastModificationDate": 1657389890060,
@@ -189,7 +218,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.4.22, <0.9.0",
-      "artifacts": {}
+      "artifacts": {
+        "console2": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "console2.sol\\console2.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
       "lastModificationDate": 1657389900453,
@@ -221,7 +254,11 @@
         "lib\\solmate\\src\\tokens\\ERC20.sol"
       ],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {}
+      "artifacts": {
+        "MockERC20": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "MockERC20.sol\\MockERC20.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\lib\\solmate\\src\\tokens\\ERC20.sol": {
       "lastModificationDate": 1657389900482,
@@ -251,7 +288,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.0",
-      "artifacts": {}
+      "artifacts": {
+        "ERC20": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC20.sol\\ERC20.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\ERC1155Votes.sol": {
       "lastModificationDate": 1657389863200,
@@ -281,11 +322,18 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ERC1155TokenReceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155Votes.sol\\ERC1155TokenReceiver.json"
+        },
+        "ERC1155Votes": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC1155Votes.sol\\ERC1155Votes.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657395996650,
-      "contentHash": "2f5c5583b04557945bcb7ddfa88e11bd",
+      "lastModificationDate": 1657398648867,
+      "contentHash": "6fbcd8f6df94347682cf77d1fd06d388",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -316,7 +364,11 @@
         "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClub": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.sol\\KaliClub.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\KaliClubFactory.sol": {
       "lastModificationDate": 1657389863203,
@@ -348,7 +400,11 @@
         "src\\libraries\\ClonesWithImmutableArgs.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubFactory": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.sol\\KaliClubFactory.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\extensions\\redemption\\KaliClubRedemption.sol": {
       "lastModificationDate": 1657394571239,
@@ -385,7 +441,11 @@
         "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubRedemption": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubRedemption.sol\\KaliClubRedemption.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\interfaces\\IERC1271.sol": {
       "lastModificationDate": 1657389863264,
@@ -415,7 +475,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "IERC1271": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IERC1271.sol\\IERC1271.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\interfaces\\IERC20Balances.sol": {
       "lastModificationDate": 1657389863265,
@@ -445,7 +509,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "IERC20Balances": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IERC20Balances.sol\\IERC20Balances.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\interfaces\\IKaliClub.sol": {
       "lastModificationDate": 1657394561496,
@@ -475,7 +543,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "IKaliClub": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "IKaliClub.sol\\IKaliClub.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\libraries\\ClonesWithImmutableArgs.sol": {
       "lastModificationDate": 1657389863269,
@@ -505,7 +577,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClonesWithImmutableArgs": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ClonesWithImmutableArgs.sol\\ClonesWithImmutableArgs.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\libraries\\FixedPointMathLib.sol": {
       "lastModificationDate": 1657389863271,
@@ -535,7 +611,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "FixedPointMathLib": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\libraries\\SafeTransferLib.sol": {
       "lastModificationDate": 1657389863272,
@@ -565,11 +645,15 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "SafeTransferLib": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "SafeTransferLib.sol\\SafeTransferLib.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\test\\KaliClub.t.sol": {
-      "lastModificationDate": 1657394516663,
-      "contentHash": "55d901667c9d19d393dfabe5a0802168",
+      "lastModificationDate": 1657396349768,
+      "contentHash": "d1c41a7ac14b3b601eeab1368d427221",
       "sourceName": "src\\test\\KaliClub.t.sol",
       "solcConfig": {
         "settings": {
@@ -611,11 +695,15 @@
         "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ClubTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClub.t.sol\\ClubTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\test\\KaliClubFactory.t.sol": {
-      "lastModificationDate": 1657389863275,
-      "contentHash": "fd85a955ec5101a6fad7ebe72c8a5d0f",
+      "lastModificationDate": 1657396334058,
+      "contentHash": "e216b973ad7482f5556a7b3de4c251cd",
       "sourceName": "src\\test\\KaliClubFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -655,11 +743,15 @@
         "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "KaliClubSigFactoryTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubFactory.t.sol\\KaliClubSigFactoryTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\test\\KaliClubRedemption.t.sol": {
-      "lastModificationDate": 1657394612652,
-      "contentHash": "8a9c88f63c3b8dfef7b86abc00986311",
+      "lastModificationDate": 1657396364999,
+      "contentHash": "91f8a7939323a1b48a5540695c198f6b",
       "sourceName": "src\\test\\KaliClubRedemption.t.sol",
       "solcConfig": {
         "settings": {
@@ -706,7 +798,11 @@
         "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "RedemptionTest": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "KaliClubRedemption.t.sol\\RedemptionTest.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\utils\\ERC721TokenReceiver.sol": {
       "lastModificationDate": 1657389863280,
@@ -736,7 +832,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "ERC721TokenReceiver": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "ERC721TokenReceiver.sol\\ERC721TokenReceiver.json"
+        }
+      }
     },
     "C:\\Users\\rossc\\slyir\\src\\utils\\Multicall.sol": {
       "lastModificationDate": 1657389863281,
@@ -766,7 +866,11 @@
       },
       "imports": [],
       "versionRequirement": ">=0.8.4",
-      "artifacts": {}
+      "artifacts": {
+        "Multicall": {
+          "0.8.15+commit.e14f2714.Windows.msvc": "Multicall.sol\\Multicall.json"
+        }
+      }
     }
   }
 }

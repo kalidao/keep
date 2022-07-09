@@ -111,13 +111,9 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     
     /// @notice Token URI metadata fetcher
     /// @param id The token ID to fetch from
-    /// @dev Fetches external reference if no local
     /// @return Token URI metadata reference
     function uri(uint256 id) external view returns (string memory) {
-        string memory tokenURI = _tokenURIs[id];
-
-        if (bytes(tokenURI).length == 0) return uriFetcher.uri(id);
-        else return tokenURI;
+        return _tokenURIs[id];
     }
 
     /// @notice Access control for governance
@@ -447,12 +443,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     ) external payable {
         _onlyGovernance(MINT_ID);
 
-        assembly {
-            if iszero(id) {
-                revert(0, 0)
-            }
-        }
-
         _mint(to, id, amount, data);
     }
 
@@ -466,14 +456,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         uint256 id, 
         uint256 amount
     ) external payable {
-        uint256 exId = EXECUTE_ID;
-
-        assembly {
-            if eq(exId, id) {
-                revert(0, 0)
-            }
-        }
-
         if (
             msg.sender != from 
             && !isApprovedForAll[from][msg.sender] 
@@ -481,7 +463,11 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         ) 
             revert NOT_AUTHORIZED();
 
-        _burn(from, id, amount); 
+        _burn(from, id, amount);
+
+        if (id == EXECUTE_ID)
+            if (quorum > totalSupply[EXECUTE_ID]) 
+                revert QUORUM_OVER_SUPPLY();
     }
 
     /// -----------------------------------------------------------------------

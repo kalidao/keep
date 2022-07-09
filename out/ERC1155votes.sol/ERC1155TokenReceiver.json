@@ -90,7 +90,7 @@
     "linkReferences": {}
   },
   "ast": {
-    "absolutePath": "C:\\Users\\rossc\\gnu\\src\\ERC1155Votes.sol",
+    "absolutePath": "C:\\Users\\rossc\\slyir\\src\\ERC1155Votes.sol",
     "exportedSymbols": {
       "ERC1155TokenReceiver": [
         21516

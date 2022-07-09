@@ -142,7 +142,7 @@ contract ClubTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        club = new KaliClub(KaliClub(alice));
+        club = new KaliClub();
         mockDai = new MockERC20('Dai', 'DAI', 18);
         chainId = block.chainid;
 
@@ -179,7 +179,7 @@ contract ClubTest is Test {
     /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
-        clubRepeat = new KaliClub(KaliClub(alice));
+        clubRepeat = new KaliClub();
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
