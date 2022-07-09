@@ -4,7 +4,7 @@
 
 EIP-712 multi-sig with ERC-1155 interface 
 
-Modified from [MultiSignatureWallet](https://github.com/SilentCicero/MultiSignatureWallet) and [LilGnosis](https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
+Modified from [MultiSignatureWallet](https://github.com/SilentCicero/MultiSignatureWallet), [LilGnosis](https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol), [Gnosis Safe](https://github.com/safe-global/safe-contracts), [Baal](https://github.com/Moloch-Mystics/Baal/blob/feat/baalZodiac/contracts/Baal.sol), and [Compound Governance](https://github.com/compound-finance/compound-protocol/tree/master/contracts/Governance).
 
 ## Blueprint
 
