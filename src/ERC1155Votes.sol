@@ -189,7 +189,7 @@ abstract contract ERC1155Votes {
                 ERC1155TokenReceiver.onERC1155Received.selector
         ) revert INVALID_RECIPIENT();
 
-        if (id != 0) _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+        _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
 
     function safeBatchTransferFrom(
@@ -221,7 +221,7 @@ abstract contract ERC1155Votes {
                 balanceOf[to][id] += amount;
             }
 
-            if (id != 0) _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
 
             // an array can't have a total length
             // larger than the max uint256 value
