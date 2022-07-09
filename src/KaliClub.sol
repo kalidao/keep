@@ -109,7 +109,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Token URI metadata fetcher
     /// @param id The token ID to fetch from
     /// @return Token URI metadata reference
-    function uri(uint256 id) external view returns (string memory) {
+    function uri(uint256 id) external view override virtual returns (string memory) {
         return _tokenURIs[id];
     }
 
