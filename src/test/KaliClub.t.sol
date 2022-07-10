@@ -564,13 +564,13 @@ contract ClubTest is Test {
         if (id == 0) id = 1;
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('NOT_AUTHORIZED()')));
-        club.setTokenTransferability(id, transferability);
+        club.setTransferability(id, transferability);
         vm.stopPrank();
         assertTrue(!club.transferable(id));
 
         // The club itself should be able to flip pause
         startHoax(address(club), address(club), type(uint256).max);
-        club.setTokenTransferability(id, transferability);
+        club.setTransferability(id, transferability);
         vm.stopPrank();
         assertTrue(club.transferable(id) == transferability);
         /*
