@@ -494,9 +494,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     function setTokenTransferability(uint256 id, bool transferability) external payable {
         _authorized(SET_TOKEN_TRANSFERABILITY_ID);
 
-        transferable[id] = transferability;
-
-        emit TokenTransferabilitySet(msg.sender, id, transferability);
+        _setTokenTransferability(id, transferability);
     }
 
     /// @notice Club token ID metadata setter
