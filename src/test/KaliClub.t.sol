@@ -561,7 +561,6 @@ contract ClubTest is Test {
         uint256 id, 
         bool transferability
     ) public {
-        if (id == 0) id = 1;
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('NOT_AUTHORIZED()')));
         club.setTransferability(id, transferability);
