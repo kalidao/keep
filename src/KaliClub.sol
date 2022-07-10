@@ -110,7 +110,7 @@ contract KaliClub is
     uint32 public quorum;
 
     /// @notice Initial club domain value 
-    bytes32 public INITIAL_DOMAIN_SEPARATOR;
+    bytes32 public _INITIAL_DOMAIN_SEPARATOR;
 
     /// @notice URI metadata tracking
     mapping(uint256 => string) internal _uris;
@@ -150,7 +150,7 @@ contract KaliClub is
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return
             block.chainid == _INITIAL_CHAIN_ID()
-                ? INITIAL_DOMAIN_SEPARATOR
+                ? _INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
@@ -249,7 +249,7 @@ contract KaliClub is
         nonce = 1;
         quorum = uint32(threshold);
         totalSupply[EXECUTE_ID] = supply;
-        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
