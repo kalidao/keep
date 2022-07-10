@@ -500,10 +500,10 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Club token ID metadata setter
     /// @param id The token ID to set metadata for
     /// @param tokenURI The metadata setting
-    function setTokenURI(uint256 id, string calldata tokenURI) external payable {
-        _authorized(SET_TOKEN_URI_ID);
+    function setURI(uint256 id, string calldata tokenURI) external payable {
+        _authorized(SET_URI_ID);
 
-        _tokenURIs[id] = tokenURI;
+        _uris[id] = tokenURI;
 
         emit URI(tokenURI, id);
     }
