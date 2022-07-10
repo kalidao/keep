@@ -44,7 +44,7 @@
     "linkReferences": {}
   },
   "ast": {
-    "absolutePath": "C:\\Users\\rossc\\kilo\\src\\interfaces\\IERC20Balances.sol",
+    "absolutePath": "C:\\Users\\rossc\\golf\\src\\interfaces\\IERC20Balances.sol",
     "exportedSymbols": {
       "IERC20Balances": [
         23999

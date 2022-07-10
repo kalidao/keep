@@ -733,7 +733,7 @@
     "linkReferences": {}
   },
   "ast": {
-    "absolutePath": "C:\\Users\\rossc\\kilo\\lib/forge-std/src/Test.sol",
+    "absolutePath": "C:\\Users\\rossc\\golf\\lib/forge-std/src/Test.sol",
     "exportedSymbols": {
       "DSTest": [
         28820
@@ -785,7 +785,7 @@
         "src": "39:31:20"
       },
       {
-        "absolutePath": "C:/Users/rossc/kilo/lib/forge-std/src/Script.sol",
+        "absolutePath": "C:/Users/rossc/golf/lib/forge-std/src/Script.sol",
         "file": "./Script.sol",
         "id": 2,
         "nameLocation": "-1:-1:-1",
@@ -797,7 +797,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "C:/Users/rossc/kilo/lib/ds-test/src/test.sol",
+        "absolutePath": "C:/Users/rossc/golf/lib/ds-test/src/test.sol",
         "file": "ds-test/test.sol",
         "id": 3,
         "nameLocation": "-1:-1:-1",
