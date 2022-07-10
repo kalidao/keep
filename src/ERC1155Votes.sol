@@ -25,7 +25,7 @@ abstract contract ERC1155TokenReceiver {
     }
 }
 
-/// @notice Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting and default non-transferability.
+/// @notice Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting and default non-transferability
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
 /// and Compound Finance (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
 abstract contract ERC1155Votes {
