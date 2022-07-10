@@ -1,10 +1,10 @@
 <img align="right" width="150" height="150" top="0" src="./assets/KALI_K.jpg">
 
-# multi-sig • [![tests](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/multi-sig)  ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/multi-sig)
+# multi-sig • [![tests](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/multi-sig) ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/multi-sig)
 
 EIP-712 multi-sig with ERC-1155 interface 
 
-Modified from [MultiSignatureWallet](https://github.com/SilentCicero/MultiSignatureWallet/blob/master/MultiSignatureWallet.yul), [LilGnosis](https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol), [Gnosis Safe](https://github.com/safe-global/safe-contracts/tree/main/contracts), [Baal](https://github.com/Moloch-Mystics/Baal/blob/feat/baalZodiac/contracts/Baal.sol), and [Compound Governance](https://github.com/compound-finance/compound-protocol/tree/master/contracts/Governance).
+Modified from [MultiSignatureWallet](https://github.com/SilentCicero/MultiSignatureWallet/blob/master/MultiSignatureWallet.yul), [LilGnosis](https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol), [Gnosis Safe](https://github.com/safe-global/safe-contracts/tree/main/contracts), [Baal](https://github.com/Moloch-Mystics/Baal/blob/feat/baalZodiac/contracts/Baal.sol) and [Compound Governance](https://github.com/compound-finance/compound-protocol/tree/master/contracts/Governance)
 
 ## Blueprint
 
