@@ -110,7 +110,7 @@ contract KaliClub is
     uint32 public quorum;
 
     /// @notice Initial club domain value 
-    bytes32 public _INITIAL_DOMAIN_SEPARATOR;
+    bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
     /// @notice URI metadata tracking
     mapping(uint256 => string) internal _uris;
@@ -123,7 +123,7 @@ contract KaliClub is
     }
 
     /// @notice Access control for club and authorized ID holders
-    function _authorized(uint256 id) internal view returns (bool) {
+    function _authorized(uint256 id) internal view virtual returns (bool) {
         if (msg.sender == address(this) || balanceOf[msg.sender][id] != 0
         ) return true; else revert NOT_AUTHORIZED();
     }
@@ -135,7 +135,7 @@ contract KaliClub is
     /// @notice ERC-165 interface detection
     /// @param interfaceId The interface ID to check
     /// @return Interface detection success
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override virtual returns (bool) {
         return
             interfaceId == this.onERC721Received.selector || // ERC-165 Interface ID for ERC721TokenReceiver 
             interfaceId == 0x4e2312e0 || // ERC-165 Interface ID for ERC1155TokenReceiver
@@ -147,14 +147,14 @@ contract KaliClub is
     /// -----------------------------------------------------------------------
 
     /// @notice Fetches unique club domain for signatures
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
             block.chainid == _INITIAL_CHAIN_ID()
                 ? _INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
-    function _INITIAL_CHAIN_ID() internal pure returns (uint256 chainId) {
+    function _INITIAL_CHAIN_ID() internal pure virtual returns (uint256 chainId) {
         uint256 offset;
 
         assembly {
@@ -169,7 +169,7 @@ contract KaliClub is
         }
     }
 
-    function _computeDomainSeparator() internal view returns (bytes32) {
+    function _computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -194,7 +194,7 @@ contract KaliClub is
         Call[] calldata calls,
         address[] calldata signers,
         uint256 threshold
-    ) external payable {
+    ) public payable virtual {
         if (nonce != 0) revert ALREADY_INIT();
 
         assembly {
@@ -270,7 +270,7 @@ contract KaliClub is
         uint256 value,
         bytes calldata data,
         Signature[] calldata sigs
-    ) external payable returns (bool success) {
+    ) public payable virtual returns (bool success) {
         // begin signature validation with call data
         bytes32 digest = 
             keccak256(
@@ -338,7 +338,7 @@ contract KaliClub is
     /// @notice Execute operations from club with signed execute() or as governance
     /// @param calls Club operations as arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
-    function batchExecute(Call[] calldata calls) external payable returns (bool[] memory successes) {
+    function batchExecute(Call[] calldata calls) public payable virtual returns (bool[] memory successes) {
         _authorized(BATCH_EXECUTE_ID);
 
         successes = new bool[](calls.length);
@@ -364,7 +364,7 @@ contract KaliClub is
         address to, 
         uint256 value, 
         bytes memory data
-    ) internal returns (bool success) {
+    ) internal virtual returns (bool success) {
         // won't realistically overflow
         unchecked {
             ++nonce;
@@ -440,7 +440,7 @@ contract KaliClub is
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) external payable {
+    ) public payable virtual {
         _authorized(MINT_ID);
 
         _mint(to, id, amount, data);
@@ -455,7 +455,7 @@ contract KaliClub is
         address from, 
         uint256 id, 
         uint256 amount
-    ) external payable {
+    ) public payable virtual {
         if (
             msg.sender != from 
             && !isApprovedForAll[from][msg.sender] 
@@ -475,7 +475,7 @@ contract KaliClub is
     
     /// @notice Update club quorum
     /// @param threshold Signature threshold to execute() operations
-    function setQuorum(uint32 threshold) external payable {
+    function setQuorum(uint32 threshold) public payable virtual {
         _authorized(SET_QUORUM_ID);
 
         assembly {
@@ -500,7 +500,7 @@ contract KaliClub is
     /// @notice Club token ID transferability setter
     /// @param id The token ID to set transferability for
     /// @param transferability The transferability setting
-    function setTransferability(uint256 id, bool transferability) external payable {
+    function setTransferability(uint256 id, bool transferability) public payable virtual {
         _authorized(SET_TRANSFERABILITY_ID);
 
         _setTransferability(id, transferability);
@@ -509,7 +509,7 @@ contract KaliClub is
     /// @notice Club token ID metadata setter
     /// @param id The token ID to set metadata for
     /// @param tokenURI The metadata setting
-    function setURI(uint256 id, string calldata tokenURI) external payable {
+    function setURI(uint256 id, string calldata tokenURI) public payable virtual {
         _authorized(SET_URI_ID);
 
         _uris[id] = tokenURI;

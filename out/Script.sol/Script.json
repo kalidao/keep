@@ -38,7 +38,7 @@
     "linkReferences": {}
   },
   "ast": {
-    "absolutePath": "C:\\Users\\rossc\\golf\\lib\\forge-std\\src\\Script.sol",
+    "absolutePath": "C:\\Users\\rossc\\klu\\lib\\forge-std\\src\\Script.sol",
     "exportedSymbols": {
       "Script": [
         4532
@@ -72,7 +72,7 @@
         "src": "39:31:23"
       },
       {
-        "absolutePath": "C:/Users/rossc/golf/lib/forge-std/src/Vm.sol",
+        "absolutePath": "C:/Users/rossc/klu/lib/forge-std/src/Vm.sol",
         "file": "./Vm.sol",
         "id": 4503,
         "nameLocation": "-1:-1:-1",
@@ -84,7 +84,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "C:/Users/rossc/golf/lib/forge-std/src/console.sol",
+        "absolutePath": "C:/Users/rossc/klu/lib/forge-std/src/console.sol",
         "file": "./console.sol",
         "id": 4504,
         "nameLocation": "-1:-1:-1",
@@ -96,7 +96,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "C:/Users/rossc/golf/lib/forge-std/src/console2.sol",
+        "absolutePath": "C:/Users/rossc/klu/lib/forge-std/src/console2.sol",
         "file": "./console2.sol",
         "id": 4505,
         "nameLocation": "-1:-1:-1",

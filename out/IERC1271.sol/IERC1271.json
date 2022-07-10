@@ -36,7 +36,7 @@
     "linkReferences": {}
   },
   "ast": {
-    "absolutePath": "C:\\Users\\rossc\\golf\\src\\interfaces\\IERC1271.sol",
+    "absolutePath": "C:\\Users\\rossc\\klu\\src\\interfaces\\IERC1271.sol",
     "exportedSymbols": {
       "IERC1271": [
         23983
