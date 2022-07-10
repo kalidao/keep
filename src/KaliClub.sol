@@ -485,7 +485,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     }
     
     /// -----------------------------------------------------------------------
-    /// TOKEN SETTING LOGIC
+    /// ID SETTING LOGIC
     /// -----------------------------------------------------------------------
 
     /// @notice Club token ID transferability setter
