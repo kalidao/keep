@@ -590,12 +590,12 @@ contract ClubTest is Test {
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
-        club.setTokenURI(0, "new_base_uri");
+        club.setURI(0, "new_base_uri");
         vm.stopPrank();
 
         // The club itself should be able to update the base uri
         startHoax(address(club), address(club), type(uint256).max);
-        club.setTokenURI(0, "new_base_uri");
+        club.setURI(0, "new_base_uri");
         vm.stopPrank();
         assertEq(
             keccak256(bytes("new_base_uri")),
