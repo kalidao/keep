@@ -69,7 +69,7 @@ abstract contract ERC1155Votes {
         bool approved
     );
 
-    event IdTransferabilitySet(
+    event TransferabilitySet(
         address indexed operator, 
         uint256 indexed id, 
         bool transferability
@@ -444,9 +444,9 @@ abstract contract ERC1155Votes {
         _moveDelegates(delegates(from, id), address(0), id, amount);
     }
     
-    function _setIdTransferability(uint256 id, bool transferability) internal virtual {
+    function _setTransferability(uint256 id, bool transferability) internal virtual {
         transferable[id] = transferability;
         
-        emit IdTransferabilitySet(msg.sender, id, transferability);
+        emit TransferabilitySet(msg.sender, id, transferability);
     }
 }
