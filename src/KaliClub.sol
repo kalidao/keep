@@ -87,8 +87,8 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     uint32 internal constant MINT_ID = uint32(uint256(bytes32(this.mint.selector)));
     uint32 internal constant BURN_ID = uint32(uint256(bytes32(this.burn.selector)));
     uint32 internal constant SET_QUORUM_ID = uint32(uint256(bytes32(this.setQuorum.selector)));
-    uint32 internal constant SET_ID_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setTokenTransferability.selector)));
-    uint32 internal constant SET_TOKEN_URI_ID = uint32(uint256(bytes32(this.setTokenURI.selector)));
+    uint32 internal constant SET_ID_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setIdTransferability.selector)));
+    uint32 internal constant SET_URI_ID = uint32(uint256(bytes32(this.setURI.selector)));
 
     /// -----------------------------------------------------------------------
     /// CLUB STORAGE/LOGIC
@@ -103,14 +103,14 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Initial club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
-    /// @notice Token URI metadata tracking
-    mapping(uint256 => string) internal _tokenURIs;
+    /// @notice URI metadata tracking
+    mapping(uint256 => string) internal _uris;
     
     /// @notice Token URI metadata fetcher
     /// @param id The token ID to fetch from
     /// @return Token URI metadata reference
-    function uri(uint256 id) external view override virtual returns (string memory) {
-        return _tokenURIs[id];
+    function uri(uint256 id) public view override virtual returns (string memory) {
+        return _uris[id];
     }
 
     /// @notice Access control for club and authorized ID holders
