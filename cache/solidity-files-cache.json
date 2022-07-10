@@ -295,7 +295,7 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\ERC1155Votes.sol": {
-      "lastModificationDate": 1657419392288,
+      "lastModificationDate": 1657420539860,
       "contentHash": "7329355e902513f950b0795241685ece",
       "sourceName": "src\\ERC1155Votes.sol",
       "solcConfig": {
@@ -371,8 +371,8 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1657419392294,
-      "contentHash": "569c025eb1e5395b709caa26fca7e0a1",
+      "lastModificationDate": 1657420726520,
+      "contentHash": "90c817bdc5549875788f14b8356beca9",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {
         "settings": {
@@ -448,7 +448,7 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\interfaces\\IERC1271.sol": {
-      "lastModificationDate": 1657419392303,
+      "lastModificationDate": 1657420365657,
       "contentHash": "1d237d6efe99fe2f3f2873508e97327a",
       "sourceName": "src\\interfaces\\IERC1271.sol",
       "solcConfig": {
@@ -805,8 +805,8 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\utils\\ERC721TokenReceiver.sol": {
-      "lastModificationDate": 1657419392318,
-      "contentHash": "ea386bf98442486302d235dc796b459c",
+      "lastModificationDate": 1657420432796,
+      "contentHash": "377c19d2f2b2b9c86f5d62c0cf5a6f76",
       "sourceName": "src\\utils\\ERC721TokenReceiver.sol",
       "solcConfig": {
         "settings": {
@@ -839,8 +839,8 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\utils\\Multicall.sol": {
-      "lastModificationDate": 1657419392319,
-      "contentHash": "61c192a0b14915e94e87fd81128d8cc7",
+      "lastModificationDate": 1657420455995,
+      "contentHash": "9e3e52386af955e3a57e31907a01108c",
       "sourceName": "src\\utils\\Multicall.sol",
       "solcConfig": {
         "settings": {

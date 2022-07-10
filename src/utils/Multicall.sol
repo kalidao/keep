@@ -5,8 +5,9 @@ pragma solidity >=0.8.4;
 /// @author Modified from Uniswap (https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol)
 abstract contract Multicall {
     function multicall(bytes[] calldata data)
-        external
+        public
         payable
+        virtual
         returns (bytes[] memory results)
     {
         results = new bytes[](data.length);

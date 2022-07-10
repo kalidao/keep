@@ -48,7 +48,7 @@ contract KaliClubFactory is Multicall {
     /// DEPLOYMENT LOGIC
     /// -----------------------------------------------------------------------
 
-    function determineClub(bytes32 name) external view returns (
+    function determineClub(bytes32 name) public view virtual returns (
         address club, bool deployed
     ) {   
         (club, deployed) = address(clubMaster)._predictDeterministicAddress(
@@ -60,7 +60,7 @@ contract KaliClubFactory is Multicall {
         address[] calldata signers,
         uint256 threshold,
         bytes32 name // salt
-    ) external payable {
+    ) public payable virtual {
         KaliClub club = KaliClub(
             address(clubMaster)._clone(
                 name,
