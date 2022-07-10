@@ -87,7 +87,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     uint32 internal constant MINT_ID = uint32(uint256(bytes32(this.mint.selector)));
     uint32 internal constant BURN_ID = uint32(uint256(bytes32(this.burn.selector)));
     uint32 internal constant SET_QUORUM_ID = uint32(uint256(bytes32(this.setQuorum.selector)));
-    uint32 internal constant SET_TOKEN_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setTokenTransferability.selector)));
+    uint32 internal constant SET_ID_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setTokenTransferability.selector)));
     uint32 internal constant SET_TOKEN_URI_ID = uint32(uint256(bytes32(this.setTokenURI.selector)));
 
     /// -----------------------------------------------------------------------
@@ -491,10 +491,10 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// @notice Club token ID transferability setter
     /// @param id The token ID to set transferability for
     /// @param transferability The transferability setting
-    function setTokenTransferability(uint256 id, bool transferability) external payable {
-        _authorized(SET_TOKEN_TRANSFERABILITY_ID);
+    function setIdTransferability(uint256 id, bool transferability) external payable {
+        _authorized(SET_ID_TRANSFERABILITY_ID);
 
-        _setTokenTransferability(id, transferability);
+        _setIdTransferability(id, transferability);
     }
 
     /// @notice Club token ID metadata setter
