@@ -36,7 +36,12 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Multicall {
+contract KaliClub is 
+    ERC721TokenReceiver, 
+    ERC1155TokenReceiver, 
+    ERC1155Votes, 
+    Multicall 
+{
     /// -----------------------------------------------------------------------
     /// EVENTS
     /// -----------------------------------------------------------------------
@@ -79,9 +84,6 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     /// CLUB CONSTANTS
     /// -----------------------------------------------------------------------
 
-    bytes32 internal constant DOMAIN_TYPEHASH = keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)');
-    bytes32 internal constant EXECUTE_TYPEHASH = keccak256('Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)');
-
     uint32 internal constant EXECUTE_ID = uint32(uint256(bytes32(this.execute.selector)));
     uint32 internal constant BATCH_EXECUTE_ID =  uint32(uint256(bytes32(this.batchExecute.selector)));
     uint32 internal constant MINT_ID = uint32(uint256(bytes32(this.mint.selector)));
@@ -89,6 +91,13 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     uint32 internal constant SET_QUORUM_ID = uint32(uint256(bytes32(this.setQuorum.selector)));
     uint32 internal constant SET_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setTransferability.selector)));
     uint32 internal constant SET_URI_ID = uint32(uint256(bytes32(this.setURI.selector)));
+
+    bytes32 internal constant DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+    bytes32 internal constant EXECUTE_TYPEHASH = keccak256(
+        "Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)"
+    );
 
     /// -----------------------------------------------------------------------
     /// CLUB STORAGE/LOGIC
@@ -101,7 +110,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     uint32 public quorum;
 
     /// @notice Initial club domain value 
-    bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
+    bytes32 public INITIAL_DOMAIN_SEPARATOR;
 
     /// @notice URI metadata tracking
     mapping(uint256 => string) internal _uris;
@@ -141,7 +150,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return
             block.chainid == _INITIAL_CHAIN_ID()
-                ? _INITIAL_DOMAIN_SEPARATOR
+                ? INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
@@ -240,7 +249,7 @@ contract KaliClub is ERC721TokenReceiver, ERC1155TokenReceiver, ERC1155Votes, Mu
         nonce = 1;
         quorum = uint32(threshold);
         totalSupply[EXECUTE_ID] = supply;
-        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------

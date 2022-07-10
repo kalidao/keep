@@ -1,28 +1,28 @@
 {
   "abi": [],
   "bytecode": {
-    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220b747d301afb1afcdf9d11fe8335cb02c4aea49a19ebe85b5e070d4da91ccd62164736f6c634300080f0033",
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220c8fb610c202c861f768d83123636d17f837f2612af04c71e3962e35db3c80cf664736f6c634300080f0033",
     "sourceMap": "385:1866:37:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;385:1866:37;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220b747d301afb1afcdf9d11fe8335cb02c4aea49a19ebe85b5e070d4da91ccd62164736f6c634300080f0033",
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220c8fb610c202c861f768d83123636d17f837f2612af04c71e3962e35db3c80cf664736f6c634300080f0033",
     "sourceMap": "385:1866:37:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "ast": {
-    "absolutePath": "C:\\Users\\rossc\\slyir\\src\\libraries\\SafeTransferLib.sol",
+    "absolutePath": "C:\\Users\\rossc\\kilo\\src\\libraries\\SafeTransferLib.sol",
     "exportedSymbols": {
       "SafeTransferLib": [
-        24252
+        24265
       ]
     },
-    "id": 24253,
+    "id": 24266,
     "license": "AGPL-3.0-only",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 24237,
+        "id": 24250,
         "literals": [
           "solidity",
           ">=",
@@ -39,15 +39,15 @@
         "contractDependencies": [],
         "contractKind": "library",
         "documentation": {
-          "id": 24238,
+          "id": 24251,
           "nodeType": "StructuredDocumentation",
           "src": "71:314:37",
           "text": "@notice Safe ERC-20 transfer library that gracefully handles missing return values\n @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)\n @dev Caution! This library won't check that a token has code, responsibility is delegated to the caller"
         },
         "fullyImplemented": true,
-        "id": 24252,
+        "id": 24265,
         "linearizedBaseContracts": [
-          24252
+          24265
         ],
         "name": "SafeTransferLib",
         "nameLocation": "393:15:37",
@@ -55,7 +55,7 @@
         "nodes": [
           {
             "body": {
-              "id": 24250,
+              "id": 24263,
               "nodeType": "Block",
               "src": "552:1696:37",
               "statements": [
@@ -572,41 +572,41 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 24246,
+                      "declaration": 24259,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "982:6:37",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24242,
+                      "declaration": 24255,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "862:4:37",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24244,
+                      "declaration": 24257,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "924:2:37",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 24240,
+                      "declaration": 24253,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1662:5:37",
                       "valueSize": 1
                     }
                   ],
-                  "id": 24249,
+                  "id": 24262,
                   "nodeType": "InlineAssembly",
                   "src": "563:1678:37"
                 }
               ]
             },
-            "id": 24251,
+            "id": 24264,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -614,17 +614,17 @@
             "nameLocation": "425:17:37",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 24247,
+              "id": 24260,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 24240,
+                  "id": 24253,
                   "mutability": "mutable",
                   "name": "token",
                   "nameLocation": "461:5:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24251,
+                  "scope": 24264,
                   "src": "453:13:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -633,7 +633,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 24239,
+                    "id": 24252,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "453:7:37",
@@ -647,12 +647,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24242,
+                  "id": 24255,
                   "mutability": "mutable",
                   "name": "from",
                   "nameLocation": "485:4:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24251,
+                  "scope": 24264,
                   "src": "477:12:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -661,7 +661,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 24241,
+                    "id": 24254,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "477:7:37",
@@ -675,12 +675,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24244,
+                  "id": 24257,
                   "mutability": "mutable",
                   "name": "to",
                   "nameLocation": "508:2:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24251,
+                  "scope": 24264,
                   "src": "500:10:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -689,7 +689,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 24243,
+                    "id": 24256,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "500:7:37",
@@ -703,12 +703,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 24246,
+                  "id": 24259,
                   "mutability": "mutable",
                   "name": "amount",
                   "nameLocation": "529:6:37",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24251,
+                  "scope": 24264,
                   "src": "521:14:37",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -717,7 +717,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 24245,
+                    "id": 24258,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "521:7:37",
@@ -732,19 +732,19 @@
               "src": "442:100:37"
             },
             "returnParameters": {
-              "id": 24248,
+              "id": 24261,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "552:0:37"
             },
-            "scope": 24252,
+            "scope": 24265,
             "src": "416:1832:37",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
           }
         ],
-        "scope": 24253,
+        "scope": 24266,
         "src": "385:1866:37",
         "usedErrors": []
       }
