@@ -295,8 +295,8 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\ERC1155Votes.sol": {
-      "lastModificationDate": 1657420539860,
-      "contentHash": "7329355e902513f950b0795241685ece",
+      "lastModificationDate": 1657425799844,
+      "contentHash": "f75d72c61814dbec603f3c9d7ead2dc1",
       "sourceName": "src\\ERC1155Votes.sol",
       "solcConfig": {
         "settings": {
@@ -332,8 +332,8 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\KaliClub.sol": {
-      "lastModificationDate": 1657420022115,
-      "contentHash": "ea707938fd8bbc67c4165e406fd11fd8",
+      "lastModificationDate": 1657427390597,
+      "contentHash": "80ab40dadd5daed783783768b7c89480",
       "sourceName": "src\\KaliClub.sol",
       "solcConfig": {
         "settings": {
@@ -371,7 +371,7 @@
       }
     },
     "C:\\Users\\rossc\\klu\\src\\KaliClubFactory.sol": {
-      "lastModificationDate": 1657421664167,
+      "lastModificationDate": 1657422058808,
       "contentHash": "2fca75827a45ef561b5f9fc7f3644056",
       "sourceName": "src\\KaliClubFactory.sol",
       "solcConfig": {

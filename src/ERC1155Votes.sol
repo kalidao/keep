@@ -379,7 +379,7 @@ abstract contract ERC1155Votes {
                 );
 
                 // won't realistically overflow
-                numCheckpoints[delegatee][id] = nCheckpoints + 1;
+                ++numCheckpoints[delegatee][id];
             }
         }
 

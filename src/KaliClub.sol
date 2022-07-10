@@ -62,7 +62,7 @@ contract KaliClub is
     );
 
     /// @notice Emitted when quorum threshold is updated
-    event QuorumSet(address indexed caller, uint32 threshold);
+    event QuorumSet(address indexed caller, uint256 threshold);
 
     /// -----------------------------------------------------------------------
     /// ERRORS
@@ -107,7 +107,7 @@ contract KaliClub is
     uint64 public nonce;
 
     /// @notice Signature NFT threshold to execute()
-    uint32 public quorum;
+    uint64 public quorum;
 
     /// @notice Initial club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
@@ -224,7 +224,7 @@ contract KaliClub is
         
         address signer;
         address prevAddr;
-        uint128 supply;
+        uint256 supply;
 
         for (uint256 i; i < signers.length; ) {
             signer = signers[i];
@@ -244,10 +244,12 @@ contract KaliClub is
             }
 
             emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
+
+            //_moveDelegates(address(0), signer, EXECUTE_ID, 1);
         }
 
         nonce = 1;
-        quorum = uint32(threshold);
+        quorum = uint64(threshold);
         totalSupply[EXECUTE_ID] = supply;
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
