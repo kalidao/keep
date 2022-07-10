@@ -564,13 +564,13 @@ contract ClubTest is Test {
         if (id == 0) id = 1;
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256('NOT_AUTHORIZED()')));
-        club.setTokenTransferability(id, transferability);
+        club.setTransferability(id, transferability);
         vm.stopPrank();
         assertTrue(!club.transferable(id));
 
         // The club itself should be able to flip pause
         startHoax(address(club), address(club), type(uint256).max);
-        club.setTokenTransferability(id, transferability);
+        club.setTransferability(id, transferability);
         vm.stopPrank();
         assertTrue(club.transferable(id) == transferability);
         /*
@@ -590,12 +590,12 @@ contract ClubTest is Test {
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
-        club.setTokenURI(0, "new_base_uri");
+        club.setURI(0, "new_base_uri");
         vm.stopPrank();
 
         // The club itself should be able to update the base uri
         startHoax(address(club), address(club), type(uint256).max);
-        club.setTokenURI(0, "new_base_uri");
+        club.setURI(0, "new_base_uri");
         vm.stopPrank();
         assertEq(
             keccak256(bytes("new_base_uri")),
