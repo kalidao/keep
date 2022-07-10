@@ -51,8 +51,17 @@ contract KaliClubFactory is Multicall {
     function determineClub(bytes32 name) public view virtual returns (
         address club, bool deployed
     ) {   
-        (club, deployed) = address(clubMaster)._predictDeterministicAddress(
-            name, abi.encodePacked(name, uint40(block.chainid)));
+        (club, deployed) = address(clubMaster).
+            _predictDeterministicAddress
+                (
+                    name, 
+                    abi.encodePacked(
+                        name, 
+                        uint40(
+                            block.chainid
+                        )
+                    )
+                );
     } 
 
     function deployClub(
@@ -62,11 +71,17 @@ contract KaliClubFactory is Multicall {
         bytes32 name // salt
     ) public payable virtual {
         KaliClub club = KaliClub(
-            address(clubMaster)._clone(
-                name,
-                abi.encodePacked(name, uint40(block.chainid))
-            )
-        );
+            address(clubMaster)._clone
+                (
+                    name,
+                    abi.encodePacked(
+                        name, 
+                        uint40(
+                            block.chainid
+                        )
+                    )
+                )
+            );
 
         club.init{value: msg.value}(
             calls,

@@ -308,7 +308,11 @@ contract KaliClub is
                 if (
                     IERC1271(signer).isValidSignature(
                         digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
+                        abi.encodePacked(
+                            sigs[i].r, 
+                            sigs[i].s, 
+                            sigs[i].v
+                        )
                     ) != IERC1271.isValidSignature.selector
                 ) revert INVALID_SIG();
             }
