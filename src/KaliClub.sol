@@ -103,7 +103,7 @@ contract KaliClub is
     /// CLUB STORAGE/LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Club tx counter
+    /// @notice Record of states for verifying signatures
     uint64 public nonce;
 
     /// @notice Signature NFT threshold to execute()
