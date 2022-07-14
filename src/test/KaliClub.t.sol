@@ -25,7 +25,7 @@ contract ClubTest is Test {
     KaliClubFactory factory;
     MockERC20 mockDai;
 
-    uint32 internal EXECUTE_ID;
+    uint256 internal EXECUTE_ID;
 
     /// @dev Users
 
@@ -171,7 +171,7 @@ contract ClubTest is Test {
             name
         );
 
-        EXECUTE_ID = uint32(uint256(bytes32(club.execute.selector)));
+        EXECUTE_ID = uint256(bytes32(club.execute.selector));
 
         mockDai.approve(address(club), type(uint256).max);
     }
@@ -213,7 +213,7 @@ contract ClubTest is Test {
             ? alice
             : bob;
 
-        vm.expectRevert(bytes(''));
+        vm.expectRevert(bytes(""));
         factory.deployClub(
             calls,
             signers,
@@ -299,7 +299,7 @@ contract ClubTest is Test {
         mockDai.transfer(address(club), 100);
 
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(alice, uint256(bytes32(club.batchExecute.selector)), 1, '');
+        club.mint(alice, uint256(bytes32(club.batchExecute.selector)), 1, "");
         vm.stopPrank();
 
         startHoax(address(alice), address(alice), type(uint256).max);
@@ -332,7 +332,7 @@ contract ClubTest is Test {
     function testExecuteCallWithSignatures() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = '';
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -361,7 +361,7 @@ contract ClubTest is Test {
     function testExecuteDelegateCallWithSignatures() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = '';
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
@@ -391,7 +391,7 @@ contract ClubTest is Test {
     function testExecuteWithImproperSignatures() public {
         mockDai.transfer(address(club), 100);
         address aliceAddress = alice;
-        bytes memory tx_data = '';
+        bytes memory tx_data = "";
 
         assembly {
             mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
@@ -542,16 +542,16 @@ contract ClubTest is Test {
     function testMintGovernance() public {
         startHoax(charlie, charlie, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
-        club.mint(alice, 1, 100, '');
+        club.mint(alice, 1, 100, "");
         vm.stopPrank();
         
         // The club itself should be able to flip governor
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(charlie, uint32(uint256(bytes32(club.mint.selector))), 1, '');
+        club.mint(charlie, uint256(bytes32(club.mint.selector)), 1, "");
         vm.stopPrank();
 
         startHoax(charlie, charlie, type(uint256).max);
-        club.mint(alice, 1, 100, '');
+        club.mint(alice, 1, 100, "");
         vm.stopPrank();
         assert(club.balanceOf(alice, 1) == 100);
     }
@@ -574,13 +574,13 @@ contract ClubTest is Test {
         assertTrue(club.transferable(id) == transferability);
         /*
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(charlie, id, 1, '');
+        club.mint(charlie, id, 1, "");
         vm.stopPrank();
 
         startHoax(charlie, charlie, type(uint256).max);
         if (transferability == false) {
             vm.expectRevert(bytes4(keccak256('NONTRANSFERABLE)')));
-            club.safeTransferFrom(charlie, alice, id, 1, '');
+            club.safeTransferFrom(charlie, alice, id, 1, "");
         }
         vm.stopPrank();*/
         
