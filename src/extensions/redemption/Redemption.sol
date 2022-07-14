@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 /// @dev Interfaces
 import {IERC20Balances} from "../../interfaces/IERC20Balances.sol";
-import {IKaliClub} from "../../interfaces/IKaliClub.sol";
+import {IKlub} from "../../interfaces/IKlub.sol";
 
 /// @dev Libraries
 import {MulDivDownLib} from "../../libraries/MulDivDownLib.sol";
@@ -13,9 +13,9 @@ import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 import {ERC1155TokenReceiver} from "../../ERC1155Votes.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 
-/// @title Kali Club Redemption
-/// @notice Fair share redemptions for burnt Kali Club tokens
-contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
+/// @title Klub Redemption
+/// @notice Fair share redemptions for burnt treasury tokens
+contract Redemption is ERC1155TokenReceiver, Multicall {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
@@ -29,14 +29,14 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
     /// -----------------------------------------------------------------------
 
     event RedemptionStartSet(
-        address indexed club, 
+        address indexed treasury, 
         uint256 id, 
         uint256 redemptionStart
     );
 
     event Redeemed(
         address indexed redeemer, 
-        address indexed club, 
+        address indexed treasury, 
         address[] assets, 
         uint256 id, 
         uint256 redemption
@@ -73,13 +73,13 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
     /// REDEMPTIONS
     /// -----------------------------------------------------------------------
     
-    /// @notice Redemption option for club members
-    /// @param club Club contract address
+    /// @notice Redemption option for treasury holders
+    /// @param treasury Treasury contract address
     /// @param assets Array of assets to redeem out
     /// @param id The token ID to burn from
     /// @param redemption Amount of token ID to burn
     function redeem(
-        address club, 
+        address treasury, 
         address[] calldata assets, 
         uint256 id,
         uint256 redemption
@@ -87,13 +87,13 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
         external
         payable
     {
-        uint256 start = redemptionStarts[club][id];
+        uint256 start = redemptionStarts[treasury][id];
         
         if (start == 0 || block.timestamp < start) revert NOT_STARTED();
 
-        uint256 supply = IKaliClub(club).totalSupply(id);
+        uint256 supply = IKlub(treasury).totalSupply(id);
 
-        IKaliClub(club).burn(
+        IKlub(treasury).burn(
             msg.sender, 
             id,
             redemption
@@ -108,14 +108,14 @@ contract KaliClubRedemption is ERC1155TokenReceiver, Multicall {
             prevAddr = assets[i];
 
             // calculate fair share of given assets for redemption
-            uint256 amountToRedeem = redemption._mulDivDown(
+            uint256 amountToRedeem = redemption.mulDivDown(
                 IERC20Balances(assets[i]).balanceOf(club),
                 supply
             );
 
             // transfer from club to redeemer
             if (amountToRedeem != 0) 
-                assets[i]._safeTransferFrom(
+                assets[i].safeTransferFrom(
                     club, 
                     msg.sender, 
                     amountToRedeem

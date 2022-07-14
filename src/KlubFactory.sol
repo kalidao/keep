@@ -5,14 +5,14 @@ pragma solidity >=0.8.4;
 import {
     Call, 
     Multicall, 
-    KaliClub
-} from "./KaliClub.sol";
+    Klub
+} from "./Klub.sol";
 
 /// @dev Libraries
 import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
 
-/// @notice Kali Club Factory
-contract KaliClubFactory is Multicall {
+/// @notice Klub Factory
+contract KlubFactory is Multicall {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
@@ -23,7 +23,7 @@ contract KaliClubFactory is Multicall {
     /// EVENTS
     /// -----------------------------------------------------------------------
 
-    event ClubDeployed(
+    event Deployed(
         Call[] calls,
         address[] signers,
         uint256 threshold,
@@ -34,25 +34,25 @@ contract KaliClubFactory is Multicall {
     /// IMMUTABLES
     /// -----------------------------------------------------------------------
     
-    KaliClub internal immutable clubMaster;
+    Klub internal immutable klubMaster;
 
     /// -----------------------------------------------------------------------
     /// CONSTRUCTOR
     /// -----------------------------------------------------------------------
 
-    constructor(KaliClub _clubMaster) payable {
-        clubMaster = _clubMaster;
+    constructor(Klub _klubMaster) payable {
+        klubMaster = _klubMaster;
     }
 
     /// -----------------------------------------------------------------------
     /// DEPLOYMENT LOGIC
     /// -----------------------------------------------------------------------
 
-    function determineClub(bytes32 name) public view virtual returns (
+    function determine(bytes32 name) public view virtual returns (
         address club, bool deployed
     ) {   
-        (club, deployed) = address(clubMaster).
-            _predictDeterministicAddress
+        (club, deployed) = address(klubMaster).
+            predictDeterministicAddress
                 (
                     name, 
                     abi.encodePacked(
@@ -64,14 +64,14 @@ contract KaliClubFactory is Multicall {
                 );
     } 
 
-    function deployClub(
+    function deploy(
         Call[] calldata calls,
         address[] calldata signers,
         uint256 threshold,
         bytes32 name // salt
     ) public payable virtual {
-        KaliClub club = KaliClub(
-            address(clubMaster)._clone
+        Klub klub = Klub(
+            address(klubMaster).clone
                 (
                     name,
                     abi.encodePacked(
@@ -83,13 +83,13 @@ contract KaliClubFactory is Multicall {
                 )
             );
 
-        club.init{value: msg.value}(
+        klub.init{value: msg.value}(
             calls,
             signers,
             threshold
         );
 
-        emit ClubDeployed(
+        emit Deployed(
             calls,
             signers,
             threshold,

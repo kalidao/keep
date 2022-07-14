@@ -5,24 +5,24 @@ import {
     Operation, 
     Call, 
     Signature, 
-    KaliClub
-} from "../KaliClub.sol";
+    Klub
+} from "../Klub.sol";
 import {
-    KaliClubFactory
-} from "../KaliClubFactory.sol";
+    KlubFactory
+} from "../KlubFactory.sol";
 
 import {MockERC20} from "@solmate/test/utils/mocks/MockERC20.sol";
 
 import "@std/Test.sol";
 
-contract ClubTest is Test {
+contract KlubTest is Test {
     using stdStorage for StdStorage;
 
     address clubAddr;
     address clubAddrRepeat;
-    KaliClub club;
-    KaliClub clubRepeat;
-    KaliClubFactory factory;
+    Klub club;
+    Klub clubRepeat;
+    KlubFactory factory;
     MockERC20 mockDai;
 
     uint256 internal EXECUTE_ID;
@@ -94,7 +94,7 @@ contract ClubTest is Test {
                     keccak256(
                         'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
                     ),
-                    keccak256(bytes('KaliClub')),
+                    keccak256(bytes('Klub')),
                     keccak256('1'),
                     block.chainid,
                     addr
@@ -142,7 +142,7 @@ contract ClubTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        club = new KaliClub();
+        club = new Klub();
         mockDai = new MockERC20('Dai', 'DAI', 18);
         chainId = block.chainid;
 
@@ -150,7 +150,7 @@ contract ClubTest is Test {
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubFactory(club);
+        factory = new KlubFactory(club);
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
@@ -162,9 +162,9 @@ contract ClubTest is Test {
             : bob;
 
         (clubAddr, ) = factory.determineClub(name); 
-        club = KaliClub(clubAddr);
-        // The factory is fully tested in KaliClubFactory.t.sol
-        factory.deployClub(
+        club = Klub(clubAddr);
+        // The factory is fully tested in KlubFactory.t.sol
+        factory.deploy(
             calls,
             signers,
             2,
@@ -179,7 +179,7 @@ contract ClubTest is Test {
     /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
-        clubRepeat = new KaliClub();
+        clubRepeat = new Klub();
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
@@ -190,9 +190,9 @@ contract ClubTest is Test {
             ? alice
             : bob;
         
-        (clubAddrRepeat, ) = factory.determineClub(name2); 
-        clubRepeat = KaliClub(clubAddrRepeat);
-        factory.deployClub(
+        (clubAddrRepeat, ) = factory.determine(name2); 
+        clubRepeat = Klub(clubAddrRepeat);
+        factory.deploy(
             calls,
             signers,
             2,
@@ -214,7 +214,7 @@ contract ClubTest is Test {
             : bob;
 
         vm.expectRevert(bytes(""));
-        factory.deployClub(
+        factory.deploy(
             calls,
             signers,
             0,
@@ -233,7 +233,7 @@ contract ClubTest is Test {
             : bob;
 
         vm.expectRevert(bytes4(keccak256("QUORUM_OVER_SUPPLY()")));
-        factory.deployClub(
+        factory.deploy(
             calls,
             signers,
             3,
@@ -252,7 +252,7 @@ contract ClubTest is Test {
             : alice;
 
         vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
-        factory.deployClub(
+        factory.deploy(
             calls,
             signers,
             2,

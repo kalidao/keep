@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Call, KaliClub} from "../KaliClub.sol";
-import {KaliClubFactory} from "../KaliClubFactory.sol";
+import {Call, Klub} from "../Klub.sol";
+import {KlubFactory} from "../KlubFactory.sol";
 
 import "@std/Test.sol";
 
-contract KaliClubSigFactoryTest is Test {
+contract KlubFactoryTest is Test {
     address clubAddr;
-    KaliClub clubSig;
-    KaliClubFactory factory;
+    Klub clubSig;
+    KlubFactory factory;
 
     address[] signers;
 
@@ -32,27 +32,27 @@ contract KaliClubSigFactoryTest is Test {
 
     function setUp() public {
         // create the templates
-        clubSig = new KaliClub();
+        clubSig = new Klub();
         // create the factory
-        factory = new KaliClubFactory(clubSig);
+        factory = new KlubFactory(clubSig);
         // Create the signers
         signers.push(alice);
         signers.push(bob);
     }
 
-    function testDeployClubSig() public {
-        factory.deployClub(
+    function testDeploy() public {
+        factory.deploy(
             calls,
             signers,
             2,
             name
         );
     }
-
-    function testCloneAddressDetermination() public {
-        (clubAddr, ) = factory.determineClub(name); 
-        clubSig = KaliClub(clubAddr);
-        factory.deployClub(
+    
+    function testDetermination() public {
+        (clubAddr, ) = factory.determine(name); 
+        clubSig = Klub(clubAddr);
+        factory.deploy(
             calls,
             signers,
             2,
@@ -60,7 +60,7 @@ contract KaliClubSigFactoryTest is Test {
         );
         // check CREATE2 clones match expected outputs
         bool deployed;
-        (clubAddr, deployed) = factory.determineClub(name);
+        (clubAddr, deployed) = factory.determine(name);
         assertEq(
             address(clubSig),
             clubAddr
@@ -69,7 +69,7 @@ contract KaliClubSigFactoryTest is Test {
             deployed,
             true
         );
-        (, bool deployed2) = factory.determineClub(name2);
+        (, bool deployed2) = factory.determine(name2);
         assertEq(
             deployed2,
             false

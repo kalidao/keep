@@ -9,12 +9,9 @@ import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
 import {ERC1155TokenReceiver, ERC1155Votes} from "./ERC1155Votes.sol";
 import {Multicall} from "./utils/Multicall.sol";
 
-/// @title Kali Club
+/// @title Klub
 /// @notice EIP-712 multi-sig with ERC-1155 interface
-/// @author Modified from MultiSignatureWallet (https://github.com/SilentCicero/MultiSignatureWallet)
-/// and LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
-/// @dev Lightweight implementation of Moloch v3 
-/// (https://github.com/Moloch-Mystics/Baal/blob/main/contracts/Baal.sol)
+/// @author Modified from LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 
 enum Operation {
     call,
@@ -36,7 +33,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract KaliClub is 
+contract Klub is 
     ERC721TokenReceiver, 
     ERC1155TokenReceiver, 
     ERC1155Votes, 
@@ -231,7 +228,7 @@ contract KaliClub is
 
             emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
 
-            //_moveDelegates(address(0), signer, EXECUTE_ID, 1);
+            _moveDelegates(address(0), signer, EXECUTE_ID, 1);
         }
 
         nonce = 1;
@@ -333,7 +330,7 @@ contract KaliClub is
     /// @notice Execute operations from club with signed execute() or as governance
     /// @param calls Club operations as arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
-    function batchExecute(Call[] calldata calls) public payable virtual returns (bool[] memory successes) {
+    function multiExecute(Call[] calldata calls) public payable virtual returns (bool[] memory successes) {
         _authorized();
 
         successes = new bool[](calls.length);

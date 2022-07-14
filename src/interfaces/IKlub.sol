@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Kali Club interface
-interface IKaliClub {
+/// @notice Klub interface
+interface IKlub {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 
     function totalSupply(uint256 id) external view returns (uint256);

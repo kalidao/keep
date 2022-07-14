@@ -5,12 +5,12 @@ import {
     Operation, 
     Call, 
     Signature, 
-    KaliClub
-} from "../KaliClub.sol";
-import {KaliClubRedemption} from "../extensions/redemption/KaliClubRedemption.sol";
+    Klub
+} from "../Klub.sol";
+import {Redemption} from "../extensions/redemption/Redemption.sol";
 import {
-    KaliClubFactory
-} from "../KaliClubFactory.sol";
+    KlubFactory
+} from "../KlubFactory.sol";
 
 import {MockERC20} from "@solmate/test/utils/mocks/MockERC20.sol";
 
@@ -20,11 +20,11 @@ contract RedemptionTest is Test {
     using stdStorage for StdStorage;
 
     address clubAddr;
-    KaliClub club;
-    KaliClubFactory factory;
+    Klub club;
+    KlubFactory factory;
     MockERC20 mockDai;
     MockERC20 mockWeth;
-    KaliClubRedemption redemption;
+    Redemption redemption;
 
     /// @dev Users
 
@@ -71,10 +71,10 @@ contract RedemptionTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        club = new KaliClub();
+        club = new Klub();
         mockDai = new MockERC20('Dai', 'DAI', 18);
         mockWeth = new MockERC20('wETH', 'WETH', 18);
-        redemption = new KaliClubRedemption();
+        redemption = new Redemption();
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
@@ -83,7 +83,7 @@ contract RedemptionTest is Test {
         mockWeth.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KaliClubFactory(club);
+        factory = new KlubFactory(club);
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
@@ -95,9 +95,9 @@ contract RedemptionTest is Test {
             : bob;
 
         (clubAddr, ) = factory.determineClub(name); 
-        club = KaliClub(clubAddr);
-        // The factory is fully tested in KaliClubFactory.t.sol
-        factory.deployClub(
+        club = Klub(clubAddr);
+        // The factory is fully tested in KlubFactory.t.sol
+        factory.deploy(
             calls,
             signers,
             2,
