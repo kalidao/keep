@@ -1,6 +1,6 @@
 {
   "name": "multi-sig",
-  "version": "1.0.0",
+  "version": "1",
   "description": "Ethereum multisig contract with tokenized rights",
   "main": "index.js",
   "repository": "https://github.com/kalidao/multi-sig",
