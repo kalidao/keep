@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 /// @dev Interfaces
 import {IERC20Balances} from "../../interfaces/IERC20Balances.sol";
-import {IKlub} from "../../interfaces/IKlub.sol";
+import {IKeep} from "../../interfaces/IKeep.sol";
 
 /// @dev Libraries
 import {MulDivDownLib} from "../../libraries/MulDivDownLib.sol";
@@ -13,8 +13,9 @@ import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 import {ERC1155TokenReceiver} from "../../ERC1155Votes.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 
-/// @title Klub Redemption
+/// @title Redemption
 /// @notice Fair share redemptions for burnt treasury tokens
+/// @dev Based on Moloch DAO ragequit()
 contract Redemption is ERC1155TokenReceiver, Multicall {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
@@ -60,7 +61,7 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
     /// CONFIGURATIONS
     /// -----------------------------------------------------------------------
     
-    /// @notice Redemption configuration for clubs
+    /// @notice Redemption configuration for treasuries
     /// @param id The token ID to set redemption configuration for
     /// @param redemptionStart The unix timestamp at which redemption starts
     function setRedemptionStart(uint256 id, uint256 redemptionStart) external payable {
@@ -91,9 +92,9 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
         
         if (start == 0 || block.timestamp < start) revert NOT_STARTED();
 
-        uint256 supply = IKlub(treasury).totalSupply(id);
+        uint256 supply = IKeep(treasury).totalSupply(id);
 
-        IKlub(treasury).burn(
+        IKeep(treasury).burn(
             msg.sender, 
             id,
             redemption
@@ -113,7 +114,7 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
                 supply
             );
 
-            // transfer from club to redeemer
+            // transfer from treasury to redeemer
             if (amountToRedeem != 0) 
                 assets[i].safeTransferFrom(
                     treasury, 

@@ -5,12 +5,12 @@ import {
     Operation, 
     Call, 
     Signature, 
-    Klub
-} from "../Klub.sol";
+    Keep
+} from "../Keep.sol";
 import {Redemption} from "../extensions/redemption/Redemption.sol";
 import {
-    KlubFactory
-} from "../KlubFactory.sol";
+    KeepFactory
+} from "../KeepFactory.sol";
 
 import {MockERC20} from "@solmate/test/utils/mocks/MockERC20.sol";
 
@@ -20,8 +20,8 @@ contract RedemptionTest is Test {
     using stdStorage for StdStorage;
 
     address clubAddr;
-    Klub club;
-    KlubFactory factory;
+    Keep club;
+    KeepFactory factory;
     MockERC20 mockDai;
     MockERC20 mockWeth;
     Redemption redemption;
@@ -71,7 +71,7 @@ contract RedemptionTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        club = new Klub();
+        club = new Keep();
         mockDai = new MockERC20('Dai', 'DAI', 18);
         mockWeth = new MockERC20('wETH', 'WETH', 18);
         redemption = new Redemption();
@@ -83,7 +83,7 @@ contract RedemptionTest is Test {
         mockWeth.mint(address(this), 1000000000 * 1e18);
 
         // Create the factory
-        factory = new KlubFactory(club);
+        factory = new KeepFactory(club);
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
@@ -94,9 +94,10 @@ contract RedemptionTest is Test {
             ? alice
             : bob;
 
-        (clubAddr, ) = factory.determineClub(name); 
-        club = Klub(clubAddr);
-        // The factory is fully tested in KlubFactory.t.sol
+        (clubAddr, ) = factory.determine(name); 
+        club = Keep(clubAddr);
+        
+        // The factory is fully tested in KeepFactory.t.sol
         factory.deploy(
             calls,
             signers,

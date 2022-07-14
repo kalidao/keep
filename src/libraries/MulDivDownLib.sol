@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 /// @notice Arithmetic library for mulDivDown
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/FixedPointMathLib.sol)
 library MulDivDownLib {
-    function _mulDivDown(
+    function mulDivDown(
         uint256 x,
         uint256 y,
         uint256 denominator

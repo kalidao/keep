@@ -5,7 +5,7 @@ pragma solidity >=0.8.4;
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
 /// @dev Caution! This library won't check that a token has code, responsibility is delegated to the caller
 library SafeTransferLib {
-    function _safeTransferFrom(
+    function safeTransferFrom(
         address token,
         address from,
         address to,
