@@ -109,14 +109,14 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
 
             // calculate fair share of given assets for redemption
             uint256 amountToRedeem = redemption.mulDivDown(
-                IERC20Balances(assets[i]).balanceOf(club),
+                IERC20Balances(assets[i]).balanceOf(treasury),
                 supply
             );
 
             // transfer from club to redeemer
             if (amountToRedeem != 0) 
                 assets[i].safeTransferFrom(
-                    club, 
+                    treasury, 
                     msg.sender, 
                     amountToRedeem
                 );
@@ -128,6 +128,6 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
             }
         }
         
-        emit Redeemed(msg.sender, club, assets, id, redemption);
+        emit Redeemed(msg.sender, treasury, assets, id, redemption);
     }
 }
