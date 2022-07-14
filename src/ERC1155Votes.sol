@@ -334,9 +334,14 @@ abstract contract ERC1155Votes {
             if (srcRep != address(0)) {
                 uint256 srcRepNum = numCheckpoints[srcRep][id];
 
-                uint256 srcRepOld = srcRepNum != 0
-                    ? checkpoints[srcRep][id][srcRepNum - 1].votes
-                    : 0;
+                uint256 srcRepOld;
+
+                // Won't underflow because decrement only occurs if positive `srcRepNum`.
+                unchecked {
+                    srcRepOld = srcRepNum != 0
+                        ? checkpoints[srcRep][id][srcRepNum - 1].votes
+                        : 0;
+                }
 
                 _writeCheckpoint(srcRep, id, srcRepNum, srcRepOld, srcRepOld - amount);
             }
@@ -344,9 +349,14 @@ abstract contract ERC1155Votes {
             if (dstRep != address(0)) {
                 uint256 dstRepNum = numCheckpoints[dstRep][id];
 
-                uint256 dstRepOld = dstRepNum != 0
-                    ? checkpoints[dstRep][id][dstRepNum - 1].votes
-                    : 0;
+                uint256 dstRepOld;
+
+                // Won't underflow because decrement only occurs if positive `dstRepNum`.
+                unchecked {
+                    dstRepOld = dstRepNum != 0
+                        ? checkpoints[dstRep][id][dstRepNum - 1].votes
+                        : 0;
+                }
 
                 _writeCheckpoint(dstRep, id, dstRepNum, dstRepOld, dstRepOld + amount);
             }
