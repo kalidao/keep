@@ -71,7 +71,7 @@ contract KaliClub is
     /// @notice Throws if init() is called more than once
     error ALREADY_INIT();
 
-    /// @notice Throws if quorum threshold exceeds totalSupply()
+    /// @notice Throws if quorum exceeds totalSupply(EXECUTE_ID)
     error QUORUM_OVER_SUPPLY();
 
     /// @notice Throws if signature doesn't verify execute()
@@ -81,50 +81,35 @@ contract KaliClub is
     error EXECUTE_FAILED();
 
     /// -----------------------------------------------------------------------
-    /// CLUB CONSTANTS
-    /// -----------------------------------------------------------------------
-
-    uint32 internal constant EXECUTE_ID = uint32(uint256(bytes32(this.execute.selector)));
-    uint32 internal constant BATCH_EXECUTE_ID =  uint32(uint256(bytes32(this.batchExecute.selector)));
-    uint32 internal constant MINT_ID = uint32(uint256(bytes32(this.mint.selector)));
-    uint32 internal constant BURN_ID = uint32(uint256(bytes32(this.burn.selector)));
-    uint32 internal constant SET_QUORUM_ID = uint32(uint256(bytes32(this.setQuorum.selector)));
-    uint32 internal constant SET_TRANSFERABILITY_ID = uint32(uint256(bytes32(this.setTransferability.selector)));
-    uint32 internal constant SET_URI_ID = uint32(uint256(bytes32(this.setURI.selector)));
-
-    bytes32 internal constant DOMAIN_TYPEHASH = keccak256(
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-    );
-    bytes32 internal constant EXECUTE_TYPEHASH = keccak256(
-        "Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)"
-    );
-
-    /// -----------------------------------------------------------------------
     /// CLUB STORAGE/LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Record of states for verifying signatures
+    /// @notice Record of states for verifying execute()
     uint64 public nonce;
 
-    /// @notice Signature NFT threshold to execute()
+    /// @notice EXECUTE_ID threshold to execute()
     uint64 public quorum;
 
-    /// @notice Initial club domain value 
+    /// @notice init() club domain value 
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
-    /// @notice URI metadata tracking
+    /// @notice execute() ID permission 
+    uint256 internal constant EXECUTE_ID = uint256(bytes32(this.execute.selector));
+
+    /// @notice ID metadata tracking
     mapping(uint256 => string) internal _uris;
     
-    /// @notice Token URI metadata fetcher
-    /// @param id The token ID to fetch from
-    /// @return Token URI metadata reference
+    /// @notice ID metadata fetcher
+    /// @param id ID to fetch from
+    /// @return URI ID metadata reference
     function uri(uint256 id) public view override virtual returns (string memory) {
         return _uris[id];
     }
 
-    /// @notice Access control for club and authorized ID holders
-    function _authorized(uint256 id) internal view virtual returns (bool) {
-        if (msg.sender == address(this) || balanceOf[msg.sender][id] != 0
+    /// @notice Access control for ID balance owners
+    function _authorized() internal view virtual returns (bool) {
+        if (msg.sender == address(this) 
+        || balanceOf[msg.sender][uint256(bytes32(msg.sig))] != 0
         ) return true; else revert NOT_AUTHORIZED();
     }
 
@@ -133,8 +118,8 @@ contract KaliClub is
     /// -----------------------------------------------------------------------
 
     /// @notice ERC-165 interface detection
-    /// @param interfaceId The interface ID to check
-    /// @return Interface detection success
+    /// @param interfaceId Interface ID to check
+    /// @return Interface Fetch detection success
     function supportsInterface(bytes4 interfaceId) public view override virtual returns (bool) {
         return
             interfaceId == this.onERC721Received.selector || // ERC-165 Interface ID for ERC721TokenReceiver 
@@ -146,7 +131,8 @@ contract KaliClub is
     /// EIP-712 LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Fetches unique club domain for signatures
+    /// @notice Fetches domain for EXECUTE_ID signatures
+    /// @return Domain hash
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
             block.chainid == _INITIAL_CHAIN_ID()
@@ -173,9 +159,9 @@ contract KaliClub is
         return
             keccak256(
                 abi.encode(
-                    DOMAIN_TYPEHASH,
-                    keccak256(bytes('KaliClub')),
-                    keccak256('1'),
+                    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                    keccak256(bytes("KaliClub")),
+                    keccak256("1"),
                     block.chainid,
                     address(this)
                 )
@@ -186,7 +172,7 @@ contract KaliClub is
     /// INITIALIZATION LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Initializes club configuration
+    /// @notice Initialize club configuration
     /// @param calls Initial club operations
     /// @param signers Initial signer set
     /// @param threshold Initial quorum
@@ -223,16 +209,16 @@ contract KaliClub is
         }
         
         address signer;
-        address prevAddr;
+        address previous;
         uint256 supply;
 
         for (uint256 i; i < signers.length; ) {
             signer = signers[i];
 
-            // prevent null and duplicate signers
-            if (prevAddr >= signer) revert INVALID_SIG();
+            // prevent zero and duplicate signers
+            if (previous >= signer) revert INVALID_SIG();
 
-            prevAddr = signer;
+            previous = signer;
 
             // won't realistically overflow
             unchecked {
@@ -259,13 +245,13 @@ contract KaliClub is
     /// -----------------------------------------------------------------------
 
     /// @notice Execute operation from club with signatures
-    /// @param op The enum operation to execute
+    /// @param op Enum operation to execute
     /// @param to Address to send operation to
     /// @param value Amount of ETH to send in operation
     /// @param data Payload to send in operation
     /// @param sigs Array of signatures from NFT sorted in ascending order by addresses
     /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail
-    /// @return success Whether operation succeeded
+    /// @return success Fetch whether operation succeeded
     function execute(
         Operation op,
         address to,
@@ -281,7 +267,7 @@ contract KaliClub is
                     DOMAIN_SEPARATOR(),
                     keccak256(
                         abi.encode(
-                            EXECUTE_TYPEHASH,
+                            keccak256("Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)"),
                             op,
                             to,
                             value,
@@ -292,8 +278,9 @@ contract KaliClub is
                 )
             );
         
-        // start from null in loop to ensure ascending addresses
-        address prevAddr;
+        // start from zero in loop to ensure ascending addresses
+        address previous;
+
         // validation is length of quorum threshold 
         uint256 threshold = quorum;
 
@@ -305,7 +292,7 @@ contract KaliClub is
                 sigs[i].s
             );
 
-            // check contract signature using EIP-1271
+            // check contract signature with EIP-1271
             if (signer.code.length != 0) {
                 if (
                     IERC1271(signer).isValidSignature(
@@ -319,15 +306,17 @@ contract KaliClub is
                 ) revert INVALID_SIG();
             }
 
-            // check NFT balance
+            // check EXECUTE_ID balance
             if (balanceOf[signer][EXECUTE_ID] == 0) revert INVALID_SIG();
+
             // check duplicates
-            if (prevAddr >= signer) revert INVALID_SIG();
+            if (previous >= signer) revert INVALID_SIG();
 
-            // set prevAddr to signer for next iteration until quorum
-            prevAddr = signer;
+            // memo signer for next iteration until quorum
+            previous = signer;
 
-            // won't realistically overflow
+            // an array can't have a total length
+            // larger than the max uint256 value
             unchecked {
                 ++i;
             }
@@ -345,7 +334,7 @@ contract KaliClub is
     /// @param calls Club operations as arrays of `op, to, value, data`
     /// @return successes Fetches whether operations succeeded
     function batchExecute(Call[] calldata calls) public payable virtual returns (bool[] memory successes) {
-        _authorized(BATCH_EXECUTE_ID);
+        _authorized();
 
         successes = new bool[](calls.length);
 
@@ -419,7 +408,8 @@ contract KaliClub is
             emit ContractCreated(op, creation, value);
         } else {
             address creation;
-            bytes32 salt = bytes32(bytes20(to));
+            
+            bytes32 salt = bytes32(data);
 
             assembly {
                 creation := create2(value, add(0x20, data), mload(data), salt)
@@ -435,28 +425,33 @@ contract KaliClub is
     /// MINT/BURN LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Club token ID minter
-    /// @param to The recipient of mint
-    /// @param id The token ID to mint
-    /// @param amount The amount to mint
+    /// @notice ID minter
+    /// @param to Recipient of mint
+    /// @param id ID to mint
+    /// @param amount ID balance to mint
     /// @param data Optional data payload
-    /// @dev Token ID cannot be null
     function mint(
         address to,
         uint256 id,
         uint256 amount,
         bytes calldata data
     ) public payable virtual {
-        _authorized(MINT_ID);
+        _authorized();
 
-        _mint(to, id, amount, data);
+        _mint(
+            to, 
+            id, 
+            amount, 
+            data
+        );
+
+        _safeCastTo192(totalSupply[id]);
     }
 
-    /// @notice Club token ID burner
-    /// @param from The account to burn from
-    /// @param id The token ID to burn
-    /// @param amount The amount to burn
-    /// @dev Token ID cannot be null
+    /// @notice Club ID burner
+    /// @param from Account to burn from
+    /// @param id ID to burn
+    /// @param amount Balance to burn
     function burn(
         address from, 
         uint256 id, 
@@ -465,10 +460,14 @@ contract KaliClub is
         if (
             msg.sender != from 
             && !isApprovedForAll[from][msg.sender] 
-            && !_authorized(BURN_ID)
+            && !_authorized()
         ) revert NOT_AUTHORIZED();
 
-        _burn(from, id, amount);
+        _burn(
+            from, 
+            id, 
+            amount
+        );
 
         if (id == EXECUTE_ID)
             if (quorum > totalSupply[EXECUTE_ID]) 
@@ -479,10 +478,10 @@ contract KaliClub is
     /// THRESHOLD SETTING LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Update club quorum
-    /// @param threshold Signature threshold to execute() operations
+    /// @notice Update club quorum threshold
+    /// @param threshold Signature threshold for execute()
     function setQuorum(uint32 threshold) public payable virtual {
-        _authorized(SET_QUORUM_ID);
+        _authorized();
 
         assembly {
             if iszero(threshold) {
@@ -503,20 +502,20 @@ contract KaliClub is
     /// ID SETTING LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Club token ID transferability setter
-    /// @param id The token ID to set transferability for
-    /// @param transferability The transferability setting
+    /// @notice ID transferability setter
+    /// @param id ID to set transferability for
+    /// @param transferability Transferability setting
     function setTransferability(uint256 id, bool transferability) public payable virtual {
-        _authorized(SET_TRANSFERABILITY_ID);
+        _authorized();
 
         _setTransferability(id, transferability);
     }
 
-    /// @notice Club token ID metadata setter
-    /// @param id The token ID to set metadata for
-    /// @param tokenURI The metadata setting
+    /// @notice ID metadata setter
+    /// @param id ID to set metadata for
+    /// @param tokenURI Metadata setting
     function setURI(uint256 id, string calldata tokenURI) public payable virtual {
-        _authorized(SET_URI_ID);
+        _authorized();
 
         _uris[id] = tokenURI;
 
