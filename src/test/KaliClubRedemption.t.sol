@@ -107,8 +107,8 @@ contract RedemptionTest is Test {
 
     function testRedemption() public {
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(address(redemption), uint32(uint256(bytes32(club.burn.selector))), 1, '');
-        club.mint(alice, 1, 100, '');
+        club.mint(address(redemption), uint256(bytes32(club.burn.selector)), 1, "");
+        club.mint(alice, 1, 100, "");
         vm.stopPrank();
         
         assertTrue(club.balanceOf(alice, 1) == 100);
@@ -136,8 +136,8 @@ contract RedemptionTest is Test {
     
     function testMultiRedemption() public {
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(address(redemption), uint32(uint256(bytes32(club.burn.selector))), 1, '');
-        club.mint(alice, 1, 100, '');
+        club.mint(address(redemption), uint256(bytes32(club.burn.selector)), 1, "");
+        club.mint(alice, 1, 100, "");
         vm.stopPrank();
 
         assertTrue(club.balanceOf(alice, 1) == 100);
