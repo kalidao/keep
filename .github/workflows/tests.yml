@@ -18,6 +18,9 @@ jobs:
       - name: Install dev dependencies
         run: yarn
 
+      - name: Run formatter
+        run: yarn run format
+
       # - name: Set up python
       #   id: setup-python
       #   uses: actions/setup-python@v2
@@ -52,8 +55,8 @@ jobs:
       - name: Run tests
         run: forge clean && forge test --optimize --optimizer-runs 9999999 -vvv
 
-      - name: Run lint and lint check
-        run: yarn lint
+      - name: Run lint 
+        run: yarn run solhint
 
       # TODO(Figure out how to allow this to find the correct solc binary)
       # - name: Run audit
