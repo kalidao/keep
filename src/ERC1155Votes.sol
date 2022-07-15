@@ -46,7 +46,7 @@ abstract contract ERC1155Votes {
         uint256 previousBalance,
         uint256 newBalance
     );
-    
+
     event TransferSingle(
         address indexed operator,
         address indexed from,
@@ -64,14 +64,14 @@ abstract contract ERC1155Votes {
     );
 
     event ApprovalForAll(
-        address indexed owner, 
-        address indexed operator, 
+        address indexed owner,
+        address indexed operator,
         bool approved
     );
 
     event TransferabilitySet(
-        address indexed operator, 
-        uint256 indexed id, 
+        address indexed operator,
+        uint256 indexed id,
         bool transferability
     );
 
@@ -106,33 +106,39 @@ abstract contract ERC1155Votes {
     /// -----------------------------------------------------------------------
     /// VOTING STORAGE
     /// -----------------------------------------------------------------------
-    
+
     mapping(uint256 => bool) public transferable;
 
     mapping(uint256 => uint256) public totalSupply;
-    
+
     mapping(address => mapping(uint256 => address)) internal _delegates;
 
     mapping(address => mapping(uint256 => uint256)) public numCheckpoints;
 
-    mapping(address => mapping(uint256 => mapping(uint256 => Checkpoint))) public checkpoints;
-    
+    mapping(address => mapping(uint256 => mapping(uint256 => Checkpoint)))
+        public checkpoints;
+
     struct Checkpoint {
         uint64 fromTimestamp;
         uint192 votes;
     }
-    
+
     /// -----------------------------------------------------------------------
     /// METADATA LOGIC
     /// -----------------------------------------------------------------------
-    
+
     function uri(uint256 id) public view virtual returns (string memory);
 
     /// -----------------------------------------------------------------------
     /// ERC-165 LOGIC
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return
             interfaceId == this.supportsInterface.selector || // ERC-165 Interface ID for ERC-165
             interfaceId == 0xd9b67a26 || // ERC-165 Interface ID for ERC-1155
@@ -164,7 +170,11 @@ abstract contract ERC1155Votes {
         }
     }
 
-    function setApprovalForAll(address operator, bool approved) public payable virtual {
+    function setApprovalForAll(address operator, bool approved)
+        public
+        payable
+        virtual
+    {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -177,12 +187,13 @@ abstract contract ERC1155Votes {
         uint256 amount,
         bytes calldata data
     ) public payable virtual {
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert NOT_AUTHORIZED();
+        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
+            revert NOT_AUTHORIZED();
 
         if (!transferable[id]) revert NONTRANSFERABLE();
 
         balanceOf[from][id] -= amount;
-        
+
         // cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value
         unchecked {
@@ -191,9 +202,16 @@ abstract contract ERC1155Votes {
 
         emit TransferSingle(msg.sender, from, to, id, amount);
 
-        if (to.code.length == 0 ? to == address(0) :
-            ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
-                ERC1155TokenReceiver.onERC1155Received.selector
+        if (
+            to.code.length == 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155Received(
+                    msg.sender,
+                    from,
+                    id,
+                    amount,
+                    data
+                ) != ERC1155TokenReceiver.onERC1155Received.selector
         ) revert INVALID_RECIPIENT();
 
         _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
@@ -208,7 +226,8 @@ abstract contract ERC1155Votes {
     ) public payable virtual {
         if (ids.length != amounts.length) revert LENGTH_MISMATCH();
 
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert NOT_AUTHORIZED();
+        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
+            revert NOT_AUTHORIZED();
 
         // storing these outside the loop saves ~15 gas per iteration
         uint256 id;
@@ -221,7 +240,7 @@ abstract contract ERC1155Votes {
             if (!transferable[id]) revert NONTRANSFERABLE();
 
             balanceOf[from][id] -= amount;
-            
+
             // cannot overflow because the sum of all user
             // balances can't exceed the max uint256 value
             unchecked {
@@ -239,9 +258,16 @@ abstract contract ERC1155Votes {
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
-        if (to.code.length == 0 ? to == address(0) :
-            ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
-                ERC1155TokenReceiver.onERC1155BatchReceived.selector
+        if (
+            to.code.length == 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155BatchReceived(
+                    msg.sender,
+                    from,
+                    ids,
+                    amounts,
+                    data
+                ) != ERC1155TokenReceiver.onERC1155BatchReceived.selector
         ) revert INVALID_RECIPIENT();
     }
 
@@ -249,13 +275,23 @@ abstract contract ERC1155Votes {
     /// VOTING LOGIC
     /// -----------------------------------------------------------------------
 
-    function delegates(address account, uint256 id) public view virtual returns (address) {
+    function delegates(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (address)
+    {
         address current = _delegates[account][id];
 
         return current == address(0) ? account : current;
     }
 
-    function getCurrentVotes(address account, uint256 id) public view virtual returns (uint256) {
+    function getCurrentVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         // won't underflow because decrement only occurs if positive `nCheckpoints`
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
@@ -268,15 +304,10 @@ abstract contract ERC1155Votes {
     }
 
     function getPriorVotes(
-        address account, 
+        address account,
         uint256 id,
         uint256 timestamp
-    )
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    ) public view virtual returns (uint256) {
         if (block.timestamp <= timestamp) revert UNDETERMINED();
 
         uint256 nCheckpoints = numCheckpoints[account][id];
@@ -321,7 +352,12 @@ abstract contract ERC1155Votes {
 
         emit DelegateChanged(msg.sender, currentDelegate, delegatee, id);
 
-        _moveDelegates(currentDelegate, delegatee, id, balanceOf[msg.sender][id]);
+        _moveDelegates(
+            currentDelegate,
+            delegatee,
+            id,
+            balanceOf[msg.sender][id]
+        );
     }
 
     function _moveDelegates(
@@ -343,7 +379,13 @@ abstract contract ERC1155Votes {
                         : 0;
                 }
 
-                _writeCheckpoint(srcRep, id, srcRepNum, srcRepOld, srcRepOld - amount);
+                _writeCheckpoint(
+                    srcRep,
+                    id,
+                    srcRepNum,
+                    srcRepOld,
+                    srcRepOld - amount
+                );
             }
 
             if (dstRep != address(0)) {
@@ -358,7 +400,13 @@ abstract contract ERC1155Votes {
                         : 0;
                 }
 
-                _writeCheckpoint(dstRep, id, dstRepNum, dstRepOld, dstRepOld + amount);
+                _writeCheckpoint(
+                    dstRep,
+                    id,
+                    dstRepNum,
+                    dstRepOld,
+                    dstRepOld + amount
+                );
             }
         }
     }
@@ -379,9 +427,8 @@ abstract contract ERC1155Votes {
                 checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp ==
                 timestamp
             ) {
-                checkpoints[delegatee][id][nCheckpoints - 1].votes = _safeCastTo192(
-                    newVotes
-                );
+                checkpoints[delegatee][id][nCheckpoints - 1]
+                    .votes = _safeCastTo192(newVotes);
             } else {
                 checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
                     timestamp,
@@ -395,14 +442,19 @@ abstract contract ERC1155Votes {
 
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
     }
-    
+
     function _safeCastTo64(uint256 x) internal pure virtual returns (uint64 y) {
         if (x > 1 << 64) revert UINT64_MAX();
 
         y = uint64(x);
     }
 
-    function _safeCastTo192(uint256 x) internal pure virtual returns (uint192 y) {
+    function _safeCastTo192(uint256 x)
+        internal
+        pure
+        virtual
+        returns (uint192 y)
+    {
         if (x > 1 << 192) revert UINT192_MAX();
 
         y = uint192(x);
@@ -419,30 +471,37 @@ abstract contract ERC1155Votes {
         bytes calldata data
     ) internal virtual {
         totalSupply[id] += amount;
-        
+
         // cannot overflow because the sum of all user
-        // balances can't exceed the max uint256 value 
+        // balances can't exceed the max uint256 value
         unchecked {
             balanceOf[to][id] += amount;
         }
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
-        if (to.code.length == 0 ? to == address(0) :
-            ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) !=
-               ERC1155TokenReceiver.onERC1155Received.selector
+        if (
+            to.code.length == 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    amount,
+                    data
+                ) != ERC1155TokenReceiver.onERC1155Received.selector
         ) revert INVALID_RECIPIENT();
 
         _moveDelegates(address(0), delegates(to, id), id, amount);
     }
-    
+
     function _burn(
         address from,
         uint256 id,
         uint256 amount
     ) internal virtual {
         balanceOf[from][id] -= amount;
-        
+
         // cannot underflow because a user's balance
         // will never be larger than the total supply
         unchecked {
@@ -453,10 +512,13 @@ abstract contract ERC1155Votes {
 
         _moveDelegates(delegates(from, id), address(0), id, amount);
     }
-    
-    function _setTransferability(uint256 id, bool transferability) internal virtual {
+
+    function _setTransferability(uint256 id, bool transferability)
+        internal
+        virtual
+    {
         transferable[id] = transferability;
-        
+
         emit TransferabilitySet(msg.sender, id, transferability);
     }
 }

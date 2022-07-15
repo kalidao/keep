@@ -28,7 +28,7 @@ abstract contract Multicall {
             }
 
             results[i] = result;
-            
+
             // an array can't have a total length
             // larger than the max uint256 value
             unchecked {

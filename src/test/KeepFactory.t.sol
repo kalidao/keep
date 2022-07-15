@@ -24,7 +24,7 @@ contract KeepFactoryTest is Test {
 
     bytes32 name =
         0x5445535400000000000000000000000000000000000000000000000000000000;
-    
+
     bytes32 name2 =
         0x5445535432000000000000000000000000000000000000000000000000000000;
 
@@ -41,38 +41,19 @@ contract KeepFactoryTest is Test {
     }
 
     function testDeploy() public {
-        factory.deploy(
-            calls,
-            signers,
-            2,
-            name
-        );
+        factory.deploy(calls, signers, 2, name);
     }
-    
+
     function testDetermination() public {
-        (clubAddr, ) = factory.determine(name); 
+        (clubAddr, ) = factory.determine(name);
         clubSig = Keep(clubAddr);
-        factory.deploy(
-            calls,
-            signers,
-            2,
-            name
-        );
+        factory.deploy(calls, signers, 2, name);
         // check CREATE2 clones match expected outputs
         bool deployed;
         (clubAddr, deployed) = factory.determine(name);
-        assertEq(
-            address(clubSig),
-            clubAddr
-        );
-        assertEq(
-            deployed,
-            true
-        );
+        assertEq(address(clubSig), clubAddr);
+        assertEq(deployed, true);
         (, bool deployed2) = factory.determine(name2);
-        assertEq(
-            deployed2,
-            false
-        );
+        assertEq(deployed2, false);
     }
 }

@@ -3,7 +3,10 @@ pragma solidity >=0.8.4;
 
 /// @notice Keep interface
 interface IKeep {
-    function balanceOf(address account, uint256 id) external view returns (uint256);
+    function balanceOf(address account, uint256 id)
+        external
+        view
+        returns (uint256);
 
     function totalSupply(uint256 id) external view returns (uint256);
 
@@ -15,8 +18,8 @@ interface IKeep {
     ) external payable;
 
     function burn(
-        address from, 
-        uint256 id, 
+        address from,
+        uint256 id,
         uint256 amount
     ) external payable;
 }

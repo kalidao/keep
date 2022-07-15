@@ -30,16 +30,16 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
     /// -----------------------------------------------------------------------
 
     event RedemptionStartSet(
-        address indexed treasury, 
-        uint256 id, 
+        address indexed treasury,
+        uint256 id,
         uint256 redemptionStart
     );
 
     event Redeemed(
-        address indexed redeemer, 
-        address indexed treasury, 
-        address[] assets, 
-        uint256 id, 
+        address indexed redeemer,
+        address indexed treasury,
+        address[] assets,
+        uint256 id,
         uint256 redemption
     );
 
@@ -60,46 +60,42 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
     /// -----------------------------------------------------------------------
     /// CONFIGURATIONS
     /// -----------------------------------------------------------------------
-    
+
     /// @notice Redemption configuration for treasuries
     /// @param id The token ID to set redemption configuration for
     /// @param redemptionStart The unix timestamp at which redemption starts
-    function setRedemptionStart(uint256 id, uint256 redemptionStart) external payable {
+    function setRedemptionStart(uint256 id, uint256 redemptionStart)
+        external
+        payable
+    {
         redemptionStarts[msg.sender][id] = redemptionStart;
-        
+
         emit RedemptionStartSet(msg.sender, id, redemptionStart);
     }
 
     /// -----------------------------------------------------------------------
     /// REDEMPTIONS
     /// -----------------------------------------------------------------------
-    
+
     /// @notice Redemption option for treasury holders
     /// @param treasury Treasury contract address
     /// @param assets Array of assets to redeem out
     /// @param id The token ID to burn from
     /// @param redemption Amount of token ID to burn
     function redeem(
-        address treasury, 
-        address[] calldata assets, 
+        address treasury,
+        address[] calldata assets,
         uint256 id,
         uint256 redemption
-    )
-        external
-        payable
-    {
+    ) external payable {
         uint256 start = redemptionStarts[treasury][id];
-        
+
         if (start == 0 || block.timestamp < start) revert NOT_STARTED();
 
         uint256 supply = IKeep(treasury).totalSupply(id);
 
-        IKeep(treasury).burn(
-            msg.sender, 
-            id,
-            redemption
-        );
-        
+        IKeep(treasury).burn(msg.sender, id, redemption);
+
         address prevAddr;
 
         for (uint256 i; i < assets.length; ) {
@@ -115,10 +111,10 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
             );
 
             // transfer from treasury to redeemer
-            if (amountToRedeem != 0) 
+            if (amountToRedeem != 0)
                 assets[i].safeTransferFrom(
-                    treasury, 
-                    msg.sender, 
+                    treasury,
+                    msg.sender,
                     amountToRedeem
                 );
 
@@ -128,7 +124,7 @@ contract Redemption is ERC1155TokenReceiver, Multicall {
                 ++i;
             }
         }
-        
+
         emit Redeemed(msg.sender, treasury, assets, id, redemption);
     }
 }

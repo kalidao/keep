@@ -2,11 +2,7 @@
 pragma solidity >=0.8.4;
 
 /// @dev Contracts
-import {
-    Call, 
-    Multicall, 
-    Keep
-} from "./Keep.sol";
+import {Call, Multicall, Keep} from "./Keep.sol";
 
 /// @dev Libraries
 import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
@@ -33,7 +29,7 @@ contract KeepFactory is Multicall {
     /// -----------------------------------------------------------------------
     /// IMMUTABLES
     /// -----------------------------------------------------------------------
-    
+
     Keep internal immutable keepMaster;
 
     /// -----------------------------------------------------------------------
@@ -48,21 +44,17 @@ contract KeepFactory is Multicall {
     /// DEPLOYMENT LOGIC
     /// -----------------------------------------------------------------------
 
-    function determine(bytes32 name) public view virtual returns (
-        address keep, bool deployed
-    ) {   
-        (keep, deployed) = address(keepMaster).
-            predictDeterministicAddress
-                (
-                    name, 
-                    abi.encodePacked(
-                        name, 
-                        uint40(
-                            block.chainid
-                        )
-                    )
-                );
-    } 
+    function determine(bytes32 name)
+        public
+        view
+        virtual
+        returns (address keep, bool deployed)
+    {
+        (keep, deployed) = address(keepMaster).predictDeterministicAddress(
+            name,
+            abi.encodePacked(name, uint40(block.chainid))
+        );
+    }
 
     function deploy(
         Call[] calldata calls,
@@ -71,29 +63,14 @@ contract KeepFactory is Multicall {
         bytes32 name // salt
     ) public payable virtual {
         Keep keep = Keep(
-            address(keepMaster).clone
-                (
-                    name,
-                    abi.encodePacked(
-                        name, 
-                        uint40(
-                            block.chainid
-                        )
-                    )
-                )
-            );
-
-        keep.init{value: msg.value}(
-            calls,
-            signers,
-            threshold
+            address(keepMaster).clone(
+                name,
+                abi.encodePacked(name, uint40(block.chainid))
+            )
         );
 
-        emit Deployed(
-            calls,
-            signers,
-            threshold,
-            name
-        );
+        keep.init{value: msg.value}(calls, signers, threshold);
+
+        emit Deployed(calls, signers, threshold, name);
     }
 }

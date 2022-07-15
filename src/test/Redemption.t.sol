@@ -1,16 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {
-    Operation, 
-    Call, 
-    Signature, 
-    Keep
-} from "../Keep.sol";
+import {Operation, Call, Signature, Keep} from "../Keep.sol";
 import {Redemption} from "../extensions/redemption/Redemption.sol";
-import {
-    KeepFactory
-} from "../KeepFactory.sol";
+import {KeepFactory} from "../KeepFactory.sol";
 
 import {MockERC20} from "@solmate/test/utils/mocks/MockERC20.sol";
 
@@ -72,8 +65,8 @@ contract RedemptionTest is Test {
 
     function setUp() public {
         club = new Keep();
-        mockDai = new MockERC20('Dai', 'DAI', 18);
-        mockWeth = new MockERC20('wETH', 'WETH', 18);
+        mockDai = new MockERC20("Dai", "DAI", 18);
+        mockWeth = new MockERC20("wETH", "WETH", 18);
         redemption = new Redemption();
 
         // 1B mockDai!
@@ -87,31 +80,27 @@ contract RedemptionTest is Test {
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
-        signers[0] = alice > bob
-            ? bob
-            : alice;
-        signers[1] = alice > bob
-            ? alice
-            : bob;
+        signers[0] = alice > bob ? bob : alice;
+        signers[1] = alice > bob ? alice : bob;
 
-        (clubAddr, ) = factory.determine(name); 
+        (clubAddr, ) = factory.determine(name);
         club = Keep(clubAddr);
-        
+
         // The factory is fully tested in KeepFactory.t.sol
-        factory.deploy(
-            calls,
-            signers,
-            2,
-            name
-        );
+        factory.deploy(calls, signers, 2, name);
     }
 
     function testRedemption() public {
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(address(redemption), uint256(bytes32(club.burn.selector)), 1, "");
+        club.mint(
+            address(redemption),
+            uint256(bytes32(club.burn.selector)),
+            1,
+            ""
+        );
         club.mint(alice, 1, 100, "");
         vm.stopPrank();
-        
+
         assertTrue(club.balanceOf(alice, 1) == 100);
 
         mockDai.transfer(address(club), 100);
@@ -120,7 +109,7 @@ contract RedemptionTest is Test {
         mockDai.approve(address(redemption), 100);
         redemption.setRedemptionStart(1, 100);
         vm.stopPrank();
-        
+
         vm.warp(1641070800);
 
         address[] memory assets = new address[](1);
@@ -129,15 +118,20 @@ contract RedemptionTest is Test {
         startHoax(alice, alice, type(uint256).max);
         redemption.redeem(address(club), assets, 1, 100);
         vm.stopPrank();
-        
+
         assertTrue(club.balanceOf(alice, 1) == 0);
         assertTrue(club.totalSupply(1) == 0);
         assertTrue(mockDai.balanceOf(alice) == 100);
     }
-    
+
     function testMultiRedemption() public {
         startHoax(address(club), address(club), type(uint256).max);
-        club.mint(address(redemption), uint256(bytes32(club.burn.selector)), 1, "");
+        club.mint(
+            address(redemption),
+            uint256(bytes32(club.burn.selector)),
+            1,
+            ""
+        );
         club.mint(alice, 1, 100, "");
         vm.stopPrank();
 
