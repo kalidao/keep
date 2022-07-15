@@ -3,6 +3,11 @@
   "rules": {
     "compiler-version": ["error", ">=0.8.4"],
     "avoid-low-level-calls": "off",
-    "quotes": ["warn","double"]
+    "quotes": ["warn","double"],
+    "func-visibility": ["warn",{"ignoreConstructors":true}],
+    "func-name-mixedcase": "off",
+    "var-name-mixedcase": "off",
+    "not-rely-on-time": "off",
+    "no-inline-assembly": "off"
   }
 }
