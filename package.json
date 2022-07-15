@@ -1,11 +1,11 @@
 {
   "name": "multi-sig",
-  "version": "1",
+  "version": "1.0.0",
   "description": "Ethereum multisig contract with tokenized rights",
   "main": "index.js",
   "repository": "https://github.com/kalidao/multi-sig",
   "author": "KaliCo LLC <kalidao@protonmail.com>",
-  "license": "AGPL-3",
+  "license": "AGPL-3.0",
   "private": false,
   "scripts": {
     "prettier": "prettier --write 'src/**/*.sol'",
@@ -13,12 +13,12 @@
     "prettier:check": "prettier --check 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
     "solhint:check": "solhint --config ./.solhint.json 'src/**/*.sol'",
-    "lint": "npm run prettier && npm run solhint",
-    "lint:check": "npm run prettier:check && npm run solhint:check",
+    "lint": "yarn run prettier && yarn run solhint",
+    "lint:check": "yarn run prettier:check && yarn run solhint:check",
     "clean": "forge clean",
-    "setup": "forge clean && forge build --optimize --optimize-runs 9999999",
+    "setup": "forge clean && forge build --optimize --optimizer-runs 9999999",
     "sync": "forge update",
-    "test": "forge clean && forge test --optimize --optimize-runs 9999999 -vvv",
+    "test": "forge clean && forge test --optimize --optimizer-runs 9999999 -vvv",
     "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 9999999"
   },
   "dependencies": {
