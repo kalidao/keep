@@ -7,9 +7,9 @@ pragma solidity >=0.8.4;
 library ClonesWithImmutableArgs {
     error CREATE2_FAILED();
 
-    uint256 private constant FREE_MEMORY_POINTER_SLOT = 0x40;
-    uint256 private constant BOOTSTRAP_LENGTH = 0x3f;
-    uint256 private constant ONE_WORD = 0x20;
+    uint256 internal constant FREE_MEMORY_POINTER_SLOT = 0x40;
+    uint256 internal constant BOOTSTRAP_LENGTH = 0x3f;
+    uint256 internal constant ONE_WORD = 0x20;
 
     /// @notice Creates a clone proxy of the implementation contract with immutable args
     /// @dev `data` cannot exceed 65535 bytes, since 2 bytes are used to store the data length
