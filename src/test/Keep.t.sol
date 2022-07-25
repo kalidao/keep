@@ -146,7 +146,7 @@ contract KeepTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        club = new Keep();
+        club = new Keep(alice);
         mockDai = new MockERC20("Dai", "DAI", 18);
         chainId = block.chainid;
 
@@ -174,7 +174,7 @@ contract KeepTest is Test {
     /// @notice Check setup malconditions
 
     function testRepeatClubSetup() public {
-        clubRepeat = new Keep();
+        clubRepeat = new Keep(alice);
 
         // Create the Signer[]
         address[] memory signers = new address[](2);
