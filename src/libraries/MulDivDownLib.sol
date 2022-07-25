@@ -8,7 +8,7 @@ library MulDivDownLib {
         uint256 x,
         uint256 y,
         uint256 denominator
-    ) internal pure returns (uint256 z) {
+    ) internal pure virtual returns (uint256 z) {
         assembly {
             // store x * y in z for now
             z := mul(x, y)
