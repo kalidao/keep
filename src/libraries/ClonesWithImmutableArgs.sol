@@ -20,7 +20,6 @@ library ClonesWithImmutableArgs {
     function cloneCreationCode(address implementation, bytes memory data)
         internal
         pure
-        virtual
         returns (uint256 ptr, uint256 creationSize)
     {
         assembly {
@@ -91,7 +90,7 @@ library ClonesWithImmutableArgs {
         address implementation,
         bytes32 salt,
         bytes memory data
-    ) internal virtual returns (address payable instance) {
+    ) internal returns (address payable instance) {
         (uint256 creationPtr, uint256 creationSize) = cloneCreationCode(
             implementation,
             data
@@ -118,7 +117,7 @@ library ClonesWithImmutableArgs {
         address implementation,
         bytes32 salt,
         bytes memory data
-    ) internal view virtual returns (address predicted, bool exists) {
+    ) internal view returns (address predicted, bool exists) {
         (uint256 creationPtr, uint256 creationSize) = cloneCreationCode(
             implementation,
             data
