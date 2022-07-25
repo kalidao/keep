@@ -11,7 +11,7 @@ library SafeTransferLib {
         address from,
         address to,
         uint256 amount
-    ) internal virtual {
+    ) internal {
         assembly {
             // we'll write our calldata to this slot below, but restore it later
             let memPointer := mload(0x40)
