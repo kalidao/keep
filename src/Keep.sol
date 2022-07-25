@@ -108,7 +108,7 @@ contract Keep is
         tokenURI = _uris[id];
         
         if (bytes(tokenURI).length == 0) return uriFetcher.uri(id); 
-        else return _uris[id];
+        else return tokenURI;
     }
 
     /// @notice Access control for ID balance owners
