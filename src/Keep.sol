@@ -7,7 +7,7 @@ import {IERC1271} from "./interfaces/IERC1271.sol";
 /// @dev Contracts
 import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
 import {ERC1155TokenReceiver, ERC1155Votes} from "./ERC1155Votes.sol";
-import {Multicall} from "./utils/Multicall.sol";
+import {Multicallable} from "./utils/Multicallable.sol";
 
 /// @title Keep
 /// @notice EIP-712 multi-sig with ERC-1155 interface
@@ -37,7 +37,7 @@ contract Keep is
     ERC721TokenReceiver,
     ERC1155TokenReceiver,
     ERC1155Votes,
-    Multicall
+    Multicallable
 {
     /// -----------------------------------------------------------------------
     /// EVENTS

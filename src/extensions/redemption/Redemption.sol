@@ -11,12 +11,12 @@ import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 
 /// @dev Contracts
 import {ERC1155TokenReceiver} from "../../ERC1155Votes.sol";
-import {Multicall} from "../../utils/Multicall.sol";
+import {Multicallable} from "../../utils/Multicallable.sol";
 
 /// @title Redemption
 /// @notice Fair share redemptions for burnt treasury tokens
 /// @dev Based on Moloch DAO ragequit()
-contract Redemption is ERC1155TokenReceiver, Multicall {
+contract Redemption is ERC1155TokenReceiver, Multicallable {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
