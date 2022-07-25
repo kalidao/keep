@@ -75,6 +75,9 @@ contract Keep is
     /// -----------------------------------------------------------------------
     /// KEEP STORAGE/LOGIC
     /// -----------------------------------------------------------------------
+    
+    /// @notice Default metadata reference for uri()
+    Keep internal uriFetcher;
 
     /// @notice Record of states for verifying execute()
     uint64 public nonce;
@@ -94,15 +97,18 @@ contract Keep is
 
     /// @notice ID metadata fetcher
     /// @param id ID to fetch from
-    /// @return URI ID metadata reference
+    /// @return tokenURI ID metadata reference
     function uri(uint256 id)
         public
         view
         virtual
         override
-        returns (string memory)
+        returns (string memory tokenURI)
     {
-        return _uris[id];
+        tokenURI = _uris[id];
+        
+        if (bytes(tokenURI).length == 0) return uriFetcher.uri(id); 
+        else return _uris[id];
     }
 
     /// @notice Access control for ID balance owners
@@ -119,8 +125,8 @@ contract Keep is
     /// -----------------------------------------------------------------------
 
     /// @notice ERC-165 interface detection
-    /// @param interfaceId Interface ID to check
-    /// @return Interface Fetch detection success
+    /// @param interfaceId ID to check
+    /// @return Fetch detection success
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -185,7 +191,13 @@ contract Keep is
     /// -----------------------------------------------------------------------
     /// INITIALIZATION LOGIC
     /// -----------------------------------------------------------------------
-
+    
+    /// @notice Create Keep master
+    /// @param _uriFetcher Metadata default
+    constructor(Keep _uriFetcher) {
+        uriFetcher = _uriFetcher;
+    }
+        
     /// @notice Initialize Keep configuration
     /// @param calls Initial Keep operations
     /// @param signers Initial signer set

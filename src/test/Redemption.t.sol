@@ -64,7 +64,7 @@ contract RedemptionTest is Test {
     /// @notice Set up the testing suite
 
     function setUp() public {
-        club = new Keep();
+        club = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockWeth = new MockERC20("wETH", "WETH", 18);
         redemption = new Redemption();

@@ -32,7 +32,7 @@ contract KeepFactoryTest is Test {
 
     function setUp() public {
         // create the templates
-        clubSig = new Keep();
+        clubSig = new Keep(Keep(alice));
         // create the factory
         factory = new KeepFactory(clubSig);
         // Create the signers
