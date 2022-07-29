@@ -16,8 +16,8 @@ src
 ├─ tests
 │  └─ ...
 ├─ ERC1155votes — "Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting and default non-transferability"
-├─ KaliClub — "EIP-712 multi-sig with ERC-1155 interface"
-└─ KaliClubFactory — "Kali Club Factory"
+├─ Keep — "EIP-712 multi-sig with ERC-1155 interface"
+└─ KeepFactory — "Keep Factory"
 ```
 
 ## Development
