@@ -2,7 +2,7 @@
 pragma solidity >=0.8.4;
 
 /// @notice Arithmetic library for mulDivDown
-/// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/FixedPointMathLib.sol)
+/// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/utils/FixedPointMathLib.sol)
 library MulDivDownLib {
     function mulDivDown(
         uint256 x,
@@ -14,12 +14,7 @@ library MulDivDownLib {
             z := mul(x, y)
 
             // equivalent to require(denominator != 0 && (x == 0 || (x * y) / x == y))
-            if iszero(
-                and(
-                    iszero(iszero(denominator)),
-                    or(iszero(x), eq(div(z, x), y))
-                )
-            ) {
+            if iszero(and(iszero(iszero(denominator)), or(iszero(x), eq(div(z, x), y)))) {
                 revert(0, 0)
             }
 
