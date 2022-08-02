@@ -82,7 +82,7 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
     /// @param id The token ID to burn from
     /// @param redemption Amount of token ID to burn
     function redeem(
-        IKeep treasury,
+        address treasury,
         address[] calldata assets,
         uint256 id,
         uint256 redemption
@@ -90,9 +90,9 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
         if (block.timestamp < redemptionStarts[treasury][id]) 
             revert NOT_STARTED();
 
-        uint256 supply = treasury.totalSupply(id);
+        uint256 supply = IKeep(treasury).totalSupply(id);
 
-        treasury.burn(msg.sender, id, redemption);
+        IKeep(treasury).burn(msg.sender, id, redemption);
 
         address prevAddr;
 
@@ -102,9 +102,9 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
 
             prevAddr = assets[i];
 
-            // calculate fair share of given ERC-20 assets for redemption
+            // calculate fair share of given assets for redemption
             uint256 amountToRedeem = redemption.mulDivDown(
-                IERC20Balances(assets[i]).balanceOf(address(treasury)),
+                IERC20Balances(assets[i]).balanceOf(treasury),
                 supply
             );
 
