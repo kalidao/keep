@@ -38,9 +38,7 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
     event Redeemed(
         address indexed redeemer,
         address indexed treasury,
-        address[] assets,
-        uint256 id,
-        uint256 redemption
+        address[] assets
     );
 
     /// -----------------------------------------------------------------------
@@ -65,8 +63,9 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
     /// @param id The token ID to set redemption configuration for
     /// @param redemptionStart The unix timestamp at which redemption starts
     function setRedemptionStart(uint256 id, uint256 redemptionStart)
-        external
+        public
         payable
+        virtual
     {
         redemptionStarts[msg.sender][id] = redemptionStart;
 
@@ -87,10 +86,9 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
         address[] calldata assets,
         uint256 id,
         uint256 redemption
-    ) external payable {
-        uint256 start = redemptionStarts[treasury][id];
-
-        if (start == 0 || block.timestamp < start) revert NOT_STARTED();
+    ) public payable virtual {
+        if (block.timestamp < redemptionStarts[treasury][id]) 
+            revert NOT_STARTED();
 
         uint256 supply = IKeep(treasury).totalSupply(id);
 
@@ -125,6 +123,6 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
             }
         }
 
-        emit Redeemed(msg.sender, treasury, assets, id, redemption);
+        emit Redeemed(msg.sender, treasury, assets);
     }
 }
