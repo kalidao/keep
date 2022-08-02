@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-/// @notice Contract that enables a single call to call multiple methods on itself.
+/// @notice Contract that enables a single call to call multiple methods on itself
 /// @author Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/Multicallable.sol)
 /// @dev Note that combining multicall() with msg.value can cause double-spend issues
 /// (https://www.paradigm.xyz/2021/08/two-rights-might-make-a-wrong/)
