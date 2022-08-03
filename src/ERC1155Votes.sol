@@ -119,8 +119,8 @@ abstract contract ERC1155Votes {
         public checkpoints;
 
     struct Checkpoint {
-        uint64 fromTimestamp;
-        uint192 votes;
+        uint40 fromTimestamp;
+        uint216 votes;
     }
 
     /// -----------------------------------------------------------------------
@@ -443,21 +443,21 @@ abstract contract ERC1155Votes {
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
     }
 
-    function _safeCastTo64(uint256 x) internal pure virtual returns (uint64 y) {
-        if (x > 1 << 64) revert UINT64_MAX();
+    function _safeCastTo40(uint256 x) internal pure virtual returns (uint40 y) {
+        if (x > 1 << 40) revert UINT40_MAX();
 
-        y = uint64(x);
+        y = uint40(x);
     }
 
-    function _safeCastTo192(uint256 x)
+    function _safeCastTo216(uint256 x)
         internal
         pure
         virtual
-        returns (uint192 y)
+        returns (uint216 y)
     {
-        if (x > 1 << 192) revert UINT192_MAX();
+        if (x > 1 << 216) revert UINT216_MAX();
 
-        y = uint192(x);
+        y = uint216(x);
     }
 
     /// -----------------------------------------------------------------------
