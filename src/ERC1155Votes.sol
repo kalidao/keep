@@ -72,7 +72,7 @@ abstract contract ERC1155Votes {
     event TransferabilitySet(
         address indexed operator,
         uint256 indexed id,
-        bool transferability
+        bool set
     );
 
     event URI(string value, uint256 indexed id);
@@ -513,12 +513,12 @@ abstract contract ERC1155Votes {
         _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 
-    function _setTransferability(uint256 id, bool transferability)
+    function _setTransferability(uint256 id, bool set)
         internal
         virtual
     {
-        transferable[id] = transferability;
+        transferable[id] = set;
 
-        emit TransferabilitySet(msg.sender, id, transferability);
+        emit TransferabilitySet(msg.sender, id, set);
     }
 }
