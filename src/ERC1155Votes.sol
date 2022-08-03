@@ -419,7 +419,7 @@ abstract contract ERC1155Votes {
         uint256 newVotes
     ) internal virtual {
         unchecked {
-            uint64 timestamp = _safeCastTo64(block.timestamp);
+            uint64 timestamp = _safeCastTo40(block.timestamp);
 
             // won't underflow because decrement only occurs if positive `nCheckpoints`
             if (
@@ -428,11 +428,11 @@ abstract contract ERC1155Votes {
                 timestamp
             ) {
                 checkpoints[delegatee][id][nCheckpoints - 1]
-                    .votes = _safeCastTo192(newVotes);
+                    .votes = _safeCastTo216(newVotes);
             } else {
                 checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
                     timestamp,
-                    _safeCastTo192(newVotes)
+                    _safeCastTo216(newVotes)
                 );
 
                 // won't realistically overflow
