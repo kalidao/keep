@@ -458,7 +458,7 @@ contract Keep is
 
         _mint(to, id, amount, data);
 
-        _safeCastTo192(totalSupply[id]);
+        _safeCastTo216(totalSupply[id]);
     }
 
     /// @notice ID burner
