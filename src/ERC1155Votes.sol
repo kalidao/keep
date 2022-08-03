@@ -91,9 +91,9 @@ abstract contract ERC1155Votes {
 
     error UNDETERMINED();
 
-    error UINT64_MAX();
+    error UINT40_MAX();
 
-    error UINT192_MAX();
+    error UINT216_MAX();
 
     /// -----------------------------------------------------------------------
     /// ERC-1155 STORAGE
