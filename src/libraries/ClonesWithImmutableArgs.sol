@@ -5,7 +5,7 @@ pragma solidity >=0.8.4;
 /// @author Modified from wighawag, zefram.eth, Saw-mon & Natalie, will@0xsplits.xyz
 /// (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
 library ClonesWithImmutableArgs {
-    error CreateFail();
+    error CREATE2_FAILED();
 
     uint256 private constant FREE_MEMORY_POINTER_SLOT = 0x40;
     uint256 private constant BOOTSTRAP_LENGTH = 0x6f;
