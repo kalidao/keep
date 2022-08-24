@@ -457,8 +457,6 @@ contract Keep is
         _authorized();
 
         _mint(to, id, amount, data);
-
-        _safeCastTo216(totalSupply[id]);
     }
 
     /// @notice ID burner
