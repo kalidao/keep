@@ -418,20 +418,18 @@ abstract contract ERC1155Votes {
         uint256 oldVotes,
         uint256 newVotes
     ) internal virtual {
+        // won't underflow because decrement only occurs if positive `nCheckpoints`
         unchecked {
-            uint40 timestamp = _safeCastTo40(block.timestamp);
-
-            // won't underflow because decrement only occurs if positive `nCheckpoints`
             if (
                 nCheckpoints != 0 &&
                 checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp ==
-                timestamp
+                block.timestamp
             ) {
                 checkpoints[delegatee][id][nCheckpoints - 1]
                     .votes = _safeCastTo216(newVotes);
             } else {
                 checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
-                    timestamp,
+                    _safeCastTo40(block.timestamp),
                     _safeCastTo216(newVotes)
                 );
 
@@ -444,7 +442,7 @@ abstract contract ERC1155Votes {
     }
 
     function _safeCastTo40(uint256 x) internal pure virtual returns (uint40 y) {
-        if (x > 1 << 40) revert UINT40_MAX();
+        if (x > type(uint40).max) revert UINT40_MAX();
 
         y = uint40(x);
     }
@@ -455,7 +453,7 @@ abstract contract ERC1155Votes {
         virtual
         returns (uint216 y)
     {
-        if (x > 1 << 216) revert UINT216_MAX();
+        if (x > type(uint216).max) revert UINT216_MAX();
 
         y = uint216(x);
     }
@@ -470,7 +468,7 @@ abstract contract ERC1155Votes {
         uint256 amount,
         bytes calldata data
     ) internal virtual {
-        totalSupply[id] += amount;
+        _safeCastTo216(totalSupply[id] + amount);
 
         // cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value
