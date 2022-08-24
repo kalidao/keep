@@ -28,7 +28,7 @@ library SafeTransferLib {
                     // returned exactly 1 (can't just be non-zero data), or had no return data
                     or(eq(mload(0x00), 1), iszero(returndatasize())),
                     // we use 0x64 because that's the total length of our calldata (0x04 + 0x20 * 3)
-                    // counterintuitively, this call() must be positioned after the or() in the
+                    // - counterintuitively, this call() must be positioned after the or() in the
                     // surrounding and() because and() evaluates its arguments from right to left
                     call(gas(), token, 0, 0x1c, 0x64, 0x00, 0x20)
                 )
