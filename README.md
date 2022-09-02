@@ -1,6 +1,6 @@
-<img align="right" width="150" height="150" top="0" src="./assets/KALI_K.jpg">
+<img align="right" width="150" height="150" top="0" src="./assets/SPORTSCLUB.jpg">
 
-# multi-sig • [![tests](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/multi-sig) ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/multi-sig) ![Solidity version](https://img.shields.io/badge/solidity-%3E%3D%200.8.4-lightgrey)
+# multi-sig • [![tests](https://github.com/SportsmanagerDAO/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/SportsmanagerDAO/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/SportsmanagerDAO/multi-sig) ![GitHub package.json version](https://img.shields.io/github/package-json/v/SportsmanagerDAO/multi-sig) ![Solidity version](https://img.shields.io/badge/solidity-%3E%3D%200.8.4-lightgrey)
 
 EIP-712 multi-sig with ERC-1155 interface 
 
@@ -22,7 +22,7 @@ src
 
 ## Development
 
-[multi-sig](https://github.com/kalidao/multi-sig) is built with [Foundry](https://github.com/gakonst/foundry).
+[multi-sig](https://github.com/SportsmanagerDAO/multi-sig) is built with [Foundry](https://github.com/gakonst/foundry).
 
 **Setup**
 ```bash
