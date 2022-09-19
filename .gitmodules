@@ -7,3 +7,6 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/rari-capital/solmate
+[submodule "lib/solbase"]
+	path = lib/solbase
+	url = https://github.com/Sol-DAO/solbase
