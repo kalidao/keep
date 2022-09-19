@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-/// @notice Safe ERC-20 transfer library that gracefully handles missing return values
+/// @notice Safe ERC-20 transfer library that gracefully handles missing return values.
 /// @author Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/SafeTransferLib.sol)
 library SafeTransferLib {
     error TransferFromFailed();

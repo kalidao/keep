@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-/// @notice Arithmetic library for mulDivDown
+/// @notice Arithmetic library for mulDivDown.
 /// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/utils/FixedPointMathLib.sol)
 library MulDivDownLib {
     function mulDivDown(

@@ -1,16 +1,16 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-/// @dev Interfaces
+/// @dev Interfaces.
 import {IERC1271} from "./interfaces/IERC1271.sol";
 
-/// @dev Contracts
+/// @dev Contracts.
 import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
-import {ERC1155TokenReceiver, ERC1155Votes} from "./ERC1155Votes.sol";
-import {Multicallable} from "./utils/Multicallable.sol";
+import {ERC1155TokenReceiver, ERC1155V} from "./ERC1155V.sol";
+import {Multicallable} from "@solbase/utils/Multicallable.sol";
 
 /// @title Keep
-/// @notice EIP-712 multi-sig with ERC-1155 interface
+/// @notice EIP-712 multi-sig with ERC-1155 interface.
 /// @author Modified from LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 
 enum Operation {
@@ -36,68 +36,68 @@ struct Signature {
 contract Keep is
     ERC721TokenReceiver,
     ERC1155TokenReceiver,
-    ERC1155Votes,
+    ERC1155V,
     Multicallable
 {
     /// -----------------------------------------------------------------------
     /// EVENTS
     /// -----------------------------------------------------------------------
 
-    /// @notice Emitted when Keep executes call
+    /// @notice Emitted when Keep executes call.
     event Executed(Operation op, address indexed to, uint256 value, bytes data);
 
-    /// @notice Emitted when Keep creates contract
+    /// @notice Emitted when Keep creates contract.
     event ContractCreated(
         Operation op,
         address indexed creation,
         uint256 value
     );
 
-    /// @notice Emitted when quorum threshold is updated
+    /// @notice Emitted when quorum threshold is updated.
     event QuorumSet(address indexed caller, uint256 threshold);
 
     /// -----------------------------------------------------------------------
     /// ERRORS
     /// -----------------------------------------------------------------------
 
-    /// @notice Throws if init() is called more than once
+    /// @notice Throws if init() is called more than once.
     error ALREADY_INIT();
 
-    /// @notice Throws if quorum exceeds totalSupply(EXECUTE_ID)
+    /// @notice Throws if quorum exceeds totalSupply(EXECUTE_ID).
     error QUORUM_OVER_SUPPLY();
 
-    /// @notice Throws if signature doesn't verify execute()
+    /// @notice Throws if signature doesn't verify execute().
     error INVALID_SIG();
 
-    /// @notice Throws if execute() doesn't complete operation
+    /// @notice Throws if execute() doesn't complete operation.
     error EXECUTE_FAILED();
 
     /// -----------------------------------------------------------------------
     /// KEEP STORAGE/LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Default metadata reference for uri()
+    /// @notice Default metadata reference for `uri()`.
     Keep internal uriFetcher;
 
-    /// @notice Record of states for verifying execute()
+    /// @notice Record of states for verifying `execute()`.
     uint64 public nonce;
 
-    /// @notice EXECUTE_ID threshold to execute()
+    /// @notice EXECUTE_ID threshold to `execute()`.
     uint64 public quorum;
 
-    /// @notice init() Keep domain value
+    /// @notice `init()` Keep domain value.
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
-    /// @notice execute() ID permission
+    /// @notice `execute()` ID permission.
     uint256 internal constant EXECUTE_ID =
         uint256(bytes32(this.execute.selector));
 
-    /// @notice ID metadata tracking
+    /// @notice ID metadata tracking.
     mapping(uint256 => string) internal _uris;
 
-    /// @notice ID metadata fetcher
-    /// @param id ID to fetch from
-    /// @return tokenURI ID metadata reference
+    /// @notice ID metadata fetcher.
+    /// @param id ID to fetch from.
+    /// @return tokenURI ID metadata reference.
     function uri(uint256 id)
         public
         view
@@ -111,7 +111,7 @@ contract Keep is
         else return tokenURI;
     }
 
-    /// @notice Access control for ID balance owners
+    /// @notice Access control for ID balance owners.
     function _authorized() internal view virtual returns (bool) {
         if (
             msg.sender == address(this) ||
@@ -124,9 +124,9 @@ contract Keep is
     /// ERC-165 LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice ERC-165 interface detection
-    /// @param interfaceId ID to check
-    /// @return Fetch detection success
+    /// @notice ERC-165 interface detection.
+    /// @param interfaceId ID to check.
+    /// @return Fetch detection success.
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -135,9 +135,9 @@ contract Keep is
         returns (bool)
     {
         return
-            interfaceId == this.onERC721Received.selector || // ERC-165 Interface ID for ERC721TokenReceiver
-            interfaceId == 0x4e2312e0 || // ERC-165 Interface ID for ERC1155TokenReceiver
-            super.supportsInterface(interfaceId); // ERC-165 Interface IDs for ERC-1155
+            interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
+            interfaceId == 0x4e2312e0 || // ERC165 Interface ID for ERC1155TokenReceiver.
+            super.supportsInterface(interfaceId); // ERC165 Interface IDs for ERC1155.
     }
 
     /// -----------------------------------------------------------------------
@@ -192,16 +192,16 @@ contract Keep is
     /// INITIALIZATION LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Create Keep master
-    /// @param _uriFetcher Metadata default
+    /// @notice Create Keep master.
+    /// @param _uriFetcher Metadata default.
     constructor(Keep _uriFetcher) {
         uriFetcher = _uriFetcher;
     }
         
-    /// @notice Initialize Keep configuration
-    /// @param calls Initial Keep operations
-    /// @param signers Initial signer set
-    /// @param threshold Initial quorum
+    /// @notice Initialize Keep configuration.
+    /// @param calls Initial Keep operations.
+    /// @param signers Initial signer set.
+    /// @param threshold Initial quorum.
     function init(
         Call[] calldata calls,
         address[] calldata signers,
@@ -235,7 +235,9 @@ contract Keep is
         }
 
         address signer;
+
         address previous;
+
         uint256 supply;
 
         for (uint256 i; i < signers.length; ) {
@@ -261,8 +263,11 @@ contract Keep is
         }
 
         nonce = 1;
+
         quorum = uint64(threshold);
+
         totalSupply[EXECUTE_ID] = supply;
+
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 

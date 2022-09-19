@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-/// @notice Enables creating clone contracts with immutable arguments
+/// @notice Enables creating clone contracts with immutable arguments.
 /// @author Modified from wighawag, zefram.eth, Saw-mon & Natalie, will@0xsplits.xyz
 /// (https://github.com/wighawag/clones-with-immutable-args/blob/master/src/ClonesWithImmutableArgs.sol)
 library ClonesWithImmutableArgs {
@@ -15,20 +15,20 @@ library ClonesWithImmutableArgs {
     uint256 private constant RECEIVE_EVENT_SIG =
         0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff;
 
-    /// @notice Creates a clone proxy of the implementation contract with immutable args
-    /// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length
-    /// @param implementation The implementation contract to clone
-    /// @param data Encoded immutable args
-    /// @return ptr The ptr to the clone's bytecode
-    /// @return creationSize The size of the clone to be created
+    /// @notice Creates a clone proxy of the implementation contract with immutable args.
+    /// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length.
+    /// @param implementation The implementation contract to clone.
+    /// @param data Encoded immutable args.
+    /// @return ptr The ptr to the clone's bytecode.
+    /// @return creationSize The size of the clone to be created.
     function cloneCreationCode(address implementation, bytes memory data)
         internal
         pure
         returns (uint256 ptr, uint256 creationSize)
     {
-        // unrealistic for memory ptr or data length to exceed 256 bits
+        // Unrealistic for memory ptr or data length to exceed 256 bits.
         assembly {
-            let extraLength := add(mload(data), 2) // +2 bytes for telling how much data there is appended to the call
+            let extraLength := add(mload(data), 2) // +2 bytes for telling how much data there is appended to the call.
             creationSize := add(extraLength, BOOTSTRAP_LENGTH)
             let runSize := sub(creationSize, 0x0a)
 
@@ -38,32 +38,32 @@ library ClonesWithImmutableArgs {
             mstore(
                 ptr,
                 or(
-                    hex"6100003d81600a3d39f336602f57343d527f", // 18 bytes
+                    hex"6100003d81600a3d39f336602f57343d527f", // 18 bytes.
                     shl(0xe8, runSize)
                 )
             )
 
             mstore(
-                   add(ptr, 0x12), // 0x0 + 0x12
+                   add(ptr, 0x12), // 0x0 + 0x12.
                 RECEIVE_EVENT_SIG // 32 bytes
             )
 
             mstore(
-                   add(ptr, 0x32), // 0x12 + 0x20
+                   add(ptr, 0x32), // 0x12 + 0x20.
                 or(
-                    hex"60203da13d3df35b363d3d373d3d3d3d610000806000363936013d73", // 28 bytes
+                    hex"60203da13d3df35b363d3d373d3d3d3d610000806000363936013d73", // 28 bytes.
                     or(shl(0x68, extraLength), shl(0x50, RUNTIME_BASE))
                 )
             )
 
             mstore(
-                   add(ptr, 0x4e), // 0x32 + 0x1c
+                   add(ptr, 0x4e), // 0x32 + 0x1c.
                 shl(0x60, implementation) // 20 bytes
             )
 
             mstore(
-                   add(ptr, 0x62), // 0x4e + 0x14
-                hex"5af43d3d93803e606357fd5bf3" // 13 bytes
+                   add(ptr, 0x62), // 0x4e + 0x14.
+                hex"5af43d3d93803e606357fd5bf3" // 13 bytes.
             )
 
             let counter := mload(data)
@@ -87,17 +87,17 @@ library ClonesWithImmutableArgs {
             copyPtr := add(copyPtr, counter)
             mstore(copyPtr, shl(0xf0, extraLength))
 
-            // update free memory pointer
+            // Update free memory pointer.
             mstore(FREE_MEMORY_POINTER_SLOT, add(ptr, creationSize))
         }
     }
 
-    /// @notice Creates a clone proxy of the implementation contract with immutable args
-    /// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length
-    /// @param implementation The implementation contract to clone
-    /// @param salt The salt for create2
-    /// @param data Encoded immutable args
-    /// @return instance The address of the created clone
+    /// @notice Creates a clone proxy of the implementation contract with immutable args.
+    /// @dev Data cannot exceed 65535 bytes, since 2 bytes are used to store the data length.
+    /// @param implementation The implementation contract to clone.
+    /// @param salt The salt for create2.
+    /// @param data Encoded immutable args.
+    /// @return instance The address of the created clone.
     function clone(
         address implementation,
         bytes32 salt,
@@ -112,18 +112,18 @@ library ClonesWithImmutableArgs {
             instance := create2(0, creationPtr, creationSize, salt)
         }
         
-        // if create2 failed, the instance address won't be set
+        // If create2 failed, the instance address won't be set.
         if (instance == address(0)) {
             revert CREATE2_FAILED();
         }
     }
 
-    /// @notice Predicts the address where a deterministic clone of implementation will be deployed
-    /// @param implementation The implementation contract to clone
-    /// @param salt The salt for create2
-    /// @param data Encoded immutable args
-    /// @return predicted The predicted address of the created clone
-    /// @return exists Whether the clone already exists
+    /// @notice Predicts the address where a deterministic clone of implementation will be deployed.
+    /// @param implementation The implementation contract to clone.
+    /// @param salt The salt for create2.
+    /// @param data Encoded immutable args.
+    /// @return predicted The predicted address of the created clone.
+    /// @return exists Whether the clone already exists.
     function predictDeterministicAddress(
         address implementation,
         bytes32 salt,

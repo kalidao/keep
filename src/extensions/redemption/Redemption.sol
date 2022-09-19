@@ -10,8 +10,8 @@ import {MulDivDownLib} from "../../libraries/MulDivDownLib.sol";
 import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
 
 /// @dev Contracts
-import {ERC1155TokenReceiver} from "../../ERC1155Votes.sol";
-import {Multicallable} from "../../utils/Multicallable.sol";
+import {ERC1155TokenReceiver} from "../../ERC1155V.sol";
+import {Multicallable} from "@solbase/utils/Multicallable.sol";
 
 /// @title Redemption
 /// @notice Fair share redemptions for burnt treasury tokens

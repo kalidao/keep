@@ -20,7 +20,7 @@ fuzz_runs = 1_000
 remappings = [
   '@ds=lib/ds-test/src/',
   '@std=lib/forge-std/src/',
-  '@solmate=lib/solmate/src/'
+  '@solbase=lib/solbase/src/'
 ]
 
 # Extreme Fuzzing CI Profile :P
