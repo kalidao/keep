@@ -7,13 +7,15 @@ import {
     Signature, 
     Keep
 } from "../Keep.sol";
+import {ERC1155TokenReceiver} from "../Keep.sol";
 import {KeepFactory} from "../KeepFactory.sol";
 
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
+import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 
 import "@std/Test.sol";
 
-contract KeepTest is Test {
+contract KeepTest is Test, ERC1155TokenReceiver {
     using stdStorage for StdStorage;
 
     address clubAddr;
@@ -22,10 +24,11 @@ contract KeepTest is Test {
     Keep clubRepeat;
     KeepFactory factory;
     MockERC20 mockDai;
+    MockERC721 mockNFT;
 
     uint256 internal EXECUTE_ID;
 
-    /// @dev Users
+    /// @dev Users.
 
     uint256 immutable alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
@@ -44,7 +47,7 @@ contract KeepTest is Test {
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
     address public immutable nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
 
-    /// @dev Helpers
+    /// @dev Helpers.
 
     Call[] calls;
 
@@ -153,75 +156,78 @@ contract KeepTest is Test {
     function setUp() public {
         club = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
+        mockNFT = new MockERC721("NFT", "NFT");
         chainId = block.chainid;
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
 
-        // Create the factory
+        mockNFT.mint(address(this), 1);
+
+        // Create the factory.
         factory = new KeepFactory(club);
 
-        // Create the Signer[]
+        // Create the Signer[].
         address[] memory signers = new address[](2);
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
-        (clubAddr, ) = factory.determine(name);
+        clubAddr = factory.determineKeep(name);
         club = Keep(clubAddr);
-        // The factory is fully tested in KeepFactory.t.sol
-        factory.deploy(calls, signers, 2, name);
+        // The factory is fully tested in KeepFactory.t.sol.
+        factory.deployKeep(calls, signers, 2, name);
 
         EXECUTE_ID = uint256(bytes32(club.execute.selector));
 
         mockDai.approve(address(club), type(uint256).max);
     }
 
-    /// @notice Check setup malconditions
+    /// @notice Check setup malconditions.
 
     function testRepeatClubSetup() public {
         clubRepeat = new Keep(Keep(alice));
 
-        // Create the Signer[]
+        // Create the Signer[].
         address[] memory signers = new address[](2);
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
-        (clubAddrRepeat, ) = factory.determine(name2);
+        clubAddrRepeat = factory.determineKeep(name2);
         clubRepeat = Keep(clubAddrRepeat);
-        factory.deploy(calls, signers, 2, name2);
+        factory.deployKeep(calls, signers, 2, name2);
 
         vm.expectRevert(bytes4(keccak256("ALREADY_INIT()")));
-        clubRepeat.init(calls, signers, 2);
+        clubRepeat.initialize(calls, signers, 2);
     }
 
     function testZeroQuorumSetup() public {
-        // Create the Signer[]
+        // Create the Signer[].
         address[] memory signers = new address[](2);
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
         vm.expectRevert(bytes(""));
-        factory.deploy(calls, signers, 0, name2);
+        factory.deployKeep(calls, signers, 0, name2);
     }
 
     function testExcessiveQuorumSetup() public {
-        // Create the Signer[]
+        // Create the Signer[].
         address[] memory signers = new address[](2);
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
         vm.expectRevert(bytes4(keccak256("QUORUM_OVER_SUPPLY()")));
-        factory.deploy(calls, signers, 3, name2);
+        factory.deployKeep(calls, signers, 3, name2);
     }
 
     function testOutOfOrderSignerSetup() public {
-        // Create the Signer[]
+        // Create the Signer[].
         address[] memory signers = new address[](2);
         signers[0] = alice > bob ? alice : bob;
         signers[1] = alice > bob ? bob : alice;
 
         vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
-        factory.deploy(calls, signers, 2, name2);
+        factory.deployKeep(calls, signers, 2, name2);
     }
 
     /// -----------------------------------------------------------------------
@@ -229,16 +235,33 @@ contract KeepTest is Test {
     /// -----------------------------------------------------------------------
 
     function testNonce() public view {
-        assert(club.nonce() == 1);
+        assert(club.nonce() == 0);
     }
 
-    /*
+    function testName() public {
+        assertEq(
+            club.name(),
+            string(abi.encodePacked(name))
+        );
+    }
+
+    /* We use this to check fetching when exposing function.
+    function testInitChainId() public {
+        assertEq(
+            club._INITIAL_CHAIN_ID(),
+            block.chainid
+        );
+    }*/
+
     function testQuorum() public {
         assert(club.quorum() == 2);
+        assert(club.totalSupply(EXECUTE_ID) == 2);
 
         vm.prank(address(club));
-        club.mintSigner(charlie);
+        club.mint(charlie, EXECUTE_ID, 1, "");
         vm.stopPrank();
+
+        assert(club.totalSupply(EXECUTE_ID) == 3);
 
         vm.prank(address(club));
         club.setQuorum(3);
@@ -246,7 +269,7 @@ contract KeepTest is Test {
 
         assert(club.quorum() == 3);
     }
-    */
+    
     function testTotalSignerSupply() public view {
         assert(club.totalSupply(EXECUTE_ID) == 2);
     }
@@ -254,10 +277,29 @@ contract KeepTest is Test {
     /// -----------------------------------------------------------------------
     /// Operations Tests
     /// -----------------------------------------------------------------------
+    /*
+    function testReceiveETH() public payable {
+        (bool sent, ) = address(club).call{value: 5 ether}("");
+        assert(sent);
+    }*/
 
-    /// @notice Check execution
+    function testReceiveERC721() public payable {
+        mockNFT.safeTransferFrom(address(this), address(club), 1);
+        assertTrue(mockNFT.ownerOf(1) == address(club));
+    }
 
-    function testExecuteGovernance() public {
+    /*function testReceiveERC1155() public payable {
+        vm.prank(address(club));
+        club.mint(address(this), 2, 1, "");
+        club.setTransferability(2, true);
+        vm.stopPrank();
+
+        club.safeTransferFrom(address(this), address(club), 2, 1, "");
+    }*/
+
+    /// @notice Check execution.
+
+    function testExecuteGovernance() public payable {
         uint256 nonceInit = club.nonce();
         address aliceAddress = address(alice);
 
@@ -272,11 +314,11 @@ contract KeepTest is Test {
         bytes memory data = "";
 
         assembly {
-            mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
             mstore(add(data, 0x24), aliceAddress)
             mstore(add(data, 0x44), 100)
             mstore(data, 0x44)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(data, 0x100))
         }
 
@@ -300,11 +342,11 @@ contract KeepTest is Test {
         bytes memory tx_data = "";
 
         assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
             mstore(add(tx_data, 0x24), aliceAddress)
             mstore(add(tx_data, 0x44), 100)
             mstore(tx_data, 0x44)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(tx_data, 0x80))
         }
 
@@ -331,7 +373,7 @@ contract KeepTest is Test {
         sigs[0] = alice > bob ? bobSig : aliceSig;
         sigs[1] = alice > bob ? aliceSig : bobSig;
 
-        // Execute tx
+        // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -341,10 +383,10 @@ contract KeepTest is Test {
         bytes memory tx_data = "";
 
         assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // balanceOf(address)
+            mstore(add(tx_data, 0x20), shl(0xE0, 0x70a08231)) // `balanceOf(address)`.
             mstore(add(tx_data, 0x24), aliceAddress)
             mstore(tx_data, 0x24)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(tx_data, 0x60))
         }
 
@@ -371,7 +413,7 @@ contract KeepTest is Test {
         sigs[0] = alice > bob ? bobSig : aliceSig;
         sigs[1] = alice > bob ? aliceSig : bobSig;
 
-        // Execute tx
+        // Execute tx.
         club.execute(
             Operation.delegatecall,
             address(mockDai),
@@ -381,7 +423,7 @@ contract KeepTest is Test {
         );
     }
 
-    /// @notice Check execution malconditions
+    /// @notice Check execution malconditions.
 
     function testExecuteWithImproperSignatures() public {
         mockDai.transfer(address(club), 100);
@@ -389,11 +431,11 @@ contract KeepTest is Test {
         bytes memory tx_data = "";
 
         assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
             mstore(add(tx_data, 0x24), aliceAddress)
             mstore(add(tx_data, 0x44), 100)
             mstore(tx_data, 0x44)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(tx_data, 0x80))
         }
 
@@ -421,7 +463,7 @@ contract KeepTest is Test {
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
         vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
-        // Execute tx
+        // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -431,11 +473,11 @@ contract KeepTest is Test {
         bytes memory tx_data = "";
 
         assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
             mstore(add(tx_data, 0x24), aliceAddress)
             mstore(add(tx_data, 0x44), 100)
             mstore(tx_data, 0x44)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(tx_data, 0x80))
         }
 
@@ -463,7 +505,7 @@ contract KeepTest is Test {
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
         vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
-        // Execute tx
+        // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -473,11 +515,11 @@ contract KeepTest is Test {
         bytes memory tx_data = "";
 
         assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
             mstore(add(tx_data, 0x24), aliceAddress)
             mstore(add(tx_data, 0x44), 100)
             mstore(tx_data, 0x44)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(tx_data, 0x80))
         }
 
@@ -497,7 +539,7 @@ contract KeepTest is Test {
         sigs[1] = aliceSig;
 
         vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
-        // Execute tx
+        // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -507,11 +549,11 @@ contract KeepTest is Test {
         bytes memory tx_data = "";
 
         assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // transfer(address,uint256)
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
             mstore(add(tx_data, 0x24), aliceAddress)
             mstore(add(tx_data, 0x44), 100)
             mstore(tx_data, 0x44)
-            // Update free memory pointer
+            // Update free memory pointer.
             mstore(0x40, add(tx_data, 0x80))
         }
 
@@ -539,11 +581,11 @@ contract KeepTest is Test {
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
         vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
-        // Execute tx
+        // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
-    /// @notice Check governance
+    /// @notice Check governance.
     /*
     function testGovernMint() public {
         assert(club.totalSupply(EXECUTE_ID) == 2);
@@ -576,7 +618,7 @@ contract KeepTest is Test {
         club.mint(alice, 1, 100, "");
         vm.stopPrank();
 
-        // The club itself should be able to flip governor
+        // The club itself should be able to flip governor.
         startHoax(address(club), address(club), type(uint256).max);
         club.mint(charlie, uint256(bytes32(club.mint.selector)), 1, "");
         vm.stopPrank();
@@ -598,7 +640,7 @@ contract KeepTest is Test {
         vm.stopPrank();
         assertTrue(!club.transferable(id));
 
-        // The club itself should be able to flip pause
+        // The club itself should be able to flip pause.
         startHoax(address(club), address(club), type(uint256).max);
         club.setTransferability(id, transferability);
         vm.stopPrank();
@@ -622,7 +664,7 @@ contract KeepTest is Test {
         club.setURI(0, "new_base_uri");
         vm.stopPrank();
 
-        // The club itself should be able to update the base uri
+        // The club itself should be able to update the base uri.
         startHoax(address(club), address(club), type(uint256).max);
         club.setURI(0, "new_base_uri");
         vm.stopPrank();

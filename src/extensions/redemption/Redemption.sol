@@ -1,27 +1,27 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-/// @dev Interfaces
+/// @dev Interfaces.
 import {IERC20Balances} from "../../interfaces/IERC20Balances.sol";
 import {IKeep} from "../../interfaces/IKeep.sol";
 
-/// @dev Libraries
-import {MulDivDownLib} from "../../libraries/MulDivDownLib.sol";
-import {SafeTransferLib} from "../../libraries/SafeTransferLib.sol";
+/// @dev Libraries.
+import {FixedPointMathLib} from "@solbase/utils/FixedPointMathLib.sol";
+import {SafeTransferLib} from "@solbase/utils/SafeTransferLib.sol";
 
-/// @dev Contracts
+/// @dev Contracts.
 import {ERC1155TokenReceiver} from "../../ERC1155V.sol";
 import {Multicallable} from "@solbase/utils/Multicallable.sol";
 
 /// @title Redemption
-/// @notice Fair share redemptions for burnt treasury tokens
-/// @dev Based on Moloch DAO ragequit()
+/// @notice Fair share redemptions for burnt treasury tokens.
+/// @dev Based on Moloch DAO `ragequit()`.
 contract Redemption is ERC1155TokenReceiver, Multicallable {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
 
-    using MulDivDownLib for uint256;
+    using FixedPointMathLib for uint256;
 
     using SafeTransferLib for address;
 
@@ -59,9 +59,9 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
     /// CONFIGURATIONS
     /// -----------------------------------------------------------------------
 
-    /// @notice Redemption configuration for treasuries
-    /// @param id The token ID to set redemption configuration for
-    /// @param redemptionStart The unix timestamp at which redemption starts
+    /// @notice Redemption configuration for treasuries.
+    /// @param id The token ID to set redemption configuration for.
+    /// @param redemptionStart The unix timestamp at which redemption starts.
     function setRedemptionStart(uint256 id, uint256 redemptionStart)
         public
         payable
@@ -76,11 +76,11 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
     /// REDEMPTIONS
     /// -----------------------------------------------------------------------
 
-    /// @notice Redemption option for treasury holders
-    /// @param treasury Treasury contract address
-    /// @param assets Array of assets to redeem out
-    /// @param id The token ID to burn from
-    /// @param redemption Amount of token ID to burn
+    /// @notice Redemption option for treasury holders.
+    /// @param treasury Treasury contract address.
+    /// @param assets Array of assets to redeem out.
+    /// @param id The token ID to burn from.
+    /// @param redemption Amount of token ID to burn.
     function redeem(
         address treasury,
         address[] calldata assets,
@@ -97,18 +97,18 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
         address prevAddr;
 
         for (uint256 i; i < assets.length; ) {
-            // prevent null and duplicate assets
+            // Prevent null and duplicate assets.
             if (prevAddr >= assets[i]) revert INVALID_ASSET_ORDER();
 
             prevAddr = assets[i];
 
-            // calculate fair share of given assets for redemption
+            // Calculate fair share of given assets for redemption.
             uint256 amountToRedeem = redemption.mulDivDown(
                 IERC20Balances(assets[i]).balanceOf(treasury),
                 supply
             );
 
-            // transfer from treasury to redeemer
+            // Transfer from treasury to redeemer.
             if (amountToRedeem != 0)
                 assets[i].safeTransferFrom(
                     treasury,
@@ -116,8 +116,8 @@ contract Redemption is ERC1155TokenReceiver, Multicallable {
                     amountToRedeem
                 );
 
-            // an array can't have a total length
-            // larger than the max uint256 value
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
                 ++i;
             }

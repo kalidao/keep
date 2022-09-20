@@ -1,19 +1,19 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-/// @dev Contracts
+/// @dev Contracts.
 import {Call, Multicallable, Keep} from "./Keep.sol";
 
-/// @dev Libraries
-import {ClonesWithImmutableArgs} from "./libraries/ClonesWithImmutableArgs.sol";
+/// @dev Libraries.
+import {LibClone} from "@solbase/utils/LibClone.sol";
 
-/// @notice Keep Factory
+/// @notice Keep Factory.
 contract KeepFactory is Multicallable {
     /// -----------------------------------------------------------------------
     /// LIBRARY USAGE
     /// -----------------------------------------------------------------------
 
-    using ClonesWithImmutableArgs for address;
+    using LibClone for address;
 
     /// -----------------------------------------------------------------------
     /// EVENTS
@@ -30,46 +30,47 @@ contract KeepFactory is Multicallable {
     /// IMMUTABLES
     /// -----------------------------------------------------------------------
 
-    Keep internal immutable keepMaster;
+    Keep internal immutable keepTemplate;
 
     /// -----------------------------------------------------------------------
     /// CONSTRUCTOR
     /// -----------------------------------------------------------------------
 
-    constructor(Keep _keepMaster) payable {
-        keepMaster = _keepMaster;
+    constructor(Keep _keepTemplate) payable {
+        keepTemplate = _keepTemplate;
     }
 
     /// -----------------------------------------------------------------------
     /// DEPLOYMENT LOGIC
     /// -----------------------------------------------------------------------
 
-    function determine(bytes32 name)
+    function determineKeep(bytes32 name)
         public
         view
         virtual
-        returns (address keep, bool deployed)
+        returns (address keep)
     {
-        (keep, deployed) = address(keepMaster).predictDeterministicAddress(
+        keep = address(keepTemplate).predictDeterministicAddress(
+            abi.encodePacked(name, uint40(block.chainid)),
             name,
-            abi.encodePacked(name, uint40(block.chainid))
+            address(this)
         );
     }
 
-    function deploy(
+    function deployKeep(
         Call[] calldata calls,
         address[] calldata signers,
         uint256 threshold,
-        bytes32 name // salt
+        bytes32 name // create2 salt.
     ) public payable virtual {
         Keep keep = Keep(
-            address(keepMaster).clone(
-                name,
-                abi.encodePacked(name, uint40(block.chainid))
+            address(keepTemplate).cloneDeterministic(
+                abi.encodePacked(name, uint40(block.chainid)),
+                name
             )
         );
 
-        keep.init{value: msg.value}(calls, signers, threshold);
+        keep.initialize{value: msg.value}(calls, signers, threshold);
 
         emit Deployed(calls, signers, threshold, name);
     }

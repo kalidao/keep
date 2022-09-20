@@ -85,7 +85,7 @@ contract Keep is
     /// @notice EXECUTE_ID threshold to `execute()`.
     uint64 public quorum;
 
-    /// @notice `init()` Keep domain value.
+    /// @notice `initialize()` Keep domain value.
     bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
 
     /// @notice `execute()` ID permission.
@@ -111,6 +111,12 @@ contract Keep is
         else return tokenURI;
     }
 
+    /// @notice The name of this Keep.
+    /// @return Name string.
+    function name() public pure virtual returns (string memory) {
+        return string(abi.encodePacked(_getArgUint256(2)));
+    }
+
     /// @notice Access control for ID balance owners.
     function _authorized() internal view virtual returns (bool) {
         if (
@@ -118,6 +124,25 @@ contract Keep is
             balanceOf[msg.sender][uint256(bytes32(msg.sig))] != 0
         ) return true;
         else revert NOT_AUTHORIZED();
+    }
+
+    /// @notice Fetch immutable uint storage.
+    function _getArgUint256(uint256 argOffset)
+        private
+        pure
+        returns (uint256 arg)
+    {
+        uint256 offset;
+
+        assembly {
+            offset := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+        }
+        assembly {
+            arg := calldataload(add(offset, argOffset))
+        }
     }
 
     /// -----------------------------------------------------------------------
@@ -144,8 +169,8 @@ contract Keep is
     /// EIP-712 LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Fetches domain for EXECUTE_ID signatures
-    /// @return Domain hash
+    /// @notice Fetches domain for EXECUTE_ID signatures.
+    /// @return Domain hash.
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
             block.chainid == _INITIAL_CHAIN_ID()
@@ -153,24 +178,8 @@ contract Keep is
                 : _computeDomainSeparator();
     }
 
-    function _INITIAL_CHAIN_ID()
-        internal
-        pure
-        virtual
-        returns (uint256 chainId)
-    {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-        }
-
-        assembly {
-            chainId := calldataload(add(offset, 5))
-        }
+    function _INITIAL_CHAIN_ID() internal pure virtual returns (uint256) {
+        return _getArgUint256(7);
     }
 
     function _computeDomainSeparator() internal view virtual returns (bytes32) {
@@ -192,9 +201,9 @@ contract Keep is
     /// INITIALIZATION LOGIC
     /// -----------------------------------------------------------------------
     
-    /// @notice Create Keep master.
+    /// @notice Create Keep template.
     /// @param _uriFetcher Metadata default.
-    constructor(Keep _uriFetcher) {
+    constructor(Keep _uriFetcher) payable {
         uriFetcher = _uriFetcher;
     }
         
@@ -202,12 +211,12 @@ contract Keep is
     /// @param calls Initial Keep operations.
     /// @param signers Initial signer set.
     /// @param threshold Initial quorum.
-    function init(
+    function initialize(
         Call[] calldata calls,
         address[] calldata signers,
         uint256 threshold
     ) public payable virtual {
-        if (nonce != 0) revert ALREADY_INIT();
+        if (quorum != 0) revert ALREADY_INIT();
 
         assembly {
             if iszero(threshold) {
@@ -226,8 +235,8 @@ contract Keep is
                     calls[i].data
                 );
 
-                // an array can't have a total length
-                // larger than the max uint256 value
+                // An array can't have a total length
+                // larger than the max uint256 value.
                 unchecked {
                     ++i;
                 }
@@ -243,12 +252,12 @@ contract Keep is
         for (uint256 i; i < signers.length; ) {
             signer = signers[i];
 
-            // prevent zero and duplicate signers
+            // Prevent zero and duplicate signers.
             if (previous >= signer) revert INVALID_SIG();
 
             previous = signer;
 
-            // won't realistically overflow
+            // Won't realistically overflow.
             unchecked {
                 ++balanceOf[signer][EXECUTE_ID];
 
@@ -257,12 +266,9 @@ contract Keep is
                 ++i;
             }
 
+            // We don't call `_moveDelegates()` to save deployment gas.
             emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
-
-            _moveDelegates(address(0), signer, EXECUTE_ID, 1);
         }
-
-        nonce = 1;
 
         quorum = uint64(threshold);
 
@@ -275,14 +281,14 @@ contract Keep is
     /// EXECUTION LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Execute operation from Keep with signatures
-    /// @param op Enum operation to execute
-    /// @param to Address to send operation to
-    /// @param value Amount of ETH to send in operation
-    /// @param data Payload to send in operation
-    /// @param sigs Array of signatures from NFT sorted in ascending order by addresses
-    /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail
-    /// @return success Fetch whether operation succeeded
+    /// @notice Execute operation from Keep with signatures.
+    /// @param op Enum operation to execute.
+    /// @param to Address to send operation to.
+    /// @param value Amount of ETH to send in operation.
+    /// @param data Payload to send in operation.
+    /// @param sigs Array of signatures from NFT sorted in ascending order by addresses.
+    /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail.
+    /// @return success Fetch whether operation succeeded.
     function execute(
         Operation op,
         address to,
@@ -290,7 +296,7 @@ contract Keep is
         bytes calldata data,
         Signature[] calldata sigs
     ) public payable virtual returns (bool success) {
-        // begin signature validation with call data
+        // Begin signature validation with call data.
         bytes32 digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -310,16 +316,16 @@ contract Keep is
             )
         );
 
-        // start from zero in loop to ensure ascending addresses
+        // Start from zero in loop to ensure ascending addresses.
         address previous;
 
-        // validation is length of quorum threshold
+        // Validation is length of quorum threshold.
         uint256 threshold = quorum;
 
         for (uint256 i; i < threshold; ) {
             address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
 
-            // check contract signature with EIP-1271
+            // Check contract signature with EIP-1271.
             if (signer.code.length != 0) {
                 if (
                     IERC1271(signer).isValidSignature(
@@ -329,17 +335,17 @@ contract Keep is
                 ) revert INVALID_SIG();
             }
 
-            // check EXECUTE_ID balance
+            // Check EXECUTE_ID balance.
             if (balanceOf[signer][EXECUTE_ID] == 0) revert INVALID_SIG();
 
-            // check duplicates
+            // Check duplicates.
             if (previous >= signer) revert INVALID_SIG();
 
-            // memo signer for next iteration until quorum
+            // Memo signer for next iteration until quorum.
             previous = signer;
 
-            // an array can't have a total length
-            // larger than the max uint256 value
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
                 ++i;
             }
@@ -348,9 +354,9 @@ contract Keep is
         success = _execute(op, to, value, data);
     }
 
-    /// @notice Execute operations from Keep with signed execute() or as Keep key holder
-    /// @param calls Keep operations as arrays of `op, to, value, data`
-    /// @return successes Fetches whether operations succeeded
+    /// @notice Execute operations from Keep with signed execute() or as Keep key holder.
+    /// @param calls Keep operations as arrays of `op, to, value, data`.
+    /// @return successes Fetches whether operations succeeded.
     function multiExecute(Call[] calldata calls)
         public
         payable
@@ -369,8 +375,8 @@ contract Keep is
                 calls[i].data
             );
 
-            // an array can't have a total length
-            // larger than the max uint256 value
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
                 ++i;
             }
@@ -383,7 +389,7 @@ contract Keep is
         uint256 value,
         bytes memory data
     ) internal virtual returns (bool success) {
-        // won't realistically overflow
+        // Won't realistically overflow.
         unchecked {
             ++nonce;
         }
@@ -448,11 +454,11 @@ contract Keep is
     /// MINT/BURN LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice ID minter
-    /// @param to Recipient of mint
-    /// @param id ID to mint
-    /// @param amount ID balance to mint
-    /// @param data Optional data payload
+    /// @notice ID minter.
+    /// @param to Recipient of mint.
+    /// @param id ID to mint.
+    /// @param amount ID balance to mint.
+    /// @param data Optional data payload.
     function mint(
         address to,
         uint256 id,
@@ -464,10 +470,10 @@ contract Keep is
         _mint(to, id, amount, data);
     }
 
-    /// @notice ID burner
-    /// @param from Account to burn from
-    /// @param id ID to burn
-    /// @param amount Balance to burn
+    /// @notice ID burner.
+    /// @param from Account to burn from.
+    /// @param id ID to burn.
+    /// @param amount Balance to burn.
     function burn(
         address from,
         uint256 id,
@@ -489,8 +495,8 @@ contract Keep is
     /// THRESHOLD SETTING LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice Update Keep quorum threshold
-    /// @param threshold Signature threshold for execute()
+    /// @notice Update Keep quorum threshold.
+    /// @param threshold Signature threshold for `execute()`.
     function setQuorum(uint32 threshold) public payable virtual {
         _authorized();
 
@@ -500,8 +506,8 @@ contract Keep is
             }
         }
 
-        // note: also make sure signers don't concentrate NFTs,
-        // as this could cause issues in reaching quorum
+        // note: Also make sure signers don't concentrate tokens,
+        // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[EXECUTE_ID]) revert QUORUM_OVER_SUPPLY();
 
         quorum = threshold;
@@ -513,9 +519,9 @@ contract Keep is
     /// ID SETTING LOGIC
     /// -----------------------------------------------------------------------
 
-    /// @notice ID transferability setter
-    /// @param id ID to set transferability for
-    /// @param transferability Transferability setting
+    /// @notice ID transferability setter.
+    /// @param id ID to set transferability for.
+    /// @param transferability Transferability setting.
     function setTransferability(uint256 id, bool transferability)
         public
         payable
@@ -526,9 +532,9 @@ contract Keep is
         _setTransferability(id, transferability);
     }
 
-    /// @notice ID metadata setter
-    /// @param id ID to set metadata for
-    /// @param tokenURI Metadata setting
+    /// @notice ID metadata setter.
+    /// @param id ID to set metadata for.
+    /// @param tokenURI Metadata setting.
     function setURI(uint256 id, string calldata tokenURI)
         public
         payable

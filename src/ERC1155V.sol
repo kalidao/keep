@@ -138,9 +138,9 @@ abstract contract ERC1155V {
         returns (bool)
     {
         return
-            interfaceId == this.supportsInterface.selector || // ERC165 Interface ID for ERC165
-            interfaceId == 0xd9b67a26 || // ERC165 Interface ID for ERC1155
-            interfaceId == 0x0e89341c; // ERC165 Interface ID for ERC1155MetadataURI
+            interfaceId == this.supportsInterface.selector || // ERC165 Interface ID for ERC165.
+            interfaceId == 0xd9b67a26 || // ERC165 Interface ID for ERC1155.
+            interfaceId == 0x0e89341c; // ERC165 Interface ID for ERC1155MetadataURI.
     }
 
     /// -----------------------------------------------------------------------
@@ -160,8 +160,8 @@ abstract contract ERC1155V {
         for (uint256 i; i < owners.length; ) {
             balances[i] = balanceOf[owners[i]][ids[i]];
 
-            // unchecked because the only math done is incrementing
-            // the array index counter which cannot possibly overflow
+            // Unchecked because the only math done is incrementing
+            // the array index counter which cannot possibly overflow.
             unchecked {
                 ++i;
             }
@@ -192,14 +192,14 @@ abstract contract ERC1155V {
 
         balanceOf[from][id] -= amount;
 
-        // cannot overflow because the sum of all user
-        // balances can't exceed the max uint256 value
+        // Cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value.
         unchecked {
             balanceOf[to][id] += amount;
         }
 
         emit TransferSingle(msg.sender, from, to, id, amount);
-
+        
         if (
             to.code.length == 0
                 ? to == address(0)
@@ -227,7 +227,7 @@ abstract contract ERC1155V {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender])
             revert NOT_AUTHORIZED();
 
-        // storing these outside the loop saves ~15 gas per iteration
+        // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
         uint256 amount;
 
@@ -239,16 +239,16 @@ abstract contract ERC1155V {
 
             balanceOf[from][id] -= amount;
 
-            // cannot overflow because the sum of all user
-            // balances can't exceed the max uint256 value
+            // Cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value.
             unchecked {
                 balanceOf[to][id] += amount;
             }
 
             _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
 
-            // an array can't have a total length
-            // larger than the max uint256 value
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
                 ++i;
             }
@@ -290,7 +290,7 @@ abstract contract ERC1155V {
         virtual
         returns (uint256)
     {
-        // won't underflow because decrement only occurs if positive `nCheckpoints`
+        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
 
@@ -312,7 +312,7 @@ abstract contract ERC1155V {
 
         if (nCheckpoints == 0) return 0;
 
-        // won't underflow because decrement only occurs if positive `nCheckpoints`
+        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
         unchecked {
             if (
                 checkpoints[account][id][nCheckpoints - 1].fromTimestamp <=
@@ -416,7 +416,7 @@ abstract contract ERC1155V {
         uint256 oldVotes,
         uint256 newVotes
     ) internal virtual {
-        // won't underflow because decrement only occurs if positive `nCheckpoints`
+        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
         unchecked {
             if (
                 nCheckpoints != 0 &&
@@ -431,7 +431,7 @@ abstract contract ERC1155V {
                     _safeCastTo216(newVotes)
                 );
 
-                // won't realistically overflow
+                // Won't realistically overflow.
                 ++numCheckpoints[delegatee][id];
             }
         }
@@ -466,10 +466,10 @@ abstract contract ERC1155V {
         uint256 amount,
         bytes calldata data
     ) internal virtual {
-        _safeCastTo216(totalSupply[id] + amount);
+        _safeCastTo216(totalSupply[id] += amount);
 
-        // cannot overflow because the sum of all user
-        // balances can't exceed the max uint256 value
+        // Cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value.
         unchecked {
             balanceOf[to][id] += amount;
         }
@@ -498,8 +498,8 @@ abstract contract ERC1155V {
     ) internal virtual {
         balanceOf[from][id] -= amount;
 
-        // cannot underflow because a user's balance
-        // will never be larger than the total supply
+        // Cannot underflow because a user's balance
+        // will never be larger than the total supply.
         unchecked {
             totalSupply[id] -= amount;
         }
