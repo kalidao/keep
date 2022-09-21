@@ -81,17 +81,19 @@ abstract contract ERC1155V {
     /// ERRORS
     /// -----------------------------------------------------------------------
 
-    error NOT_AUTHORIZED();
+    error LengthMismatch();
 
-    error NONTRANSFERABLE();
+    error NotAuthorized();
 
-    error INVALID_RECIPIENT();
+    error NonTransferable();
 
-    error LENGTH_MISMATCH();
+    error UnsafeRecipient();
 
-    error UNDETERMINED();
+    error InvalidRecipient();
 
-    error OVERFLOW();
+    error Undetermined();
+
+    error Overflow();
 
     /// -----------------------------------------------------------------------
     /// ERC1155 STORAGE
@@ -153,7 +155,7 @@ abstract contract ERC1155V {
         virtual
         returns (uint256[] memory balances)
     {
-        if (owners.length != ids.length) revert LENGTH_MISMATCH();
+        if (owners.length != ids.length) revert LengthMismatch();
 
         balances = new uint256[](owners.length);
 
@@ -186,9 +188,9 @@ abstract contract ERC1155V {
         bytes calldata data
     ) public payable virtual {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert NOT_AUTHORIZED();
+            revert NotAuthorized();
 
-        if (!transferable[id]) revert NONTRANSFERABLE();
+        if (!transferable[id]) revert NonTransferable();
 
         balanceOf[from][id] -= amount;
 
@@ -199,18 +201,11 @@ abstract contract ERC1155V {
         }
 
         emit TransferSingle(msg.sender, from, to, id, amount);
-        
-        if (
-            to.code.length == 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155Received(
-                    msg.sender,
-                    from,
-                    id,
-                    amount,
-                    data
-                ) != ERC1155TokenReceiver.onERC1155Received.selector
-        ) revert INVALID_RECIPIENT();
+
+        if (to.code.length != 0) {
+            if (ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
+                ERC1155TokenReceiver.onERC1155Received.selector) { revert UnsafeRecipient(); }
+        } else { if (to == address(0)) { revert InvalidRecipient(); }}
 
         _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
@@ -222,10 +217,10 @@ abstract contract ERC1155V {
         uint256[] calldata amounts,
         bytes calldata data
     ) public payable virtual {
-        if (ids.length != amounts.length) revert LENGTH_MISMATCH();
+        if (ids.length != amounts.length) revert LengthMismatch();
 
         if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert NOT_AUTHORIZED();
+            revert NotAuthorized();
 
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
@@ -235,7 +230,7 @@ abstract contract ERC1155V {
             id = ids[i];
             amount = amounts[i];
 
-            if (!transferable[id]) revert NONTRANSFERABLE();
+            if (!transferable[id]) revert NonTransferable();
 
             balanceOf[from][id] -= amount;
 
@@ -256,17 +251,10 @@ abstract contract ERC1155V {
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
-        if (
-            to.code.length == 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155BatchReceived(
-                    msg.sender,
-                    from,
-                    ids,
-                    amounts,
-                    data
-                ) != ERC1155TokenReceiver.onERC1155BatchReceived.selector
-        ) revert INVALID_RECIPIENT();
+        if (to.code.length != 0) {
+            if (ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
+            ERC1155TokenReceiver.onERC1155BatchReceived.selector) { revert UnsafeRecipient(); }
+        } else if (to == address(0)) { revert InvalidRecipient(); }
     }
 
     /// -----------------------------------------------------------------------
@@ -306,7 +294,7 @@ abstract contract ERC1155V {
         uint256 id,
         uint256 timestamp
     ) public view virtual returns (uint256) {
-        if (block.timestamp <= timestamp) revert UNDETERMINED();
+        if (block.timestamp <= timestamp) revert Undetermined();
 
         uint256 nCheckpoints = numCheckpoints[account][id];
 
@@ -440,7 +428,7 @@ abstract contract ERC1155V {
     }
 
     function _safeCastTo40(uint256 x) internal pure virtual returns (uint40 y) {
-        if (x >= (1 << 40)) revert OVERFLOW();
+        if (x >= (1 << 40)) revert Overflow();
 
         y = uint40(x);
     }
@@ -451,7 +439,7 @@ abstract contract ERC1155V {
         virtual
         returns (uint216 y)
     {
-        if (x >= (1 << 216)) revert OVERFLOW();
+        if (x >= (1 << 216)) revert Overflow();
 
         y = uint216(x);
     }
@@ -476,17 +464,10 @@ abstract contract ERC1155V {
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
-        if (
-            to.code.length == 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155Received(
-                    msg.sender,
-                    address(0),
-                    id,
-                    amount,
-                    data
-                ) != ERC1155TokenReceiver.onERC1155Received.selector
-        ) revert INVALID_RECIPIENT();
+        if (to.code.length != 0) {
+            if (ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) != 
+            ERC1155TokenReceiver.onERC1155Received.selector) {revert UnsafeRecipient(); }
+        } else if (to == address(0)) { revert InvalidRecipient(); }
 
         _moveDelegates(address(0), delegates(to, id), id, amount);
     }

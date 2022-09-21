@@ -12,6 +12,7 @@ import {KeepFactory} from "../KeepFactory.sol";
 
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
+import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
 
 import "@std/Test.sol";
 
@@ -25,6 +26,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     KeepFactory factory;
     MockERC20 mockDai;
     MockERC721 mockNFT;
+    MockERC1155 mock1155;
 
     uint256 internal EXECUTE_ID;
 
@@ -157,12 +159,15 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         club = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
+        mock1155 = new MockERC1155();
         chainId = block.chainid;
 
         // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
 
         mockNFT.mint(address(this), 1);
+
+        mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
         factory = new KeepFactory(club);
@@ -196,7 +201,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         clubRepeat = Keep(clubAddrRepeat);
         factory.deployKeep(calls, signers, 2, name2);
 
-        vm.expectRevert(bytes4(keccak256("ALREADY_INIT()")));
+        vm.expectRevert(bytes4(keccak256("AlreadyInit()")));
         clubRepeat.initialize(calls, signers, 2);
     }
 
@@ -216,7 +221,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
-        vm.expectRevert(bytes4(keccak256("QUORUM_OVER_SUPPLY()")));
+        vm.expectRevert(bytes4(keccak256("QuorumOverSupply()")));
         factory.deployKeep(calls, signers, 3, name2);
     }
 
@@ -226,7 +231,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[0] = alice > bob ? alice : bob;
         signers[1] = alice > bob ? bob : alice;
 
-        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         factory.deployKeep(calls, signers, 2, name2);
     }
 
@@ -288,15 +293,51 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(mockNFT.ownerOf(1) == address(club));
     }
 
-    /*function testReceiveERC1155() public payable {
+    function testReceiveStandardERC1155() public payable {
+        mock1155.safeTransferFrom(address(this), address(club), 1, 1, "");
+    }
+
+    function testReceiveKeepERC1155() public payable {
+        address local = address(this);
         vm.prank(address(club));
-        club.mint(address(this), 2, 1, "");
+        club.mint(local, 2, 1, "");
+        vm.stopPrank();
+
+        vm.prank(address(club));
         club.setTransferability(2, true);
         vm.stopPrank();
 
-        club.safeTransferFrom(address(this), address(club), 2, 1, "");
-    }*/
+        club.safeTransferFrom(local, address(club), 2, 1, "");
+    }
 
+    function testKeepERC1155FailOnZeroAddress() public payable {
+        address local = address(this);
+        vm.prank(address(club));
+        club.mint(local, 2, 1, "");
+        vm.stopPrank();
+
+        vm.prank(address(club));
+        club.setTransferability(2, true);
+        vm.stopPrank();
+        
+        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        club.safeTransferFrom(address(this), address(0), 2, 1, "");
+    }
+    /*
+    function testKeepERC1155FailOnBadContract() public payable {
+        address local = address(this);
+        vm.prank(address(club));
+        club.mint(local, 2, 1, "");
+        vm.stopPrank();
+
+        vm.prank(address(club));
+        club.setTransferability(2, true);
+        vm.stopPrank();
+        
+        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        club.safeTransferFrom(address(this), address(mockDai), 2, 1, "");
+    }
+    */
     /// @notice Check execution.
 
     function testExecuteGovernance() public payable {
@@ -402,6 +443,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             0,
             tx_data
         );
+
         bobSig = signExecution(
             bobsPk,
             Operation.delegatecall,
@@ -451,6 +493,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             0,
             tx_data
         );
+
         charlieSig = signExecution(
             charliesPk,
             Operation.call,
@@ -462,7 +505,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -504,7 +547,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > bob ? aliceSig : bobSig;
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
-        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -538,7 +581,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = aliceSig;
         sigs[1] = aliceSig;
 
-        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -580,7 +623,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert(bytes4(keccak256("INVALID_SIG()")));
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
         club.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -614,7 +657,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     */
     function testMintGovernance() public {
         startHoax(charlie, charlie, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
+        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         club.mint(alice, 1, 100, "");
         vm.stopPrank();
 
@@ -635,7 +678,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         bool transferability
     ) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
+        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         club.setTransferability(id, transferability);
         vm.stopPrank();
         assertTrue(!club.transferable(id));
@@ -652,7 +695,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         startHoax(charlie, charlie, type(uint256).max);
         if (transferability == false) {
-            vm.expectRevert(bytes4(keccak256('NONTRANSFERABLE)')));
+            vm.expectRevert(bytes4(keccak256('NonTransferable)')));
             club.safeTransferFrom(charlie, alice, id, 1, "");
         }
         vm.stopPrank();*/
@@ -660,7 +703,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function testUpdateURI(address dave) public {
         startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NOT_AUTHORIZED()")));
+        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         club.setURI(0, "new_base_uri");
         vm.stopPrank();
 
