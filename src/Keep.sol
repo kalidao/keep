@@ -61,16 +61,16 @@ contract Keep is
     /// -----------------------------------------------------------------------
 
     /// @notice Throws if init() is called more than once.
-    error ALREADY_INIT();
+    error AlreadyInit();
 
     /// @notice Throws if quorum exceeds totalSupply(EXECUTE_ID).
-    error QUORUM_OVER_SUPPLY();
+    error QuorumOverSupply();
 
     /// @notice Throws if signature doesn't verify execute().
-    error INVALID_SIG();
+    error InvalidSig();
 
     /// @notice Throws if execute() doesn't complete operation.
-    error EXECUTE_FAILED();
+    error ExecuteFailed();
 
     /// -----------------------------------------------------------------------
     /// KEEP STORAGE/LOGIC
@@ -123,7 +123,7 @@ contract Keep is
             msg.sender == address(this) ||
             balanceOf[msg.sender][uint256(bytes32(msg.sig))] != 0
         ) return true;
-        else revert NOT_AUTHORIZED();
+        else revert NotAuthorized();
     }
 
     /// @notice Fetch immutable uint storage.
@@ -140,6 +140,7 @@ contract Keep is
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
         }
+
         assembly {
             arg := calldataload(add(offset, argOffset))
         }
@@ -216,7 +217,7 @@ contract Keep is
         address[] calldata signers,
         uint256 threshold
     ) public payable virtual {
-        if (quorum != 0) revert ALREADY_INIT();
+        if (quorum != 0) revert AlreadyInit();
 
         assembly {
             if iszero(threshold) {
@@ -224,7 +225,7 @@ contract Keep is
             }
         }
 
-        if (threshold > signers.length) revert QUORUM_OVER_SUPPLY();
+        if (threshold > signers.length) revert QuorumOverSupply();
 
         if (calls.length != 0) {
             for (uint256 i; i < calls.length; ) {
@@ -253,7 +254,7 @@ contract Keep is
             signer = signers[i];
 
             // Prevent zero and duplicate signers.
-            if (previous >= signer) revert INVALID_SIG();
+            if (previous >= signer) revert InvalidSig();
 
             previous = signer;
 
@@ -332,14 +333,14 @@ contract Keep is
                         digest,
                         abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
                     ) != IERC1271.isValidSignature.selector
-                ) revert INVALID_SIG();
+                ) revert InvalidSig();
             }
 
             // Check EXECUTE_ID balance.
-            if (balanceOf[signer][EXECUTE_ID] == 0) revert INVALID_SIG();
+            if (balanceOf[signer][EXECUTE_ID] == 0) revert InvalidSig();
 
             // Check duplicates.
-            if (previous >= signer) revert INVALID_SIG();
+            if (previous >= signer) revert InvalidSig();
 
             // Memo signer for next iteration until quorum.
             previous = signer;
@@ -407,7 +408,7 @@ contract Keep is
                 )
             }
 
-            if (!success) revert EXECUTE_FAILED();
+            if (!success) revert ExecuteFailed();
 
             emit Executed(op, to, value, data);
         } else if (op == Operation.delegatecall) {
@@ -422,7 +423,7 @@ contract Keep is
                 )
             }
 
-            if (!success) revert EXECUTE_FAILED();
+            if (!success) revert ExecuteFailed();
 
             emit Executed(op, to, value, data);
         } else if (op == Operation.create) {
@@ -432,7 +433,7 @@ contract Keep is
                 creation := create(value, add(data, 0x20), mload(data))
             }
 
-            if (creation == address(0)) revert EXECUTE_FAILED();
+            if (creation == address(0)) revert ExecuteFailed();
 
             emit ContractCreated(op, creation, value);
         } else {
@@ -444,7 +445,7 @@ contract Keep is
                 creation := create2(value, add(0x20, data), mload(data), salt)
             }
 
-            if (creation == address(0)) revert EXECUTE_FAILED();
+            if (creation == address(0)) revert ExecuteFailed();
 
             emit ContractCreated(op, creation, value);
         }
@@ -483,12 +484,12 @@ contract Keep is
             msg.sender != from &&
             !isApprovedForAll[from][msg.sender] &&
             !_authorized()
-        ) revert NOT_AUTHORIZED();
+        ) revert NotAuthorized();
 
         _burn(from, id, amount);
 
         if (id == EXECUTE_ID)
-            if (quorum > totalSupply[EXECUTE_ID]) revert QUORUM_OVER_SUPPLY();
+            if (quorum > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
     }
 
     /// -----------------------------------------------------------------------
@@ -508,7 +509,7 @@ contract Keep is
 
         // note: Also make sure signers don't concentrate tokens,
         // as this could cause issues in reaching quorum.
-        if (threshold > totalSupply[EXECUTE_ID]) revert QUORUM_OVER_SUPPLY();
+        if (threshold > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
 
         quorum = threshold;
 
