@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import {
@@ -96,7 +96,7 @@ contract RedemptionTest is Test {
     }
 
     function testRedemption() public {
-        /*startHoax(address(club), address(club), type(uint256).max);
+        startHoax(address(club), address(club), type(uint256).max);
         club.mint(
             address(redemption),
             uint256(bytes32(club.burn.selector)),
@@ -126,11 +126,11 @@ contract RedemptionTest is Test {
 
         assertTrue(club.balanceOf(alice, 1) == 0);
         assertTrue(club.totalSupply(1) == 0);
-        assertTrue(mockDai.balanceOf(alice) == 100);*/
+        assertTrue(mockDai.balanceOf(alice) == 100);
     }
 
     function testMultiRedemption() public {
-        /*startHoax(address(club), address(club), type(uint256).max);
+        startHoax(address(club), address(club), type(uint256).max);
         club.mint(
             address(redemption),
             uint256(bytes32(club.burn.selector)),
@@ -173,6 +173,6 @@ contract RedemptionTest is Test {
         assertTrue(club.balanceOf(alice, 1) == 0);
         assertTrue(club.totalSupply(1) == 0);
         assertTrue(mockDai.balanceOf(alice) == 1000);
-        assertTrue(mockWeth.balanceOf(alice) == 10);*/
+        assertTrue(mockWeth.balanceOf(alice) == 10);
     }
 }
