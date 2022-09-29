@@ -10,7 +10,7 @@ abstract contract ERC1155TokenReceiver {
         uint256,
         uint256,
         bytes calldata
-    ) public payable virtual returns (bytes4) {
+    ) external payable virtual returns (bytes4) {
         return ERC1155TokenReceiver.onERC1155Received.selector;
     }
 
@@ -20,7 +20,7 @@ abstract contract ERC1155TokenReceiver {
         uint256[] calldata,
         uint256[] calldata,
         bytes calldata
-    ) public payable virtual returns (bytes4) {
+    ) external payable virtual returns (bytes4) {
         return ERC1155TokenReceiver.onERC1155BatchReceived.selector;
     }
 }
