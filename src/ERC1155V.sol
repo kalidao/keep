@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 /// @notice A generic interface for a contract which properly accepts ERC1155 tokens.
-/// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC1155.sol)
+/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
 abstract contract ERC1155TokenReceiver {
     function onERC1155Received(
         address,
@@ -10,8 +10,8 @@ abstract contract ERC1155TokenReceiver {
         uint256,
         uint256,
         bytes calldata
-    ) public payable virtual returns (bytes4) {
-        return this.onERC1155Received.selector;
+    ) external payable virtual returns (bytes4) {
+        return ERC1155TokenReceiver.onERC1155Received.selector;
     }
 
     function onERC1155BatchReceived(
@@ -20,17 +20,17 @@ abstract contract ERC1155TokenReceiver {
         uint256[] calldata,
         uint256[] calldata,
         bytes calldata
-    ) public payable virtual returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
+    ) external payable virtual returns (bytes4) {
+        return ERC1155TokenReceiver.onERC1155BatchReceived.selector;
     }
 }
 
-/// @notice Minimalist and gas efficient standard ERC1155 implementation with Compound-like voting and default non-transferability.
-/// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC1155.sol)
+/// @notice Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and default non-transferability.
+/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
 /// @author Modified from Compound (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
 abstract contract ERC1155V {
     /// -----------------------------------------------------------------------
-    /// EVENTS
+    /// Events
     /// -----------------------------------------------------------------------
 
     event DelegateChanged(
@@ -78,7 +78,7 @@ abstract contract ERC1155V {
     event URI(string value, uint256 indexed id);
 
     /// -----------------------------------------------------------------------
-    /// ERRORS
+    /// Custom Errors
     /// -----------------------------------------------------------------------
 
     error LengthMismatch();
@@ -96,7 +96,7 @@ abstract contract ERC1155V {
     error Overflow();
 
     /// -----------------------------------------------------------------------
-    /// ERC1155 STORAGE
+    /// ERC1155 Storage
     /// -----------------------------------------------------------------------
 
     mapping(address => mapping(uint256 => uint256)) public balanceOf;
@@ -104,7 +104,7 @@ abstract contract ERC1155V {
     mapping(address => mapping(address => bool)) public isApprovedForAll;
 
     /// -----------------------------------------------------------------------
-    /// VOTING STORAGE
+    /// Voting Storage
     /// -----------------------------------------------------------------------
 
     mapping(uint256 => bool) public transferable;
@@ -124,13 +124,13 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// METADATA LOGIC
+    /// Metadata Logic
     /// -----------------------------------------------------------------------
 
     function uri(uint256 id) public view virtual returns (string memory);
 
     /// -----------------------------------------------------------------------
-    /// ERC165 LOGIC
+    /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
     function supportsInterface(bytes4 interfaceId)
@@ -140,13 +140,13 @@ abstract contract ERC1155V {
         returns (bool)
     {
         return
-            interfaceId == this.supportsInterface.selector || // ERC165 Interface ID for ERC165.
-            interfaceId == 0xd9b67a26 || // ERC165 Interface ID for ERC1155.
-            interfaceId == 0x0e89341c; // ERC165 Interface ID for ERC1155MetadataURI.
+            interfaceId == 0x01ffc9a7 || // ERC165 interface ID for ERC165.
+            interfaceId == 0xd9b67a26 || // ERC165 interface ID for ERC1155.
+            interfaceId == 0x0e89341c; // ERC165 interface ID for ERC1155MetadataURI.
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC1155 LOGIC
+    /// ERC1155 Logic
     /// -----------------------------------------------------------------------
 
     function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
@@ -258,7 +258,7 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// VOTING LOGIC
+    /// Voting Logic
     /// -----------------------------------------------------------------------
 
     function delegates(address account, uint256 id)
@@ -302,16 +302,18 @@ abstract contract ERC1155V {
 
         // Won't underflow because decrement only occurs if positive `nCheckpoints`.
         unchecked {
+            uint256 prevCheckpoint = nCheckpoints - 1;
+            
             if (
-                checkpoints[account][id][nCheckpoints - 1].fromTimestamp <=
+                checkpoints[account][id][prevCheckpoint].fromTimestamp <=
                 timestamp
-            ) return checkpoints[account][id][nCheckpoints - 1].votes;
+            ) return checkpoints[account][id][prevCheckpoint].votes;
 
             if (checkpoints[account][id][0].fromTimestamp > timestamp) return 0;
 
             uint256 lower;
 
-            uint256 upper = nCheckpoints - 1;
+            uint256 upper = prevCheckpoint;
 
             while (upper > lower) {
                 uint256 center = upper - (upper - lower) / 2;
@@ -445,7 +447,7 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// INTERNAL ID LOGIC
+    /// Internal ID Logic
     /// -----------------------------------------------------------------------
 
     function _mint(
