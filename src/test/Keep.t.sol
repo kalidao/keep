@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import {
     Operation, 
     Call, 
-    Signature, 
     Keep
 } from "../Keep.sol";
 import {ERC1155TokenReceiver} from "../Keep.sol";
@@ -127,7 +126,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         address to,
         uint256 value,
         bytes memory data
-    ) internal returns (Signature memory sig) {
+    ) internal returns (bytes memory sig) {
         uint8 v;
         bytes32 r;
         bytes32 s;
@@ -146,7 +145,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         // set 'wrong v' to return null signer for tests
         if (pk == nullPk) v = 17;
 
-        sig = Signature({v: v, r: r, s: s});
+        sig = abi.encodePacked(r, s, v);
     }
 
     /// -----------------------------------------------------------------------
@@ -391,10 +390,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             mstore(0x40, add(tx_data, 0x80))
         }
 
-        Signature[] memory sigs = new Signature[](2);
+        bytes[] memory sigs = new bytes[](2);
 
-        Signature memory aliceSig;
-        Signature memory bobSig;
+        bytes memory aliceSig;
+        bytes memory bobSig;
 
         aliceSig = signExecution(
             alicesPk,
@@ -431,10 +430,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             mstore(0x40, add(tx_data, 0x60))
         }
 
-        Signature[] memory sigs = new Signature[](2);
+        bytes[] memory sigs = new bytes[](2);
 
-        Signature memory aliceSig;
-        Signature memory bobSig;
+        bytes memory aliceSig;
+        bytes memory bobSig;
 
         aliceSig = signExecution(
             alicesPk,
@@ -481,10 +480,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             mstore(0x40, add(tx_data, 0x80))
         }
 
-        Signature[] memory sigs = new Signature[](2);
+        bytes[] memory sigs = new bytes[](2);
 
-        Signature memory aliceSig;
-        Signature memory charlieSig;
+        bytes memory aliceSig;
+        bytes memory charlieSig;
 
         aliceSig = signExecution(
             alicesPk,
@@ -524,10 +523,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             mstore(0x40, add(tx_data, 0x80))
         }
 
-        Signature[] memory sigs = new Signature[](2);
+        bytes[] memory sigs = new bytes[](2);
 
-        Signature memory aliceSig;
-        Signature memory bobSig;
+        bytes memory aliceSig;
+        bytes memory bobSig;
 
         aliceSig = signExecution(
             alicesPk,
@@ -566,9 +565,9 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             mstore(0x40, add(tx_data, 0x80))
         }
 
-        Signature[] memory sigs = new Signature[](2);
+        bytes[] memory sigs = new bytes[](2);
 
-        Signature memory aliceSig;
+        bytes memory aliceSig;
 
         aliceSig = signExecution(
             alicesPk,
@@ -600,10 +599,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             mstore(0x40, add(tx_data, 0x80))
         }
 
-        Signature[] memory sigs = new Signature[](2);
+        bytes[] memory sigs = new bytes[](2);
 
-        Signature memory aliceSig;
-        Signature memory nullSig;
+        bytes memory aliceSig;
+        bytes memory nullSig;
 
         aliceSig = signExecution(
             alicesPk,

@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @dev Interfaces.
-import {IERC1271} from "./interfaces/IERC1271.sol";
-
-/// @dev Contracts.
-import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
 import {ERC1155TokenReceiver, ERC1155V} from "./ERC1155V.sol";
+import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
 import {Multicallable} from "@solbase/utils/Multicallable.sol";
+//import {LibSignature} from "./utils/LibSignature";
 
 /// @title Keep
-/// @notice EIP-712 multi-sig with ERC-1155 interface.
+/// @notice EIP-712 multi-signature wallet with ERC-1155 interface.
 /// @author Modified from LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 
 enum Operation {
@@ -25,12 +22,6 @@ struct Call {
     address to;
     uint256 value;
     bytes data;
-}
-
-struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
 }
 
 contract Keep is
@@ -128,7 +119,7 @@ contract Keep is
 
     /// @notice Fetch immutable uint storage.
     function _getArgUint256(uint256 argOffset)
-        private
+        internal
         pure
         returns (uint256 arg)
     {
@@ -245,9 +236,7 @@ contract Keep is
         }
 
         address signer;
-
         address previous;
-
         uint256 supply;
 
         for (uint256 i; i < signers.length; ) {
@@ -295,9 +284,9 @@ contract Keep is
         address to,
         uint256 value,
         bytes calldata data,
-        Signature[] calldata sigs
+        bytes[] calldata sigs
     ) public payable virtual returns (bool success) {
-        // Begin signature validation with call data.
+        // Begin signature validation with payload hash.
         bytes32 digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -317,33 +306,96 @@ contract Keep is
             )
         );
 
-        // Start from zero in loop to ensure ascending addresses.
-        address previous;
-
-        // Validation is length of quorum threshold.
+        address prev;
+        address auth;
+        bytes calldata sig;
         uint256 threshold = quorum;
 
+        // Start from zero in loop to ensure ascending addresses.
+        // Validation is length of quorum threshold.
         for (uint256 i; i < threshold; ) {
-            address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
+            sig = sigs[i];
 
-            // Check contract signature with EIP-1271.
-            if (signer.code.length != 0) {
-                if (
-                    IERC1271(signer).isValidSignature(
-                        digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) != IERC1271.isValidSignature.selector
-                ) revert InvalidSig();
+            assembly {
+                if eq(sig.length, 65) {
+                    // Copy the free memory pointer so that we can restore it later.
+                    let m := mload(0x40)
+                    // Directly copy `r` and `s` from the calldata.
+                    calldatacopy(0x40, sig.offset, 0x40)
+
+                    // If `s` in lower half order, such that the signature is not malleable.
+                    // prettier-ignore
+                    if iszero(gt(mload(0x60), 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0)) {
+                        mstore(0x00, digest)
+                        // Compute `v` and store it in the scratch space.
+                        mstore(0x20, byte(0, calldataload(add(sig.offset, 0x40))))
+                        pop(
+                            staticcall(
+                                gas(), // Amount of gas left for the transaction.
+                                0x01, // Address of `ecrecover`.
+                                0x00, // Start of input.
+                                0x80, // Size of input.
+                                0x40, // Start of output.
+                                0x20 // Size of output.
+                            )
+                        )
+                        // Restore the zero slot.
+                        mstore(0x60, 0)
+                        // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                        auth := mload(sub(0x60, returndatasize()))
+                    }
+                    // Restore the free memory pointer.
+                    mstore(0x40, m)
+                }
+            }
+
+            if (auth.code.length != 0) {
+                bool isValid;
+
+                assembly {
+                    // Load the free memory pointer.
+                    // Simply using the free memory usually costs less if many slots are needed.
+                    let m := mload(0x40)
+
+                    // Write the abi-encoded calldata into memory, beginning with the function selector.
+                    mstore(m, 0x1626ba7e) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+                    mstore(add(m, 0x20), digest)
+                    mstore(add(m, 0x40), 0x40) // The offset of the `sig` in the calldata.
+                    // Copy the `sig` and its length over.
+                    calldatacopy(add(m, 0x60), sub(sig.offset, 0x20), 0x80)
+
+                    isValid := and(
+                        and(
+                            // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+                            eq(mload(0x00), shl(224, mload(m))),
+                            // Whether the returndata is exactly 0x20 bytes (1 word) long .
+                            eq(returndatasize(), 0x20)
+                        ),
+                        // Whether the staticcall does not revert.
+                        // This must be placed at the end of the `and` clause,
+                        // as the arguments are evaluated from right to left.
+                        staticcall(
+                            gas(), // Remaining gas.
+                            auth, // The `auth` address.
+                            add(m, 0x1c), // Offset of calldata in memory.
+                            0xc4, // Length of calldata in memory.
+                            0x00, // Offset of returndata.
+                            0x20 // Length of returndata to write.
+                        )
+                    )
+                }
+
+                if (!isValid) revert InvalidSig();
             }
 
             // Check EXECUTE_ID balance.
-            if (balanceOf[signer][EXECUTE_ID] == 0) revert InvalidSig();
+            if (balanceOf[auth][EXECUTE_ID] == 0) revert InvalidSig();
 
             // Check duplicates.
-            if (previous >= signer) revert InvalidSig();
+            if (prev >= auth) revert InvalidSig();
 
             // Memo signer for next iteration until quorum.
-            previous = signer;
+            prev = auth;
 
             // An array can't have a total length
             // larger than the max uint256 value.
