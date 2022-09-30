@@ -1,12 +1,7 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {
-    Operation, 
-    Call, 
-    Signature, 
-    Keep
-} from "../Keep.sol";
+import {Operation, Call, Signature, Keep} from "../Keep.sol";
 import {ERC1155TokenReceiver} from "../Keep.sol";
 import {KeepFactory} from "../KeepFactory.sol";
 
@@ -244,10 +239,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testName() public {
-        assertEq(
-            club.name(),
-            string(abi.encodePacked(name))
-        );
+        assertEq(club.name(), string(abi.encodePacked(name)));
     }
 
     /* We use this to check fetching when exposing function.
@@ -274,7 +266,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         assert(club.quorum() == 3);
     }
-    
+
     function testTotalSignerSupply() public view {
         assert(club.totalSupply(EXECUTE_ID) == 2);
     }
@@ -319,10 +311,11 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         vm.prank(address(club));
         club.setTransferability(2, true);
         vm.stopPrank();
-        
+
         vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
         club.safeTransferFrom(address(this), address(0), 2, 1, "");
     }
+
     /*
     function testKeepERC1155FailOnBadContract() public payable {
         address local = address(this);

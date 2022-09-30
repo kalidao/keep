@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @dev Interfaces.
-import {IERC1271} from "./interfaces/IERC1271.sol";
-
-/// @dev Contracts.
+/// @dev Utils.
 import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
 import {ERC1155TokenReceiver, ERC1155V} from "./ERC1155V.sol";
-import {Multicallable} from "@solbase/utils/Multicallable.sol";
+import {Multicallable} from "./utils/Multicallable.sol";
+import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
-/// @notice EIP-712 multi-sig with ERC-1155 interface.
+/// @notice EIP-712 multi-signature wallet with ERC-1155 interface.
 /// @author Modified from LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 
 enum Operation {
@@ -40,7 +38,7 @@ contract Keep is
     Multicallable
 {
     /// -----------------------------------------------------------------------
-    /// EVENTS
+    /// Events
     /// -----------------------------------------------------------------------
 
     /// @notice Emitted when Keep executes call.
@@ -57,7 +55,7 @@ contract Keep is
     event QuorumSet(address indexed caller, uint256 threshold);
 
     /// -----------------------------------------------------------------------
-    /// ERRORS
+    /// Errors
     /// -----------------------------------------------------------------------
 
     /// @notice Throws if init() is called more than once.
@@ -73,9 +71,9 @@ contract Keep is
     error ExecuteFailed();
 
     /// -----------------------------------------------------------------------
-    /// KEEP STORAGE/LOGIC
+    /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
-    
+
     /// @notice Default metadata reference for `uri()`.
     Keep internal uriFetcher;
 
@@ -106,12 +104,12 @@ contract Keep is
         returns (string memory tokenURI)
     {
         tokenURI = _uris[id];
-        
-        if (bytes(tokenURI).length == 0) return uriFetcher.uri(id); 
+
+        if (bytes(tokenURI).length == 0) return uriFetcher.uri(id);
         else return tokenURI;
     }
 
-    /// @notice The name of this Keep.
+    /// @notice The immutable name of this Keep.
     /// @return Name string.
     function name() public pure virtual returns (string memory) {
         return string(abi.encodePacked(_getArgUint256(2)));
@@ -128,7 +126,7 @@ contract Keep is
 
     /// @notice Fetch immutable uint storage.
     function _getArgUint256(uint256 argOffset)
-        private
+        internal
         pure
         returns (uint256 arg)
     {
@@ -147,7 +145,7 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-165 LOGIC
+    /// ERC-165 Logic
     /// -----------------------------------------------------------------------
 
     /// @notice ERC-165 interface detection.
@@ -167,7 +165,7 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// EIP-712 LOGIC
+    /// EIP-712 Logic
     /// -----------------------------------------------------------------------
 
     /// @notice Fetches domain for EXECUTE_ID signatures.
@@ -179,10 +177,12 @@ contract Keep is
                 : _computeDomainSeparator();
     }
 
+    /// @notice Fetch immutable initial chain ID for this Keep.
     function _INITIAL_CHAIN_ID() internal pure virtual returns (uint256) {
         return _getArgUint256(7);
     }
 
+    /// @notice Fetch domain for this Keep.
     function _computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
@@ -199,15 +199,15 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// INITIALIZATION LOGIC
+    /// Initialization Logic
     /// -----------------------------------------------------------------------
-    
+
     /// @notice Create Keep template.
     /// @param _uriFetcher Metadata default.
     constructor(Keep _uriFetcher) payable {
         uriFetcher = _uriFetcher;
     }
-        
+
     /// @notice Initialize Keep configuration.
     /// @param calls Initial Keep operations.
     /// @param signers Initial signer set.
@@ -245,9 +245,7 @@ contract Keep is
         }
 
         address signer;
-
         address previous;
-
         uint256 supply;
 
         for (uint256 i; i < signers.length; ) {
@@ -261,9 +259,7 @@ contract Keep is
             // Won't realistically overflow.
             unchecked {
                 ++balanceOf[signer][EXECUTE_ID];
-
                 ++supply;
-
                 ++i;
             }
 
@@ -279,7 +275,7 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// EXECUTION LOGIC
+    /// Execution Logic
     /// -----------------------------------------------------------------------
 
     /// @notice Execute operation from Keep with signatures.
@@ -297,7 +293,7 @@ contract Keep is
         bytes calldata data,
         Signature[] calldata sigs
     ) public payable virtual returns (bool success) {
-        // Begin signature validation with call data.
+        // Begin signature validation with payload hash.
         bytes32 digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -319,7 +315,6 @@ contract Keep is
 
         // Start from zero in loop to ensure ascending addresses.
         address previous;
-
         // Validation is length of quorum threshold.
         uint256 threshold = quorum;
 
@@ -329,16 +324,15 @@ contract Keep is
             // Check contract signature with EIP-1271.
             if (signer.code.length != 0) {
                 if (
-                    IERC1271(signer).isValidSignature(
+                    ERC1271(signer).isValidSignature(
                         digest,
                         abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) != IERC1271.isValidSignature.selector
+                    ) != ERC1271.isValidSignature.selector
                 ) revert InvalidSig();
             }
 
             // Check EXECUTE_ID balance.
             if (balanceOf[signer][EXECUTE_ID] == 0) revert InvalidSig();
-
             // Check duplicates.
             if (previous >= signer) revert InvalidSig();
 
@@ -438,8 +432,7 @@ contract Keep is
             emit ContractCreated(op, creation, value);
         } else {
             address creation;
-
-            bytes32 salt = bytes32(data);
+            bytes32 salt = bytes32(uint256(nonce));
 
             assembly {
                 creation := create2(value, add(0x20, data), mload(data), salt)
@@ -452,7 +445,7 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// MINT/BURN LOGIC
+    /// Mint/Burn Logic
     /// -----------------------------------------------------------------------
 
     /// @notice ID minter.
@@ -493,7 +486,7 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// THRESHOLD SETTING LOGIC
+    /// Threshold Setting Logic
     /// -----------------------------------------------------------------------
 
     /// @notice Update Keep quorum threshold.
@@ -517,7 +510,7 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
-    /// ID SETTING LOGIC
+    /// ID Setting Logic
     /// -----------------------------------------------------------------------
 
     /// @notice ID transferability setter.

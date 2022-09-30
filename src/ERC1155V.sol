@@ -10,7 +10,7 @@ abstract contract ERC1155TokenReceiver {
         uint256,
         uint256,
         bytes calldata
-    ) external payable virtual returns (bytes4) {
+    ) external virtual returns (bytes4) {
         return ERC1155TokenReceiver.onERC1155Received.selector;
     }
 
@@ -20,7 +20,7 @@ abstract contract ERC1155TokenReceiver {
         uint256[] calldata,
         uint256[] calldata,
         bytes calldata
-    ) external payable virtual returns (bytes4) {
+    ) external virtual returns (bytes4) {
         return ERC1155TokenReceiver.onERC1155BatchReceived.selector;
     }
 }
@@ -203,9 +203,22 @@ abstract contract ERC1155V {
         emit TransferSingle(msg.sender, from, to, id, amount);
 
         if (to.code.length != 0) {
-            if (ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
-                ERC1155TokenReceiver.onERC1155Received.selector) { revert UnsafeRecipient(); }
-        } else { if (to == address(0)) { revert InvalidRecipient(); }}
+            if (
+                ERC1155TokenReceiver(to).onERC1155Received(
+                    msg.sender,
+                    from,
+                    id,
+                    amount,
+                    data
+                ) != ERC1155TokenReceiver.onERC1155Received.selector
+            ) {
+                revert UnsafeRecipient();
+            }
+        } else {
+            if (to == address(0)) {
+                revert InvalidRecipient();
+            }
+        }
 
         _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
@@ -252,9 +265,20 @@ abstract contract ERC1155V {
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
         if (to.code.length != 0) {
-            if (ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
-            ERC1155TokenReceiver.onERC1155BatchReceived.selector) { revert UnsafeRecipient(); }
-        } else if (to == address(0)) { revert InvalidRecipient(); }
+            if (
+                ERC1155TokenReceiver(to).onERC1155BatchReceived(
+                    msg.sender,
+                    from,
+                    ids,
+                    amounts,
+                    data
+                ) != ERC1155TokenReceiver.onERC1155BatchReceived.selector
+            ) {
+                revert UnsafeRecipient();
+            }
+        } else if (to == address(0)) {
+            revert InvalidRecipient();
+        }
     }
 
     /// -----------------------------------------------------------------------
@@ -303,7 +327,7 @@ abstract contract ERC1155V {
         // Won't underflow because decrement only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 prevCheckpoint = nCheckpoints - 1;
-            
+
             if (
                 checkpoints[account][id][prevCheckpoint].fromTimestamp <=
                 timestamp
@@ -467,9 +491,20 @@ abstract contract ERC1155V {
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
         if (to.code.length != 0) {
-            if (ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) != 
-            ERC1155TokenReceiver.onERC1155Received.selector) {revert UnsafeRecipient(); }
-        } else if (to == address(0)) { revert InvalidRecipient(); }
+            if (
+                ERC1155TokenReceiver(to).onERC1155Received(
+                    msg.sender,
+                    address(0),
+                    id,
+                    amount,
+                    data
+                ) != ERC1155TokenReceiver.onERC1155Received.selector
+            ) {
+                revert UnsafeRecipient();
+            }
+        } else if (to == address(0)) {
+            revert InvalidRecipient();
+        }
 
         _moveDelegates(address(0), delegates(to, id), id, amount);
     }
@@ -492,10 +527,7 @@ abstract contract ERC1155V {
         _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 
-    function _setTransferability(uint256 id, bool set)
-        internal
-        virtual
-    {
+    function _setTransferability(uint256 id, bool set) internal virtual {
         transferable[id] = set;
 
         emit TransferabilitySet(msg.sender, id, set);

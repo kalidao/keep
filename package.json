@@ -1,11 +1,11 @@
 {
-  "name": "multi-sig",
+  "name": "Keep",
   "version": "1.0.0",
-  "description": "Ethereum multisig contract with tokenized rights",
+  "description": "EIP-712 multi-signature wallet with ERC-1155 interface",
   "main": "index.js",
   "repository": "https://github.com/kalidao/multi-sig",
   "author": "KaliCo LLC <kalidao@protonmail.com>",
-  "license": "AGPL-3.0",
+  "license": "MIT",
   "private": false,
   "scripts": {
     "prettier": "prettier --write 'src/**/*.sol'",
@@ -18,10 +18,11 @@
     "setup": "forge clean && forge build --optimize --optimizer-runs 9999999",
     "sync": "forge update",
     "test": "forge clean && forge test --optimize --optimizer-runs 9999999 -vvv",
-    "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 9999999"
+    "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 9999999",
+    "lint": "prettier --write **.sol"
   },
   "dependencies": {
-    "prettier": "^2.5.1",
+    "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.6"
   }
