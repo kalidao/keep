@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @dev Utils.
 import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
 import {ERC1155TokenReceiver, ERC1155V} from "./ERC1155V.sol";
 import {Multicallable} from "./utils/Multicallable.sol";
 import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
-/// @notice EIP-712 multi-signature wallet with ERC-1155 interface.
+/// @notice EIP-712 multi-signature wallet with ERC1155 interface.
+/// @author KaliCo LLC (https://github.com/kalidao/multi-sig/blob/main/src/Keep.sol)
 /// @author Modified from LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 
 enum Operation {
@@ -41,61 +41,61 @@ contract Keep is
     /// Events
     /// -----------------------------------------------------------------------
 
-    /// @notice Emitted when Keep executes call.
+    /// @dev Emitted when Keep executes call.
     event Executed(Operation op, address indexed to, uint256 value, bytes data);
 
-    /// @notice Emitted when Keep creates contract.
+    /// @dev Emitted when Keep creates contract.
     event ContractCreated(
         Operation op,
         address indexed creation,
         uint256 value
     );
 
-    /// @notice Emitted when quorum threshold is updated.
-    event QuorumSet(address indexed caller, uint256 threshold);
+    /// @dev Emitted when quorum threshold is updated.
+    event QuorumSet(address indexed operator, uint256 threshold);
 
     /// -----------------------------------------------------------------------
-    /// Errors
+    /// Custom Errors
     /// -----------------------------------------------------------------------
 
-    /// @notice Throws if init() is called more than once.
+    /// @dev Throws if `initialize()` is called more than once.
     error AlreadyInit();
 
-    /// @notice Throws if quorum exceeds totalSupply(EXECUTE_ID).
+    /// @dev Throws if quorum exceeds `totalSupply(EXECUTE_ID)`.
     error QuorumOverSupply();
 
-    /// @notice Throws if signature doesn't verify execute().
+    /// @dev Throws if signature doesn't verify execute().
     error InvalidSig();
 
-    /// @notice Throws if execute() doesn't complete operation.
+    /// @dev Throws if `execute()` doesn't complete operation.
     error ExecuteFailed();
 
     /// -----------------------------------------------------------------------
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice Default metadata reference for `uri()`.
-    Keep internal uriFetcher;
-
-    /// @notice Record of states for verifying `execute()`.
-    uint64 public nonce;
-
-    /// @notice EXECUTE_ID threshold to `execute()`.
-    uint64 public quorum;
-
-    /// @notice `initialize()` Keep domain value.
-    bytes32 internal _INITIAL_DOMAIN_SEPARATOR;
-
-    /// @notice `execute()` ID permission.
+    /// @dev `execute()` ID permission.
     uint256 internal constant EXECUTE_ID =
         uint256(bytes32(this.execute.selector));
 
-    /// @notice ID metadata tracking.
+    /// @dev Default metadata fetcher for `uri()`.
+    Keep internal _uriFetcher;
+
+    /// @dev Record of states verifying `execute()`.
+    uint96 public nonce;
+
+    /// @dev EXECUTE_ID threshold to `execute()`.
+    uint96 public quorum;
+
+    /// @dev `initialize()` Keep domain value.
+    bytes32 internal _initialDomainSeparator;
+
+    /// @dev Internal ID metadata mapping.
     mapping(uint256 => string) internal _uris;
 
-    /// @notice ID metadata fetcher.
+    /// @dev ID metadata fetcher.
     /// @param id ID to fetch from.
-    /// @return tokenURI ID metadata reference.
+    /// @return tokenURI Metadata.
     function uri(uint256 id)
         public
         view
@@ -105,17 +105,17 @@ contract Keep is
     {
         tokenURI = _uris[id];
 
-        if (bytes(tokenURI).length == 0) return uriFetcher.uri(id);
-        else return tokenURI;
+        if (bytes(tokenURI).length != 0) return tokenURI;
+        else return _uriFetcher.uri(id);
     }
 
-    /// @notice The immutable name of this Keep.
+    /// @dev The immutable name of this Keep.
     /// @return Name string.
     function name() public pure virtual returns (string memory) {
         return string(abi.encodePacked(_getArgUint256(2)));
     }
 
-    /// @notice Access control for ID balance owners.
+    /// @dev Access control check for ID balance owners.
     function _authorized() internal view virtual returns (bool) {
         if (
             msg.sender == address(this) ||
@@ -124,7 +124,7 @@ contract Keep is
         else revert NotAuthorized();
     }
 
-    /// @notice Fetch immutable uint storage.
+    /// @dev Fetches immutable uint storage.
     function _getArgUint256(uint256 argOffset)
         internal
         pure
@@ -137,18 +137,16 @@ contract Keep is
                 calldatasize(),
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
-        }
 
-        assembly {
             arg := calldataload(add(offset, argOffset))
         }
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-165 Logic
+    /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice ERC-165 interface detection.
+    /// @dev ERC165 interface detection.
     /// @param interfaceId ID to check.
     /// @return Fetch detection success.
     function supportsInterface(bytes4 interfaceId)
@@ -160,7 +158,7 @@ contract Keep is
     {
         return
             interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
-            interfaceId == 0x4e2312e0 || // ERC165 Interface ID for ERC1155TokenReceiver.
+            interfaceId == type(ERC1155TokenReceiver).interfaceId || // ERC165 Interface ID for ERC1155TokenReceiver.
             super.supportsInterface(interfaceId); // ERC165 Interface IDs for ERC1155.
     }
 
@@ -168,21 +166,21 @@ contract Keep is
     /// EIP-712 Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice Fetches domain for EXECUTE_ID signatures.
+    /// @dev Fetches domain for EXECUTE_ID signatures.
     /// @return Domain hash.
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
             block.chainid == _INITIAL_CHAIN_ID()
-                ? _INITIAL_DOMAIN_SEPARATOR
+                ? _initialDomainSeparator
                 : _computeDomainSeparator();
     }
 
-    /// @notice Fetch immutable initial chain ID for this Keep.
+    /// @dev Fetch immutable initial chain ID for this Keep.
     function _INITIAL_CHAIN_ID() internal pure virtual returns (uint256) {
         return _getArgUint256(7);
     }
 
-    /// @notice Fetch domain for this Keep.
+    /// @dev Fetch domain for this Keep.
     function _computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
@@ -203,9 +201,9 @@ contract Keep is
     /// -----------------------------------------------------------------------
 
     /// @notice Create Keep template.
-    /// @param _uriFetcher Metadata default.
-    constructor(Keep _uriFetcher) payable {
-        uriFetcher = _uriFetcher;
+    /// @param uriFetcher Metadata default.
+    constructor(Keep uriFetcher) payable {
+        _uriFetcher = uriFetcher;
     }
 
     /// @notice Initialize Keep configuration.
@@ -244,8 +242,8 @@ contract Keep is
             }
         }
 
-        address signer;
         address previous;
+        address signer;
         uint256 supply;
 
         for (uint256 i; i < signers.length; ) {
@@ -267,11 +265,11 @@ contract Keep is
             emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
         }
 
-        quorum = uint64(threshold);
-
+        quorum = uint96(threshold);
+        
         totalSupply[EXECUTE_ID] = supply;
 
-        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        _initialDomainSeparator = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
@@ -283,7 +281,7 @@ contract Keep is
     /// @param to Address to send operation to.
     /// @param value Amount of ETH to send in operation.
     /// @param data Payload to send in operation.
-    /// @param sigs Array of signatures from NFT sorted in ascending order by addresses.
+    /// @param sigs Array of Keep signatures sorted in ascending order by addresses.
     /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail.
     /// @return success Fetch whether operation succeeded.
     function execute(
@@ -349,7 +347,7 @@ contract Keep is
         success = _execute(op, to, value, data);
     }
 
-    /// @notice Execute operations from Keep with signed execute() or as Keep key holder.
+    /// @notice Execute operations from Keep with `execute()` or as key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
     /// @return successes Fetches whether operations succeeded.
     function multiExecute(Call[] calldata calls)
@@ -491,7 +489,7 @@ contract Keep is
 
     /// @notice Update Keep quorum threshold.
     /// @param threshold Signature threshold for `execute()`.
-    function setQuorum(uint32 threshold) public payable virtual {
+    function setQuorum(uint96 threshold) public payable virtual {
         _authorized();
 
         assembly {
