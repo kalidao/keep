@@ -498,7 +498,7 @@ contract Keep is
             }
         }
 
-        // note: Also make sure signers don't concentrate tokens,
+        // note: Make sure signers don't concentrate ID keys,
         // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
 
