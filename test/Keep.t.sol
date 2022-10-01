@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Operation, Call, Signature, Keep} from "../Keep.sol";
-import {ERC1155TokenReceiver} from "../Keep.sol";
-import {KeepFactory} from "../KeepFactory.sol";
+import {ERC1155TokenReceiver, Operation, Call, Signature, Keep} from "../src/Keep.sol";
+
+import {KeepFactory} from "../src/KeepFactory.sol";
 
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";

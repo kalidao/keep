@@ -5,8 +5,8 @@ optimizer_runs = 1000000
 
 # Configure remappings
 remappings = [
-  '@std=lib/forge-std/src/',
-  '@solbase=lib/solbase/src/'
+  "@std=lib/forge-std/src/",
+  "@solbase=lib/solbase/"
 ]
 
 [profile.intense.fuzz]

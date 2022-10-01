@@ -10,8 +10,8 @@ abstract contract ERC1155TokenReceiver {
         uint256,
         uint256,
         bytes calldata
-    ) external virtual returns (bytes4) {
-        return ERC1155TokenReceiver.onERC1155Received.selector;
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
     }
 
     function onERC1155BatchReceived(
@@ -20,8 +20,8 @@ abstract contract ERC1155TokenReceiver {
         uint256[] calldata,
         uint256[] calldata,
         bytes calldata
-    ) external virtual returns (bytes4) {
-        return ERC1155TokenReceiver.onERC1155BatchReceived.selector;
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }
 

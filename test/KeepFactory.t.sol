@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Call, Keep} from "../Keep.sol";
-import {KeepFactory} from "../KeepFactory.sol";
+import {Call, Keep} from "../src/Keep.sol";
+import {KeepFactory} from "../src/KeepFactory.sol";
 
 import "@std/Test.sol";
 
