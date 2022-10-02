@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @dev Contracts.
 import {Multicallable, Call, Keep} from "./Keep.sol";
-
-/// @dev Libraries.
 import {LibClone} from "./utils/LibClone.sol";
 
 /// @notice Keep Factory.
@@ -48,13 +45,15 @@ contract KeepFactory is Multicallable {
         public
         view
         virtual
-        returns (address keep)
+        returns (address)
     {
-        keep = address(keepTemplate).predictDeterministicAddress(
-            abi.encodePacked(name, uint40(block.chainid)),
-            name,
-            address(this)
-        );
+        return 
+            address(keepTemplate).
+                predictDeterministicAddress(
+                    abi.encodePacked(name, uint40(block.chainid)),
+                    name,
+                    address(this)
+                );
     }
 
     function deployKeep(
@@ -64,13 +63,18 @@ contract KeepFactory is Multicallable {
         bytes32 name // create2 salt.
     ) public payable virtual {
         Keep keep = Keep(
-            address(keepTemplate).cloneDeterministic(
-                abi.encodePacked(name, uint40(block.chainid)),
-                name
-            )
-        );
+            address(keepTemplate).
+                cloneDeterministic(
+                    abi.encodePacked(name, uint40(block.chainid)),
+                    name
+                )
+            );
 
-        keep.initialize{value: msg.value}(calls, signers, threshold);
+        keep.initialize{value: msg.value}(
+            calls, 
+            signers, 
+            threshold
+        );
 
         emit Deployed(calls, signers, threshold, name);
     }
