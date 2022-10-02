@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @notice A generic interface for a contract which properly accepts ERC1155 tokens.
+/// @notice ERC1155 interface to receive tokens.
 /// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
 abstract contract ERC1155TokenReceiver {
     function onERC1155Received(
