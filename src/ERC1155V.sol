@@ -453,21 +453,21 @@ abstract contract ERC1155V {
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
     }
 
-    function _safeCastTo40(uint256 x) internal pure virtual returns (uint40 y) {
+    function _safeCastTo40(uint256 x) internal pure virtual returns (uint40) {
         if (x >= (1 << 40)) revert Overflow();
 
-        y = uint40(x);
+        return uint40(x);
     }
 
     function _safeCastTo216(uint256 x)
         internal
         pure
         virtual
-        returns (uint216 y)
+        returns (uint216)
     {
         if (x >= (1 << 216)) revert Overflow();
 
-        y = uint216(x);
+        return uint216(x);
     }
 
     /// -----------------------------------------------------------------------
