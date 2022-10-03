@@ -91,6 +91,10 @@ abstract contract ERC1155V {
 
     error InvalidRecipient();
 
+    error ExpiredSig();
+
+    error InvalidSig();
+
     error Undetermined();
 
     error Overflow();
@@ -102,6 +106,57 @@ abstract contract ERC1155V {
     mapping(address => mapping(uint256 => uint256)) public balanceOf;
 
     mapping(address => mapping(address => bool)) public isApprovedForAll;
+
+    /// -----------------------------------------------------------------------
+    /// EIP-712 Storage/Logic
+    /// -----------------------------------------------------------------------
+
+    bytes32 internal _initialDomainSeparator;
+
+    mapping(address => uint256) public nonces;
+
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+        return
+            block.chainid == _initialChainId()
+                ? _initialDomainSeparator
+                : _computeDomainSeparator();
+    }
+
+    function _initialChainId() internal pure virtual returns (uint256) {
+        return _computeArgUint256(7);
+    }
+
+    function _computeDomainSeparator() internal view virtual returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("Keep")),
+                    keccak256("1"),
+                    block.chainid,
+                    address(this)
+                )
+            );
+    }
+
+    function _computeArgUint256(uint256 argOffset)
+        internal
+        pure
+        returns (uint256 arg)
+    {
+        uint256 offset;
+
+        assembly {
+            offset := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+
+            arg := calldataload(add(offset, argOffset))
+        }
+    }
 
     /// -----------------------------------------------------------------------
     /// Voting Storage
@@ -143,6 +198,14 @@ abstract contract ERC1155V {
             interfaceId == this.supportsInterface.selector || // ERC165 interface ID for ERC165.
             interfaceId == 0xd9b67a26 || // ERC165 interface ID for ERC1155.
             interfaceId == 0x0e89341c; // ERC165 interface ID for ERC1155MetadataURI.
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Initialization Logic
+    /// -----------------------------------------------------------------------
+
+    function initialize() internal {
+        _initialDomainSeparator = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------
@@ -282,7 +345,59 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// Voting Logic
+    /// EIP-2612-style Permit Logic
+    /// -----------------------------------------------------------------------
+
+    function permit(
+        address owner,
+        address operator,
+        bool approved,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public payable virtual {
+        if (block.timestamp > deadline) revert ExpiredSig();
+
+        // Unchecked because the only math done is incrementing
+        // the owner's nonce which cannot realistically overflow.
+        unchecked {
+            address recoveredAddress = ecrecover(
+                keccak256(
+                    abi.encodePacked(
+                        "\x19\x01",
+                        DOMAIN_SEPARATOR(),
+                        keccak256(
+                            abi.encode(
+                                keccak256(
+                                    "Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)"
+                                ),
+                                owner,
+                                operator,
+                                approved,
+                                nonces[owner]++,
+                                deadline
+                            )
+                        )
+                    )
+                ),
+                v,
+                r,
+                s
+            );
+
+            if (recoveredAddress == address(0)) revert InvalidSig();
+ 
+            if (recoveredAddress != owner) revert InvalidSig();
+
+            isApprovedForAll[recoveredAddress][operator] = approved;
+        }
+
+        emit ApprovalForAll(owner, operator, approved);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Voting Storage/Logic
     /// -----------------------------------------------------------------------
 
     function delegates(address account, uint256 id)
@@ -358,17 +473,77 @@ abstract contract ERC1155V {
     }
 
     function delegate(address delegatee, uint256 id) public payable virtual {
-        address currentDelegate = delegates(msg.sender, id);
+        _delegate(
+            msg.sender, 
+            delegatee, 
+            id
+        );
+    }
 
-        _delegates[msg.sender][id] = delegatee;
+    function delegateBySig(
+        address delegatee,
+        uint256 id,
+        uint256 nonce,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public payable virtual {
+        if (block.timestamp > deadline) revert ExpiredSig();
+ 
+        address recoveredAddress = ecrecover(
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            keccak256(
+                                "Delegation(address delegatee,uint256 id,uint256 nonce,uint256 deadline)"
+                            ),
+                            delegatee,
+                            id,
+                            nonce,
+                            deadline
+                        )
+                    )
+                )
+            ),
+            v,
+            r,
+            s
+        );
+ 
+        if (recoveredAddress == address(0)) revert InvalidSig();
+       
+        // Cannot realistically overflow on human timescales.
+        unchecked {
+            if (nonce != nonces[recoveredAddress]++) revert InvalidSig();
+        }
+ 
+        _delegate(
+            recoveredAddress, 
+            delegatee, 
+            id
+        );
+    }
 
-        emit DelegateChanged(msg.sender, currentDelegate, delegatee, id);
+    function _delegate(
+        address delegator, 
+        address delegatee, 
+        uint256 id
+    ) internal virtual {
+        address currentDelegate = delegates(delegator, id);
+
+        _delegates[delegator][id] = delegatee;
+
+        emit DelegateChanged(delegator, currentDelegate, delegatee, id);
 
         _moveDelegates(
             currentDelegate,
             delegatee,
             id,
-            balanceOf[msg.sender][id]
+            balanceOf[delegator][id]
         );
     }
 
@@ -453,6 +628,10 @@ abstract contract ERC1155V {
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
     }
 
+    /// -----------------------------------------------------------------------
+    /// Safecast Logic
+    /// -----------------------------------------------------------------------
+
     function _safeCastTo40(uint256 x) internal pure virtual returns (uint40) {
         if (x >= (1 << 40)) revert Overflow();
 
@@ -471,7 +650,7 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// Internal ID Logic
+    /// Internal Mint/Burn Logic
     /// -----------------------------------------------------------------------
 
     function _mint(
@@ -526,6 +705,10 @@ abstract contract ERC1155V {
 
         _moveDelegates(delegates(from, id), address(0), id, amount);
     }
+
+    /// -----------------------------------------------------------------------
+    /// Internal Transferability Logic
+    /// -----------------------------------------------------------------------
 
     function _setTransferability(uint256 id, bool set) internal virtual {
         transferable[id] = set;

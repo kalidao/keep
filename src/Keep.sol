@@ -64,9 +64,6 @@ contract Keep is
     /// @dev Throws if quorum exceeds `totalSupply(EXECUTE_ID)`.
     error QuorumOverSupply();
 
-    /// @dev Throws if signature doesn't verify execute().
-    error InvalidSig();
-
     /// @dev Throws if `execute()` doesn't complete operation.
     error ExecuteFailed();
 
@@ -86,9 +83,6 @@ contract Keep is
 
     /// @dev EXECUTE_ID threshold to `execute()`.
     uint96 public quorum;
-
-    /// @dev `initialize()` Keep domain value.
-    bytes32 internal _initialDomainSeparator;
 
     /// @dev Internal ID metadata mapping.
     mapping(uint256 => string) internal _uris;
@@ -112,7 +106,7 @@ contract Keep is
     /// @dev The immutable name of this Keep.
     /// @return Name string.
     function name() public pure virtual returns (string memory) {
-        return string(abi.encodePacked(_getArgUint256(2)));
+        return string(abi.encodePacked(_computeArgUint256(2)));
     }
 
     /// @dev Access control check for ID balance owners.
@@ -122,24 +116,6 @@ contract Keep is
             balanceOf[msg.sender][uint256(bytes32(msg.sig))] != 0
         ) return true;
         else revert NotAuthorized();
-    }
-
-    /// @dev Fetches immutable uint storage.
-    function _getArgUint256(uint256 argOffset)
-        internal
-        pure
-        returns (uint256 arg)
-    {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-
-            arg := calldataload(add(offset, argOffset))
-        }
     }
 
     /// -----------------------------------------------------------------------
@@ -160,40 +136,6 @@ contract Keep is
             interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
             interfaceId == type(ERC1155TokenReceiver).interfaceId || // ERC165 Interface ID for ERC1155TokenReceiver.
             super.supportsInterface(interfaceId); // ERC165 Interface IDs for ERC1155.
-    }
-
-    /// -----------------------------------------------------------------------
-    /// EIP-712 Logic
-    /// -----------------------------------------------------------------------
-
-    /// @dev Fetches domain for EXECUTE_ID signatures.
-    /// @return Domain hash.
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            block.chainid == _INITIAL_CHAIN_ID()
-                ? _initialDomainSeparator
-                : _computeDomainSeparator();
-    }
-
-    /// @dev Fetch immutable initial chain ID for this Keep.
-    function _INITIAL_CHAIN_ID() internal pure virtual returns (uint256) {
-        return _getArgUint256(7);
-    }
-
-    /// @dev Fetch domain for this Keep.
-    function _computeDomainSeparator() internal view virtual returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes("Keep")),
-                    keccak256("1"),
-                    block.chainid,
-                    address(this)
-                )
-            );
     }
 
     /// -----------------------------------------------------------------------
@@ -269,7 +211,7 @@ contract Keep is
         
         totalSupply[EXECUTE_ID] = supply;
 
-        _initialDomainSeparator = _computeDomainSeparator();
+        ERC1155V.initialize();
     }
 
     /// -----------------------------------------------------------------------
