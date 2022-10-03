@@ -41,19 +41,13 @@ contract KeepFactory is Multicallable {
     /// Deployment Logic
     /// -----------------------------------------------------------------------
 
-    function determineKeep(bytes32 name)
-        public
-        view
-        virtual
-        returns (address)
-    {
-        return 
-            address(keepTemplate).
-                predictDeterministicAddress(
-                    abi.encodePacked(name, uint40(block.chainid)),
-                    name,
-                    address(this)
-                );
+    function determineKeep(bytes32 name) public view virtual returns (address) {
+        return
+            address(keepTemplate).predictDeterministicAddress(
+                abi.encodePacked(name, uint40(block.chainid)),
+                name,
+                address(this)
+            );
     }
 
     function deployKeep(
@@ -63,18 +57,13 @@ contract KeepFactory is Multicallable {
         bytes32 name // create2 salt.
     ) public payable virtual {
         Keep keep = Keep(
-            address(keepTemplate).
-                cloneDeterministic(
-                    abi.encodePacked(name, uint40(block.chainid)),
-                    name
-                )
-            );
-
-        keep.initialize{value: msg.value}(
-            calls, 
-            signers, 
-            threshold
+            address(keepTemplate).cloneDeterministic(
+                abi.encodePacked(name, uint40(block.chainid)),
+                name
+            )
         );
+
+        keep.initialize{value: msg.value}(calls, signers, threshold);
 
         emit Deployed(calls, signers, threshold, name);
     }

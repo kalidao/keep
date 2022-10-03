@@ -208,7 +208,7 @@ contract Keep is
         }
 
         quorum = uint96(threshold);
-        
+
         totalSupply[EXECUTE_ID] = supply;
 
         ERC1155V.initialize();

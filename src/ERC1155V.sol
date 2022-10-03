@@ -387,7 +387,7 @@ abstract contract ERC1155V {
             );
 
             if (recoveredAddress == address(0)) revert InvalidSig();
- 
+
             if (recoveredAddress != owner) revert InvalidSig();
 
             isApprovedForAll[recoveredAddress][operator] = approved;
@@ -473,11 +473,7 @@ abstract contract ERC1155V {
     }
 
     function delegate(address delegatee, uint256 id) public payable virtual {
-        _delegate(
-            msg.sender, 
-            delegatee, 
-            id
-        );
+        _delegate(msg.sender, delegatee, id);
     }
 
     function delegateBySig(
@@ -490,7 +486,7 @@ abstract contract ERC1155V {
         bytes32 s
     ) public payable virtual {
         if (block.timestamp > deadline) revert ExpiredSig();
- 
+
         address recoveredAddress = ecrecover(
             keccak256(
                 abi.encodePacked(
@@ -513,24 +509,20 @@ abstract contract ERC1155V {
             r,
             s
         );
- 
+
         if (recoveredAddress == address(0)) revert InvalidSig();
-       
+
         // Cannot realistically overflow on human timescales.
         unchecked {
             if (nonce != nonces[recoveredAddress]++) revert InvalidSig();
         }
- 
-        _delegate(
-            recoveredAddress, 
-            delegatee, 
-            id
-        );
+
+        _delegate(recoveredAddress, delegatee, id);
     }
 
     function _delegate(
-        address delegator, 
-        address delegatee, 
+        address delegator,
+        address delegatee,
         uint256 id
     ) internal virtual {
         address currentDelegate = delegates(delegator, id);
@@ -638,12 +630,7 @@ abstract contract ERC1155V {
         return uint40(x);
     }
 
-    function _safeCastTo216(uint256 x)
-        internal
-        pure
-        virtual
-        returns (uint216)
-    {
+    function _safeCastTo216(uint256 x) internal pure virtual returns (uint216) {
         if (x >= (1 << 216)) revert Overflow();
 
         return uint216(x);
