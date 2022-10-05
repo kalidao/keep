@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
-import {ERC1155TokenReceiver, ERC1155V} from "./ERC1155V.sol";
+import {ERC1155TokenReceiver, KeepToken} from "./KeepToken.sol";
 import {Multicallable} from "./utils/Multicallable.sol";
 import {ERC1271} from "./utils/ERC1271.sol";
 
@@ -34,7 +34,7 @@ struct Signature {
 contract Keep is
     ERC721TokenReceiver,
     ERC1155TokenReceiver,
-    ERC1155V,
+    KeepToken,
     Multicallable
 {
     /// -----------------------------------------------------------------------
@@ -94,7 +94,6 @@ contract Keep is
         public
         view
         virtual
-        override
         returns (string memory tokenURI)
     {
         tokenURI = _uris[id];
@@ -211,7 +210,7 @@ contract Keep is
 
         totalSupply[EXECUTE_ID] = supply;
 
-        ERC1155V.initialize();
+        KeepToken._initialize();
     }
 
     /// -----------------------------------------------------------------------

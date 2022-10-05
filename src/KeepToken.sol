@@ -25,10 +25,11 @@ abstract contract ERC1155TokenReceiver {
     }
 }
 
-/// @notice Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and default non-transferability.
+/// @notice Modern, minimalist, and gas-optimized ERC1155V implementation with Compound-style voting and default non-transferability.
 /// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
 /// @author Modified from Compound (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
-abstract contract ERC1155V {
+/// @author Modified from OpenZeppelin (https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/extensions/ERC20Votes.sol)
+contract KeepToken {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -75,6 +76,15 @@ abstract contract ERC1155V {
         bool set
     );
 
+    event PermissionSet(address indexed operator, uint256 id, bool set);
+
+    event UserPermissionSet(
+        address indexed operator,
+        address indexed to,
+        uint256 id,
+        bool set
+    );
+
     event URI(string value, uint256 indexed id);
 
     /// -----------------------------------------------------------------------
@@ -86,6 +96,8 @@ abstract contract ERC1155V {
     error NotAuthorized();
 
     error NonTransferable();
+
+    error NotPermitted();
 
     error UnsafeRecipient();
 
@@ -162,16 +174,19 @@ abstract contract ERC1155V {
     /// Voting Storage
     /// -----------------------------------------------------------------------
 
+    mapping(uint256 => uint256) public totalSupply;
+
     mapping(uint256 => bool) public transferable;
 
-    mapping(uint256 => uint256) public totalSupply;
+    mapping(uint256 => bool) public permissioned;
+
+    mapping(address => mapping(uint256 => bool)) public userPermissioned;
 
     mapping(address => mapping(uint256 => address)) internal _delegates;
 
-    mapping(address => mapping(uint256 => uint256)) public numCheckpoints;
+    mapping(address => mapping(uint256 => Checkpoint[])) public checkpoints;
 
-    mapping(address => mapping(uint256 => mapping(uint256 => Checkpoint)))
-        public checkpoints;
+    mapping(uint256 => Checkpoint[]) public totalSupplyCheckpoints;
 
     struct Checkpoint {
         uint40 fromTimestamp;
@@ -182,7 +197,7 @@ abstract contract ERC1155V {
     /// Metadata Logic
     /// -----------------------------------------------------------------------
 
-    function uri(uint256 id) public view virtual returns (string memory);
+    //function uri(uint256 id) public view virtual returns (string memory);
 
     /// -----------------------------------------------------------------------
     /// ERC165 Logic
@@ -204,7 +219,7 @@ abstract contract ERC1155V {
     /// Initialization Logic
     /// -----------------------------------------------------------------------
 
-    function initialize() internal {
+    function _initialize() internal {
         _initialDomainSeparator = _computeDomainSeparator();
     }
 
@@ -255,6 +270,11 @@ abstract contract ERC1155V {
 
         if (!transferable[id]) revert NonTransferable();
 
+        if (permissioned[id]) {
+            if (!userPermissioned[from][id] || !userPermissioned[to][id])
+                revert NotPermitted();
+        }
+
         balanceOf[from][id] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -283,7 +303,7 @@ abstract contract ERC1155V {
             }
         }
 
-        _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+        _moveVotingPower(delegates(from, id), delegates(to, id), id, amount);
     }
 
     function safeBatchTransferFrom(
@@ -308,6 +328,11 @@ abstract contract ERC1155V {
 
             if (!transferable[id]) revert NonTransferable();
 
+            if (permissioned[id]) {
+                if (!userPermissioned[from][id] || !userPermissioned[to][id])
+                    revert NotPermitted();
+            }
+
             balanceOf[from][id] -= amount;
 
             // Cannot overflow because the sum of all user
@@ -316,7 +341,12 @@ abstract contract ERC1155V {
                 balanceOf[to][id] += amount;
             }
 
-            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+            _moveVotingPower(
+                delegates(from, id),
+                delegates(to, id),
+                id,
+                amount
+            );
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -397,7 +427,187 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// Voting Storage/Logic
+    /// Checkpoint Storage/Logic
+    /// -----------------------------------------------------------------------
+
+    function numCheckpoints(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return checkpoints[account][id].length;
+    }
+
+    function getVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return getCurrentVotes(account, id);
+    }
+
+    function getCurrentVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        uint256 pos = checkpoints[account][id].length;
+
+        // Unchecked because subtraction only occurs if positive `pos`.
+        unchecked {
+            return pos == 0 ? 0 : checkpoints[account][id][pos - 1].votes;
+        }
+    }
+
+    function getPastVotes(
+        address account,
+        uint256 id,
+        uint256 timestamp
+    ) public view virtual returns (uint256) {
+        return getPriorVotes(account, id, timestamp);
+    }
+
+    function getPriorVotes(
+        address account,
+        uint256 id,
+        uint256 timestamp
+    ) public view virtual returns (uint256) {
+        if (block.timestamp <= timestamp) revert Undetermined();
+
+        return _checkpointsLookup(checkpoints[account][id], timestamp);
+    }
+
+    function getPastTotalSupply(uint256 id, uint256 timestamp)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        if (block.timestamp <= timestamp) revert Undetermined();
+
+        return _checkpointsLookup(totalSupplyCheckpoints[id], timestamp);
+    }
+
+    function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 timestamp)
+        internal
+        view
+        virtual
+        returns (uint256)
+    {
+        uint256 length = ckpts.length;
+        uint256 low;
+        uint256 high = length;
+
+        // Unchecked because math is bounded.
+        unchecked {
+            if (length > 5) {
+                uint256 mid = length - _sqrt(length);
+
+                if (_unsafeAccess(ckpts, mid).fromTimestamp > timestamp) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
+            }
+
+            while (low < high) {
+                uint256 mid = ((low & high) + (low ^ high)) >> 1;
+
+                if (_unsafeAccess(ckpts, mid).fromTimestamp > timestamp) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
+            }
+
+            return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
+        }
+    }
+
+    function _moveVotingPower(
+        address src,
+        address dst,
+        uint256 id,
+        uint256 amount
+    ) internal virtual {
+        if (src != dst && amount != 0) {
+            if (src != address(0)) {
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(
+                    checkpoints[src][id],
+                    totalSupplyCheckpoints[id],
+                    _subtract,
+                    amount
+                );
+                emit DelegateVotesChanged(src, id, oldWeight, newWeight);
+            }
+
+            if (dst != address(0)) {
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(
+                    checkpoints[dst][id],
+                    totalSupplyCheckpoints[id],
+                    _add,
+                    amount
+                );
+                emit DelegateVotesChanged(dst, id, oldWeight, newWeight);
+            }
+        }
+    }
+
+    function _writeCheckpoint(
+        Checkpoint[] storage ckpts,
+        Checkpoint[] storage totalCkpts,
+        function(uint256, uint256) view returns (uint256) op,
+        uint256 delta
+    ) internal virtual returns (uint256 oldWeight, uint256 newWeight) {
+        uint256 pos = ckpts.length;
+        uint256 totalPos = totalCkpts.length;
+
+        unchecked {
+            Checkpoint memory oldCkpt = pos == 0
+                ? Checkpoint(0, 0)
+                : _unsafeAccess(ckpts, pos - 1);
+
+            oldWeight = oldCkpt.votes;
+            newWeight = op(oldWeight, delta);
+
+            if (pos != 0 && oldCkpt.fromTimestamp == block.timestamp) {
+                _unsafeAccess(ckpts, pos - 1).votes = _safeCastTo216(newWeight);
+                _unsafeAccess(totalCkpts, totalPos - 1).votes = _safeCastTo216(
+                    newWeight
+                );
+            } else {
+                ckpts.push(
+                    Checkpoint({
+                        fromTimestamp: _safeCastTo40(block.timestamp),
+                        votes: _safeCastTo216(newWeight)
+                    })
+                );
+                totalCkpts.push(
+                    Checkpoint({
+                        fromTimestamp: _safeCastTo40(block.timestamp),
+                        votes: _safeCastTo216(newWeight)
+                    })
+                );
+            }
+        }
+    }
+
+    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos)
+        internal
+        pure
+        returns (Checkpoint storage result)
+    {
+        assembly {
+            mstore(0, ckpts.slot)
+            result.slot := add(keccak256(0, 0x20), pos)
+        }
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Delegation Storage/Logic
     /// -----------------------------------------------------------------------
 
     function delegates(address account, uint256 id)
@@ -409,67 +619,6 @@ abstract contract ERC1155V {
         address current = _delegates[account][id];
 
         return current == address(0) ? account : current;
-    }
-
-    function getCurrentVotes(address account, uint256 id)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
-        unchecked {
-            uint256 nCheckpoints = numCheckpoints[account][id];
-
-            return
-                nCheckpoints != 0
-                    ? checkpoints[account][id][nCheckpoints - 1].votes
-                    : 0;
-        }
-    }
-
-    function getPriorVotes(
-        address account,
-        uint256 id,
-        uint256 timestamp
-    ) public view virtual returns (uint256) {
-        if (block.timestamp <= timestamp) revert Undetermined();
-
-        uint256 nCheckpoints = numCheckpoints[account][id];
-
-        if (nCheckpoints == 0) return 0;
-
-        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
-        unchecked {
-            uint256 prevCheckpoint = nCheckpoints - 1;
-
-            if (
-                checkpoints[account][id][prevCheckpoint].fromTimestamp <=
-                timestamp
-            ) return checkpoints[account][id][prevCheckpoint].votes;
-
-            if (checkpoints[account][id][0].fromTimestamp > timestamp) return 0;
-
-            uint256 lower;
-
-            uint256 upper = prevCheckpoint;
-
-            while (upper > lower) {
-                uint256 center = upper - (upper - lower) / 2;
-
-                Checkpoint memory cp = checkpoints[account][id][center];
-
-                if (cp.fromTimestamp == timestamp) {
-                    return cp.votes;
-                } else if (cp.fromTimestamp < timestamp) {
-                    lower = center;
-                } else {
-                    upper = center - 1;
-                }
-            }
-
-            return checkpoints[account][id][lower].votes;
-        }
     }
 
     function delegate(address delegatee, uint256 id) public payable virtual {
@@ -531,7 +680,7 @@ abstract contract ERC1155V {
 
         emit DelegateChanged(delegator, currentDelegate, delegatee, id);
 
-        _moveDelegates(
+        _moveVotingPower(
             currentDelegate,
             delegatee,
             id,
@@ -539,85 +688,71 @@ abstract contract ERC1155V {
         );
     }
 
-    function _moveDelegates(
-        address srcRep,
-        address dstRep,
-        uint256 id,
-        uint256 amount
-    ) internal virtual {
-        if (srcRep != dstRep && amount != 0) {
-            if (srcRep != address(0)) {
-                uint256 srcRepNum = numCheckpoints[srcRep][id];
+    /// -----------------------------------------------------------------------
+    /// Math Helpers
+    /// -----------------------------------------------------------------------
 
-                uint256 srcRepOld;
-
-                // Won't underflow because decrement only occurs if positive `srcRepNum`.
-                unchecked {
-                    srcRepOld = srcRepNum != 0
-                        ? checkpoints[srcRep][id][srcRepNum - 1].votes
-                        : 0;
-                }
-
-                _writeCheckpoint(
-                    srcRep,
-                    id,
-                    srcRepNum,
-                    srcRepOld,
-                    srcRepOld - amount
-                );
-            }
-
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = numCheckpoints[dstRep][id];
-
-                uint256 dstRepOld;
-
-                // Won't underflow because decrement only occurs if positive `dstRepNum`.
-                unchecked {
-                    dstRepOld = dstRepNum != 0
-                        ? checkpoints[dstRep][id][dstRepNum - 1].votes
-                        : 0;
-                }
-
-                _writeCheckpoint(
-                    dstRep,
-                    id,
-                    dstRepNum,
-                    dstRepOld,
-                    dstRepOld + amount
-                );
-            }
-        }
+    function _add(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a + b;
     }
 
-    function _writeCheckpoint(
-        address delegatee,
-        uint256 id,
-        uint256 nCheckpoints,
-        uint256 oldVotes,
-        uint256 newVotes
-    ) internal virtual {
-        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
-        unchecked {
-            if (
-                nCheckpoints != 0 &&
-                checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp ==
-                block.timestamp
-            ) {
-                checkpoints[delegatee][id][nCheckpoints - 1]
-                    .votes = _safeCastTo216(newVotes);
-            } else {
-                checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
-                    _safeCastTo40(block.timestamp),
-                    _safeCastTo216(newVotes)
-                );
+    function _subtract(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a - b;
+    }
 
-                // Won't realistically overflow.
-                ++numCheckpoints[delegatee][id];
-            }
+    function _sqrt(uint256 x) internal pure returns (uint256 z) {
+        assembly {
+            // `floor(sqrt(2**15)) = 181`. `sqrt(2**15) - 181 = 2.84`.
+            z := 181 // The "correct" value is 1, but this saves a multiplication later.
+
+            // This segment is to get a reasonable initial estimate for the Babylonian method. With a bad
+            // start, the correct # of bits increases ~linearly each iteration instead of ~quadratically.
+
+            // Let `y = x / 2**r`.
+            // We check `y >= 2**(k + 8)` but shift right by `k` bits
+            // each branch to ensure that if `x >= 256`, then `y >= 256`.
+            let r := shl(7, gt(x, 0xffffffffffffffffffffffffffffffffff))
+            r := or(r, shl(6, gt(shr(r, x), 0xffffffffffffffffff)))
+            r := or(r, shl(5, gt(shr(r, x), 0xffffffffff)))
+            r := or(r, shl(4, gt(shr(r, x), 0xffffff)))
+            z := shl(shr(1, r), z)
+
+            // Goal was to get `z*z*y` within a small factor of `x`. More iterations could
+            // get y in a tighter range. Currently, we will have y in `[256, 256*(2**16))`.
+            // We ensured `y >= 256` so that the relative difference between `y` and `y+1` is small.
+            // That's not possible if `x < 256` but we can just verify those cases exhaustively.
+
+            // Now, `z*z*y <= x < z*z*(y+1)`, and `y <= 2**(16+8)`, and either `y >= 256`, or `x < 256`.
+            // Correctness can be checked exhaustively for `x < 256`, so we assume `y >= 256`.
+            // Then `z*sqrt(y)` is within `sqrt(257)/sqrt(256)` of `sqrt(x)`, or about 20bps.
+
+            // For `s` in the range `[1/256, 256]`, the estimate `f(s) = (181/1024) * (s+1)`
+            // is in the range `(1/2.84 * sqrt(s), 2.84 * sqrt(s))`,
+            // with largest error when `s = 1` and when `s = 256` or `1/256`.
+
+            // Since `y` is in `[256, 256*(2**16))`, let `a = y/65536`, so that `a` is in `[1/256, 256)`.
+            // Then we can estimate `sqrt(y)` using
+            // `sqrt(65536) * 181/1024 * (a + 1) = 181/4 * (y + 65536)/65536 = 181 * (y + 65536)/2**18`.
+
+            // There is no overflow risk here since `y < 2**136` after the first branch above.
+            z := shr(18, mul(z, add(shr(r, x), 65536))) // A `mul()` is saved from starting `z` at 181.
+
+            // Given the worst case multiplicative error of 2.84 above, 7 iterations should be enough.
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+
+            // If `x+1` is a perfect square, the Babylonian method cycles between
+            // `floor(sqrt(x))` and `ceil(sqrt(x))`. This statement ensures we return floor.
+            // See: https://en.wikipedia.org/wiki/Integer_square_root#Using_only_integer_division
+            // Since the ceil is rare, we save gas on the assignment and repeat division in the rare case.
+            // If you don't care whether the floor or ceil square root is returned, you can remove this statement.
+            z := sub(z, lt(div(x, z), z))
         }
-
-        emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
     }
 
     /// -----------------------------------------------------------------------
@@ -645,7 +780,7 @@ abstract contract ERC1155V {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) internal virtual {
+    ) public virtual {
         _safeCastTo216(totalSupply[id] += amount);
 
         // Cannot overflow because the sum of all user
@@ -672,14 +807,14 @@ abstract contract ERC1155V {
             revert InvalidRecipient();
         }
 
-        _moveDelegates(address(0), delegates(to, id), id, amount);
+        _moveVotingPower(address(0), delegates(to, id), id, amount);
     }
 
     function _burn(
         address from,
         uint256 id,
         uint256 amount
-    ) internal virtual {
+    ) public virtual {
         balanceOf[from][id] -= amount;
 
         // Cannot underflow because a user's balance
@@ -690,16 +825,32 @@ abstract contract ERC1155V {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
-        _moveDelegates(delegates(from, id), address(0), id, amount);
+        _moveVotingPower(delegates(from, id), address(0), id, amount);
     }
 
     /// -----------------------------------------------------------------------
-    /// Internal Transferability Logic
+    /// Internal Permission Logic
     /// -----------------------------------------------------------------------
 
     function _setTransferability(uint256 id, bool set) internal virtual {
         transferable[id] = set;
 
         emit TransferabilitySet(msg.sender, id, set);
+    }
+
+    function _setPermission(uint256 id, bool set) internal virtual {
+        permissioned[id] = set;
+
+        emit PermissionSet(msg.sender, id, set);
+    }
+
+    function _setUserPermission(
+        address to,
+        uint256 id,
+        bool set
+    ) internal virtual {
+        userPermissioned[to][id] = set;
+
+        emit UserPermissionSet(msg.sender, to, id, set);
     }
 }
