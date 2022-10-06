@@ -4,11 +4,6 @@ pragma solidity ^0.8.4;
 /// @notice Contract that enables a single call to call multiple methods on itself.
 /// @author SolDAO (https://github.com/Sol-DAO/solbase/blob/main/src/utils/Multicallable.sol)
 /// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/utils/Multicallable.sol)
-/// @dev WARNING!
-/// Multicallable is NOT SAFE for use in contracts with checks / requires on `msg.value`
-/// (e.g. in NFT minting / auction contracts) without a suitable nonce mechanism.
-/// It WILL open up your contract to double-spend vulnerabilities / exploits.
-/// See: (https://www.paradigm.xyz/2021/08/two-rights-might-make-a-wrong/)
 abstract contract Multicallable {
     function multicall(bytes[] calldata data)
         public

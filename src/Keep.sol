@@ -7,7 +7,14 @@ import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
 /// @notice EIP-712 multi-signature wallet with ERC1155 interface.
-/// @author KaliCo LLC (https://github.com/kalidao/multi-sig/blob/main/src/Keep.sol)
+/// @author z0r0z.eth
+/// @custom:coauthor vectorized.eth
+/// @custom:coauthor shivanshi.eth
+/// @custom:coauthor out.eth
+/// @custom:coauthor @0xAlcibiades
+/// @custom:coauthor @m1guelpf
+/// @custom:coauthor @asnared
+/// @custom:coauthor @0xmichalis
 
 enum Operation {
     call,
@@ -64,11 +71,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
-    /// @dev Master ID key permission.
-    uint256 internal immutable MASTER_ID = uint32(uint160(address(this)));
+    /// @dev Core ID key permission.
+    uint256 internal immutable CORE_ID = uint32(uint160(address(this)));
 
     /// @dev Default metadata fetcher for `uri()`.
-    Keep internal immutable _uriFetcher;
+    Keep internal immutable uriFetcher;
 
     /// @dev Record of states verifying `execute()`.
     uint96 public nonce;
@@ -92,7 +99,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         tokenURI = _uris[id];
 
         if (bytes(tokenURI).length != 0) return tokenURI;
-        else return _uriFetcher.uri(id);
+        else return uriFetcher.uri(id);
     }
 
     /// @dev The immutable name of this Keep.
@@ -103,20 +110,20 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev Access control check for ID key balance holders.
     function _authorized() internal view virtual returns (bool) {
-        if (_masterKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
+        if (_coreKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
             return true;
         else revert NotAuthorized();
     }
 
-    /// @dev Master access control check.
+    /// @dev Core access control check.
     /// Initalizes with `address(this)` having implicit permission
     /// without writing to storage by checking `totalSupply()` is zero.
     /// Otherwise, this permission can be set to additional accounts,
     /// including retaining `address(this)`, via `mint()`.
-    function _masterKeyHolder() internal view virtual returns (bool) {
+    function _coreKeyHolder() internal view virtual returns (bool) {
         return
-            (msg.sender == address(this) && totalSupply[MASTER_ID] == 0) ||
-            balanceOf[msg.sender][MASTER_ID] != 0;
+            (totalSupply[CORE_ID] == 0 && msg.sender == address(this)) ||
+            balanceOf[msg.sender][CORE_ID] != 0;
     }
 
     /// -----------------------------------------------------------------------
@@ -157,9 +164,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @notice Create Keep template.
-    /// @param uriFetcher Metadata default.
-    constructor(Keep uriFetcher) payable {
-        _uriFetcher = uriFetcher;
+    /// @param _uriFetcher Metadata default.
+    constructor(Keep _uriFetcher) payable {
+        uriFetcher = _uriFetcher;
     }
 
     /// @notice Initialize Keep configuration.
@@ -454,7 +461,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         }
 
-        // note: Make sure signers don't concentrate ID keys,
+        // Note: Make sure signers don't concentrate ID keys,
         // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
 
