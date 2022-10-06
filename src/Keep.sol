@@ -345,7 +345,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 value,
         bytes memory data
     ) internal virtual returns (bool success) {
-        // Won't realistically overflow.
+        // Unchecked because the only math done is incrementing
+        // Keep nonce which cannot realistically overflow.
         unchecked {
             ++nonce;
         }

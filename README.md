@@ -15,8 +15,8 @@ lib
 src
 ├─ tests
 │  └─ ...
-├─ ERC1155votes — "Minimalist and gas efficient standard ERC-1155 implementation with Compound-like voting and default non-transferability"
-├─ Keep — "EIP-712 multi-sig with ERC-1155 interface"
+├─ KeepToken — "Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and flexible permissioning scheme"
+├─ Keep — "EIP-712 multi-signature wallet with ERC1155 interface"
 └─ KeepFactory — "Keep Factory"
 ```
 
