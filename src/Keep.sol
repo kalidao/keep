@@ -3,7 +3,6 @@ pragma solidity ^0.8.4;
 
 import {ERC1155TokenReceiver, KeepToken} from "./KeepToken.sol";
 import {Multicallable} from "./utils/Multicallable.sol";
-import {URIFetcher} from "./utils/URIFetcher.sol";
 import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
@@ -69,7 +68,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     uint256 internal immutable MASTER_ID = uint32(uint160(address(this)));
 
     /// @dev Default metadata fetcher for `uri()`.
-    URIFetcher internal immutable _uriFetcher;
+    Keep internal immutable _uriFetcher;
 
     /// @dev Record of states verifying `execute()`.
     uint96 public nonce;
@@ -93,7 +92,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         tokenURI = _uris[id];
 
         if (bytes(tokenURI).length != 0) return tokenURI;
-        else return _uriFetcher.fetchURI(address(this), id);
+        else return _uriFetcher.uri(id);
     }
 
     /// @dev The immutable name of this Keep.
@@ -159,7 +158,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Create Keep template.
     /// @param uriFetcher Metadata default.
-    constructor(URIFetcher uriFetcher) payable {
+    constructor(Keep uriFetcher) payable {
         _uriFetcher = uriFetcher;
     }
 
