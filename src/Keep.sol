@@ -9,7 +9,6 @@ import {ERC1271} from "./utils/ERC1271.sol";
 /// @title Keep
 /// @notice EIP-712 multi-signature wallet with ERC1155 interface.
 /// @author KaliCo LLC (https://github.com/kalidao/multi-sig/blob/main/src/Keep.sol)
-/// @author Modified from LilGnosis (https://github.com/m1guelpf/lil-web3/blob/main/src/LilGnosis.sol)
 
 enum Operation {
     call,
@@ -67,10 +66,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @dev Master ID key permission.
-    uint256 internal immutable MASTER_ID = uint160(address(this));
+    uint256 internal immutable MASTER_ID = uint32(uint160(address(this)));
 
     /// @dev Default metadata fetcher for `uri()`.
-    URIFetcher internal _uriFetcher;
+    URIFetcher internal immutable _uriFetcher;
 
     /// @dev Record of states verifying `execute()`.
     uint96 public nonce;
