@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {URIFetcher} from "../src/utils/URIFetcher.sol";
 import {ERC1155TokenReceiver, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
@@ -151,7 +150,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     /// @notice Set up the testing suite.
 
     function setUp() public payable {
-        keep = new Keep(URIFetcher(alice));
+        keep = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
@@ -194,7 +193,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testRepeatKeepSetup() public payable {
-        keepRepeat = new Keep(URIFetcher(alice));
+        keepRepeat = new Keep(Keep(alice));
 
         // Create the Signer[].
         address[] memory signers = new address[](2);

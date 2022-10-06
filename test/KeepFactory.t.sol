@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {URIFetcher} from "../src/utils/URIFetcher.sol";
 import {Call, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
@@ -33,7 +32,7 @@ contract KeepFactoryTest is Test {
 
     function setUp() public payable {
         // Create the templates.
-        keep = new Keep(URIFetcher(alice));
+        keep = new Keep(Keep(alice));
         // Create the factory.
         factory = new KeepFactory(keep);
         // Create the signers.
