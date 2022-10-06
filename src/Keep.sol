@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {ERC721TokenReceiver} from "./utils/ERC721TokenReceiver.sol";
-import {ERC1155TokenReceiver, ERC1155V} from "./ERC1155V.sol";
+import {ERC1155TokenReceiver, KeepToken} from "./KeepToken.sol";
 import {Multicallable} from "./utils/Multicallable.sol";
+import {URIFetcher} from "./utils/URIFetcher.sol";
 import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
@@ -31,12 +31,7 @@ struct Signature {
     bytes32 s;
 }
 
-contract Keep is
-    ERC721TokenReceiver,
-    ERC1155TokenReceiver,
-    ERC1155V,
-    Multicallable
-{
+contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -71,12 +66,11 @@ contract Keep is
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
-    /// @dev `execute()` ID permission.
-    uint256 internal constant EXECUTE_ID =
-        uint256(bytes32(this.execute.selector));
+    /// @dev Master ID key permission.
+    uint256 internal immutable MASTER_ID = uint160(address(this));
 
     /// @dev Default metadata fetcher for `uri()`.
-    Keep internal _uriFetcher;
+    URIFetcher internal _uriFetcher;
 
     /// @dev Record of states verifying `execute()`.
     uint96 public nonce;
@@ -100,7 +94,7 @@ contract Keep is
         tokenURI = _uris[id];
 
         if (bytes(tokenURI).length != 0) return tokenURI;
-        else return _uriFetcher.uri(id);
+        else return _uriFetcher.fetchURI(address(this), id);
     }
 
     /// @dev The immutable name of this Keep.
@@ -109,13 +103,22 @@ contract Keep is
         return string(abi.encodePacked(_computeArgUint256(2)));
     }
 
-    /// @dev Access control check for ID balance owners.
+    /// @dev Access control check for ID key balance holders.
     function _authorized() internal view virtual returns (bool) {
-        if (
-            msg.sender == address(this) ||
-            balanceOf[msg.sender][uint256(bytes32(msg.sig))] != 0
-        ) return true;
+        if (_masterKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
+            return true;
         else revert NotAuthorized();
+    }
+
+    /// @dev Master access control check.
+    /// Initalizes with `address(this)` having implicit permission
+    /// without writing to storage by checking `totalSupply()` is zero.
+    /// Otherwise, this permission can be set to additional accounts,
+    /// including retaining `address(this)`, via `mint()`.
+    function _masterKeyHolder() internal view virtual returns (bool) {
+        return
+            (msg.sender == address(this) && totalSupply[MASTER_ID] == 0) ||
+            balanceOf[msg.sender][MASTER_ID] != 0;
     }
 
     /// -----------------------------------------------------------------------
@@ -139,12 +142,25 @@ contract Keep is
     }
 
     /// -----------------------------------------------------------------------
+    /// ERC721 Receiver Logic
+    /// -----------------------------------------------------------------------
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    /// -----------------------------------------------------------------------
     /// Initialization Logic
     /// -----------------------------------------------------------------------
 
     /// @notice Create Keep template.
     /// @param uriFetcher Metadata default.
-    constructor(Keep uriFetcher) payable {
+    constructor(URIFetcher uriFetcher) payable {
         _uriFetcher = uriFetcher;
     }
 
@@ -211,7 +227,7 @@ contract Keep is
 
         totalSupply[EXECUTE_ID] = supply;
 
-        ERC1155V.initialize();
+        KeepToken._initialize();
     }
 
     /// -----------------------------------------------------------------------
@@ -464,6 +480,31 @@ contract Keep is
         _authorized();
 
         _setTransferability(id, transferability);
+    }
+
+    /// @notice ID transfer permission toggle.
+    /// @param id ID to set permission for.
+    /// @param set Permission setting.
+    /// @dev This sets account-based ID restriction globally.
+    function setPermission(uint256 id, bool set) public payable virtual {
+        _authorized();
+
+        _setPermission(id, set);
+    }
+
+    /// @notice ID transfer permission setting.
+    /// @param to Account to set permission for.
+    /// @param id ID to set permission for.
+    /// @param set Permission setting.
+    /// @dev This sets account-based ID restriction specifically.
+    function setUserPermission(
+        address to,
+        uint256 id,
+        bool set
+    ) public payable virtual {
+        _authorized();
+
+        _setUserPermission(to, id, set);
     }
 
     /// @notice ID metadata setter.
