@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import {URIFetcher} from "../src/utils/URIFetcher.sol";
 import {Call, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
@@ -30,9 +31,9 @@ contract KeepFactoryTest is Test {
 
     /// @notice Set up the testing suite.
 
-    function setUp() public {
+    function setUp() public payable {
         // Create the templates.
-        keep = new Keep(Keep(alice));
+        keep = new Keep(URIFetcher(alice));
         // Create the factory.
         factory = new KeepFactory(keep);
         // Create the signers.
@@ -40,11 +41,11 @@ contract KeepFactoryTest is Test {
         signers.push(bob);
     }
 
-    function testDeploy() public {
+    function testDeploy() public payable {
         factory.deployKeep(calls, signers, 2, name);
     }
 
-    function testDetermination() public {
+    function testDetermination() public payable {
         // Check CREATE2 clones match expected outputs.
         keepAddr = factory.determineKeep(name);
         keep = Keep(keepAddr);

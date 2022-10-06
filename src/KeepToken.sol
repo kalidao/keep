@@ -25,10 +25,10 @@ abstract contract ERC1155TokenReceiver {
     }
 }
 
-/// @notice Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and default non-transferability.
-/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
+/// @notice Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and flexible permissioning scheme.
+/// @author Modified from ERC1155V (https://github.com/kalidao/ERC1155V/blob/main/src/ERC1155V.sol)
 /// @author Modified from Compound (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
-abstract contract ERC1155V {
+abstract contract KeepToken {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -75,6 +75,15 @@ abstract contract ERC1155V {
         bool set
     );
 
+    event PermissionSet(address indexed operator, uint256 id, bool set);
+
+    event UserPermissionSet(
+        address indexed operator,
+        address indexed to,
+        uint256 id,
+        bool set
+    );
+
     event URI(string value, uint256 indexed id);
 
     /// -----------------------------------------------------------------------
@@ -86,6 +95,8 @@ abstract contract ERC1155V {
     error NotAuthorized();
 
     error NonTransferable();
+
+    error NotPermitted();
 
     error UnsafeRecipient();
 
@@ -144,6 +155,7 @@ abstract contract ERC1155V {
     function _computeArgUint256(uint256 argOffset)
         internal
         pure
+        virtual
         returns (uint256 arg)
     {
         uint256 offset;
@@ -162,9 +174,15 @@ abstract contract ERC1155V {
     /// Voting Storage
     /// -----------------------------------------------------------------------
 
-    mapping(uint256 => bool) public transferable;
+    uint256 internal constant EXECUTE_ID = 2358860689;
 
     mapping(uint256 => uint256) public totalSupply;
+
+    mapping(uint256 => bool) public transferable;
+
+    mapping(uint256 => bool) public permissioned;
+
+    mapping(address => mapping(uint256 => bool)) public userPermissioned;
 
     mapping(address => mapping(uint256 => address)) internal _delegates;
 
@@ -204,7 +222,7 @@ abstract contract ERC1155V {
     /// Initialization Logic
     /// -----------------------------------------------------------------------
 
-    function initialize() internal {
+    function _initialize() internal virtual {
         _initialDomainSeparator = _computeDomainSeparator();
     }
 
@@ -255,6 +273,10 @@ abstract contract ERC1155V {
 
         if (!transferable[id]) revert NonTransferable();
 
+        if (permissioned[id])
+            if (!userPermissioned[from][id] || !userPermissioned[to][id])
+                revert NotPermitted();
+
         balanceOf[from][id] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -283,7 +305,8 @@ abstract contract ERC1155V {
             }
         }
 
-        _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+        if (id != EXECUTE_ID)
+            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
 
     function safeBatchTransferFrom(
@@ -308,6 +331,10 @@ abstract contract ERC1155V {
 
             if (!transferable[id]) revert NonTransferable();
 
+            if (permissioned[id])
+                if (!userPermissioned[from][id] || !userPermissioned[to][id])
+                    revert NotPermitted();
+
             balanceOf[from][id] -= amount;
 
             // Cannot overflow because the sum of all user
@@ -316,7 +343,13 @@ abstract contract ERC1155V {
                 balanceOf[to][id] += amount;
             }
 
-            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+            if (id != EXECUTE_ID)
+                _moveDelegates(
+                    delegates(from, id),
+                    delegates(to, id),
+                    id,
+                    amount
+                );
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -397,18 +430,16 @@ abstract contract ERC1155V {
     }
 
     /// -----------------------------------------------------------------------
-    /// Voting Storage/Logic
+    /// Checkpoint Storage/Logic
     /// -----------------------------------------------------------------------
 
-    function delegates(address account, uint256 id)
+    function getVotes(address account, uint256 id)
         public
         view
         virtual
-        returns (address)
+        returns (uint256)
     {
-        address current = _delegates[account][id];
-
-        return current == address(0) ? account : current;
+        return getCurrentVotes(account, id);
     }
 
     function getCurrentVotes(address account, uint256 id)
@@ -417,7 +448,7 @@ abstract contract ERC1155V {
         virtual
         returns (uint256)
     {
-        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
+        // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
 
@@ -426,6 +457,14 @@ abstract contract ERC1155V {
                     ? checkpoints[account][id][nCheckpoints - 1].votes
                     : 0;
         }
+    }
+
+    function getPastVotes(
+        address account,
+        uint256 id,
+        uint256 timestamp
+    ) public view virtual returns (uint256) {
+        return getPriorVotes(account, id, timestamp);
     }
 
     function getPriorVotes(
@@ -439,7 +478,7 @@ abstract contract ERC1155V {
 
         if (nCheckpoints == 0) return 0;
 
-        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
+        // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 prevCheckpoint = nCheckpoints - 1;
 
@@ -472,15 +511,30 @@ abstract contract ERC1155V {
         }
     }
 
+    /// -----------------------------------------------------------------------
+    /// Delegation Storage/Logic
+    /// -----------------------------------------------------------------------
+
+    function delegates(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (address)
+    {
+        address current = _delegates[account][id];
+
+        return current == address(0) ? account : current;
+    }
+
     function delegate(address delegatee, uint256 id) public payable virtual {
         _delegate(msg.sender, delegatee, id);
     }
 
     function delegateBySig(
         address delegatee,
-        uint256 id,
         uint256 nonce,
         uint256 deadline,
+        uint256 id,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -495,12 +549,12 @@ abstract contract ERC1155V {
                     keccak256(
                         abi.encode(
                             keccak256(
-                                "Delegation(address delegatee,uint256 id,uint256 nonce,uint256 deadline)"
+                                "Delegation(address delegatee,uint256 nonce,uint256 deadline,uint256 id)"
                             ),
                             delegatee,
-                            id,
                             nonce,
-                            deadline
+                            deadline,
+                            id
                         )
                     )
                 )
@@ -512,7 +566,8 @@ abstract contract ERC1155V {
 
         if (recoveredAddress == address(0)) revert InvalidSig();
 
-        // Cannot realistically overflow on human timescales.
+        // Unchecked because the only math done is incrementing
+        // the delegator's nonce which cannot realistically overflow.
         unchecked {
             if (nonce != nonces[recoveredAddress]++) revert InvalidSig();
         }
@@ -551,7 +606,7 @@ abstract contract ERC1155V {
 
                 uint256 srcRepOld;
 
-                // Won't underflow because decrement only occurs if positive `srcRepNum`.
+                // Unchecked because subtraction only occurs if positive `srcRepNum`.
                 unchecked {
                     srcRepOld = srcRepNum != 0
                         ? checkpoints[srcRep][id][srcRepNum - 1].votes
@@ -572,7 +627,7 @@ abstract contract ERC1155V {
 
                 uint256 dstRepOld;
 
-                // Won't underflow because decrement only occurs if positive `dstRepNum`.
+                // Unchecked because subtraction only occurs if positive `dstRepNum`.
                 unchecked {
                     dstRepOld = dstRepNum != 0
                         ? checkpoints[dstRep][id][dstRepNum - 1].votes
@@ -597,7 +652,7 @@ abstract contract ERC1155V {
         uint256 oldVotes,
         uint256 newVotes
     ) internal virtual {
-        // Won't underflow because decrement only occurs if positive `nCheckpoints`.
+        // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             if (
                 nCheckpoints != 0 &&
@@ -612,7 +667,8 @@ abstract contract ERC1155V {
                     _safeCastTo216(newVotes)
                 );
 
-                // Won't realistically overflow.
+                // Unchecked because the only math done is incrementing
+                // checkpoints which cannot realistically overflow.
                 ++numCheckpoints[delegatee][id];
             }
         }
@@ -672,7 +728,8 @@ abstract contract ERC1155V {
             revert InvalidRecipient();
         }
 
-        _moveDelegates(address(0), delegates(to, id), id, amount);
+        if (id != EXECUTE_ID)
+            _moveDelegates(address(0), delegates(to, id), id, amount);
     }
 
     function _burn(
@@ -690,16 +747,33 @@ abstract contract ERC1155V {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
-        _moveDelegates(delegates(from, id), address(0), id, amount);
+        if (id != EXECUTE_ID)
+            _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 
     /// -----------------------------------------------------------------------
-    /// Internal Transferability Logic
+    /// Internal Permission Logic
     /// -----------------------------------------------------------------------
 
     function _setTransferability(uint256 id, bool set) internal virtual {
         transferable[id] = set;
 
         emit TransferabilitySet(msg.sender, id, set);
+    }
+
+    function _setPermission(uint256 id, bool set) internal virtual {
+        permissioned[id] = set;
+
+        emit PermissionSet(msg.sender, id, set);
+    }
+
+    function _setUserPermission(
+        address to,
+        uint256 id,
+        bool set
+    ) internal virtual {
+        userPermissioned[to][id] = set;
+
+        emit UserPermissionSet(msg.sender, to, id, set);
     }
 }
