@@ -300,12 +300,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         success = _execute(op, to, value, data);
     }
 
-    function _isValidSig(bytes32 digest, Signature calldata sig)
-        internal
-        view
-        virtual
-        returns (address signer)
-    {
+    function _isValidSig(bytes32 digest, Signature calldata sig) internal view virtual returns (address signer) {
         signer = ecrecover(digest, sig.v, sig.r, sig.s);
 
         // Check contract signature with EIP-1271.
