@@ -174,7 +174,7 @@ abstract contract KeepToken {
     /// Voting Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant EXECUTE_ID = 2358860689;
+    uint256 internal constant EXECUTE_ID = uint32(0x6c4b5546); // `execute()`
 
     mapping(uint256 => uint256) public totalSupply;
 

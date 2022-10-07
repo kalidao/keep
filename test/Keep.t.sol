@@ -116,6 +116,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function signExecution(
+        address user,
         uint256 pk,
         Operation op,
         address to,
@@ -140,7 +141,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         // set 'wrong v' to return null signer for tests
         if (pk == nullPk) v = 17;
 
-        sig = Signature({v: v, r: r, s: s});
+        sig = Signature({user: user, v: v, r: r, s: s});
     }
 
     /// -----------------------------------------------------------------------
@@ -384,6 +385,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         Signature memory bobSig;
 
         aliceSig = signExecution(
+            alice,
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -391,6 +393,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             tx_data
         );
         bobSig = signExecution(
+            bob,
             bobsPk,
             Operation.call,
             address(mockDai),
@@ -424,6 +427,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         Signature memory bobSig;
 
         aliceSig = signExecution(
+            alice,
             alicesPk,
             Operation.delegatecall,
             address(mockDai),
@@ -432,6 +436,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         );
 
         bobSig = signExecution(
+            bob,
             bobsPk,
             Operation.delegatecall,
             address(mockDai),
@@ -474,6 +479,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         Signature memory charlieSig;
 
         aliceSig = signExecution(
+            alice,
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -482,6 +488,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         );
 
         charlieSig = signExecution(
+            bob,
             charliesPk,
             Operation.call,
             address(mockDai),
@@ -492,7 +499,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
+        vm.expectRevert();
         // Execute tx.
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -517,6 +524,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         Signature memory bobSig;
 
         aliceSig = signExecution(
+            alice,
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -524,6 +532,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             tx_data
         );
         bobSig = signExecution(
+            bob,
             bobsPk,
             Operation.call,
             address(mockDai),
@@ -558,6 +567,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         Signature memory aliceSig;
 
         aliceSig = signExecution(
+            alice,
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -593,6 +603,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         Signature memory nullSig;
 
         aliceSig = signExecution(
+            alice,
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -600,6 +611,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             tx_data
         );
         nullSig = signExecution(
+            nully,
             nullPk,
             Operation.call,
             address(mockDai),
@@ -610,7 +622,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
+        vm.expectRevert();
         // Execute tx.
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }

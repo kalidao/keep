@@ -31,6 +31,7 @@ struct Call {
 }
 
 struct Signature {
+    address user;
     uint8 v;
     bytes32 r;
     bytes32 s;
@@ -70,6 +71,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
+
+    /// @dev The number which `s` must not exceed in order for
+    /// the signature to be non-malleable.
+    bytes32 private constant _MALLEABILITY_THRESHOLD =
+        0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
 
     /// @dev Core ID key permission.
     uint256 internal immutable CORE_ID = uint32(uint160(address(this)));
@@ -300,17 +306,57 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         success = _execute(op, to, value, data);
     }
 
-    function _isValidSig(bytes32 digest, Signature calldata sig) internal view virtual returns (address signer) {
-        signer = ecrecover(digest, sig.v, sig.r, sig.s);
+    function _isValidSig(bytes32 digest, Signature calldata sig)
+        internal
+        view
+        virtual
+        returns (address signer)
+    {
+        signer = _recover(digest, sig.v, sig.r, sig.s);
 
-        // Check contract signature with EIP-1271.
-        if (signer.code.length != 0) {
+        if (signer != sig.user) {
             if (
-                ERC1271(signer).isValidSignature(
+                ERC1271(sig.user).isValidSignature(
                     digest,
                     abi.encodePacked(sig.r, sig.s, sig.v)
                 ) != ERC1271.isValidSignature.selector
             ) revert InvalidSig();
+        }
+    }
+
+    function _recover(
+        bytes32 hash,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal view returns (address signer) {
+        assembly {
+            // Copy the free memory pointer so that we can restore it later.
+            let m := mload(0x40)
+
+            // If `s` in lower half order, such that the signature is not malleable.
+            if iszero(gt(s, _MALLEABILITY_THRESHOLD)) {
+                mstore(0x00, hash)
+                mstore(0x20, v)
+                mstore(0x40, r)
+                mstore(0x60, s)
+                pop(
+                    staticcall(
+                        gas(), // Amount of gas left for the transaction.
+                        0x01, // Address of `ecrecover`.
+                        0x00, // Start of input.
+                        0x80, // Size of input.
+                        0x40, // Start of output.
+                        0x20 // Size of output.
+                    )
+                )
+                // Restore the zero slot.
+                mstore(0x60, 0)
+                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                signer := mload(sub(0x60, returndatasize()))
+            }
+            // Restore the free memory pointer.
+            mstore(0x40, m)
         }
     }
 
