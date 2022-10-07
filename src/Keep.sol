@@ -280,17 +280,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 threshold = quorum;
 
         for (uint256 i; i < threshold; ) {
-            address signer = ecrecover(digest, sigs[i].v, sigs[i].r, sigs[i].s);
-
-            // Check contract signature with EIP-1271.
-            if (signer.code.length != 0) {
-                if (
-                    ERC1271(signer).isValidSignature(
-                        digest,
-                        abi.encodePacked(sigs[i].r, sigs[i].s, sigs[i].v)
-                    ) != ERC1271.isValidSignature.selector
-                ) revert InvalidSig();
-            }
+            address signer = _isValidSig(digest, sigs[i]);
 
             // Check EXECUTE_ID balance.
             if (balanceOf[signer][EXECUTE_ID] == 0) revert InvalidSig();
@@ -308,6 +298,25 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         success = _execute(op, to, value, data);
+    }
+
+    function _isValidSig(bytes32 digest, Signature calldata sig)
+        internal
+        view
+        virtual
+        returns (address signer)
+    {
+        signer = ecrecover(digest, sig.v, sig.r, sig.s);
+
+        // Check contract signature with EIP-1271.
+        if (signer.code.length != 0) {
+            if (
+                ERC1271(signer).isValidSignature(
+                    digest,
+                    abi.encodePacked(sig.r, sig.s, sig.v)
+                ) != ERC1271.isValidSignature.selector
+            ) revert InvalidSig();
+        }
     }
 
     /// @notice Execute operations from Keep with `execute()` or as key holder.

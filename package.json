@@ -19,7 +19,7 @@
     "sync": "forge update",
     "test": "forge clean && forge test --optimize --optimizer-runs 9999999 -vvv",
     "snapshot": "forge clean && forge snapshot --optimize --optimize-runs 9999999",
-    "lint": "prettier --write **.sol"
+    "lint": "prettier --write src/**.sol test/**.sol"
   },
   "dependencies": {
     "prettier": "^2.7.1",
