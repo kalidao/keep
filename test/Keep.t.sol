@@ -459,7 +459,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     /// @notice Check execution malconditions.
 
-    function testExecuteWithImproperSignatures() public payable {
+    function testExecuteFailWithImproperSignatures() public payable {
         mockDai.transfer(address(keep), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
@@ -504,7 +504,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteWithSignaturesOutOfOrder() public payable {
+    function testExecuteFailWithSignaturesOutOfOrder() public payable {
         mockDai.transfer(address(keep), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
@@ -548,7 +548,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteWithSignaturesRepeated() public payable {
+    function testExecuteFailWithSignaturesRepeated() public payable {
         mockDai.transfer(address(keep), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
@@ -583,7 +583,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteWithNullSignatures() public payable {
+    function testExecuteFailWithNullSignatures() public payable {
         mockDai.transfer(address(keep), 100);
         address aliceAddress = alice;
         bytes memory tx_data = "";
@@ -720,5 +720,84 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             keccak256(bytes("new_base_uri")),
             keccak256(bytes(keep.uri(0)))
         );
+    }
+
+    /// @notice Check token functionality.
+
+    function testKeepTokenApprove() public payable {
+        startHoax(alice, alice, type(uint256).max);
+        keep.setApprovalForAll(bob, true);
+        vm.stopPrank();
+        assertTrue(keep.isApprovedForAll(alice, bob));
+
+        startHoax(alice, alice, type(uint256).max);
+        keep.setApprovalForAll(bob, false);
+        vm.stopPrank();
+        assertTrue(!keep.isApprovedForAll(alice, bob));
+    }
+
+    function testKeepTokenTransferByOwner(uint256 id) public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(id) == true);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, id, 1, "");
+        vm.stopPrank();
+
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 0);
+        assertTrue(keep.balanceOf(bob, id) == 1);
+    }
+    
+    function testKeepTokenTransferByOperator(uint256 id) public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(id) == true);
+
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.setApprovalForAll(alice, true);
+        vm.stopPrank();
+        assertTrue(keep.isApprovedForAll(charlie, alice));
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, id, 1, "");
+        vm.stopPrank();
+
+        startHoax(alice, alice, type(uint256).max);
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 0);
+        assertTrue(keep.balanceOf(bob, id) == 1);
+    }
+
+    function testKeepTokenTransferFailNonTransferable(uint256 id) public payable {  
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.setApprovalForAll(alice, true);
+        vm.stopPrank();
+        assertTrue(keep.isApprovedForAll(charlie, alice));
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, id, 1, "");
+        vm.stopPrank();
+
+        startHoax(charlie, charlie, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        startHoax(alice, alice, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 1);
+        assertTrue(keep.balanceOf(bob, id) == 0);
     }
 }
