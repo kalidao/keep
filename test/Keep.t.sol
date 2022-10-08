@@ -753,7 +753,38 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(charlie, id) == 0);
         assertTrue(keep.balanceOf(bob, id) == 1);
     }
-    
+
+    function testKeepTokenBatchTransferByOwner() public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(0, true);
+        keep.setTransferability(1, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(0) == true);
+        assertTrue(keep.transferable(1) == true);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, 0, 1, "");
+        keep.mint(charlie, 1, 2, "");
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1;
+        amounts[1] = 1;
+
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, 0) == 0);
+        assertTrue(keep.balanceOf(charlie, 1) == 1);
+        assertTrue(keep.balanceOf(bob, 0) == 1);
+        assertTrue(keep.balanceOf(bob, 1) == 1);
+    }
+
     function testKeepTokenTransferByOperator(uint256 id) public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(id, true);
@@ -777,7 +808,46 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(bob, id) == 1);
     }
 
-    function testKeepTokenTransferFailNonTransferable(uint256 id) public payable {  
+    function testKeepTokenBatchTransferByOperator() public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(0, true);
+        keep.setTransferability(1, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(0) == true);
+        assertTrue(keep.transferable(1) == true);
+
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.setApprovalForAll(alice, true);
+        vm.stopPrank();
+        assertTrue(keep.isApprovedForAll(charlie, alice));
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, 0, 1, "");
+        keep.mint(charlie, 1, 2, "");
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1;
+        amounts[1] = 1;
+
+        startHoax(alice, alice, type(uint256).max);
+        keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, 0) == 0);
+        assertTrue(keep.balanceOf(charlie, 1) == 1);
+        assertTrue(keep.balanceOf(bob, 0) == 1);
+        assertTrue(keep.balanceOf(bob, 1) == 1);
+    }
+
+    function testKeepTokenTransferFailNonTransferable(uint256 id)
+        public
+        payable
+    {
         startHoax(charlie, charlie, type(uint256).max);
         keep.setApprovalForAll(alice, true);
         vm.stopPrank();
@@ -799,5 +869,37 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         assertTrue(keep.balanceOf(charlie, id) == 1);
         assertTrue(keep.balanceOf(bob, id) == 0);
+    }
+
+    function testKeepTokenBatchTransferFailNonTransferable() public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(0, true);
+        keep.setTransferability(1, false);
+        vm.stopPrank();
+        assertTrue(keep.transferable(0) == true);
+        assertTrue(keep.transferable(1) == false);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, 0, 1, "");
+        keep.mint(charlie, 1, 2, "");
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1;
+        amounts[1] = 1;
+
+        startHoax(charlie, charlie, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, 0) == 1);
+        assertTrue(keep.balanceOf(charlie, 1) == 2);
+        assertTrue(keep.balanceOf(bob, 0) == 0);
+        assertTrue(keep.balanceOf(bob, 1) == 0);
     }
 }
