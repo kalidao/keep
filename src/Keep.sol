@@ -286,7 +286,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 threshold = quorum;
 
         for (uint256 i; i < threshold; ) {
-            address signer = _isValidSig(digest, sigs[i]);
+            address signer = sigs[i].user;
+            if (!_isValidSig(signer, digest, sigs[i].v, sigs[i].r, sigs[i].s))
+                revert InvalidSig();
 
             // Check EXECUTE_ID balance.
             if (balanceOf[signer][EXECUTE_ID] == 0) revert InvalidSig();
@@ -306,21 +308,50 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         success = _execute(op, to, value, data);
     }
 
-    function _isValidSig(bytes32 digest, Signature calldata sig)
-        internal
-        view
-        virtual
-        returns (address signer)
-    {
-        signer = _recover(digest, sig.v, sig.r, sig.s);
+    function _isValidSig(
+        address signer,
+        bytes32 digest,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal view virtual returns (bool isValid) {
+        if (signer == address(0)) return false;
 
-        if (signer != sig.user) {
-            if (
-                ERC1271(sig.user).isValidSignature(
-                    digest,
-                    abi.encodePacked(sig.r, sig.s, sig.v)
-                ) != ERC1271.isValidSignature.selector
-            ) revert InvalidSig();
+        if (_recover(digest, v, r, s) == signer) return true;
+
+        assembly {
+            // Load the free memory pointer.
+            // Simply using the free memory usually costs less if many slots are needed.
+            let m := mload(0x40)
+
+            // Write the abi-encoded calldata into memory, beginning with the function selector.
+            mstore(m, 0x1626ba7e) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+            mstore(add(m, 0x20), digest)
+            mstore(add(m, 0x40), 0x40) // The offset of the `signature` in the calldata.
+            mstore(add(m, 0x60), 65) // Store the length of the signature.
+            mstore(add(m, 0x80), r) // Store `r` of the signature.
+            mstore(add(m, 0xa0), s) // Store `s` of the signature.
+            mstore8(add(m, 0xc0), v) // Store `v` of the signature.
+
+            isValid := and(
+                and(
+                    // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+                    eq(mload(0x00), shl(224, mload(m))),
+                    // Whether the returndata is exactly 0x20 bytes (1 word) long .
+                    eq(returndatasize(), 0x20)
+                ),
+                // Whether the staticcall does not revert.
+                // This must be placed at the end of the `and` clause,
+                // as the arguments are evaluated from right to left.
+                staticcall(
+                    gas(), // Remaining gas.
+                    signer, // The `signer` address.
+                    add(m, 0x1c), // Offset of calldata in memory.
+                    0xc4, // Length of calldata in memory.
+                    0x00, // Offset of returndata.
+                    0x20 // Length of returndata to write.
+                )
+            )
         }
     }
 
@@ -359,6 +390,53 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x40, m)
         }
     }
+
+    // function _isValid1271(
+    //     address signer,
+    //     bytes32 hash,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) internal view returns (bool isValid) {
+    //     if (signer == address(0)) return false;
+
+    //     if (_recover(hash, v, r, s) == signer) return true;
+
+    //     assembly {
+    //         // Load the free memory pointer.
+    //         // Simply using the free memory usually costs less if many slots are needed.
+    //         let m := mload(0x40)
+
+    //         // Write the abi-encoded calldata into memory, beginning with the function selector.
+    //         mstore(m, 0x1626ba7e) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+    //         mstore(add(m, 0x20), hash)
+    //         mstore(add(m, 0x40), 0x40) // The offset of the `signature` in the calldata.
+    //         mstore(add(m, 0x60), 65) // Store the length of the signature.
+    //         mstore(add(m, 0x80), r) // Store `r` of the signature.
+    //         mstore(add(m, 0xa0), s) // Store `s` of the signature.
+    //         mstore8(add(m, 0xc0), v) // Store `v` of the signature.
+
+    //         isValid := and(
+    //             and(
+    //                 // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+    //                 eq(mload(0x00), shl(224, mload(m))),
+    //                 // Whether the returndata is exactly 0x20 bytes (1 word) long .
+    //                 eq(returndatasize(), 0x20)
+    //             ),
+    //             // Whether the staticcall does not revert.
+    //             // This must be placed at the end of the `and` clause,
+    //             // as the arguments are evaluated from right to left.
+    //             staticcall(
+    //                 gas(), // Remaining gas.
+    //                 signer, // The `signer` address.
+    //                 add(m, 0x1c), // Offset of calldata in memory.
+    //                 0xc4, // Length of calldata in memory.
+    //                 0x00, // Offset of returndata.
+    //                 0x20 // Length of returndata to write.
+    //             )
+    //         )
+    //     }
+    // }
 
     /// @notice Execute operations from Keep with `execute()` or as key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.

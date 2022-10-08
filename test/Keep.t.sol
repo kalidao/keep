@@ -7,6 +7,7 @@ import {KeepFactory} from "../src/KeepFactory.sol";
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
+import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
 
 import "@std/Test.sol";
 
@@ -21,6 +22,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
+    MockERC1271Wallet mockERC1271Wallet;
 
     uint256 internal EXECUTE_ID;
 
@@ -155,6 +157,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
+        mockERC1271Wallet = new MockERC1271Wallet(alice);
         chainId = block.chainid;
 
         // 1B mockDai!
@@ -386,6 +389,49 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         aliceSig = signExecution(
             alice,
+            alicesPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+        bobSig = signExecution(
+            bob,
+            bobsPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    }
+
+    function testExecuteCallWithContractSignatures() public payable {
+        mockDai.transfer(address(keep), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        assembly {
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
+            mstore(add(tx_data, 0x24), aliceAddress)
+            mstore(add(tx_data, 0x44), 100)
+            mstore(tx_data, 0x44)
+            // Update free memory pointer.
+            mstore(0x40, add(tx_data, 0x80))
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            address(mockERC1271Wallet),
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -753,7 +799,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(charlie, id) == 0);
         assertTrue(keep.balanceOf(bob, id) == 1);
     }
-    
+
     function testKeepTokenTransferByOperator(uint256 id) public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(id, true);
@@ -777,7 +823,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(bob, id) == 1);
     }
 
-    function testKeepTokenTransferFailNonTransferable(uint256 id) public payable {  
+    function testKeepTokenTransferFailNonTransferable(uint256 id)
+        public
+        payable
+    {
         startHoax(charlie, charlie, type(uint256).max);
         keep.setApprovalForAll(alice, true);
         vm.stopPrank();
