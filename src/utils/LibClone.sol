@@ -2,8 +2,7 @@
 pragma solidity ^0.8.4;
 
 /// @notice Minimal proxy library with immutable args operations.
-/// @author SolDAO (https://github.com/Sol-DAO/solbase/blob/main/src/utils/LibClone.sol)
-/// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/utils/LibClone.sol)
+/// @author Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/LibClone.sol)
 library LibClone {
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -13,7 +12,7 @@ library LibClone {
     error DeploymentFailed();
 
     /// -----------------------------------------------------------------------
-    /// Clones with immutable args operations
+    /// Clone Operations
     /// -----------------------------------------------------------------------
 
     /// @dev Deploys a deterministic clone of `implementation`,
