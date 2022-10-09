@@ -674,10 +674,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     /// @notice Check governance.
 
-    function testMint() public {
+    function testMint() public payable {
         assert(keep.totalSupply(EXECUTE_ID) == 2);
 
-        vm.prank(address(keep));
+        startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(charlie, EXECUTE_ID, 1, "");
         vm.stopPrank();
 
@@ -687,8 +687,28 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.quorum() == 2);
     }
 
+    function testMintFailZeroAddress() public payable {
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        keep.mint(address(0), EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        keep.mint(address(0), 1, 1, "");
+        vm.stopPrank();
+
+        assert(keep.balanceOf(address(0), EXECUTE_ID) == 0);
+        assert(keep.balanceOf(address(0), 1) == 0);
+
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.quorum() == 2);
+    }
+
     function testBurn() public {
-        vm.prank(address(keep));
+        startHoax(address(keep), address(keep), type(uint256).max);
         keep.setQuorum(1);
         vm.stopPrank();
 
@@ -702,7 +722,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.quorum() == 1);
     }
 
-    function testMintRole() public payable {
+    function testRole() public payable {
         startHoax(charlie, charlie, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         keep.mint(alice, 1, 100, "");
