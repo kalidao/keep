@@ -674,18 +674,36 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     /// @notice Check governance.
+    function testMint(
+        uint256 id,
+        uint256 amount,
+        bytes calldata data
+    ) public payable {
+        vm.assume(id != EXECUTE_ID);
+        vm.assume(keep.totalSupply(uint32(uint160(address(keep)))) == 0); // CORE_ID
+        vm.assume(amount < type(uint216).max);
 
-    function testMint() public payable {
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        uint256 preTotalSupply = keep.totalSupply(id);
+        uint256 preBalance = keep.balanceOf(charlie, id);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
+        keep.mint(charlie, id, amount, data);
+
+        assert(keep.balanceOf(charlie, id) == preBalance + amount);
+        assert(keep.totalSupply(id) == preTotalSupply + amount);
+    }
+
+    function testMintExecuteId() public payable {
+        uint256 executeTotalSupply = keep.totalSupply(EXECUTE_ID);
+        uint256 executeBalance = keep.balanceOf(charlie, EXECUTE_ID);
+        uint256 preQuorum = keep.quorum();
+
+        vm.prank(address(keep));
         keep.mint(charlie, EXECUTE_ID, 1, "");
-        vm.stopPrank();
 
-        assert(keep.balanceOf(charlie, EXECUTE_ID) == 1);
-
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
-        assert(keep.quorum() == 2);
+        assert(keep.balanceOf(charlie, EXECUTE_ID) == executeBalance + 1);
+        assert(keep.totalSupply(EXECUTE_ID) == executeTotalSupply + 1);
+        assert(keep.quorum() == preQuorum);
     }
 
     function testMintFailZeroAddress() public payable {
