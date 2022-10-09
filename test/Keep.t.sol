@@ -706,6 +706,22 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.quorum() == preQuorum);
     }
 
+    function testMintCoreId(uint256 amount) public payable {
+        vm.assume(amount < type(uint216).max);
+        uint256 CORE_ID = uint32(uint160(address(keep)));
+        uint256 totalSupply = keep.totalSupply(CORE_ID);
+        uint256 balance = keep.balanceOf(charlie, CORE_ID);
+        uint256 preQuorum = keep.quorum();
+
+        vm.prank(address(keep));
+        keep.mint(charlie, CORE_ID, amount, "");
+
+        assert(keep.balanceOf(charlie, CORE_ID) == balance + amount);
+        assert(keep.totalSupply(CORE_ID) == totalSupply + amount);
+        assert(keep.quorum() == preQuorum);
+        assert(keep.totalSupply(CORE_ID) == totalSupply + amount);
+    }
+
     function testMintFailZeroAddress() public payable {
         assert(keep.totalSupply(EXECUTE_ID) == 2);
 
@@ -759,35 +775,30 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function testSetTransferability(address dave, uint256 id) public payable {
         // Non-keep itself should not be able to flip pause.
-        startHoax(dave, dave, type(uint256).max);
+        vm.assume(dave != address(keep));
+        vm.prank(dave);
         vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         keep.setTransferability(id, true);
-        vm.stopPrank();
         assertTrue(!keep.transferable(id));
 
         // The keep itself should be able to flip pause.
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        vm.stopPrank();
         assertTrue(keep.transferable(id) == true);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(charlie, id, 1, "");
         vm.stopPrank();
 
-        startHoax(charlie, charlie, type(uint256).max);
+        vm.prank(charlie);
         keep.safeTransferFrom(charlie, alice, id, 1, "");
-        vm.stopPrank();
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
         keep.setTransferability(id, false);
-        vm.stopPrank();
         assertTrue(!keep.transferable(id));
 
-        startHoax(alice, alice, type(uint256).max);
+        vm.prank(alice);
         vm.expectRevert(bytes4(keccak256("NonTransferable()")));
         keep.safeTransferFrom(alice, charlie, id, 1, "");
-        vm.stopPrank();
     }
 
     function testSetURI(address dave) public payable {
