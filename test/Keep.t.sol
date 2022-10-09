@@ -7,7 +7,8 @@ import {KeepFactory} from "../src/KeepFactory.sol";
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
-import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+
+import {MockSmartWallet} from "./mocks/MockSmartWallet.sol";
 
 import "@std/Test.sol";
 
@@ -153,18 +154,18 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     /// @notice Set up the testing suite.
 
     function setUp() public payable {
+        // Initialize templates.
         keep = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
-        mockERC1271Wallet = new MockERC1271Wallet(alice);
-        chainId = block.chainid;
+        mockERC1271Wallet = new MockSmartWallet(alice);
 
-        // 1B mockDai!
+        // Mint mock ERC20.
         mockDai.mint(address(this), 1000000000 * 1e18);
-
+        // Mint mock 721.
         mockNFT.mint(address(this), 1);
-
+        // Mint mock 1155.
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
@@ -175,15 +176,26 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
+        // Initialize Keep from factory.
+        // The factory is fully tested in KeepFactory.t.sol.
         keepAddr = factory.determineKeep(name);
         keep = Keep(keepAddr);
-        // The factory is fully tested in KeepFactory.t.sol.
+
         factory.deployKeep(calls, signers, 2, name);
         EXECUTE_ID = uint32(keep.execute.selector);
 
+        // Approve Keep as spender of mock ERC20.
         mockDai.approve(address(keep), type(uint256).max);
-    }
 
+        // Mint mock smart wallet a signer ID.
+        vm.prank(address(keep));
+        keep.mint(address(mockERC1271Wallet), EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        // Store chainId.
+        chainId = block.chainid;
+    }
+    
     /// @notice Check setup malconditions.
 
     function testSignerSetup() public payable {
