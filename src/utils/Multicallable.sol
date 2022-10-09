@@ -2,9 +2,12 @@
 pragma solidity ^0.8.4;
 
 /// @notice Contract that enables a single call to call multiple methods on itself.
-/// @author SolDAO (https://github.com/Sol-DAO/solbase/blob/main/src/utils/Multicallable.sol)
-/// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/utils/Multicallable.sol)
+/// @author Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/Multicallable.sol)
 abstract contract Multicallable {
+    /// @dev Apply `DELEGATECALL` with the current contract to each calldata in `data`,
+    /// and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`.
+    /// If any of the `DELEGATECALL`s reverts, the entire transaction is reverted,
+    /// and the error is bubbled up.
     function multicall(bytes[] calldata data)
         public
         payable
