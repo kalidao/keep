@@ -23,7 +23,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
-    MockERC1271Wallet mockERC1271Wallet;
+    MockSmartWallet mockERC1271Wallet;
 
     uint256 internal EXECUTE_ID;
 
@@ -280,13 +280,13 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
 
         vm.prank(address(keep));
         keep.mint(charlie, EXECUTE_ID, 1, "");
         vm.stopPrank();
 
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        assert(keep.totalSupply(EXECUTE_ID) == 4);
 
         vm.prank(address(keep));
         keep.setQuorum(3);
@@ -296,7 +296,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testTotalSignerSupply() public view {
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
     }
 
     /// -----------------------------------------------------------------------
@@ -724,7 +724,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testMintFailZeroAddress() public payable {
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
 
         startHoax(address(keep), address(keep), type(uint256).max);
         vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
@@ -739,7 +739,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.balanceOf(address(0), EXECUTE_ID) == 0);
         assert(keep.balanceOf(address(0), 1) == 0);
 
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
         assert(keep.quorum() == 2);
     }
 
@@ -754,7 +754,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.burn(alice, EXECUTE_ID, 1);
         vm.stopPrank();
 
-        assert(keep.totalSupply(EXECUTE_ID) == 1);
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
         assert(keep.quorum() == 1);
     }
 
