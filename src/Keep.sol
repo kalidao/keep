@@ -355,9 +355,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x40, m)
         }
 
-        bool valid;
-
         if (user != signer) {
+            bool valid;
+
             assembly {
                 // Load the free memory pointer.
                 // Simply using the free memory usually costs less if many slots are needed.
