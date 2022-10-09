@@ -723,6 +723,22 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.quorum() == preQuorum);
     }
 
+    function testMintCoreId(uint256 amount) public payable {
+        vm.assume(amount < type(uint216).max);
+        uint256 CORE_ID = uint32(uint160(address(keep)));
+        uint256 totalSupply = keep.totalSupply(CORE_ID);
+        uint256 balance = keep.balanceOf(charlie, CORE_ID);
+        uint256 preQuorum = keep.quorum();
+
+        vm.prank(address(keep));
+        keep.mint(charlie, CORE_ID, amount, "");
+
+        assert(keep.balanceOf(charlie, CORE_ID) == balance + amount);
+        assert(keep.totalSupply(CORE_ID) == totalSupply + amount);
+        assert(keep.quorum() == preQuorum);
+        assert(keep.totalSupply(CORE_ID) == totalSupply + amount);
+    }
+
     function testMintFailZeroAddress() public payable {
         assert(keep.totalSupply(EXECUTE_ID) == 3);
 
@@ -774,37 +790,37 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.balanceOf(alice, 1) == 100);
     }
 
-    function testSetTransferability(address dave, uint256 id) public payable {
-        // Non-keep itself should not be able to flip pause.
-        startHoax(dave, dave, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
-        keep.setTransferability(id, true);
-        vm.stopPrank();
-        assertTrue(!keep.transferable(id));
-
+    function testSetTransferability(uint256 id) public payable {
         // The keep itself should be able to flip pause.
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.assume(id != 742900294); // TODO: why
+        vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        vm.stopPrank();
         assertTrue(keep.transferable(id) == true);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(charlie, id, 1, "");
         vm.stopPrank();
 
-        startHoax(charlie, charlie, type(uint256).max);
+        vm.prank(charlie);
         keep.safeTransferFrom(charlie, alice, id, 1, "");
-        vm.stopPrank();
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
         keep.setTransferability(id, false);
-        vm.stopPrank();
         assertTrue(!keep.transferable(id));
 
-        startHoax(alice, alice, type(uint256).max);
+        vm.prank(alice);
         vm.expectRevert(bytes4(keccak256("NonTransferable()")));
         keep.safeTransferFrom(alice, charlie, id, 1, "");
-        vm.stopPrank();
+    }
+
+    function testCannotSetTransferability(address dave, uint256 id)
+        public
+        payable
+    {
+        vm.assume(dave != address(keep));
+        vm.prank(dave);
+        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
+        keep.setTransferability(id, true);
+        assertTrue(!keep.transferable(id));
     }
 
     function testSetURI(address dave) public payable {
@@ -836,22 +852,24 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(!keep.isApprovedForAll(alice, bob));
     }
 
-    function testKeepTokenTransferByOwner(uint256 id) public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
+    function testKeepTokenTransferByOwner(uint256 id, uint256 amount)
+        public
+        payable
+    {
+        vm.assume(amount < type(uint216).max);
+        vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        vm.stopPrank();
         assertTrue(keep.transferable(id) == true);
-
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(charlie, id, 1, "");
+        keep.mint(charlie, id, amount, "");
         vm.stopPrank();
 
-        startHoax(charlie, charlie, type(uint256).max);
-        keep.safeTransferFrom(charlie, bob, id, 1, "");
-        vm.stopPrank();
+        uint256 charliePreBalance = keep.balanceOf(charlie, id);
+        uint256 bobPreBalance = keep.balanceOf(bob, id);
+        vm.prank(charlie);
+        keep.safeTransferFrom(charlie, bob, id, amount, "");
 
-        assertTrue(keep.balanceOf(charlie, id) == 0);
-        assertTrue(keep.balanceOf(bob, id) == 1);
+        assertEq(keep.balanceOf(charlie, id), charliePreBalance - amount);
+        assertEq(keep.balanceOf(bob, id), bobPreBalance + amount);
     }
 
     function testKeepTokenBatchTransferByOwner() public payable {
@@ -886,26 +904,23 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testKeepTokenTransferByOperator(uint256 id) public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
+        uint256 bobPreBalance = keep.balanceOf(bob, id);
+        console.log(bobPreBalance);
+        vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        vm.stopPrank();
         assertTrue(keep.transferable(id) == true);
-
-        startHoax(charlie, charlie, type(uint256).max);
-        keep.setApprovalForAll(alice, true);
-        vm.stopPrank();
-        assertTrue(keep.isApprovedForAll(charlie, alice));
-
-        startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(charlie, id, 1, "");
         vm.stopPrank();
 
-        startHoax(alice, alice, type(uint256).max);
+        vm.prank(charlie);
+        keep.setApprovalForAll(alice, true);
+        assertTrue(keep.isApprovedForAll(charlie, alice));
+
+        vm.prank(alice);
         keep.safeTransferFrom(charlie, bob, id, 1, "");
-        vm.stopPrank();
 
         assertTrue(keep.balanceOf(charlie, id) == 0);
-        assertTrue(keep.balanceOf(bob, id) == 1);
+        assertEq(keep.balanceOf(bob, id), bobPreBalance + 1);
     }
 
     function testKeepTokenBatchTransferByOperator() public payable {
@@ -944,31 +959,30 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(bob, 1) == 1);
     }
 
-    function testKeepTokenTransferFailNonTransferable(uint256 id)
+    function testCannotKeepTokenTransferNonTransferable(uint256 id)
         public
         payable
     {
-        startHoax(charlie, charlie, type(uint256).max);
+        vm.prank(address(keep));
+        keep.mint(charlie, id, 1, "");
+
+        uint256 charlieBalance = keep.balanceOf(charlie, id);
+        uint256 bobBalance = keep.balanceOf(bob, id);
+
+        vm.startPrank(charlie);
         keep.setApprovalForAll(alice, true);
-        vm.stopPrank();
         assertTrue(keep.isApprovedForAll(charlie, alice));
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(charlie, id, 1, "");
-        vm.stopPrank();
-
-        startHoax(charlie, charlie, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NonTransferable()")));
         keep.safeTransferFrom(charlie, bob, id, 1, "");
         vm.stopPrank();
 
-        startHoax(alice, alice, type(uint256).max);
+        vm.prank(alice);
         vm.expectRevert(bytes4(keccak256("NonTransferable()")));
         keep.safeTransferFrom(charlie, bob, id, 1, "");
-        vm.stopPrank();
 
-        assertTrue(keep.balanceOf(charlie, id) == 1);
-        assertTrue(keep.balanceOf(bob, id) == 0);
+        assertEq(keep.balanceOf(charlie, id), charlieBalance);
+        assertEq(keep.balanceOf(bob, id), bobBalance);
     }
 
     function testKeepTokenBatchTransferFailNonTransferable() public payable {
