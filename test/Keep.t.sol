@@ -315,17 +315,18 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testKeepERC1155FailOnZeroAddress() public payable {
-        address local = address(this);
-        vm.prank(address(keep));
-        keep.mint(local, 2, 1, "");
-        vm.stopPrank();
-
-        vm.prank(address(keep));
+        // Allow transferability
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(alice, 2, 1, "");
         keep.setTransferability(2, true);
         vm.stopPrank();
-
+        // Fail on zero address
+        startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
-        keep.safeTransferFrom(address(this), address(0), 2, 1, "");
+        keep.safeTransferFrom(alice, address(0), 2, 1, "");
+        // Success on non-zero address
+        keep.safeTransferFrom(alice, bob, 2, 1, "");
+        vm.stopPrank();
     }
 
     /// @notice Check execution.
