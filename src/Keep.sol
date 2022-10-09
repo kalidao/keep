@@ -84,10 +84,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     Keep internal immutable uriFetcher;
 
     /// @dev Record of states verifying `execute()`.
-    uint96 public nonce;
+    uint120 public nonce;
 
     /// @dev EXECUTE_ID threshold to `execute()`.
-    uint96 public quorum;
+    uint120 public quorum;
 
     /// @dev Internal ID metadata mapping.
     mapping(uint256 => string) internal _uris;
@@ -234,7 +234,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
         }
 
-        quorum = uint96(threshold);
+        quorum = uint120(threshold);
 
         totalSupply[EXECUTE_ID] = supply;
 
@@ -554,7 +554,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
 
-        quorum = uint96(threshold);
+        quorum = uint120(threshold);
 
         emit QuorumSet(msg.sender, threshold);
     }
