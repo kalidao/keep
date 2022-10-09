@@ -234,10 +234,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
         }
 
-        quorum = uint120(threshold);
-
         totalSupply[EXECUTE_ID] = supply;
-
+        quorum = uint120(threshold);
         KeepToken._initialize();
     }
 
@@ -325,6 +323,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) internal view virtual {
         address signer;
 
+        // Perform signature recovery.
         assembly {
             // Copy the free memory pointer so that we can restore it later.
             let m := mload(0x40)
@@ -354,6 +353,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x40, m)
         }
 
+        // If recovered signature doesn't match `user`, verify with ERC1271.
         if (user != signer) {
             bool valid;
 
