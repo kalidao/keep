@@ -541,7 +541,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Update Keep quorum threshold.
     /// @param threshold Signature threshold for `execute()`.
-    function setQuorum(uint96 threshold) public payable virtual {
+    function setQuorum(uint256 threshold) public payable virtual {
         _authorized();
 
         assembly {
@@ -554,7 +554,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
 
-        quorum = threshold;
+        quorum = uint96(threshold);
 
         emit QuorumSet(msg.sender, threshold);
     }
