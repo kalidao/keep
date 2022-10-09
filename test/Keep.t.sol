@@ -773,15 +773,14 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testSetURI(address dave) public payable {
-        startHoax(dave, dave, type(uint256).max);
+        vm.prank(dave);
+        vm.assume(dave != address(keep));
         vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         keep.setURI(0, "new_base_uri");
-        vm.stopPrank();
 
         // The keep itself should be able to update the base uri.
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
         keep.setURI(0, "new_base_uri");
-        vm.stopPrank();
         assertEq(
             keccak256(bytes("new_base_uri")),
             keccak256(bytes(keep.uri(0)))
