@@ -75,7 +75,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev The number which `s` must not exceed in order for
     /// the signature to be non-malleable.
-    bytes32 private constant _MALLEABILITY_THRESHOLD =
+    bytes32 internal constant MALLEABILITY_THRESHOLD =
         0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
 
     /// @dev Core ID key permission.
@@ -262,7 +262,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         Signature[] calldata sigs
     ) public payable virtual returns (bool success) {
         // Begin signature validation with payload hash.
-        bytes32 digest = keccak256(
+        bytes32 hash = keccak256(
             abi.encodePacked(
                 "\x19\x01",
                 DOMAIN_SEPARATOR(),
@@ -283,19 +283,30 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         // Start from zero in loop to ensure ascending addresses.
         address previous;
+
         // Validation is length of quorum threshold.
         uint256 threshold = quorum;
 
+        // Store outside loop for gas optimization.
+        Signature memory sig;
+
         for (uint256 i; i < threshold; ) {
-            address signer = _isValidSig(digest, sigs[i]);
+            // Load signature items.
+            sig = sigs[i];
+            address user = sig.user;
+
+            // Check signature recovery.
+            if (!_isValidSig(hash, user, sig.v, sig.r, sig.s))
+                revert InvalidSig();
 
             // Check EXECUTE_ID balance.
-            if (balanceOf[signer][EXECUTE_ID] == 0) revert InvalidSig();
+            if (balanceOf[user][EXECUTE_ID] == 0) revert InvalidSig();
+
             // Check duplicates.
-            if (previous >= signer) revert InvalidSig();
+            if (previous >= user) revert InvalidSig();
 
             // Memo signer for next iteration until quorum.
-            previous = signer;
+            previous = user;
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -307,36 +318,21 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         success = _execute(op, to, value, data);
     }
 
-    function _isValidSig(bytes32 digest, Signature calldata sig)
-        internal
-        view
-        virtual
-        returns (address signer)
-    {
-        signer = _recover(digest, sig.v, sig.r, sig.s);
-
-        if (signer != sig.user) {
-            if (
-                ERC1271(sig.user).isValidSignature(
-                    digest,
-                    abi.encodePacked(sig.r, sig.s, sig.v)
-                ) != ERC1271.isValidSignature.selector
-            ) revert InvalidSig();
-        }
-    }
-
-    function _recover(
+    function _isValidSig(
         bytes32 hash,
+        address user,
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) internal view returns (address signer) {
+    ) internal view virtual returns (bool isValid) {
+        address signer;
+
         assembly {
             // Copy the free memory pointer so that we can restore it later.
             let m := mload(0x40)
 
             // If `s` in lower half order, such that the signature is not malleable.
-            if iszero(gt(s, _MALLEABILITY_THRESHOLD)) {
+            if iszero(gt(s, MALLEABILITY_THRESHOLD)) {
                 mstore(0x00, hash)
                 mstore(0x20, v)
                 mstore(0x40, r)
@@ -358,6 +354,46 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
             // Restore the free memory pointer.
             mstore(0x40, m)
+        }
+
+        // prettier-ignore
+        if (user == signer) return true; else {
+            assembly {
+                // Load the free memory pointer.
+                // Simply using the free memory usually costs less if many slots are needed.
+                let m := mload(0x40)
+
+                // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+                let f := shl(224, 0x1626ba7e)
+                // Write the abi-encoded calldata into memory, beginning with the function selector.
+                mstore(m, f) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+                mstore(add(m, 0x04), hash)
+                mstore(add(m, 0x24), 0x40) // The offset of the `signature` in the calldata.
+                mstore(add(m, 0x44), 65) // Store the length of the signature.
+                mstore(add(m, 0x64), r) // Store `r` of the signature.
+                mstore(add(m, 0x84), s) // Store `s` of the signature.
+                mstore8(add(m, 0xa4), v) // Store `v` of the signature.
+
+                isValid := and(
+                    and(
+                        // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+                        eq(mload(0x00), f),
+                        // Whether the returndata is exactly 0x20 bytes (1 word) long .
+                        eq(returndatasize(), 0x20)
+                    ),
+                    // Whether the staticcall does not revert.
+                    // This must be placed at the end of the `and` clause,
+                    // as the arguments are evaluated from right to left.
+                    staticcall(
+                        gas(), // Remaining gas.
+                        user, // The `user` address.
+                        m, // Offset of calldata in memory.
+                        0xa5, // Length of calldata in memory.
+                        0x00, // Offset of returndata.
+                        0x20 // Length of returndata to write.
+                    )
+                )
+            }
         }
     }
 

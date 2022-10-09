@@ -7,7 +7,8 @@ import {KeepFactory} from "../src/KeepFactory.sol";
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
-import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+
+import {MockSmartWallet} from "./mocks/MockSmartWallet.sol";
 
 import "@std/Test.sol";
 
@@ -22,7 +23,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
-    MockERC1271Wallet mockERC1271Wallet;
+    MockSmartWallet mockERC1271Wallet;
 
     uint256 internal EXECUTE_ID;
 
@@ -153,18 +154,18 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     /// @notice Set up the testing suite.
 
     function setUp() public payable {
+        // Initialize templates.
         keep = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
-        mockERC1271Wallet = new MockERC1271Wallet(alice);
-        chainId = block.chainid;
+        mockERC1271Wallet = new MockSmartWallet(alice);
 
-        // 1B mockDai!
+        // Mint mock ERC20.
         mockDai.mint(address(this), 1000000000 * 1e18);
-
+        // Mint mock 721.
         mockNFT.mint(address(this), 1);
-
+        // Mint mock 1155.
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
@@ -175,23 +176,39 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
+        // Initialize Keep from factory.
+        // The factory is fully tested in KeepFactory.t.sol.
         keepAddr = factory.determineKeep(name);
         keep = Keep(keepAddr);
-        // The factory is fully tested in KeepFactory.t.sol.
+
         factory.deployKeep(calls, signers, 2, name);
         EXECUTE_ID = uint32(keep.execute.selector);
 
+        // Approve Keep as spender of mock ERC20.
         mockDai.approve(address(keep), type(uint256).max);
-    }
 
+        // Mint mock smart wallet a signer ID.
+        vm.prank(address(keep));
+        keep.mint(address(mockERC1271Wallet), EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        // Store chainId.
+        chainId = block.chainid;
+    }
+    
     /// @notice Check setup malconditions.
 
     function testSignerSetup() public payable {
+        // Check users.
         assertTrue(keep.balanceOf(alice, EXECUTE_ID) == 1);
         assertTrue(keep.balanceOf(bob, EXECUTE_ID) == 1);
         assertTrue(keep.balanceOf(charlie, EXECUTE_ID) == 0);
 
-        assertTrue(keep.totalSupply(EXECUTE_ID) == 2);
+        // Also check smart wallet.
+        assertTrue(keep.balanceOf(address(mockERC1271Wallet), EXECUTE_ID) == 1);
+
+        // Check supply.
+        assertTrue(keep.totalSupply(EXECUTE_ID) == 3);
         assertTrue(keep.totalSupply(42069) == 0);
     }
 
@@ -263,13 +280,13 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
 
         vm.prank(address(keep));
         keep.mint(charlie, EXECUTE_ID, 1, "");
         vm.stopPrank();
 
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        assert(keep.totalSupply(EXECUTE_ID) == 4);
 
         vm.prank(address(keep));
         keep.setQuorum(3);
@@ -279,7 +296,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testTotalSignerSupply() public view {
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
     }
 
     /// -----------------------------------------------------------------------
@@ -707,7 +724,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testMintFailZeroAddress() public payable {
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
 
         startHoax(address(keep), address(keep), type(uint256).max);
         vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
@@ -722,7 +739,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.balanceOf(address(0), EXECUTE_ID) == 0);
         assert(keep.balanceOf(address(0), 1) == 0);
 
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
         assert(keep.quorum() == 2);
     }
 
@@ -737,7 +754,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.burn(alice, EXECUTE_ID, 1);
         vm.stopPrank();
 
-        assert(keep.totalSupply(EXECUTE_ID) == 1);
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
         assert(keep.quorum() == 1);
     }
 
