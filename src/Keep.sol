@@ -296,8 +296,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             address user = sig.user;
 
             // Check signature recovery.
-            if (!_isValidSig(hash, user, sig.v, sig.r, sig.s))
-                revert InvalidSig();
+            _checkSigRecovery(hash, user, sig.v, sig.r, sig.s);
 
             // Check EXECUTE_ID balance.
             if (balanceOf[user][EXECUTE_ID] == 0) revert InvalidSig();
@@ -318,13 +317,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         success = _execute(op, to, value, data);
     }
 
-    function _isValidSig(
+    function _checkSigRecovery(
         bytes32 hash,
         address user,
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) internal view virtual returns (bool isValid) {
+    ) internal view virtual {
         address signer;
 
         assembly {
@@ -356,8 +355,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x40, m)
         }
 
-        // prettier-ignore
-        if (user == signer) return true; else {
+        bool valid;
+
+        if (user != signer) {
             assembly {
                 // Load the free memory pointer.
                 // Simply using the free memory usually costs less if many slots are needed.
@@ -374,7 +374,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 mstore(add(m, 0x84), s) // Store `s` of the signature.
                 mstore8(add(m, 0xa4), v) // Store `v` of the signature.
 
-                isValid := and(
+                valid := and(
                     and(
                         // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
                         eq(mload(0x00), f),
@@ -394,6 +394,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     )
                 )
             }
+
+            if (!valid) revert InvalidSig();
         }
     }
 

@@ -195,7 +195,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         // Store chainId.
         chainId = block.chainid;
     }
-    
+
     /// @notice Check setup malconditions.
 
     function testSignerSetup() public payable {
