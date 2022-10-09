@@ -3,7 +3,6 @@ pragma solidity ^0.8.4;
 
 import {ERC1155TokenReceiver, KeepToken} from "./KeepToken.sol";
 import {Multicallable} from "./utils/Multicallable.sol";
-import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
 /// @notice Tokenized multisig wallet.
