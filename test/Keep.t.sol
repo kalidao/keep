@@ -7,8 +7,7 @@ import {KeepFactory} from "../src/KeepFactory.sol";
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
-
-import {MockSmartWallet} from "./mocks/MockSmartWallet.sol";
+import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
 
 import "@std/Test.sol";
 
@@ -23,7 +22,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
-    MockSmartWallet mockERC1271Wallet;
+    MockERC1271Wallet mockERC1271Wallet;
 
     uint256 internal EXECUTE_ID;
 
@@ -154,18 +153,18 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     /// @notice Set up the testing suite.
 
     function setUp() public payable {
-        // Initialize templates.
         keep = new Keep(Keep(alice));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
-        mockERC1271Wallet = new MockSmartWallet(alice);
+        mockERC1271Wallet = new MockERC1271Wallet(alice);
+        chainId = block.chainid;
 
-        // Mint mock ERC20.
+        // 1B mockDai!
         mockDai.mint(address(this), 1000000000 * 1e18);
-        // Mint mock 721.
+
         mockNFT.mint(address(this), 1);
-        // Mint mock 1155.
+
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
@@ -176,39 +175,23 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[0] = alice > bob ? bob : alice;
         signers[1] = alice > bob ? alice : bob;
 
-        // Initialize Keep from factory.
-        // The factory is fully tested in KeepFactory.t.sol.
         keepAddr = factory.determineKeep(name);
         keep = Keep(keepAddr);
-
+        // The factory is fully tested in KeepFactory.t.sol.
         factory.deployKeep(calls, signers, 2, name);
         EXECUTE_ID = uint32(keep.execute.selector);
 
-        // Approve Keep as spender of mock ERC20.
         mockDai.approve(address(keep), type(uint256).max);
-
-        // Mint mock smart wallet a signer ID.
-        vm.prank(address(keep));
-        keep.mint(address(mockERC1271Wallet), EXECUTE_ID, 1, "");
-        vm.stopPrank();
-
-        // Store chainId.
-        chainId = block.chainid;
     }
 
     /// @notice Check setup malconditions.
 
     function testSignerSetup() public payable {
-        // Check users.
         assertTrue(keep.balanceOf(alice, EXECUTE_ID) == 1);
         assertTrue(keep.balanceOf(bob, EXECUTE_ID) == 1);
         assertTrue(keep.balanceOf(charlie, EXECUTE_ID) == 0);
 
-        // Also check smart wallet.
-        assertTrue(keep.balanceOf(address(mockERC1271Wallet), EXECUTE_ID) == 1);
-
-        // Check supply.
-        assertTrue(keep.totalSupply(EXECUTE_ID) == 3);
+        assertTrue(keep.totalSupply(EXECUTE_ID) == 2);
         assertTrue(keep.totalSupply(42069) == 0);
     }
 
@@ -280,13 +263,13 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
 
         vm.prank(address(keep));
         keep.mint(charlie, EXECUTE_ID, 1, "");
         vm.stopPrank();
 
-        assert(keep.totalSupply(EXECUTE_ID) == 4);
+        assert(keep.totalSupply(EXECUTE_ID) == 3);
 
         vm.prank(address(keep));
         keep.setQuorum(3);
@@ -296,7 +279,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testTotalSignerSupply() public view {
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
     }
 
     /// -----------------------------------------------------------------------
@@ -477,49 +460,6 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         );
     }
 
-    function testExecuteCallWithContractSignatures() public payable {
-        mockDai.transfer(address(keep), 100);
-        address aliceAddress = alice;
-        bytes memory tx_data = "";
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), aliceAddress)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
-
-        Signature[] memory sigs = new Signature[](2);
-
-        Signature memory aliceSig;
-        Signature memory bobSig;
-
-        aliceSig = signExecution(
-            address(mockERC1271Wallet),
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
-        bobSig = signExecution(
-            bob,
-            bobsPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
-
-        sigs[0] = alice > bob ? bobSig : aliceSig;
-        sigs[1] = alice > bob ? aliceSig : bobSig;
-
-        // Execute tx.
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
-
     /// @notice Check execution malconditions.
 
     function testExecuteFailWithImproperSignatures() public payable {
@@ -690,23 +630,84 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
+    function testExecuteCallWithContractSignatures() public payable {
+        mockDai.transfer(address(keep), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        assembly {
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
+            mstore(add(tx_data, 0x24), aliceAddress)
+            mstore(add(tx_data, 0x44), 100)
+            mstore(tx_data, 0x44)
+            // Update free memory pointer.
+            mstore(0x40, add(tx_data, 0x80))
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            address(mockERC1271Wallet),
+            alicesPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+        bobSig = signExecution(
+            bob,
+            bobsPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    }
+
     /// @notice Check governance.
+    function testMint(
+        uint256 id,
+        uint256 amount,
+        bytes calldata data
+    ) public payable {
+        vm.assume(id != EXECUTE_ID);
+        vm.assume(keep.totalSupply(uint32(uint160(address(keep)))) == 0); // CORE_ID
+        vm.assume(amount < type(uint216).max);
 
-    function testMint() public payable {
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        uint256 preTotalSupply = keep.totalSupply(id);
+        uint256 preBalance = keep.balanceOf(charlie, id);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
+        keep.mint(charlie, id, amount, data);
+
+        assert(keep.balanceOf(charlie, id) == preBalance + amount);
+        assert(keep.totalSupply(id) == preTotalSupply + amount);
+    }
+
+    function testMintExecuteId() public payable {
+        uint256 executeTotalSupply = keep.totalSupply(EXECUTE_ID);
+        uint256 executeBalance = keep.balanceOf(charlie, EXECUTE_ID);
+        uint256 preQuorum = keep.quorum();
+
+        vm.prank(address(keep));
         keep.mint(charlie, EXECUTE_ID, 1, "");
-        vm.stopPrank();
 
-        assert(keep.balanceOf(charlie, EXECUTE_ID) == 1);
-
-        assert(keep.totalSupply(EXECUTE_ID) == 4);
-        assert(keep.quorum() == 2);
+        assert(keep.balanceOf(charlie, EXECUTE_ID) == executeBalance + 1);
+        assert(keep.totalSupply(EXECUTE_ID) == executeTotalSupply + 1);
+        assert(keep.quorum() == preQuorum);
     }
 
     function testMintFailZeroAddress() public payable {
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
 
         startHoax(address(keep), address(keep), type(uint256).max);
         vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
@@ -721,7 +722,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.balanceOf(address(0), EXECUTE_ID) == 0);
         assert(keep.balanceOf(address(0), 1) == 0);
 
-        assert(keep.totalSupply(EXECUTE_ID) == 3);
+        assert(keep.totalSupply(EXECUTE_ID) == 2);
         assert(keep.quorum() == 2);
     }
 
@@ -736,7 +737,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keep.burn(alice, EXECUTE_ID, 1);
         vm.stopPrank();
 
-        assert(keep.totalSupply(EXECUTE_ID) == 2);
+        assert(keep.totalSupply(EXECUTE_ID) == 1);
         assert(keep.quorum() == 1);
     }
 
@@ -790,15 +791,14 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testSetURI(address dave) public payable {
-        startHoax(dave, dave, type(uint256).max);
+        vm.prank(dave);
+        vm.assume(dave != address(keep));
         vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         keep.setURI(0, "new_base_uri");
-        vm.stopPrank();
 
         // The keep itself should be able to update the base uri.
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
         keep.setURI(0, "new_base_uri");
-        vm.stopPrank();
         assertEq(
             keccak256(bytes("new_base_uri")),
             keccak256(bytes(keep.uri(0)))
