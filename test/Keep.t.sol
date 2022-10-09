@@ -199,11 +199,16 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     /// @notice Check setup malconditions.
 
     function testSignerSetup() public payable {
+        // Check users.
         assertTrue(keep.balanceOf(alice, EXECUTE_ID) == 1);
         assertTrue(keep.balanceOf(bob, EXECUTE_ID) == 1);
         assertTrue(keep.balanceOf(charlie, EXECUTE_ID) == 0);
 
-        assertTrue(keep.totalSupply(EXECUTE_ID) == 2);
+        // Also check smart wallet.
+        assertTrue(keep.balanceOf(address(mockERC1271Wallet), EXECUTE_ID) == 1);
+
+        // Check supply.
+        assertTrue(keep.totalSupply(EXECUTE_ID) == 3);
         assertTrue(keep.totalSupply(42069) == 0);
     }
 
