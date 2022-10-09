@@ -293,7 +293,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             address user = sig.user;
 
             // Check signature recovery.
-            _checkSigRecovery(hash, user, sig.v, sig.r, sig.s);
+            _recoverSig(hash, user, sig.v, sig.r, sig.s);
 
             // Check EXECUTE_ID balance.
             if (balanceOf[user][EXECUTE_ID] == 0) revert InvalidSig();
@@ -314,7 +314,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         success = _execute(op, to, value, data);
     }
 
-    function _checkSigRecovery(
+    function _recoverSig(
         bytes32 hash,
         address user,
         uint8 v,
@@ -323,7 +323,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) internal view virtual {
         address signer;
 
-        // Perform signature recovery.
+        // Perform signature recovery via ecrecover.
         assembly {
             // Copy the free memory pointer so that we can restore it later.
             let m := mload(0x40)
@@ -353,7 +353,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x40, m)
         }
 
-        // If recovered signature doesn't match `user`, verify with ERC1271.
+        // If recovery doesn't match `user` verify contract signature with ERC1271.
         if (user != signer) {
             bool valid;
 
