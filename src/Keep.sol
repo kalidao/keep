@@ -6,15 +6,16 @@ import {Multicallable} from "./utils/Multicallable.sol";
 import {ERC1271} from "./utils/ERC1271.sol";
 
 /// @title Keep
-/// @notice EIP-712 multi-signature wallet with ERC1155 interface.
+/// @notice Tokenized multisig wallet.
 /// @author z0r0z.eth
+/// @custom:coauthor boredretard.eth
 /// @custom:coauthor vectorized.eth
 /// @custom:coauthor shivanshi.eth
-/// @custom:coauthor out.eth
 /// @custom:coauthor @0xAlcibiades
+/// @custom:coauthor @0xmichalis
 /// @custom:coauthor @m1guelpf
 /// @custom:coauthor @asnared
-/// @custom:coauthor @0xmichalis
+/// @custom:coauthor out.eth
 
 enum Operation {
     call,

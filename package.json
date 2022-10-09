@@ -1,7 +1,7 @@
 {
   "name": "Keep",
   "version": "1.0.0",
-  "description": "EIP-712 multi-signature wallet with ERC-1155 interface",
+  "description": "Tokenized multisig wallet",
   "main": "index.js",
   "repository": "https://github.com/kalidao/multi-sig",
   "author": "KaliCo LLC <kalidao@protonmail.com>",
