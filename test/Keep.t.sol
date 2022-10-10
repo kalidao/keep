@@ -1353,4 +1353,109 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         );
         assertTrue(keep.getPastVotes(userB, id, block.timestamp - 1) == amount);
     }
+
+    /// @dev Test metaTXs.
+
+    bytes32 constant PERMIT_TYPEHASH =
+        keccak256(
+            "Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)"
+        );
+
+    bytes32 constant DELEGATION_TYPEHASH =
+        keccak256(
+            "Delegation(address delegatee,uint256 nonce,uint256 deadline,uint256 id)"
+        );
+
+    function testKeepTokenPermit(
+        address userB,
+        bool approved,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(amount <= type(uint216).max);
+        vm.assume(userB != address(0));
+        vm.assume(userB.code.length == 0);
+
+        uint256 privateKey = 0xBEEF;
+        address userA = vm.addr(0xBEEF);
+
+        vm.startPrank(address(keep));
+        keep.mint(userA, id, amount, "");
+        keep.setTransferability(id, true);
+        assertTrue(keep.transferable(id));
+        vm.stopPrank();
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            privateKey,
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    keep.DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            PERMIT_TYPEHASH,
+                            userA,
+                            userB,
+                            approved,
+                            0,
+                            block.timestamp
+                        )
+                    )
+                )
+            )
+        );
+
+        vm.startPrank(userA);
+        keep.permit(userA, userB, approved, block.timestamp, v, r, s);
+        vm.stopPrank();
+
+        assertTrue(keep.isApprovedForAll(userA, userB) == approved);
+        assertEq(keep.nonces(userA), 1);
+    }
+
+    function testKeepTokenDelegateBySig(
+        address userB,
+        bool approved,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(amount <= type(uint216).max);
+        vm.assume(userB != address(0));
+        vm.assume(userB.code.length == 0);
+
+        uint256 privateKey = 0xBEEF;
+        address userA = vm.addr(0xBEEF);
+
+        vm.startPrank(address(keep));
+        keep.mint(userA, id, amount, "");
+        keep.setTransferability(id, true);
+        assertTrue(keep.transferable(id));
+        vm.stopPrank();
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            privateKey,
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    keep.DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            DELEGATION_TYPEHASH,
+                            userB,
+                            0,
+                            block.timestamp,
+                            id
+                        )
+                    )
+                )
+            )
+        );
+
+        vm.startPrank(userA);
+        keep.delegateBySig(userB, 0, block.timestamp, id, v, r, s);
+        vm.stopPrank();
+
+        assertTrue(keep.delegates(userA, id) == userB);
+        assertEq(keep.nonces(userA), 1);
+    }
 }
