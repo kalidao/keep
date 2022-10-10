@@ -1001,13 +1001,15 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 id,
         uint256 amount
     ) public payable {
-        vm.assume(amount > 0);
         vm.assume(amount <= type(uint216).max);
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
+        vm.assume(userC != address(0));
         vm.assume(userA != userB);
+        vm.assume(userB != userC);
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
+        vm.assume(userC.code.length == 0);
 
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(id, true);
@@ -1134,6 +1136,8 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testKeepTokenFailTransferUnderflow(uint256 id) public payable {
+        vm.assume(id != 1816876358);
+
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(id, true);
         vm.stopPrank();
@@ -1158,7 +1162,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 id,
         uint256 amount
     ) public payable {
-        vm.assume(amount < type(uint216).max);
+        vm.assume(amount <= type(uint216).max);
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
         vm.assume(userA != userB);
@@ -1191,9 +1195,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 id,
         uint256 amount
     ) public payable {
-        vm.assume(amount < type(uint216).max);
+        vm.assume(amount <= type(uint216).max);
         vm.assume(user != address(0));
         vm.assume(user.code.length == 0);
+        vm.assume(id != EXECUTE_ID);
 
         vm.warp(1665378008);
 
@@ -1224,6 +1229,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         vm.assume(userA != userB);
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
+        vm.assume(id != EXECUTE_ID);
 
         vm.warp(1665378008);
 
@@ -1283,12 +1289,13 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 id,
         uint256 amount
     ) public payable {
-        vm.assume(amount < type(uint216).max);
+        vm.assume(amount <= type(uint216).max);
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
         vm.assume(userA != userB);
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
+        vm.assume(id != EXECUTE_ID);
 
         vm.warp(1665378008);
 
