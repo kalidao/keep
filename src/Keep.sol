@@ -78,7 +78,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
 
     /// @dev Core ID key permission.
-    uint256 internal immutable CORE_ID = uint32(uint160(address(this)));
+    uint256 internal immutable CORE_ID = uint32(type(KeepToken).interfaceId);
 
     /// @dev Default metadata fetcher for `uri()`.
     Keep internal immutable uriFetcher;
