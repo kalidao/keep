@@ -16,7 +16,7 @@ contract KeepFactory is Multicallable {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Deployed(address[] signers, uint256 threshold, bytes32 name);
+    event Deployed(address keep, bytes32 name, address[] signers, uint256 threshold);
 
     /// -----------------------------------------------------------------------
     /// Immutables
@@ -60,6 +60,6 @@ contract KeepFactory is Multicallable {
 
         keep.initialize{value: msg.value}(calls, signers, threshold);
 
-        emit Deployed(signers, threshold, name);
+        emit Deployed(address(keep), name, signers, threshold);
     }
 }
