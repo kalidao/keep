@@ -759,6 +759,33 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.quorum() == 2);
     }
 
+    function testMintFailOnOverflowSupply() public payable {
+        vm.prank(address(keep));
+        keep.mint(charlie, 0, type(uint96).max, "");
+        vm.stopPrank();
+
+        vm.prank(address(keep));
+        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        keep.mint(charlie, 1, type(uint256).max, "");
+        vm.stopPrank();
+
+        vm.prank(address(keep));
+        keep.mint(charlie, 2, type(uint216).max, "");
+        vm.stopPrank();
+
+        vm.prank(address(keep));
+        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        keep.mint(charlie, 2, 1, "");
+        vm.stopPrank();
+
+        uint256 amount = 1 << 216;
+
+        vm.prank(address(keep));
+        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        keep.mint(charlie, 3, amount, "");
+        vm.stopPrank();
+    }
+
     function testBurn() public {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setQuorum(1);
@@ -772,6 +799,14 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         assert(keep.totalSupply(EXECUTE_ID) == 2);
         assert(keep.quorum() == 1);
+    }
+
+    function testBurnFailOnUnderflow() public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(alice, 1, 1, "");
+        vm.expectRevert(stdError.arithmeticError);
+        keep.burn(alice, 1, 2);
+        vm.stopPrank();
     }
 
     function testRole() public payable {
@@ -829,7 +864,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         keep.setURI(0, "new_base_uri");
 
-        // The keep itself should be able to update the base uri.
+        // The keep itself should be able to update uri.
         vm.prank(address(keep));
         keep.setURI(0, "new_base_uri");
         assertEq(
@@ -959,6 +994,52 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(bob, 1) == 1);
     }
 
+    function testKeepTokenTransferPermission(uint256 id) public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(id) == true);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, id, 3, "");
+        keep.setPermission(id, true);
+        keep.setUserPermission(charlie, id, true);
+        keep.setUserPermission(bob, id, true);
+        vm.stopPrank();
+
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 2);
+        assertTrue(keep.balanceOf(bob, id) == 1);
+
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.setApprovalForAll(alice, true);
+        vm.stopPrank();
+        assertTrue(keep.isApprovedForAll(charlie, alice));
+
+        startHoax(alice, alice, type(uint256).max);
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 1);
+        assertTrue(keep.balanceOf(bob, id) == 2);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, false);
+        vm.stopPrank();
+        assertTrue(keep.transferable(id) == false);
+
+        startHoax(charlie, charlie, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 1);
+        assertTrue(keep.balanceOf(bob, id) == 2);
+    }
+
     function testCannotKeepTokenTransferNonTransferable(uint256 id)
         public
         payable
@@ -1015,5 +1096,44 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(charlie, 1) == 2);
         assertTrue(keep.balanceOf(bob, 0) == 0);
         assertTrue(keep.balanceOf(bob, 1) == 0);
+    }
+
+    function testKeepTokenFailTransferUnderflow(uint256 id) public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(id) == true);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, id, 1, "");
+        vm.stopPrank();
+
+        startHoax(charlie, charlie, type(uint256).max);
+        vm.expectRevert(stdError.arithmeticError);
+        keep.safeTransferFrom(charlie, bob, id, 2, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 1);
+        assertTrue(keep.balanceOf(bob, id) == 0);
+    }
+
+    function testKeepTokenFailTransferPermission(uint256 id) public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, true);
+        vm.stopPrank();
+        assertTrue(keep.transferable(id) == true);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, id, 1, "");
+        keep.setPermission(id, true);
+        vm.stopPrank();
+
+        startHoax(charlie, charlie, type(uint256).max);
+        vm.expectRevert(bytes4(keccak256("NotPermitted()")));
+        keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
+
+        assertTrue(keep.balanceOf(charlie, id) == 1);
+        assertTrue(keep.balanceOf(bob, id) == 0);
     }
 }
