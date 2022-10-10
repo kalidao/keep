@@ -1136,4 +1136,102 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(charlie, id) == 1);
         assertTrue(keep.balanceOf(bob, id) == 0);
     }
+
+    /// @dev Test delegation.
+
+    function testKeepTokenInitDelegationBalance(
+        address user,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(amount < type(uint216).max);
+        vm.assume(user != address(0));
+        vm.assume(user.code.length == 0);
+
+        vm.warp(1665378008);
+
+        vm.startPrank(address(keep));
+        keep.mint(user, id, amount, "");
+        vm.stopPrank();
+
+        assertTrue(keep.delegates(user, id) == user);
+
+        assertTrue(keep.getCurrentVotes(user, id) == amount);
+        assertTrue(keep.getVotes(user, id) == amount);
+
+        vm.warp(1665378010);
+
+        assertTrue(keep.getPriorVotes(user, id, block.timestamp - 1) == amount);
+        assertTrue(keep.getPastVotes(user, id, block.timestamp - 1) == amount);
+    }
+
+    function testKeepTokenDelegationBalanceByTransfer(
+        address userA,
+        address userB,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(amount < type(uint216).max);
+        vm.assume(userA != address(0));
+        vm.assume(userB != address(0));
+        vm.assume(userA != userB);
+        vm.assume(userA.code.length == 0);
+        vm.assume(userB.code.length == 0);
+
+        vm.warp(1665378008);
+
+        vm.startPrank(address(keep));
+        keep.mint(userA, id, amount, "");
+        vm.stopPrank();
+
+        assertTrue(keep.delegates(userA, id) == userA);
+
+        assertTrue(keep.getCurrentVotes(userA, id) == amount);
+        assertTrue(keep.getVotes(userA, id) == amount);
+
+        assertTrue(keep.getCurrentVotes(userB, id) == 0);
+        assertTrue(keep.getVotes(userB, id) == 0);
+
+        vm.warp(1665378010);
+
+        assertTrue(
+            keep.getPriorVotes(userA, id, block.timestamp - 1) == amount
+        );
+        assertTrue(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
+
+        assertTrue(keep.getPriorVotes(userB, id, block.timestamp - 1) == 0);
+        assertTrue(keep.getPastVotes(userB, id, block.timestamp - 1) == 0);
+
+        vm.startPrank(address(keep));
+        keep.setTransferability(id, true);
+        assertTrue(keep.transferable(id));
+        vm.stopPrank();
+
+        vm.startPrank(userA);
+        keep.safeTransferFrom(userA, userB, id, amount, "");
+        vm.stopPrank();
+
+        assertTrue(keep.delegates(userA, id) == userA);
+
+        assertTrue(keep.getCurrentVotes(userA, id) == 0);
+        assertTrue(keep.getVotes(userA, id) == 0);
+
+        assertTrue(keep.getCurrentVotes(userB, id) == amount);
+        assertTrue(keep.getVotes(userB, id) == amount);
+
+        assertTrue(
+            keep.getPriorVotes(userA, id, block.timestamp - 1) == amount
+        );
+        assertTrue(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
+
+        vm.warp(1665378015);
+
+        assertTrue(keep.getPriorVotes(userA, id, block.timestamp - 1) == 0);
+        assertTrue(keep.getPastVotes(userA, id, block.timestamp - 1) == 0);
+
+        assertTrue(
+            keep.getPriorVotes(userB, id, block.timestamp - 1) == amount
+        );
+        assertTrue(keep.getPastVotes(userB, id, block.timestamp - 1) == amount);
+    }
 }
