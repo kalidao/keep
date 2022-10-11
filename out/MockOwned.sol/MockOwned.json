@@ -60,7 +60,7 @@
       ],
       "name": "setOwner",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -72,13 +72,13 @@
     }
   ],
   "bytecode": {
-    "object": "0x608060405234801561001057600080fd5b50600080546001600160a01b031916339081178255604051909182917f8292fce18fa69edf4db7b94ea2e58241df0ae57f97e0a6c9b29067028bf92d76908290a35061028a806100616000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806313af4035146100515780633a7104d114610066578063890eba681461006e5780638da5cb5b146100a8575b600080fd5b61006461005f366004610240565b6100ed565b005b6100646101ae565b6000546100939074010000000000000000000000000000000000000000900460ff1681565b60405190151581526020015b60405180910390f35b6000546100c89073ffffffffffffffffffffffffffffffffffffffff1681565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161009f565b60005473ffffffffffffffffffffffffffffffffffffffff16331461013e576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081178255604051909133917f8292fce18fa69edf4db7b94ea2e58241df0ae57f97e0a6c9b29067028bf92d769190a350565b60005473ffffffffffffffffffffffffffffffffffffffff1633146101ff576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff1674010000000000000000000000000000000000000000179055565b60006020828403121561025257600080fd5b813573ffffffffffffffffffffffffffffffffffffffff8116811461027657600080fd5b939250505056fea164736f6c6343000811000a",
+    "object": "0x608060405234801561001057600080fd5b50600080546001600160a01b031916339081178255604051909182917f8292fce18fa69edf4db7b94ea2e58241df0ae57f97e0a6c9b29067028bf92d76908290a3506102a4806100616000396000f3fe60806040526004361061003f5760003560e01c806313af4035146100445780633a7104d114610059578063890eba681461006e5780638da5cb5b146100b5575b600080fd5b61005761005236600461025a565b610107565b005b34801561006557600080fd5b506100576101c8565b34801561007a57600080fd5b506000546100a09074010000000000000000000000000000000000000000900460ff1681565b60405190151581526020015b60405180910390f35b3480156100c157600080fd5b506000546100e29073ffffffffffffffffffffffffffffffffffffffff1681565b60405173ffffffffffffffffffffffffffffffffffffffff90911681526020016100ac565b60005473ffffffffffffffffffffffffffffffffffffffff163314610158576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081178255604051909133917f8292fce18fa69edf4db7b94ea2e58241df0ae57f97e0a6c9b29067028bf92d769190a350565b60005473ffffffffffffffffffffffffffffffffffffffff163314610219576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff1674010000000000000000000000000000000000000000179055565b60006020828403121561026c57600080fd5b813573ffffffffffffffffffffffffffffffffffffffff8116811461029057600080fd5b939250505056fea164736f6c6343000811000a",
     "sourceMap": "118:146:30:-:0;;;;;;;;;;;;-1:-1:-1;1331:5:24;:14;;-1:-1:-1;;;;;;1331:14:24;146:10:30;1331:14:24;;;;;1361:32;;146:10:30;;;;1361:32:24;;1331:5;;1361:32;1293:107;118:146:30;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c806313af4035146100515780633a7104d114610066578063890eba681461006e5780638da5cb5b146100a8575b600080fd5b61006461005f366004610240565b6100ed565b005b6100646101ae565b6000546100939074010000000000000000000000000000000000000000900460ff1681565b60405190151581526020015b60405180910390f35b6000546100c89073ffffffffffffffffffffffffffffffffffffffff1681565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161009f565b60005473ffffffffffffffffffffffffffffffffffffffff16331461013e576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081178255604051909133917f8292fce18fa69edf4db7b94ea2e58241df0ae57f97e0a6c9b29067028bf92d769190a350565b60005473ffffffffffffffffffffffffffffffffffffffff1633146101ff576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff1674010000000000000000000000000000000000000000179055565b60006020828403121561025257600080fd5b813573ffffffffffffffffffffffffffffffffffffffff8116811461027657600080fd5b939250505056fea164736f6c6343000811000a",
-    "sourceMap": "118:146:30:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1591:144:24;;;;;;:::i;:::-;;:::i;:::-;;187:75:30;;;:::i;164:16::-;;;;;;;;;;;;;;;493:14:32;;486:22;468:41;;456:2;441:18;164:16:30;;;;;;;;974:20:24;;;;;;;;;;;;696:42:32;684:55;;;666:74;;654:2;639:18;974:20:24;520:226:32;1591:144:24;1058:5;;;;1044:10;:19;1040:47;;1072:15;;;;;;;;;;;;;;1040:47;1662:5:::1;:16:::0;;;::::1;;::::0;::::1;::::0;;::::1;::::0;;1694:34:::1;::::0;1662:16;;1707:10:::1;::::0;1694:34:::1;::::0;1662:5;1694:34:::1;1591:144:::0;:::o;187:75:30:-;1058:5:24;;;;1044:10;:19;1040:47;;1072:15;;;;;;;;;;;;;;1040:47;244:4:30::1;:11:::0;;;::::1;::::0;::::1;::::0;;187:75::o;14:309:32:-;73:6;126:2;114:9;105:7;101:23;97:32;94:52;;;142:1;139;132:12;94:52;181:9;168:23;231:42;224:5;220:54;213:5;210:65;200:93;;289:1;286;279:12;200:93;312:5;14:309;-1:-1:-1;;;14:309:32:o",
+    "object": "0x60806040526004361061003f5760003560e01c806313af4035146100445780633a7104d114610059578063890eba681461006e5780638da5cb5b146100b5575b600080fd5b61005761005236600461025a565b610107565b005b34801561006557600080fd5b506100576101c8565b34801561007a57600080fd5b506000546100a09074010000000000000000000000000000000000000000900460ff1681565b60405190151581526020015b60405180910390f35b3480156100c157600080fd5b506000546100e29073ffffffffffffffffffffffffffffffffffffffff1681565b60405173ffffffffffffffffffffffffffffffffffffffff90911681526020016100ac565b60005473ffffffffffffffffffffffffffffffffffffffff163314610158576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081178255604051909133917f8292fce18fa69edf4db7b94ea2e58241df0ae57f97e0a6c9b29067028bf92d769190a350565b60005473ffffffffffffffffffffffffffffffffffffffff163314610219576040517fea8e4eb500000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff1674010000000000000000000000000000000000000000179055565b60006020828403121561026c57600080fd5b813573ffffffffffffffffffffffffffffffffffffffff8116811461029057600080fd5b939250505056fea164736f6c6343000811000a",
+    "sourceMap": "118:146:30:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1591:152:24;;;;;;:::i;:::-;;:::i;:::-;;187:75:30;;;;;;;;;;;;;:::i;164:16::-;;;;;;;;;;-1:-1:-1;164:16:30;;;;;;;;;;;;;;493:14:32;;486:22;468:41;;456:2;441:18;164:16:30;;;;;;;;974:20:24;;;;;;;;;;-1:-1:-1;974:20:24;;;;;;;;;;;696:42:32;684:55;;;666:74;;654:2;639:18;974:20:24;520:226:32;1591:152:24;1058:5;;;;1044:10;:19;1040:47;;1072:15;;;;;;;;;;;;;;1040:47;1670:5:::1;:16:::0;;;::::1;;::::0;::::1;::::0;;::::1;::::0;;1702:34:::1;::::0;1670:16;;1715:10:::1;::::0;1702:34:::1;::::0;1670:5;1702:34:::1;1591:152:::0;:::o;187:75:30:-;1058:5:24;;;;1044:10;:19;1040:47;;1072:15;;;;;;;;;;;;;;1040:47;244:4:30::1;:11:::0;;;::::1;::::0;::::1;::::0;;187:75::o;14:309:32:-;73:6;126:2;114:9;105:7;101:23;97:32;94:52;;;142:1;139;132:12;94:52;181:9;168:23;231:42;224:5;220:54;213:5;210:65;200:93;;289:1;286;279:12;200:93;312:5;14:309;-1:-1:-1;;;14:309:32:o",
     "linkReferences": {}
   },
   "methodIdentifiers": {
@@ -87,7 +87,7 @@
     "setOwner(address)": "13af4035",
     "updateFlag()": "3a7104d1"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NotAuthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"flag\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"updateFlag\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"NotAuthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnerUpdated(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"setOwner(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/MockOwned.sol\":\"MockOwned\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/extensions/utils/Owned.sol\":{\"keccak256\":\"0x146ae162dca3249dd26d7f0fbbe43788914e7261c7eb8d665d16e7a7180abd33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe281e05f5e9ad32dfdc8cf946e7253db9a4d96e089bf5ba2c34604ea9b2d560\",\"dweb:/ipfs/QmZktCnVY24YjnWKjW5FMo3YZbcLTByD3QHe5dWLZgYibE\"]},\"test/mocks/MockOwned.sol\":{\"keccak256\":\"0xf64f2a5717b8d5ab2dd9d55af6dd5d77fb4f3ec6b4746edf96551cbfc3585989\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e466671564899e202665e090a2980e3f3efb76efd34d1c10e64352bd66425633\",\"dweb:/ipfs/QmQoq7naAysTZAWJaSbLYGwhDaCvaen3E179cCpyFhUkf6\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NotAuthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"flag\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"updateFlag\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"NotAuthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnerUpdated(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"setOwner(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/MockOwned.sol\":\"MockOwned\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/extensions/utils/Owned.sol\":{\"keccak256\":\"0x3a5e8aa1c852c61c4878e12bbd4ac28827df769f138a0196ed6918c00d16789e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d22118dd5679445e73b1e905772e5e97cf36f93c810a8a98109de50bdc92699e\",\"dweb:/ipfs/QmNdRCi6npJyqkmwRFiBRb29fMCyVvqEuMqhgv6jCnUMpY\"]},\"test/mocks/MockOwned.sol\":{\"keccak256\":\"0xf64f2a5717b8d5ab2dd9d55af6dd5d77fb4f3ec6b4746edf96551cbfc3585989\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e466671564899e202665e090a2980e3f3efb76efd34d1c10e64352bd66425633\",\"dweb:/ipfs/QmQoq7naAysTZAWJaSbLYGwhDaCvaen3E179cCpyFhUkf6\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -153,7 +153,7 @@
               "type": "address"
             }
           ],
-          "stateMutability": "nonpayable",
+          "stateMutability": "payable",
           "type": "function",
           "name": "setOwner"
         },
@@ -204,10 +204,10 @@
     },
     "sources": {
       "src/extensions/utils/Owned.sol": {
-        "keccak256": "0x146ae162dca3249dd26d7f0fbbe43788914e7261c7eb8d665d16e7a7180abd33",
+        "keccak256": "0x3a5e8aa1c852c61c4878e12bbd4ac28827df769f138a0196ed6918c00d16789e",
         "urls": [
-          "bzz-raw://fe281e05f5e9ad32dfdc8cf946e7253db9a4d96e089bf5ba2c34604ea9b2d560",
-          "dweb:/ipfs/QmZktCnVY24YjnWKjW5FMo3YZbcLTByD3QHe5dWLZgYibE"
+          "bzz-raw://d22118dd5679445e73b1e905772e5e97cf36f93c810a8a98109de50bdc92699e",
+          "dweb:/ipfs/QmNdRCi6npJyqkmwRFiBRb29fMCyVvqEuMqhgv6jCnUMpY"
         ],
         "license": "MIT"
       },
@@ -224,10 +224,10 @@
   },
   "ast": {
     "absolutePath": "test/mocks/MockOwned.sol",
-    "id": 35848,
+    "id": 35809,
     "exportedSymbols": {
       "MockOwned": [
-        35847
+        35808
       ],
       "Owned": [
         28650
@@ -237,7 +237,7 @@
     "src": "32:232:30",
     "nodes": [
       {
-        "id": 35828,
+        "id": 35789,
         "nodeType": "PragmaDirective",
         "src": "32:23:30",
         "literals": [
@@ -248,18 +248,18 @@
         ]
       },
       {
-        "id": 35830,
+        "id": 35791,
         "nodeType": "ImportDirective",
         "src": "57:59:30",
         "absolutePath": "src/extensions/utils/Owned.sol",
         "file": "../../src/extensions/utils/Owned.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 35848,
+        "scope": 35809,
         "sourceUnit": 28651,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 35829,
+              "id": 35790,
               "name": "Owned",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
@@ -273,12 +273,12 @@
         "unitAlias": ""
       },
       {
-        "id": 35847,
+        "id": 35808,
         "nodeType": "ContractDefinition",
         "src": "118:146:30",
         "nodes": [
           {
-            "id": 35836,
+            "id": 35797,
             "nodeType": "VariableDeclaration",
             "src": "164:16:30",
             "constant": false,
@@ -286,7 +286,7 @@
             "mutability": "mutable",
             "name": "flag",
             "nameLocation": "176:4:30",
-            "scope": 35847,
+            "scope": 35808,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -294,7 +294,7 @@
               "typeString": "bool"
             },
             "typeName": {
-              "id": 35835,
+              "id": 35796,
               "name": "bool",
               "nodeType": "ElementaryTypeName",
               "src": "164:4:30",
@@ -306,27 +306,27 @@
             "visibility": "public"
           },
           {
-            "id": 35846,
+            "id": 35807,
             "nodeType": "FunctionDefinition",
             "src": "187:75:30",
             "body": {
-              "id": 35845,
+              "id": 35806,
               "nodeType": "Block",
               "src": "234:28:30",
               "statements": [
                 {
                   "expression": {
-                    "id": 35843,
+                    "id": 35804,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 35841,
+                      "id": 35802,
                       "name": "flag",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 35836,
+                      "referencedDeclaration": 35797,
                       "src": "244:4:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
@@ -337,7 +337,7 @@
                     "operator": "=",
                     "rightHandSide": {
                       "hexValue": "74727565",
-                      "id": 35842,
+                      "id": 35803,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -357,7 +357,7 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 35844,
+                  "id": 35805,
                   "nodeType": "ExpressionStatement",
                   "src": "244:11:30"
                 }
@@ -368,10 +368,10 @@
             "kind": "function",
             "modifiers": [
               {
-                "id": 35839,
+                "id": 35800,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 35838,
+                  "id": 35799,
                   "name": "onlyOwner",
                   "nameLocations": [
                     "224:9:30"
@@ -387,18 +387,18 @@
             "name": "updateFlag",
             "nameLocation": "196:10:30",
             "parameters": {
-              "id": 35837,
+              "id": 35798,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "206:2:30"
             },
             "returnParameters": {
-              "id": 35840,
+              "id": 35801,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "234:0:30"
             },
-            "scope": 35847,
+            "scope": 35808,
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "public"
@@ -410,7 +410,7 @@
             "arguments": [
               {
                 "expression": {
-                  "id": 35832,
+                  "id": 35793,
                   "name": "msg",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
@@ -421,7 +421,7 @@
                     "typeString": "msg"
                   }
                 },
-                "id": 35833,
+                "id": 35794,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": false,
@@ -437,7 +437,7 @@
               }
             ],
             "baseName": {
-              "id": 35831,
+              "id": 35792,
               "name": "Owned",
               "nameLocations": [
                 "140:5:30"
@@ -446,7 +446,7 @@
               "referencedDeclaration": 28650,
               "src": "140:5:30"
             },
-            "id": 35834,
+            "id": 35795,
             "nodeType": "InheritanceSpecifier",
             "src": "140:17:30"
           }
@@ -456,12 +456,12 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          35847,
+          35808,
           28650
         ],
         "name": "MockOwned",
         "nameLocation": "127:9:30",
-        "scope": 35848,
+        "scope": 35809,
         "usedErrors": [
           28596
         ]

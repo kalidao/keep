@@ -137,7 +137,7 @@ abstract contract KeepToken {
         return string(abi.encodePacked(_computeArgUint(2)));
     }
 
-    function _initialChainId() public pure virtual returns (uint256) {
+    function _initialChainId() internal pure virtual returns (uint256) {
         return _computeArgUint(7);
     }
 

@@ -344,9 +344,9 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     // We use this to check fetching when exposing function as `public`.
-    function testInitChainId() public {
+    /*function testInitChainId() public {
         assertEq(keep._initialChainId(), block.chainid);
-    }
+    }*/
 
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
@@ -1075,7 +1075,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 amount
     ) public payable {
         vm.assume(amount <= type(uint216).max);
-        vm.assume(id != 2094031643);  // Bad 
+        vm.assume(id != 2094031643); // Bad
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
         vm.assume(userC != address(0));
@@ -1094,7 +1094,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         keep.setTransferability(id, true);
         assertTrue(keep.transferable(id));
-        
+
         keep.setPermission(id, true);
         assertTrue(keep.permissioned(id));
 
@@ -1119,7 +1119,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         vm.prank(userC);
         vm.expectRevert(bytes4(keccak256("NotPermitted()")));
-        keep.safeTransferFrom(userB, userC, id, amount, ""); // C not permissioned 
+        keep.safeTransferFrom(userB, userC, id, amount, ""); // C not permissioned
 
         assertTrue(keep.balanceOf(userA, id) == preBalanceA);
         assertTrue(keep.balanceOf(userB, id) == preBalanceB + amount);
