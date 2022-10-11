@@ -35,7 +35,7 @@ contract OwnedTest is Test {
 
         mockOwned.setOwner(owner);
 
-        vm.expectRevert(bytes4(keccak256("Unauthorized()")));
+        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
         mockOwned.updateFlag();
     }
 }

@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "format": "prettier --write src/**.sol src/utils/**.sol test/**.sol --plugin-search-dir=.",
+    "format": "prettier --write src/**.sol src/utils/**.sol src/extensions/**.sol src/extensions/utils/**.sol test/**.sol --plugin-search-dir=.",
     "format:list": "prettier --list-different 'src/**/*.sol' --plugin-search-dir=.",
     "format:check": "prettier --check 'src/**/*.sol' --plugin-search-dir=.",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix --ignore-path .solhintignore",

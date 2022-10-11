@@ -11,6 +11,3 @@ remappings = [
 
 [profile.intense.fuzz]
 runs = 10000
-
-
-

@@ -25,6 +25,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     KeepFactory factory;
     URIFetcher uriFetcher;
     URIRemoteFetcher uriRemote;
+    URIRemoteFetcher uriRemoteNew;
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
@@ -161,6 +162,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     function setUp() public payable {
         // Initialize templates.
         uriRemote = new URIRemoteFetcher(alice);
+        uriRemoteNew = new URIRemoteFetcher(bob);
         uriFetcher = new URIFetcher(alice, uriRemote);
         keep = new Keep(Keep(address(uriFetcher)));
         mockDai = new MockERC20("Dai", "DAI", 18);
@@ -204,6 +206,68 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     /// @notice Check setup conditions.
+
+    function testURISetup() public payable {
+        assertEq(keep.uri(1), "");
+
+        vm.prank(address(alice));
+        uriRemote.setAlphaURI("ALPHA");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "ALPHA");
+        assertEq(keep.uri(1), "ALPHA");
+
+        vm.prank(address(alice));
+        uriRemote.setBetaURI(address(keep), "BETA");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "BETA");
+        assertEq(keep.uri(1), "BETA");
+
+        vm.prank(address(alice));
+        uriRemote.setURI(address(keep), 0, "CUSTOM");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "CUSTOM");
+        assertEq(keep.uri(1), "BETA");
+
+        vm.prank(address(alice));
+        uriRemote.setBetaURI(address(keep), "");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "CUSTOM");
+        assertEq(keep.uri(1), "ALPHA");
+
+        vm.prank(address(alice));
+        uriRemote.setAlphaURI("");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "CUSTOM");
+        assertEq(keep.uri(1), "");
+
+        vm.prank(address(alice));
+        uriRemote.setURI(address(keep), 0, "");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "");
+        assertEq(keep.uri(1), "");
+
+        vm.prank(address(alice));
+        uriFetcher.setURIRemoteFetcher(uriRemoteNew);
+        vm.stopPrank();
+
+        vm.prank(address(alice));
+        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
+        uriRemoteNew.setURI(address(keep), 0, "");
+        vm.stopPrank();
+
+        vm.prank(address(bob));
+        uriRemoteNew.setURI(address(keep), 0, "NEW");
+        vm.stopPrank();
+
+        assertEq(keep.uri(0), "NEW");
+        assertEq(keep.uri(1), "");
+    }
 
     function testSignerSetup() public payable {
         // Check users.
