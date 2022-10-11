@@ -1,4 +1,5 @@
 cache
+out
 node_modules
 .env
 .env.prod

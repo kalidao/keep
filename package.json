@@ -17,11 +17,13 @@
     "setup": "forge clean && forge build --optimize --optimizer-runs 9999999",
     "sync": "forge update",
     "test": "forge clean && forge test --optimize --optimizer-runs 9999999 -vvv",
-    "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 9999999"
+    "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 9999999",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "1.0.0-beta.24",
-    "solhint": "^3.3.7"
+    "solhint": "^3.3.7",
+    "husky": "^8.0.0"
   }
 }
