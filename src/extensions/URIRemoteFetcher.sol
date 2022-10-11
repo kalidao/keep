@@ -9,7 +9,7 @@ contract URIRemoteFetcher is Owned {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event AlphaURISet(address indexed user, string indexed alphaURI);
+    event AlphaURISet(address indexed user, string alphaURI);
 
     event BetaURISet(
         address indexed user,
