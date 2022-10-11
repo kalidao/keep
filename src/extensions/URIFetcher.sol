@@ -31,7 +31,7 @@ contract URIFetcher is Owned {
     }
 
     /// -----------------------------------------------------------------------
-    /// URI Logic
+    /// URI Remote Logic
     /// -----------------------------------------------------------------------
 
     function uri(uint256 id) public view virtual returns (string memory) {
