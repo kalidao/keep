@@ -12,7 +12,7 @@ contract URIFetcher is Owned {
     /// -----------------------------------------------------------------------
 
     event URIRemoteFetcherSet(
-        address indexed owner, 
+        address indexed user, 
         URIRemoteFetcher indexed uriRemoteFetcher
     );
 
