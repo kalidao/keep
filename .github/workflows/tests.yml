@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v2
 
       - name: Install dev dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm i
 
       - name: Run formatter
         run: pnpm run format
