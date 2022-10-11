@@ -1,52 +1,51 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Owned} from "./utils/Owned.sol";
-import {URIRemoteFetcher} from "./URIRemoteFetcher.sol";
-
-/// @notice Open-ended metadata fetcher for ERC1155 URI.
-/// @author z0r0z.eth
-contract URIFetcher is Owned {
+/// @notice Simple single owner authorization mixin.
+/// @author SolBase (https://github.com/Sol-DAO/solbase/blob/main/src/auth/Owned.sol)
+/// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/auth/Owned.sol)
+abstract contract Owned {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event URIRemoteFetcherSet(
-        address indexed owner, 
-        URIRemoteFetcher indexed uriRemoteFetcher
-    );
-
+    event OwnerUpdated(address indexed user, address indexed newOwner);
+    
     /// -----------------------------------------------------------------------
     /// Errors
     /// -----------------------------------------------------------------------
-
-    error NotAuthorized();
+    
+    error Unauthorized();
 
     /// -----------------------------------------------------------------------
-    /// URI Storage
+    /// Ownership Storage
     /// -----------------------------------------------------------------------
 
-    URIRemoteFetcher public uriRemoteFetcher;
+    address public owner;
+
+    modifier onlyOwner() virtual {
+        if (msg.sender != owner) revert Unauthorized();
+
+        _;
+    }
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(address _owner, URIRemoteFetcher _uriRemoteFetcher) payable Owned(_owner) {
-        uriRemoteFetcher = _uriRemoteFetcher;
+    constructor(address _owner) {
+        owner = _owner;
+
+        emit OwnerUpdated(address(0), _owner);
     }
 
     /// -----------------------------------------------------------------------
-    /// URI Logic
+    /// Ownership Logic
     /// -----------------------------------------------------------------------
 
-    function uri(uint256 id) public view virtual returns (string memory) {
-        return uriRemoteFetcher.fetchURI(msg.sender, id);
-    }
+    function setOwner(address newOwner) public virtual onlyOwner {
+        owner = newOwner;
 
-    function setURIRemote(URIRemoteFetcher _uriRemoteFetcher) public payable onlyOwner virtual {
-        uriRemoteFetcher = _uriRemoteFetcher;
-
-        emit URIRemoteFetcherSet(msg.sender, _uriRemoteFetcher);
+        emit OwnerUpdated(msg.sender, newOwner);
     }
 }

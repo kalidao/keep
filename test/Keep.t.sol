@@ -5,6 +5,7 @@ import {ERC1155TokenReceiver, Operation, Call, Signature, Keep} from "../src/Kee
 import {KeepFactory} from "../src/KeepFactory.sol";
 
 import {URIFetcher} from "../src/extensions/URIFetcher.sol";
+import {URIRemoteFetcher} from "../src/extensions/URIRemoteFetcher.sol";
 
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
@@ -23,6 +24,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     Keep keepRepeat;
     KeepFactory factory;
     URIFetcher uriFetcher;
+    URIRemoteFetcher uriRemote;
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
@@ -158,7 +160,8 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function setUp() public payable {
         // Initialize templates.
-        uriFetcher = new URIFetcher(alice);
+        uriRemote = new URIRemoteFetcher(alice);
+        uriFetcher = new URIFetcher(alice, uriRemote);
         keep = new Keep(Keep(address(uriFetcher)));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
@@ -200,7 +203,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         chainId = block.chainid;
     }
 
-    /// @notice Check setup malconditions.
+    /// @notice Check setup conditions.
 
     function testSignerSetup() public payable {
         // Check users.
@@ -215,6 +218,8 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.totalSupply(EXECUTE_ID) == 3);
         assertTrue(keep.totalSupply(42069) == 0);
     }
+
+    /// @notice Check setup errors.
 
     function testRepeatKeepSetup() public payable {
         keepRepeat = new Keep(Keep(address(uriFetcher)));
