@@ -16,7 +16,12 @@ contract KeepFactory is Multicallable {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Deployed(address keep, bytes32 name, address[] signers, uint256 threshold);
+    event Deployed(
+        address keep,
+        bytes32 name,
+        address[] signers,
+        uint256 threshold
+    );
 
     /// -----------------------------------------------------------------------
     /// Immutables
@@ -46,7 +51,7 @@ contract KeepFactory is Multicallable {
     }
 
     function deployKeep(
-        bytes32 name // create2 salt.
+        bytes32 name, // create2 salt.
         Call[] calldata calls,
         address[] calldata signers,
         uint256 threshold
