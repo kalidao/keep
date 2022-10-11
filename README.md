@@ -1,6 +1,6 @@
 <img align="right" width="150" height="150" top="0" src="./assets/KALI_K.jpg">
 
-# 🏯 Keep • [![tests](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/multi-sig/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/multi-sig) ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/multi-sig) ![Solidity version](https://img.shields.io/badge/solidity-%3E%3D%200.8.18-lightgrey)
+# 🏯 Keep • [![tests](https://github.com/kalidao/keep/actions/workflows/tests.yml/badge.svg)](https://github.com/kalidao/keep/actions/workflows/tests.yml) ![GitHub](https://img.shields.io/github/license/kalidao/keep) ![GitHub package.json version](https://img.shields.io/github/package-json/v/kalidao/keep) ![Solidity version](https://img.shields.io/badge/solidity-%3E%3D%200.8.18-lightgrey)
 
 Tokenized multisig wallet. 
 
@@ -20,7 +20,7 @@ src
 
 ## Development
 
-[multi-sig](https://github.com/kalidao/multi-sig) is built with [Foundry](https://github.com/gakonst/foundry).
+[Keep](https://github.com/kalidao/keep) is built with [Foundry](https://github.com/gakonst/foundry).
 
 **Setup**
 ```bash
