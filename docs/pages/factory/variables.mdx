@@ -1,0 +1,11 @@
+---
+title: Keep
+description: Events emitted by Keep
+---
+
+import KeepFactory from '../../../out/KeepFactory.sol/KeepFactory.json'; 
+import Variable from '../../src/Variable';
+
+# Variables
+
+{KeepFactory.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[0].nodes.filter(node => node.nodeType == "VariableDeclaration").map(variable => <Variable key={variable.name} variable={variable} />)}

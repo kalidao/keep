@@ -8,4 +8,5 @@ import Event from '../../src/Event';
 
 # Events
 
-{Keep.abi.filter(event => event.type == "event").map(event => <Event key={event.name} name={event.name} inputs={event.inputs} />)}
+{console.log(Keep.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[0].nodes.filter(node => node.nodeType == "EventDefinition"))}
+{Keep.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[0].nodes.filter(node => node.nodeType == "EventDefinition").map(event => <Event key={event.name} event={event} />)}

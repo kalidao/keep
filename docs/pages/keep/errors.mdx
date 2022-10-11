@@ -1,0 +1,10 @@
+---
+title: Keep Errors
+description: Errors emitted by Keep
+---
+
+import Keep from '../../../out/Keep.sol/Keep.json'; 
+import Error from '../../src/Error';
+
+# Errors
+{Keep.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[0].nodes.filter(node => node.nodeType == "ErrorDefinition").map(error => <Error key={error.name} error={error} />)}

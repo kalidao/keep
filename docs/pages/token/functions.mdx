@@ -1,0 +1,14 @@
+---
+title: Keep
+description: Functions used in Keep
+---
+
+import KeepToken from '../../../out/KeepToken.sol/KeepToken.json'; 
+import Function from '../../src/Function';
+
+# ERC1155TokenReceiver Functions
+
+{KeepToken.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[0].nodes.filter(node => node.nodeType == "FunctionDefinition").map(func => <Function func={func} />)}
+
+# Token Functions
+{KeepToken.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[1].nodes.filter(node => node.nodeType == "FunctionDefinition").map(func => <Function func={func} />)}
