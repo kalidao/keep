@@ -16,7 +16,7 @@ contract KeepFactory is Multicallable {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Deployed(address keep, bytes32 name, address[] signers, uint256 threshold);
+    event Deployed(Keep keep, bytes32 name, address[] signers, uint256 threshold);
 
     /// -----------------------------------------------------------------------
     /// Immutables
@@ -46,10 +46,10 @@ contract KeepFactory is Multicallable {
     }
 
     function deployKeep(
+        bytes32 name // create2 salt.
         Call[] calldata calls,
         address[] calldata signers,
-        uint256 threshold,
-        bytes32 name // create2 salt.
+        uint256 threshold
     ) public payable virtual {
         Keep keep = Keep(
             address(keepTemplate).cloneDeterministic(
@@ -60,6 +60,6 @@ contract KeepFactory is Multicallable {
 
         keep.initialize{value: msg.value}(calls, signers, threshold);
 
-        emit Deployed(address(keep), name, signers, threshold);
+        emit Deployed(keep, name, signers, threshold);
     }
 }
