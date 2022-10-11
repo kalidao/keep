@@ -129,7 +129,7 @@
     "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)": "bc197c81",
     "onERC1155Received(address,address,uint256,uint256,bytes)": "f23a6e61"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"signer_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"isValidSignature\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/MockSmartWallet.sol\":\"MockSmartWallet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":9999999},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"lib/solbase/src/utils/ECDSA.sol\":{\"keccak256\":\"0xe745bb9ccb8d8ab720e938a280f5fe2c43002c30450693f1fd421566cb5f3f44\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ad57691277179be1073179f89dfa56f1be9ed3f5ed42feea3495e91981c081e2\",\"dweb:/ipfs/QmdAMuEkfqGhUV72ZZzx5XTxPKhwjSscs25fx4EePb56cH\"]},\"lib/solbase/test/utils/mocks/MockERC1271Wallet.sol\":{\"keccak256\":\"0x52d9fcc76a8f22fc3eec4dcd7ff090e7427ca5d38423335d9e691f132ddace0a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://acd60a5f50998788ded5b42f38d7f3dd8cd374c667e8c34d568d1b01ea0a1ece\",\"dweb:/ipfs/QmTtrch4spJMrxWBoYRX9TUCr3HxJxvMV48Qqo8zyKkZC3\"]},\"src/Keep.sol\":{\"keccak256\":\"0x42fa83bba09de0ba3af1599c1ce178306057319c9965400ba5d537336cf741c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d097f1ccfc54c5b530a2936a9e797f834fc7c7de13c9ae7eee3ebcd8c941cc9a\",\"dweb:/ipfs/QmcrCnbMT222joFyffTQXUKgd9fZdBGJPrGqT6Pb4eKwej\"]},\"src/KeepToken.sol\":{\"keccak256\":\"0xe8029fb05b4d545dcaa5b44454d010130fb3683427e151b6945aba530c4c082c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://36d712b22129ba454f939cd05898cf8c2a6d17195bba1abff24e5bb304887093\",\"dweb:/ipfs/QmZp2tmAZNPnGiuyaMB4sCb21uWtf1nyW1zkjLnumiPGGX\"]},\"src/utils/Multicallable.sol\":{\"keccak256\":\"0x9ce4ce2b71f7556014152e5749e11241b18615183be468ba2cacd677ee6643c6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04871c5e240868b283454fbfca6e2fe86d45d95c7afcedb9c8f26a8d841ba7de\",\"dweb:/ipfs/QmSqrWZD8fP6mSZcgwZ8d2YysgB2t8y4jaRjMQiaMXqYtV\"]},\"test/mocks/MockSmartWallet.sol\":{\"keccak256\":\"0xa6ce6d8c5669f741e08f07960eecdb1edcc12f758b515b93a968785539407ad7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bab4037f04029d524f28fbdfbeb2ff696324a0020249007d471b0ba4399b5abf\",\"dweb:/ipfs/QmXyEmXdvv34doWFx8RH4rYh2rfwijkbTaBLazRSwKgWZ3\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"signer_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"isValidSignature\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/MockSmartWallet.sol\":\"MockSmartWallet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"lib/solbase/src/utils/ECDSA.sol\":{\"keccak256\":\"0xe745bb9ccb8d8ab720e938a280f5fe2c43002c30450693f1fd421566cb5f3f44\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ad57691277179be1073179f89dfa56f1be9ed3f5ed42feea3495e91981c081e2\",\"dweb:/ipfs/QmdAMuEkfqGhUV72ZZzx5XTxPKhwjSscs25fx4EePb56cH\"]},\"lib/solbase/test/utils/mocks/MockERC1271Wallet.sol\":{\"keccak256\":\"0x52d9fcc76a8f22fc3eec4dcd7ff090e7427ca5d38423335d9e691f132ddace0a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://acd60a5f50998788ded5b42f38d7f3dd8cd374c667e8c34d568d1b01ea0a1ece\",\"dweb:/ipfs/QmTtrch4spJMrxWBoYRX9TUCr3HxJxvMV48Qqo8zyKkZC3\"]},\"src/Keep.sol\":{\"keccak256\":\"0x42fa83bba09de0ba3af1599c1ce178306057319c9965400ba5d537336cf741c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d097f1ccfc54c5b530a2936a9e797f834fc7c7de13c9ae7eee3ebcd8c941cc9a\",\"dweb:/ipfs/QmcrCnbMT222joFyffTQXUKgd9fZdBGJPrGqT6Pb4eKwej\"]},\"src/KeepToken.sol\":{\"keccak256\":\"0x55adfa7256a82a6d2cf32e39bbdaf036cf50516ab91360046ca8a3b573393629\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d70c7915e77edc312ea5f4e6ac656f37df07c1e8c7762afa36522298b8bd9f15\",\"dweb:/ipfs/QmcwgA43ScZqTfUX42dx4TKG9RBYWUMzry3mUgaA2XXmYW\"]},\"src/utils/Multicallable.sol\":{\"keccak256\":\"0x9ce4ce2b71f7556014152e5749e11241b18615183be468ba2cacd677ee6643c6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04871c5e240868b283454fbfca6e2fe86d45d95c7afcedb9c8f26a8d841ba7de\",\"dweb:/ipfs/QmSqrWZD8fP6mSZcgwZ8d2YysgB2t8y4jaRjMQiaMXqYtV\"]},\"test/mocks/MockSmartWallet.sol\":{\"keccak256\":\"0xa6ce6d8c5669f741e08f07960eecdb1edcc12f758b515b93a968785539407ad7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bab4037f04029d524f28fbdfbeb2ff696324a0020249007d471b0ba4399b5abf\",\"dweb:/ipfs/QmXyEmXdvv34doWFx8RH4rYh2rfwijkbTaBLazRSwKgWZ3\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -272,7 +272,7 @@
       ],
       "optimizer": {
         "enabled": true,
-        "runs": 9999999
+        "runs": 1000000
       },
       "metadata": {
         "bytecodeHash": "none"
@@ -308,10 +308,10 @@
         "license": "MIT"
       },
       "src/KeepToken.sol": {
-        "keccak256": "0xe8029fb05b4d545dcaa5b44454d010130fb3683427e151b6945aba530c4c082c",
+        "keccak256": "0x55adfa7256a82a6d2cf32e39bbdaf036cf50516ab91360046ca8a3b573393629",
         "urls": [
-          "bzz-raw://36d712b22129ba454f939cd05898cf8c2a6d17195bba1abff24e5bb304887093",
-          "dweb:/ipfs/QmZp2tmAZNPnGiuyaMB4sCb21uWtf1nyW1zkjLnumiPGGX"
+          "bzz-raw://d70c7915e77edc312ea5f4e6ac656f37df07c1e8c7762afa36522298b8bd9f15",
+          "dweb:/ipfs/QmcwgA43ScZqTfUX42dx4TKG9RBYWUMzry3mUgaA2XXmYW"
         ],
         "license": "MIT"
       },
@@ -336,7 +336,7 @@
   },
   "ast": {
     "absolutePath": "test/mocks/MockSmartWallet.sol",
-    "id": 35877,
+    "id": 35868,
     "exportedSymbols": {
       "ERC1155TokenReceiver": [
         26672
@@ -345,14 +345,14 @@
         25451
       ],
       "MockSmartWallet": [
-        35876
+        35867
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:302:31",
     "nodes": [
       {
-        "id": 35858,
+        "id": 35849,
         "nodeType": "PragmaDirective",
         "src": "32:23:31",
         "literals": [
@@ -363,18 +363,18 @@
         ]
       },
       {
-        "id": 35860,
+        "id": 35851,
         "nodeType": "ImportDirective",
         "src": "57:82:31",
         "absolutePath": "lib/solbase/test/utils/mocks/MockERC1271Wallet.sol",
         "file": "@solbase/test/utils/mocks/MockERC1271Wallet.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 35877,
+        "scope": 35868,
         "sourceUnit": 25452,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 35859,
+              "id": 35850,
               "name": "MockERC1271Wallet",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
@@ -388,18 +388,18 @@
         "unitAlias": ""
       },
       {
-        "id": 35862,
+        "id": 35853,
         "nodeType": "ImportDirective",
         "src": "140:56:31",
         "absolutePath": "src/Keep.sol",
         "file": "../../src/Keep.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 35877,
+        "scope": 35868,
         "sourceUnit": 26498,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 35861,
+              "id": 35852,
               "name": "ERC1155TokenReceiver",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
@@ -413,16 +413,16 @@
         "unitAlias": ""
       },
       {
-        "id": 35876,
+        "id": 35867,
         "nodeType": "ContractDefinition",
         "src": "198:134:31",
         "nodes": [
           {
-            "id": 35875,
+            "id": 35866,
             "nodeType": "FunctionDefinition",
             "src": "272:58:31",
             "body": {
-              "id": 35874,
+              "id": 35865,
               "nodeType": "Block",
               "src": "328:2:31",
               "statements": []
@@ -433,11 +433,11 @@
               {
                 "arguments": [
                   {
-                    "id": 35871,
+                    "id": 35862,
                     "name": "signer_",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 35868,
+                    "referencedDeclaration": 35859,
                     "src": "319:7:31",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -445,10 +445,10 @@
                     }
                   }
                 ],
-                "id": 35872,
+                "id": 35863,
                 "kind": "baseConstructorSpecifier",
                 "modifierName": {
-                  "id": 35870,
+                  "id": 35861,
                   "name": "MockERC1271Wallet",
                   "nameLocations": [
                     "301:17:31"
@@ -464,17 +464,17 @@
             "name": "",
             "nameLocation": "-1:-1:-1",
             "parameters": {
-              "id": 35869,
+              "id": 35860,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 35868,
+                  "id": 35859,
                   "mutability": "mutable",
                   "name": "signer_",
                   "nameLocation": "292:7:31",
                   "nodeType": "VariableDeclaration",
-                  "scope": 35875,
+                  "scope": 35866,
                   "src": "284:15:31",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -483,7 +483,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 35867,
+                    "id": 35858,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "284:7:31",
@@ -499,12 +499,12 @@
               "src": "283:17:31"
             },
             "returnParameters": {
-              "id": 35873,
+              "id": 35864,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "328:0:31"
             },
-            "scope": 35876,
+            "scope": 35867,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
@@ -514,7 +514,7 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 35863,
+              "id": 35854,
               "name": "MockERC1271Wallet",
               "nameLocations": [
                 "226:17:31"
@@ -523,13 +523,13 @@
               "referencedDeclaration": 25451,
               "src": "226:17:31"
             },
-            "id": 35864,
+            "id": 35855,
             "nodeType": "InheritanceSpecifier",
             "src": "226:17:31"
           },
           {
             "baseName": {
-              "id": 35865,
+              "id": 35856,
               "name": "ERC1155TokenReceiver",
               "nameLocations": [
                 "245:20:31"
@@ -538,7 +538,7 @@
               "referencedDeclaration": 26672,
               "src": "245:20:31"
             },
-            "id": 35866,
+            "id": 35857,
             "nodeType": "InheritanceSpecifier",
             "src": "245:20:31"
           }
@@ -548,13 +548,13 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          35876,
+          35867,
           26672,
           25451
         ],
         "name": "MockSmartWallet",
         "nameLocation": "207:15:31",
-        "scope": 35877,
+        "scope": 35868,
         "usedErrors": []
       }
     ],

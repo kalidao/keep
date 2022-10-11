@@ -158,7 +158,7 @@
     "determineKeep(bytes32)": "e6d3d4d0",
     "multicall(bytes[])": "ac9650d8"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract Keep\",\"name\":\"_keepTemplate\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contract Keep\",\"name\":\"keep\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"signers\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"threshold\",\"type\":\"uint256\"}],\"name\":\"Deployed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"enum Operation\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct Call[]\",\"name\":\"calls\",\"type\":\"tuple[]\"},{\"internalType\":\"address[]\",\"name\":\"signers\",\"type\":\"address[]\"},{\"internalType\":\"uint256\",\"name\":\"threshold\",\"type\":\"uint256\"}],\"name\":\"deployKeep\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"}],\"name\":\"determineKeep\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes[]\",\"name\":\"data\",\"type\":\"bytes[]\"}],\"name\":\"multicall\",\"outputs\":[{\"internalType\":\"bytes[]\",\"name\":\"results\",\"type\":\"bytes[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"multicall(bytes[])\":{\"details\":\"Apply `DELEGATECALL` with the current contract to each calldata in `data`, and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`. If any of the `DELEGATECALL`s reverts, the entire transaction is reverted, and the error is bubbled up.\"}},\"version\":1},\"userdoc\":{\"events\":{\"Deployed(address,bytes32,address[],uint256)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"----------------------------------------------------------------------- Constructor -----------------------------------------------------------------------\"},\"determineKeep(bytes32)\":{\"notice\":\"----------------------------------------------------------------------- Deployment Logic -----------------------------------------------------------------------\"}},\"notice\":\"Keep Factory.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/KeepFactory.sol\":\"KeepFactory\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":9999999},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/Keep.sol\":{\"keccak256\":\"0x42fa83bba09de0ba3af1599c1ce178306057319c9965400ba5d537336cf741c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d097f1ccfc54c5b530a2936a9e797f834fc7c7de13c9ae7eee3ebcd8c941cc9a\",\"dweb:/ipfs/QmcrCnbMT222joFyffTQXUKgd9fZdBGJPrGqT6Pb4eKwej\"]},\"src/KeepFactory.sol\":{\"keccak256\":\"0xd96c13bba270610c606704ce91b3c278448b9098855e209af694b7c5ba472d1c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d8df8c210b23c6d987c810d797fe446177bbe85a3c085b251df71aa777d77c6d\",\"dweb:/ipfs/QmToZrhrZnPFwwFVC1jcZiRviogHvdvGGtDviTiNACaXii\"]},\"src/KeepToken.sol\":{\"keccak256\":\"0xe8029fb05b4d545dcaa5b44454d010130fb3683427e151b6945aba530c4c082c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://36d712b22129ba454f939cd05898cf8c2a6d17195bba1abff24e5bb304887093\",\"dweb:/ipfs/QmZp2tmAZNPnGiuyaMB4sCb21uWtf1nyW1zkjLnumiPGGX\"]},\"src/utils/LibClone.sol\":{\"keccak256\":\"0x4a9887e8fa27677ac343c82a8fffe88b31dbca75607cd66c276f6cf2863dc15f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9405d77d6b684998b4b52fefb34f565484f4dbe09dd2594d417ea792bef54aa0\",\"dweb:/ipfs/Qmayeqi8fRbLFc6VcyFMgZa9U58qd5uZgwjabYr1F4RZAp\"]},\"src/utils/Multicallable.sol\":{\"keccak256\":\"0x9ce4ce2b71f7556014152e5749e11241b18615183be468ba2cacd677ee6643c6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04871c5e240868b283454fbfca6e2fe86d45d95c7afcedb9c8f26a8d841ba7de\",\"dweb:/ipfs/QmSqrWZD8fP6mSZcgwZ8d2YysgB2t8y4jaRjMQiaMXqYtV\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract Keep\",\"name\":\"_keepTemplate\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contract Keep\",\"name\":\"keep\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"signers\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"threshold\",\"type\":\"uint256\"}],\"name\":\"Deployed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"enum Operation\",\"name\":\"op\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct Call[]\",\"name\":\"calls\",\"type\":\"tuple[]\"},{\"internalType\":\"address[]\",\"name\":\"signers\",\"type\":\"address[]\"},{\"internalType\":\"uint256\",\"name\":\"threshold\",\"type\":\"uint256\"}],\"name\":\"deployKeep\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"}],\"name\":\"determineKeep\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes[]\",\"name\":\"data\",\"type\":\"bytes[]\"}],\"name\":\"multicall\",\"outputs\":[{\"internalType\":\"bytes[]\",\"name\":\"results\",\"type\":\"bytes[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"multicall(bytes[])\":{\"details\":\"Apply `DELEGATECALL` with the current contract to each calldata in `data`, and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`. If any of the `DELEGATECALL`s reverts, the entire transaction is reverted, and the error is bubbled up.\"}},\"version\":1},\"userdoc\":{\"events\":{\"Deployed(address,bytes32,address[],uint256)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"----------------------------------------------------------------------- Constructor -----------------------------------------------------------------------\"},\"determineKeep(bytes32)\":{\"notice\":\"----------------------------------------------------------------------- Deployment Logic -----------------------------------------------------------------------\"}},\"notice\":\"Keep Factory.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/KeepFactory.sol\":\"KeepFactory\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/Keep.sol\":{\"keccak256\":\"0x42fa83bba09de0ba3af1599c1ce178306057319c9965400ba5d537336cf741c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d097f1ccfc54c5b530a2936a9e797f834fc7c7de13c9ae7eee3ebcd8c941cc9a\",\"dweb:/ipfs/QmcrCnbMT222joFyffTQXUKgd9fZdBGJPrGqT6Pb4eKwej\"]},\"src/KeepFactory.sol\":{\"keccak256\":\"0xd96c13bba270610c606704ce91b3c278448b9098855e209af694b7c5ba472d1c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d8df8c210b23c6d987c810d797fe446177bbe85a3c085b251df71aa777d77c6d\",\"dweb:/ipfs/QmToZrhrZnPFwwFVC1jcZiRviogHvdvGGtDviTiNACaXii\"]},\"src/KeepToken.sol\":{\"keccak256\":\"0x55adfa7256a82a6d2cf32e39bbdaf036cf50516ab91360046ca8a3b573393629\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d70c7915e77edc312ea5f4e6ac656f37df07c1e8c7762afa36522298b8bd9f15\",\"dweb:/ipfs/QmcwgA43ScZqTfUX42dx4TKG9RBYWUMzry3mUgaA2XXmYW\"]},\"src/utils/LibClone.sol\":{\"keccak256\":\"0x4a9887e8fa27677ac343c82a8fffe88b31dbca75607cd66c276f6cf2863dc15f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9405d77d6b684998b4b52fefb34f565484f4dbe09dd2594d417ea792bef54aa0\",\"dweb:/ipfs/Qmayeqi8fRbLFc6VcyFMgZa9U58qd5uZgwjabYr1F4RZAp\"]},\"src/utils/Multicallable.sol\":{\"keccak256\":\"0x9ce4ce2b71f7556014152e5749e11241b18615183be468ba2cacd677ee6643c6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04871c5e240868b283454fbfca6e2fe86d45d95c7afcedb9c8f26a8d841ba7de\",\"dweb:/ipfs/QmSqrWZD8fP6mSZcgwZ8d2YysgB2t8y4jaRjMQiaMXqYtV\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -328,7 +328,7 @@
       ],
       "optimizer": {
         "enabled": true,
-        "runs": 9999999
+        "runs": 1000000
       },
       "metadata": {
         "bytecodeHash": "none"
@@ -356,10 +356,10 @@
         "license": "MIT"
       },
       "src/KeepToken.sol": {
-        "keccak256": "0xe8029fb05b4d545dcaa5b44454d010130fb3683427e151b6945aba530c4c082c",
+        "keccak256": "0x55adfa7256a82a6d2cf32e39bbdaf036cf50516ab91360046ca8a3b573393629",
         "urls": [
-          "bzz-raw://36d712b22129ba454f939cd05898cf8c2a6d17195bba1abff24e5bb304887093",
-          "dweb:/ipfs/QmZp2tmAZNPnGiuyaMB4sCb21uWtf1nyW1zkjLnumiPGGX"
+          "bzz-raw://d70c7915e77edc312ea5f4e6ac656f37df07c1e8c7762afa36522298b8bd9f15",
+          "dweb:/ipfs/QmcwgA43ScZqTfUX42dx4TKG9RBYWUMzry3mUgaA2XXmYW"
         ],
         "license": "MIT"
       },
@@ -396,10 +396,10 @@
         26626
       ],
       "LibClone": [
-        28688
+        28687
       ],
       "Multicallable": [
-        28704
+        28703
       ]
     },
     "nodeType": "SourceUnit",
@@ -432,7 +432,7 @@
               "name": "Multicallable",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 28704,
+              "referencedDeclaration": 28703,
               "src": "65:13:20",
               "typeDescriptions": {}
             },
@@ -473,7 +473,7 @@
         "file": "./utils/LibClone.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 26627,
-        "sourceUnit": 28689,
+        "sourceUnit": 28688,
         "symbolAliases": [
           {
             "foreign": {
@@ -481,7 +481,7 @@
               "name": "LibClone",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 28688,
+              "referencedDeclaration": 28687,
               "src": "119:8:20",
               "typeDescriptions": {}
             },
@@ -507,7 +507,7 @@
                 "418:8:20"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 28688,
+              "referencedDeclaration": 28687,
               "src": "418:8:20"
             },
             "typeName": {
@@ -1141,7 +1141,7 @@
                       "memberLocation": "1550:27:20",
                       "memberName": "predictDeterministicAddress",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28687,
+                      "referencedDeclaration": 28686,
                       "src": "1528:49:20",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_pure$_t_address_$_t_bytes_memory_ptr_$_t_bytes32_$_t_address_$returns$_t_address_$bound_to$_t_address_$",
@@ -1543,7 +1543,7 @@
                           "memberLocation": "1964:18:20",
                           "memberName": "cloneDeterministic",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 28671,
+                          "referencedDeclaration": 28670,
                           "src": "1942:40:20",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes_memory_ptr_$_t_bytes32_$returns$_t_address_$bound_to$_t_address_$",
@@ -2041,7 +2041,7 @@
                 "209:13:20"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 28704,
+              "referencedDeclaration": 28703,
               "src": "209:13:20"
             },
             "id": 26508,
@@ -2061,7 +2061,7 @@
         "fullyImplemented": true,
         "linearizedBaseContracts": [
           26626,
-          28704
+          28703
         ],
         "name": "KeepFactory",
         "nameLocation": "194:11:20",

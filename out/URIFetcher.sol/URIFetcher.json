@@ -148,7 +148,7 @@
     "uri(uint256)": "0e89341c",
     "uriRemoteFetcher()": "52a591a3"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"_uriRemoteFetcher\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"NotAuthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"uriRemoteFetcher\",\"type\":\"address\"}],\"name\":\"URIRemoteFetcherSet\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"_uriRemoteFetcher\",\"type\":\"address\"}],\"name\":\"setURIRemoteFetcher\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"uri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"uriRemoteFetcher\",\"outputs\":[{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"z0r0z.eth\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"NotAuthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnerUpdated(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"},\"URIRemoteFetcherSet(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"----------------------------------------------------------------------- Constructor -----------------------------------------------------------------------\"},\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"setOwner(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"},\"uri(uint256)\":{\"notice\":\"----------------------------------------------------------------------- URI Remote Logic -----------------------------------------------------------------------\"},\"uriRemoteFetcher()\":{\"notice\":\"----------------------------------------------------------------------- URI Remote Storage -----------------------------------------------------------------------\"}},\"notice\":\"Open-ended metadata fetcher for ERC1155 URI.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/extensions/URIFetcher.sol\":\"URIFetcher\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":9999999},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/extensions/URIFetcher.sol\":{\"keccak256\":\"0x03285c27faea6923d482696071ae6bcdeae3d5726bf967778be926ddc2ec7f7d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0d2363d8c219f8fe49d2859c94503d8be0ac2aa1a0d349aff964daa61ce2d9e9\",\"dweb:/ipfs/QmbiLCH69Hcu2CnYEYvrDd1fuN3fEquNKMbqveyLXwfRqw\"]},\"src/extensions/URIRemoteFetcher.sol\":{\"keccak256\":\"0x9f2f74c0b604fb6715cb2a02829711f646ea3d64a1d6e7874c905aad9bc0b479\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://710e2c86ae0024288ddfb54630f34cf5d5f52b0701dc6e33fa9ff305b220e35d\",\"dweb:/ipfs/QmZPpRdtAX5ceR7Y34CfaLAwhc8BskFpWcEQnnevnCEBjz\"]},\"src/extensions/utils/Owned.sol\":{\"keccak256\":\"0x146ae162dca3249dd26d7f0fbbe43788914e7261c7eb8d665d16e7a7180abd33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe281e05f5e9ad32dfdc8cf946e7253db9a4d96e089bf5ba2c34604ea9b2d560\",\"dweb:/ipfs/QmZktCnVY24YjnWKjW5FMo3YZbcLTByD3QHe5dWLZgYibE\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"_uriRemoteFetcher\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"NotAuthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"uriRemoteFetcher\",\"type\":\"address\"}],\"name\":\"URIRemoteFetcherSet\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"_uriRemoteFetcher\",\"type\":\"address\"}],\"name\":\"setURIRemoteFetcher\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"uri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"uriRemoteFetcher\",\"outputs\":[{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"z0r0z.eth\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"NotAuthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnerUpdated(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"},\"URIRemoteFetcherSet(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"----------------------------------------------------------------------- Constructor -----------------------------------------------------------------------\"},\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"setOwner(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"},\"uri(uint256)\":{\"notice\":\"----------------------------------------------------------------------- URI Remote Logic -----------------------------------------------------------------------\"},\"uriRemoteFetcher()\":{\"notice\":\"----------------------------------------------------------------------- URI Remote Storage -----------------------------------------------------------------------\"}},\"notice\":\"Open-ended metadata fetcher for ERC1155 URI.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/extensions/URIFetcher.sol\":\"URIFetcher\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/extensions/URIFetcher.sol\":{\"keccak256\":\"0x03285c27faea6923d482696071ae6bcdeae3d5726bf967778be926ddc2ec7f7d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0d2363d8c219f8fe49d2859c94503d8be0ac2aa1a0d349aff964daa61ce2d9e9\",\"dweb:/ipfs/QmbiLCH69Hcu2CnYEYvrDd1fuN3fEquNKMbqveyLXwfRqw\"]},\"src/extensions/URIRemoteFetcher.sol\":{\"keccak256\":\"0x9f2f74c0b604fb6715cb2a02829711f646ea3d64a1d6e7874c905aad9bc0b479\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://710e2c86ae0024288ddfb54630f34cf5d5f52b0701dc6e33fa9ff305b220e35d\",\"dweb:/ipfs/QmZPpRdtAX5ceR7Y34CfaLAwhc8BskFpWcEQnnevnCEBjz\"]},\"src/extensions/utils/Owned.sol\":{\"keccak256\":\"0x146ae162dca3249dd26d7f0fbbe43788914e7261c7eb8d665d16e7a7180abd33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe281e05f5e9ad32dfdc8cf946e7253db9a4d96e089bf5ba2c34604ea9b2d560\",\"dweb:/ipfs/QmZktCnVY24YjnWKjW5FMo3YZbcLTByD3QHe5dWLZgYibE\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -322,7 +322,7 @@
       ],
       "optimizer": {
         "enabled": true,
-        "runs": 9999999
+        "runs": 1000000
       },
       "metadata": {
         "bytecodeHash": "none"
@@ -362,23 +362,23 @@
   },
   "ast": {
     "absolutePath": "src/extensions/URIFetcher.sol",
-    "id": 28400,
+    "id": 28399,
     "exportedSymbols": {
       "Owned": [
-        28651
+        28650
       ],
       "URIFetcher": [
-        28399
+        28398
       ],
       "URIRemoteFetcher": [
-        28584
+        28583
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:1696:22",
     "nodes": [
       {
-        "id": 28327,
+        "id": 28326,
         "nodeType": "PragmaDirective",
         "src": "32:23:22",
         "literals": [
@@ -389,22 +389,22 @@
         ]
       },
       {
-        "id": 28329,
+        "id": 28328,
         "nodeType": "ImportDirective",
         "src": "57:40:22",
         "absolutePath": "src/extensions/utils/Owned.sol",
         "file": "./utils/Owned.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28400,
-        "sourceUnit": 28652,
+        "scope": 28399,
+        "sourceUnit": 28651,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28328,
+              "id": 28327,
               "name": "Owned",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 28651,
+              "referencedDeclaration": 28650,
               "src": "65:5:22",
               "typeDescriptions": {}
             },
@@ -414,22 +414,22 @@
         "unitAlias": ""
       },
       {
-        "id": 28331,
+        "id": 28330,
         "nodeType": "ImportDirective",
         "src": "98:56:22",
         "absolutePath": "src/extensions/URIRemoteFetcher.sol",
         "file": "./URIRemoteFetcher.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28400,
-        "sourceUnit": 28585,
+        "scope": 28399,
+        "sourceUnit": 28584,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28330,
+              "id": 28329,
               "name": "URIRemoteFetcher",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 28584,
+              "referencedDeclaration": 28583,
               "src": "106:16:22",
               "typeDescriptions": {}
             },
@@ -439,17 +439,17 @@
         "unitAlias": ""
       },
       {
-        "id": 28399,
+        "id": 28398,
         "nodeType": "ContractDefinition",
         "src": "235:1492:22",
         "nodes": [
           {
-            "id": 28342,
+            "id": 28341,
             "nodeType": "EventDefinition",
             "src": "446:113:22",
             "anonymous": false,
             "documentation": {
-              "id": 28335,
+              "id": 28334,
               "nodeType": "StructuredDocumentation",
               "src": "270:171:22",
               "text": "-----------------------------------------------------------------------\n Events\n -----------------------------------------------------------------------"
@@ -458,18 +458,18 @@
             "name": "URIRemoteFetcherSet",
             "nameLocation": "452:19:22",
             "parameters": {
-              "id": 28341,
+              "id": 28340,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28337,
+                  "id": 28336,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "user",
                   "nameLocation": "497:4:22",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28342,
+                  "scope": 28341,
                   "src": "481:20:22",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -478,7 +478,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28336,
+                    "id": 28335,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "481:7:22",
@@ -492,37 +492,37 @@
                 },
                 {
                   "constant": false,
-                  "id": 28340,
+                  "id": 28339,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "uriRemoteFetcher",
                   "nameLocation": "536:16:22",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28342,
+                  "scope": 28341,
                   "src": "511:41:22",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                     "typeString": "contract URIRemoteFetcher"
                   },
                   "typeName": {
-                    "id": 28339,
+                    "id": 28338,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 28338,
+                      "id": 28337,
                       "name": "URIRemoteFetcher",
                       "nameLocations": [
                         "511:16:22"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 28584,
+                      "referencedDeclaration": 28583,
                       "src": "511:16:22"
                     },
-                    "referencedDeclaration": 28584,
+                    "referencedDeclaration": 28583,
                     "src": "511:16:22",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                       "typeString": "contract URIRemoteFetcher"
                     }
                   },
@@ -533,12 +533,12 @@
             }
           },
           {
-            "id": 28346,
+            "id": 28345,
             "nodeType": "VariableDeclaration",
             "src": "753:40:22",
             "constant": false,
             "documentation": {
-              "id": 28343,
+              "id": 28342,
               "nodeType": "StructuredDocumentation",
               "src": "565:183:22",
               "text": "-----------------------------------------------------------------------\n URI Remote Storage\n -----------------------------------------------------------------------"
@@ -547,91 +547,91 @@
             "mutability": "mutable",
             "name": "uriRemoteFetcher",
             "nameLocation": "777:16:22",
-            "scope": 28399,
+            "scope": 28398,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+              "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
               "typeString": "contract URIRemoteFetcher"
             },
             "typeName": {
-              "id": 28345,
+              "id": 28344,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 28344,
+                "id": 28343,
                 "name": "URIRemoteFetcher",
                 "nameLocations": [
                   "753:16:22"
                 ],
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 28584,
+                "referencedDeclaration": 28583,
                 "src": "753:16:22"
               },
-              "referencedDeclaration": 28584,
+              "referencedDeclaration": 28583,
               "src": "753:16:22",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                 "typeString": "contract URIRemoteFetcher"
               }
             },
             "visibility": "public"
           },
           {
-            "id": 28363,
+            "id": 28362,
             "nodeType": "FunctionDefinition",
             "src": "981:159:22",
             "body": {
-              "id": 28362,
+              "id": 28361,
               "nodeType": "Block",
               "src": "1087:53:22",
               "statements": [
                 {
                   "expression": {
-                    "id": 28360,
+                    "id": 28359,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 28358,
+                      "id": 28357,
                       "name": "uriRemoteFetcher",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 28346,
+                      "referencedDeclaration": 28345,
                       "src": "1097:16:22",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                         "typeString": "contract URIRemoteFetcher"
                       }
                     },
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 28359,
+                      "id": 28358,
                       "name": "_uriRemoteFetcher",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 28352,
+                      "referencedDeclaration": 28351,
                       "src": "1116:17:22",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                         "typeString": "contract URIRemoteFetcher"
                       }
                     },
                     "src": "1097:36:22",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                       "typeString": "contract URIRemoteFetcher"
                     }
                   },
-                  "id": 28361,
+                  "id": 28360,
                   "nodeType": "ExpressionStatement",
                   "src": "1097:36:22"
                 }
               ]
             },
             "documentation": {
-              "id": 28347,
+              "id": 28346,
               "nodeType": "StructuredDocumentation",
               "src": "800:176:22",
               "text": "-----------------------------------------------------------------------\n Constructor\n -----------------------------------------------------------------------"
@@ -642,11 +642,11 @@
               {
                 "arguments": [
                   {
-                    "id": 28355,
+                    "id": 28354,
                     "name": "_owner",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 28349,
+                    "referencedDeclaration": 28348,
                     "src": "1075:6:22",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -654,16 +654,16 @@
                     }
                   }
                 ],
-                "id": 28356,
+                "id": 28355,
                 "kind": "baseConstructorSpecifier",
                 "modifierName": {
-                  "id": 28354,
+                  "id": 28353,
                   "name": "Owned",
                   "nameLocations": [
                     "1069:5:22"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 28651,
+                  "referencedDeclaration": 28650,
                   "src": "1069:5:22"
                 },
                 "nodeType": "ModifierInvocation",
@@ -673,17 +673,17 @@
             "name": "",
             "nameLocation": "-1:-1:-1",
             "parameters": {
-              "id": 28353,
+              "id": 28352,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28349,
+                  "id": 28348,
                   "mutability": "mutable",
                   "name": "_owner",
                   "nameLocation": "1001:6:22",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28363,
+                  "scope": 28362,
                   "src": "993:14:22",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -692,7 +692,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28348,
+                    "id": 28347,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "993:7:22",
@@ -706,36 +706,36 @@
                 },
                 {
                   "constant": false,
-                  "id": 28352,
+                  "id": 28351,
                   "mutability": "mutable",
                   "name": "_uriRemoteFetcher",
                   "nameLocation": "1026:17:22",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28363,
+                  "scope": 28362,
                   "src": "1009:34:22",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                     "typeString": "contract URIRemoteFetcher"
                   },
                   "typeName": {
-                    "id": 28351,
+                    "id": 28350,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 28350,
+                      "id": 28349,
                       "name": "URIRemoteFetcher",
                       "nameLocations": [
                         "1009:16:22"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 28584,
+                      "referencedDeclaration": 28583,
                       "src": "1009:16:22"
                     },
-                    "referencedDeclaration": 28584,
+                    "referencedDeclaration": 28583,
                     "src": "1009:16:22",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                       "typeString": "contract URIRemoteFetcher"
                     }
                   },
@@ -745,22 +745,22 @@
               "src": "992:52:22"
             },
             "returnParameters": {
-              "id": 28357,
+              "id": 28356,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1087:0:22"
             },
-            "scope": 28399,
+            "scope": 28398,
             "stateMutability": "payable",
             "virtual": false,
             "visibility": "public"
           },
           {
-            "id": 28379,
+            "id": 28378,
             "nodeType": "FunctionDefinition",
             "src": "1332:134:22",
             "body": {
-              "id": 28378,
+              "id": 28377,
               "nodeType": "Block",
               "src": "1401:65:22",
               "statements": [
@@ -769,7 +769,7 @@
                     "arguments": [
                       {
                         "expression": {
-                          "id": 28373,
+                          "id": 28372,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
@@ -780,7 +780,7 @@
                             "typeString": "msg"
                           }
                         },
-                        "id": 28374,
+                        "id": 28373,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -795,11 +795,11 @@
                         }
                       },
                       {
-                        "id": 28375,
+                        "id": 28374,
                         "name": "id",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 28366,
+                        "referencedDeclaration": 28365,
                         "src": "1456:2:22",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -819,18 +819,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 28371,
+                        "id": 28370,
                         "name": "uriRemoteFetcher",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 28346,
+                        "referencedDeclaration": 28345,
                         "src": "1418:16:22",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                           "typeString": "contract URIRemoteFetcher"
                         }
                       },
-                      "id": 28372,
+                      "id": 28371,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -838,14 +838,14 @@
                       "memberLocation": "1435:8:22",
                       "memberName": "fetchURI",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 28514,
+                      "referencedDeclaration": 28513,
                       "src": "1418:25:22",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_address_$_t_uint256_$returns$_t_string_memory_ptr_$",
                         "typeString": "function (address,uint256) view external returns (string memory)"
                       }
                     },
-                    "id": 28376,
+                    "id": 28375,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -861,15 +861,15 @@
                       "typeString": "string memory"
                     }
                   },
-                  "functionReturnParameters": 28370,
-                  "id": 28377,
+                  "functionReturnParameters": 28369,
+                  "id": 28376,
                   "nodeType": "Return",
                   "src": "1411:48:22"
                 }
               ]
             },
             "documentation": {
-              "id": 28364,
+              "id": 28363,
               "nodeType": "StructuredDocumentation",
               "src": "1146:181:22",
               "text": "-----------------------------------------------------------------------\n URI Remote Logic\n -----------------------------------------------------------------------"
@@ -881,17 +881,17 @@
             "name": "uri",
             "nameLocation": "1341:3:22",
             "parameters": {
-              "id": 28367,
+              "id": 28366,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28366,
+                  "id": 28365,
                   "mutability": "mutable",
                   "name": "id",
                   "nameLocation": "1353:2:22",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28379,
+                  "scope": 28378,
                   "src": "1345:10:22",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -900,7 +900,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 28365,
+                    "id": 28364,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "1345:7:22",
@@ -915,17 +915,17 @@
               "src": "1344:12:22"
             },
             "returnParameters": {
-              "id": 28370,
+              "id": 28369,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28369,
+                  "id": 28368,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28379,
+                  "scope": 28378,
                   "src": "1386:13:22",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -934,7 +934,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 28368,
+                    "id": 28367,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "1386:6:22",
@@ -948,60 +948,60 @@
               ],
               "src": "1385:15:22"
             },
-            "scope": 28399,
+            "scope": 28398,
             "stateMutability": "view",
             "virtual": true,
             "visibility": "public"
           },
           {
-            "id": 28398,
+            "id": 28397,
             "nodeType": "FunctionDefinition",
             "src": "1472:253:22",
             "body": {
-              "id": 28397,
+              "id": 28396,
               "nodeType": "Block",
               "src": "1606:119:22",
               "statements": [
                 {
                   "expression": {
-                    "id": 28389,
+                    "id": 28388,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 28387,
+                      "id": 28386,
                       "name": "uriRemoteFetcher",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 28346,
+                      "referencedDeclaration": 28345,
                       "src": "1616:16:22",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                         "typeString": "contract URIRemoteFetcher"
                       }
                     },
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 28388,
+                      "id": 28387,
                       "name": "_uriRemoteFetcher",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 28382,
+                      "referencedDeclaration": 28381,
                       "src": "1635:17:22",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                         "typeString": "contract URIRemoteFetcher"
                       }
                     },
                     "src": "1616:36:22",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                       "typeString": "contract URIRemoteFetcher"
                     }
                   },
-                  "id": 28390,
+                  "id": 28389,
                   "nodeType": "ExpressionStatement",
                   "src": "1616:36:22"
                 },
@@ -1010,7 +1010,7 @@
                     "arguments": [
                       {
                         "expression": {
-                          "id": 28392,
+                          "id": 28391,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
@@ -1021,7 +1021,7 @@
                             "typeString": "msg"
                           }
                         },
-                        "id": 28393,
+                        "id": 28392,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1036,14 +1036,14 @@
                         }
                       },
                       {
-                        "id": 28394,
+                        "id": 28393,
                         "name": "_uriRemoteFetcher",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 28382,
+                        "referencedDeclaration": 28381,
                         "src": "1700:17:22",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                           "typeString": "contract URIRemoteFetcher"
                         }
                       }
@@ -1055,22 +1055,22 @@
                           "typeString": "address"
                         },
                         {
-                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                           "typeString": "contract URIRemoteFetcher"
                         }
                       ],
-                      "id": 28391,
+                      "id": 28390,
                       "name": "URIRemoteFetcherSet",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 28342,
+                      "referencedDeclaration": 28341,
                       "src": "1668:19:22",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_contract$_URIRemoteFetcher_$28584_$returns$__$",
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_contract$_URIRemoteFetcher_$28583_$returns$__$",
                         "typeString": "function (address,contract URIRemoteFetcher)"
                       }
                     },
-                    "id": 28395,
+                    "id": 28394,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1086,7 +1086,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 28396,
+                  "id": 28395,
                   "nodeType": "EmitStatement",
                   "src": "1663:55:22"
                 }
@@ -1097,16 +1097,16 @@
             "kind": "function",
             "modifiers": [
               {
-                "id": 28385,
+                "id": 28384,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 28384,
+                  "id": 28383,
                   "name": "onlyOwner",
                   "nameLocations": [
                     "1592:9:22"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 28612,
+                  "referencedDeclaration": 28611,
                   "src": "1592:9:22"
                 },
                 "nodeType": "ModifierInvocation",
@@ -1116,41 +1116,41 @@
             "name": "setURIRemoteFetcher",
             "nameLocation": "1481:19:22",
             "parameters": {
-              "id": 28383,
+              "id": 28382,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28382,
+                  "id": 28381,
                   "mutability": "mutable",
                   "name": "_uriRemoteFetcher",
                   "nameLocation": "1518:17:22",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28398,
+                  "scope": 28397,
                   "src": "1501:34:22",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                     "typeString": "contract URIRemoteFetcher"
                   },
                   "typeName": {
-                    "id": 28381,
+                    "id": 28380,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 28380,
+                      "id": 28379,
                       "name": "URIRemoteFetcher",
                       "nameLocations": [
                         "1501:16:22"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 28584,
+                      "referencedDeclaration": 28583,
                       "src": "1501:16:22"
                     },
-                    "referencedDeclaration": 28584,
+                    "referencedDeclaration": 28583,
                     "src": "1501:16:22",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28584",
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$28583",
                       "typeString": "contract URIRemoteFetcher"
                     }
                   },
@@ -1160,12 +1160,12 @@
               "src": "1500:36:22"
             },
             "returnParameters": {
-              "id": 28386,
+              "id": 28385,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1606:0:22"
             },
-            "scope": 28399,
+            "scope": 28398,
             "stateMutability": "payable",
             "virtual": true,
             "visibility": "public"
@@ -1175,16 +1175,16 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 28333,
+              "id": 28332,
               "name": "Owned",
               "nameLocations": [
                 "258:5:22"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 28651,
+              "referencedDeclaration": 28650,
               "src": "258:5:22"
             },
-            "id": 28334,
+            "id": 28333,
             "nodeType": "InheritanceSpecifier",
             "src": "258:5:22"
           }
@@ -1193,21 +1193,21 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 28332,
+          "id": 28331,
           "nodeType": "StructuredDocumentation",
           "src": "156:79:22",
           "text": "@notice Open-ended metadata fetcher for ERC1155 URI.\n @author z0r0z.eth"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          28399,
-          28651
+          28398,
+          28650
         ],
         "name": "URIFetcher",
         "nameLocation": "244:10:22",
-        "scope": 28400,
+        "scope": 28399,
         "usedErrors": [
-          28597
+          28596
         ]
       }
     ],

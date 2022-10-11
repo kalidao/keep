@@ -33,8 +33,6 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     uint256 internal EXECUTE_ID;
 
-    string internal nameString;
-
     /// @dev Users.
 
     uint256 immutable alicesPk =
@@ -106,7 +104,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
                     keccak256(
                         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
                     ),
-                    keccak256(bytes(nameString)),
+                    keccak256(bytes("Keep")),
                     keccak256("1"),
                     block.chainid,
                     addr
@@ -205,9 +203,6 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         // Store chainId.
         chainId = block.chainid;
-
-        // Store name string.
-        nameString = keep.name();
     }
 
     /// @notice Check setup conditions.

@@ -17,7 +17,7 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"DeploymentFailed\",\"type\":\"error\"}],\"devdoc\":{\"author\":\"Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/LibClone.sol)\",\"errors\":{\"DeploymentFailed()\":[{\"details\":\"Unable to deploy the clone.\"}]},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Minimal proxy library with immutable args operations.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/LibClone.sol\":\"LibClone\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":9999999},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/utils/LibClone.sol\":{\"keccak256\":\"0x4a9887e8fa27677ac343c82a8fffe88b31dbca75607cd66c276f6cf2863dc15f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9405d77d6b684998b4b52fefb34f565484f4dbe09dd2594d417ea792bef54aa0\",\"dweb:/ipfs/Qmayeqi8fRbLFc6VcyFMgZa9U58qd5uZgwjabYr1F4RZAp\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"DeploymentFailed\",\"type\":\"error\"}],\"devdoc\":{\"author\":\"Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/LibClone.sol)\",\"errors\":{\"DeploymentFailed()\":[{\"details\":\"Unable to deploy the clone.\"}]},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Minimal proxy library with immutable args operations.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/LibClone.sol\":\"LibClone\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/utils/LibClone.sol\":{\"keccak256\":\"0x4a9887e8fa27677ac343c82a8fffe88b31dbca75607cd66c276f6cf2863dc15f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9405d77d6b684998b4b52fefb34f565484f4dbe09dd2594d417ea792bef54aa0\",\"dweb:/ipfs/Qmayeqi8fRbLFc6VcyFMgZa9U58qd5uZgwjabYr1F4RZAp\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -52,7 +52,7 @@
       ],
       "optimizer": {
         "enabled": true,
-        "runs": 9999999
+        "runs": 1000000
       },
       "metadata": {
         "bytecodeHash": "none"
@@ -76,17 +76,17 @@
   },
   "ast": {
     "absolutePath": "src/utils/LibClone.sol",
-    "id": 28689,
+    "id": 28688,
     "exportedSymbols": {
       "LibClone": [
-        28688
+        28687
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:5785:25",
     "nodes": [
       {
-        "id": 28653,
+        "id": 28652,
         "nodeType": "PragmaDirective",
         "src": "32:23:25",
         "literals": [
@@ -97,16 +97,16 @@
         ]
       },
       {
-        "id": 28688,
+        "id": 28687,
         "nodeType": "ContractDefinition",
         "src": "228:5588:25",
         "nodes": [
           {
-            "id": 28657,
+            "id": 28656,
             "nodeType": "ErrorDefinition",
             "src": "475:25:25",
             "documentation": {
-              "id": 28655,
+              "id": 28654,
               "nodeType": "StructuredDocumentation",
               "src": "434:36:25",
               "text": "@dev Unable to deploy the clone."
@@ -115,18 +115,18 @@
             "name": "DeploymentFailed",
             "nameLocation": "481:16:25",
             "parameters": {
-              "id": 28656,
+              "id": 28655,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "497:2:25"
             }
           },
           {
-            "id": 28671,
+            "id": 28670,
             "nodeType": "FunctionDefinition",
             "src": "822:2426:25",
             "body": {
-              "id": 28670,
+              "id": 28669,
               "nodeType": "Block",
               "src": "973:2275:25",
               "statements": [
@@ -1097,147 +1097,147 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1120:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1171:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1222:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1271:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1312:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1582:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1697:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1813:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2086:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2236:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2576:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3077:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3118:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3164:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28662,
+                      "declaration": 28661,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3210:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28660,
+                      "declaration": 28659,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1710:14:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28667,
+                      "declaration": 28666,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2516:8:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28667,
+                      "declaration": 28666,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2733:8:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28664,
+                      "declaration": 28663,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2645:4:25",
                       "valueSize": 1
                     }
                   ],
-                  "id": 28669,
+                  "id": 28668,
                   "nodeType": "InlineAssembly",
                   "src": "983:2259:25"
                 }
               ]
             },
             "documentation": {
-              "id": 28658,
+              "id": 28657,
               "nodeType": "StructuredDocumentation",
               "src": "692:125:25",
               "text": "@dev Deploys a deterministic clone of `implementation`,\n using immutable arguments encoded in `data`, with `salt`."
@@ -1248,17 +1248,17 @@
             "name": "cloneDeterministic",
             "nameLocation": "831:18:25",
             "parameters": {
-              "id": 28665,
+              "id": 28664,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28660,
+                  "id": 28659,
                   "mutability": "mutable",
                   "name": "implementation",
                   "nameLocation": "867:14:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28671,
+                  "scope": 28670,
                   "src": "859:22:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1267,7 +1267,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28659,
+                    "id": 28658,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "859:7:25",
@@ -1281,12 +1281,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 28662,
+                  "id": 28661,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "904:4:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28671,
+                  "scope": 28670,
                   "src": "891:17:25",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1295,7 +1295,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 28661,
+                    "id": 28660,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "891:5:25",
@@ -1308,12 +1308,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 28664,
+                  "id": 28663,
                   "mutability": "mutable",
                   "name": "salt",
                   "nameLocation": "926:4:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28671,
+                  "scope": 28670,
                   "src": "918:12:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1322,7 +1322,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 28663,
+                    "id": 28662,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "918:7:25",
@@ -1337,17 +1337,17 @@
               "src": "849:87:25"
             },
             "returnParameters": {
-              "id": 28668,
+              "id": 28667,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28667,
+                  "id": 28666,
                   "mutability": "mutable",
                   "name": "instance",
                   "nameLocation": "963:8:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28671,
+                  "scope": 28670,
                   "src": "955:16:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1356,7 +1356,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28666,
+                    "id": 28665,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "955:7:25",
@@ -1371,17 +1371,17 @@
               ],
               "src": "954:18:25"
             },
-            "scope": 28688,
+            "scope": 28687,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 28687,
+            "id": 28686,
             "nodeType": "FunctionDefinition",
             "src": "3415:2399:25",
             "body": {
-              "id": 28686,
+              "id": 28685,
               "nodeType": "Block",
               "src": "3607:2207:25",
               "statements": [
@@ -2433,147 +2433,147 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3754:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3805:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3856:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3905:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3946:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4216:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4331:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4447:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4720:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4870:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5193:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5643:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5684:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5730:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28676,
+                      "declaration": 28675,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5776:4:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28680,
+                      "declaration": 28679,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5317:8:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28674,
+                      "declaration": 28673,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "4344:14:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28683,
+                      "declaration": 28682,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5371:9:25",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28678,
+                      "declaration": 28677,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "5353:4:25",
                       "valueSize": 1
                     }
                   ],
-                  "id": 28685,
+                  "id": 28684,
                   "nodeType": "InlineAssembly",
                   "src": "3617:2191:25"
                 }
               ]
             },
             "documentation": {
-              "id": 28672,
+              "id": 28671,
               "nodeType": "StructuredDocumentation",
               "src": "3254:156:25",
               "text": "@dev Returns the address of the deterministic clone of\n `implementation` using immutable arguments encoded in `data`, with `salt`, by `deployer`."
@@ -2584,17 +2584,17 @@
             "name": "predictDeterministicAddress",
             "nameLocation": "3424:27:25",
             "parameters": {
-              "id": 28681,
+              "id": 28680,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28674,
+                  "id": 28673,
                   "mutability": "mutable",
                   "name": "implementation",
                   "nameLocation": "3469:14:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28687,
+                  "scope": 28686,
                   "src": "3461:22:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2603,7 +2603,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28673,
+                    "id": 28672,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "3461:7:25",
@@ -2617,12 +2617,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 28676,
+                  "id": 28675,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "3506:4:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28687,
+                  "scope": 28686,
                   "src": "3493:17:25",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2631,7 +2631,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 28675,
+                    "id": 28674,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "3493:5:25",
@@ -2644,12 +2644,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 28678,
+                  "id": 28677,
                   "mutability": "mutable",
                   "name": "salt",
                   "nameLocation": "3528:4:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28687,
+                  "scope": 28686,
                   "src": "3520:12:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2658,7 +2658,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 28677,
+                    "id": 28676,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "3520:7:25",
@@ -2671,12 +2671,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 28680,
+                  "id": 28679,
                   "mutability": "mutable",
                   "name": "deployer",
                   "nameLocation": "3550:8:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28687,
+                  "scope": 28686,
                   "src": "3542:16:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2685,7 +2685,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28679,
+                    "id": 28678,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "3542:7:25",
@@ -2701,17 +2701,17 @@
               "src": "3451:113:25"
             },
             "returnParameters": {
-              "id": 28684,
+              "id": 28683,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28683,
+                  "id": 28682,
                   "mutability": "mutable",
                   "name": "predicted",
                   "nameLocation": "3596:9:25",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28687,
+                  "scope": 28686,
                   "src": "3588:17:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2720,7 +2720,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 28682,
+                    "id": 28681,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "3588:7:25",
@@ -2735,7 +2735,7 @@
               ],
               "src": "3587:19:25"
             },
-            "scope": 28688,
+            "scope": 28687,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
@@ -2747,20 +2747,20 @@
         "contractDependencies": [],
         "contractKind": "library",
         "documentation": {
-          "id": 28654,
+          "id": 28653,
           "nodeType": "StructuredDocumentation",
           "src": "57:171:25",
           "text": "@notice Minimal proxy library with immutable args operations.\n @author Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/LibClone.sol)"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          28688
+          28687
         ],
         "name": "LibClone",
         "nameLocation": "236:8:25",
-        "scope": 28689,
+        "scope": 28688,
         "usedErrors": [
-          28657
+          28656
         ]
       }
     ],

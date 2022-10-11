@@ -87,7 +87,7 @@
     "setOwner(address)": "13af4035",
     "updateFlag()": "3a7104d1"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NotAuthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"flag\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"updateFlag\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"NotAuthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnerUpdated(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"setOwner(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/MockOwned.sol\":\"MockOwned\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":9999999},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/extensions/utils/Owned.sol\":{\"keccak256\":\"0x146ae162dca3249dd26d7f0fbbe43788914e7261c7eb8d665d16e7a7180abd33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe281e05f5e9ad32dfdc8cf946e7253db9a4d96e089bf5ba2c34604ea9b2d560\",\"dweb:/ipfs/QmZktCnVY24YjnWKjW5FMo3YZbcLTByD3QHe5dWLZgYibE\"]},\"test/mocks/MockOwned.sol\":{\"keccak256\":\"0xf64f2a5717b8d5ab2dd9d55af6dd5d77fb4f3ec6b4746edf96551cbfc3585989\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e466671564899e202665e090a2980e3f3efb76efd34d1c10e64352bd66425633\",\"dweb:/ipfs/QmQoq7naAysTZAWJaSbLYGwhDaCvaen3E179cCpyFhUkf6\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NotAuthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"flag\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"updateFlag\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"NotAuthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnerUpdated(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"setOwner(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/mocks/MockOwned.sol\":\"MockOwned\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/extensions/utils/Owned.sol\":{\"keccak256\":\"0x146ae162dca3249dd26d7f0fbbe43788914e7261c7eb8d665d16e7a7180abd33\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe281e05f5e9ad32dfdc8cf946e7253db9a4d96e089bf5ba2c34604ea9b2d560\",\"dweb:/ipfs/QmZktCnVY24YjnWKjW5FMo3YZbcLTByD3QHe5dWLZgYibE\"]},\"test/mocks/MockOwned.sol\":{\"keccak256\":\"0xf64f2a5717b8d5ab2dd9d55af6dd5d77fb4f3ec6b4746edf96551cbfc3585989\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e466671564899e202665e090a2980e3f3efb76efd34d1c10e64352bd66425633\",\"dweb:/ipfs/QmQoq7naAysTZAWJaSbLYGwhDaCvaen3E179cCpyFhUkf6\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -192,7 +192,7 @@
       ],
       "optimizer": {
         "enabled": true,
-        "runs": 9999999
+        "runs": 1000000
       },
       "metadata": {
         "bytecodeHash": "none"
@@ -224,20 +224,20 @@
   },
   "ast": {
     "absolutePath": "test/mocks/MockOwned.sol",
-    "id": 35857,
+    "id": 35848,
     "exportedSymbols": {
       "MockOwned": [
-        35856
+        35847
       ],
       "Owned": [
-        28651
+        28650
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:232:30",
     "nodes": [
       {
-        "id": 35837,
+        "id": 35828,
         "nodeType": "PragmaDirective",
         "src": "32:23:30",
         "literals": [
@@ -248,22 +248,22 @@
         ]
       },
       {
-        "id": 35839,
+        "id": 35830,
         "nodeType": "ImportDirective",
         "src": "57:59:30",
         "absolutePath": "src/extensions/utils/Owned.sol",
         "file": "../../src/extensions/utils/Owned.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 35857,
-        "sourceUnit": 28652,
+        "scope": 35848,
+        "sourceUnit": 28651,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 35838,
+              "id": 35829,
               "name": "Owned",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 28651,
+              "referencedDeclaration": 28650,
               "src": "65:5:30",
               "typeDescriptions": {}
             },
@@ -273,12 +273,12 @@
         "unitAlias": ""
       },
       {
-        "id": 35856,
+        "id": 35847,
         "nodeType": "ContractDefinition",
         "src": "118:146:30",
         "nodes": [
           {
-            "id": 35845,
+            "id": 35836,
             "nodeType": "VariableDeclaration",
             "src": "164:16:30",
             "constant": false,
@@ -286,7 +286,7 @@
             "mutability": "mutable",
             "name": "flag",
             "nameLocation": "176:4:30",
-            "scope": 35856,
+            "scope": 35847,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -294,7 +294,7 @@
               "typeString": "bool"
             },
             "typeName": {
-              "id": 35844,
+              "id": 35835,
               "name": "bool",
               "nodeType": "ElementaryTypeName",
               "src": "164:4:30",
@@ -306,27 +306,27 @@
             "visibility": "public"
           },
           {
-            "id": 35855,
+            "id": 35846,
             "nodeType": "FunctionDefinition",
             "src": "187:75:30",
             "body": {
-              "id": 35854,
+              "id": 35845,
               "nodeType": "Block",
               "src": "234:28:30",
               "statements": [
                 {
                   "expression": {
-                    "id": 35852,
+                    "id": 35843,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 35850,
+                      "id": 35841,
                       "name": "flag",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 35845,
+                      "referencedDeclaration": 35836,
                       "src": "244:4:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
@@ -337,7 +337,7 @@
                     "operator": "=",
                     "rightHandSide": {
                       "hexValue": "74727565",
-                      "id": 35851,
+                      "id": 35842,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -357,7 +357,7 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 35853,
+                  "id": 35844,
                   "nodeType": "ExpressionStatement",
                   "src": "244:11:30"
                 }
@@ -368,16 +368,16 @@
             "kind": "function",
             "modifiers": [
               {
-                "id": 35848,
+                "id": 35839,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 35847,
+                  "id": 35838,
                   "name": "onlyOwner",
                   "nameLocations": [
                     "224:9:30"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 28612,
+                  "referencedDeclaration": 28611,
                   "src": "224:9:30"
                 },
                 "nodeType": "ModifierInvocation",
@@ -387,18 +387,18 @@
             "name": "updateFlag",
             "nameLocation": "196:10:30",
             "parameters": {
-              "id": 35846,
+              "id": 35837,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "206:2:30"
             },
             "returnParameters": {
-              "id": 35849,
+              "id": 35840,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "234:0:30"
             },
-            "scope": 35856,
+            "scope": 35847,
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "public"
@@ -410,7 +410,7 @@
             "arguments": [
               {
                 "expression": {
-                  "id": 35841,
+                  "id": 35832,
                   "name": "msg",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
@@ -421,7 +421,7 @@
                     "typeString": "msg"
                   }
                 },
-                "id": 35842,
+                "id": 35833,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": false,
@@ -437,16 +437,16 @@
               }
             ],
             "baseName": {
-              "id": 35840,
+              "id": 35831,
               "name": "Owned",
               "nameLocations": [
                 "140:5:30"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 28651,
+              "referencedDeclaration": 28650,
               "src": "140:5:30"
             },
-            "id": 35843,
+            "id": 35834,
             "nodeType": "InheritanceSpecifier",
             "src": "140:17:30"
           }
@@ -456,14 +456,14 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          35856,
-          28651
+          35847,
+          28650
         ],
         "name": "MockOwned",
         "nameLocation": "127:9:30",
-        "scope": 35857,
+        "scope": 35848,
         "usedErrors": [
-          28597
+          28596
         ]
       }
     ],

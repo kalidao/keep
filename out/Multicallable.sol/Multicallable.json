@@ -33,7 +33,7 @@
   "methodIdentifiers": {
     "multicall(bytes[])": "ac9650d8"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes[]\",\"name\":\"data\",\"type\":\"bytes[]\"}],\"name\":\"multicall\",\"outputs\":[{\"internalType\":\"bytes[]\",\"name\":\"results\",\"type\":\"bytes[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/Multicallable.sol)\",\"kind\":\"dev\",\"methods\":{\"multicall(bytes[])\":{\"details\":\"Apply `DELEGATECALL` with the current contract to each calldata in `data`, and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`. If any of the `DELEGATECALL`s reverts, the entire transaction is reverted, and the error is bubbled up.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contract that enables a single call to call multiple methods on itself.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/Multicallable.sol\":\"Multicallable\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":9999999},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/utils/Multicallable.sol\":{\"keccak256\":\"0x9ce4ce2b71f7556014152e5749e11241b18615183be468ba2cacd677ee6643c6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04871c5e240868b283454fbfca6e2fe86d45d95c7afcedb9c8f26a8d841ba7de\",\"dweb:/ipfs/QmSqrWZD8fP6mSZcgwZ8d2YysgB2t8y4jaRjMQiaMXqYtV\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes[]\",\"name\":\"data\",\"type\":\"bytes[]\"}],\"name\":\"multicall\",\"outputs\":[{\"internalType\":\"bytes[]\",\"name\":\"results\",\"type\":\"bytes[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/Multicallable.sol)\",\"kind\":\"dev\",\"methods\":{\"multicall(bytes[])\":{\"details\":\"Apply `DELEGATECALL` with the current contract to each calldata in `data`, and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`. If any of the `DELEGATECALL`s reverts, the entire transaction is reverted, and the error is bubbled up.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Contract that enables a single call to call multiple methods on itself.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/Multicallable.sol\":\"Multicallable\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/utils/Multicallable.sol\":{\"keccak256\":\"0x9ce4ce2b71f7556014152e5749e11241b18615183be468ba2cacd677ee6643c6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04871c5e240868b283454fbfca6e2fe86d45d95c7afcedb9c8f26a8d841ba7de\",\"dweb:/ipfs/QmSqrWZD8fP6mSZcgwZ8d2YysgB2t8y4jaRjMQiaMXqYtV\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -86,7 +86,7 @@
       ],
       "optimizer": {
         "enabled": true,
-        "runs": 9999999
+        "runs": 1000000
       },
       "metadata": {
         "bytecodeHash": "none"
@@ -110,17 +110,17 @@
   },
   "ast": {
     "absolutePath": "src/utils/Multicallable.sol",
-    "id": 28705,
+    "id": 28704,
     "exportedSymbols": {
       "Multicallable": [
-        28704
+        28703
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:3091:26",
     "nodes": [
       {
-        "id": 28690,
+        "id": 28689,
         "nodeType": "PragmaDirective",
         "src": "32:23:26",
         "literals": [
@@ -131,16 +131,16 @@
         ]
       },
       {
-        "id": 28704,
+        "id": 28703,
         "nodeType": "ContractDefinition",
         "src": "251:2871:26",
         "nodes": [
           {
-            "id": 28703,
+            "id": 28702,
             "nodeType": "FunctionDefinition",
             "src": "589:2531:26",
             "body": {
-              "id": 28702,
+              "id": 28701,
               "nodeType": "Block",
               "src": "723:2397:26",
               "statements": [
@@ -994,7 +994,7 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 28695,
+                      "declaration": 28694,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1086:11:26",
@@ -1002,7 +1002,7 @@
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28695,
+                      "declaration": 28694,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "759:11:26",
@@ -1010,7 +1010,7 @@
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28695,
+                      "declaration": 28694,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "888:11:26",
@@ -1018,7 +1018,7 @@
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28695,
+                      "declaration": 28694,
                       "isOffset": true,
                       "isSlot": false,
                       "src": "1200:11:26",
@@ -1026,7 +1026,7 @@
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28695,
+                      "declaration": 28694,
                       "isOffset": true,
                       "isSlot": false,
                       "src": "1563:11:26",
@@ -1034,105 +1034,105 @@
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1191:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1337:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1378:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "1582:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2330:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2367:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2382:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "2907:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "3031:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "789:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "879:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "956:7:26",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 28699,
+                      "declaration": 28698,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "971:7:26",
                       "valueSize": 1
                     }
                   ],
-                  "id": 28701,
+                  "id": 28700,
                   "nodeType": "InlineAssembly",
                   "src": "733:2381:26"
                 }
               ]
             },
             "documentation": {
-              "id": 28692,
+              "id": 28691,
               "nodeType": "StructuredDocumentation",
               "src": "289:295:26",
               "text": "@dev Apply `DELEGATECALL` with the current contract to each calldata in `data`,\n and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`.\n If any of the `DELEGATECALL`s reverts, the entire transaction is reverted,\n and the error is bubbled up."
@@ -1144,17 +1144,17 @@
             "name": "multicall",
             "nameLocation": "598:9:26",
             "parameters": {
-              "id": 28696,
+              "id": 28695,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28695,
+                  "id": 28694,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "625:4:26",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28703,
+                  "scope": 28702,
                   "src": "608:21:26",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1164,7 +1164,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 28693,
+                      "id": 28692,
                       "name": "bytes",
                       "nodeType": "ElementaryTypeName",
                       "src": "608:5:26",
@@ -1173,7 +1173,7 @@
                         "typeString": "bytes"
                       }
                     },
-                    "id": 28694,
+                    "id": 28693,
                     "nodeType": "ArrayTypeName",
                     "src": "608:7:26",
                     "typeDescriptions": {
@@ -1187,17 +1187,17 @@
               "src": "607:23:26"
             },
             "returnParameters": {
-              "id": 28700,
+              "id": 28699,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28699,
+                  "id": 28698,
                   "mutability": "mutable",
                   "name": "results",
                   "nameLocation": "710:7:26",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28703,
+                  "scope": 28702,
                   "src": "695:22:26",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1207,7 +1207,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 28697,
+                      "id": 28696,
                       "name": "bytes",
                       "nodeType": "ElementaryTypeName",
                       "src": "695:5:26",
@@ -1216,7 +1216,7 @@
                         "typeString": "bytes"
                       }
                     },
-                    "id": 28698,
+                    "id": 28697,
                     "nodeType": "ArrayTypeName",
                     "src": "695:7:26",
                     "typeDescriptions": {
@@ -1229,7 +1229,7 @@
               ],
               "src": "694:24:26"
             },
-            "scope": 28704,
+            "scope": 28703,
             "stateMutability": "payable",
             "virtual": true,
             "visibility": "public"
@@ -1241,18 +1241,18 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 28691,
+          "id": 28690,
           "nodeType": "StructuredDocumentation",
           "src": "57:194:26",
           "text": "@notice Contract that enables a single call to call multiple methods on itself.\n @author Modified from Solady (https://github.com/Vectorized/solady/blob/main/src/utils/Multicallable.sol)"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          28704
+          28703
         ],
         "name": "Multicallable",
         "nameLocation": "269:13:26",
-        "scope": 28705,
+        "scope": 28704,
         "usedErrors": []
       }
     ],
