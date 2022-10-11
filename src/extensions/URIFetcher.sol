@@ -38,7 +38,7 @@ contract URIFetcher is Owned {
         return uriRemoteFetcher.fetchURI(msg.sender, id);
     }
 
-    function setURIRemote(URIRemoteFetcher _uriRemoteFetcher) public payable onlyOwner virtual {
+    function setURIRemoteFetcher(URIRemoteFetcher _uriRemoteFetcher) public payable onlyOwner virtual {
         uriRemoteFetcher = _uriRemoteFetcher;
 
         emit URIRemoteFetcherSet(msg.sender, _uriRemoteFetcher);
