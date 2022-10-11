@@ -73,7 +73,7 @@ contract URIRemoteFetcher is Owned {
     }
 
     /// @dev Returns the base 10 decimal representation of `value`.
-    function _toString(uint256 value) internal pure returns (string memory str) {
+    function _toString(uint256 value) internal pure virtual returns (string memory str) {
         assembly {
             // The maximum value of a uint256 contains 78 digits (1 byte per digit), but
             // we allocate 0xa0 bytes to keep the free memory pointer 32-byte word aligned.
