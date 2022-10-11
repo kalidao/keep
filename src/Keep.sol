@@ -45,13 +45,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Emitted when Keep executes call.
     event Executed(Operation op, address indexed to, uint256 value, bytes data);
 
-    /// @dev Emitted when Keep creates contract.
-    event ContractCreated(
-        Operation op,
-        address indexed creation,
-        uint256 value
-    );
-
     /// @dev Emitted when quorum threshold is updated.
     event QuorumSet(address indexed operator, uint256 threshold);
 
@@ -479,7 +472,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (creation == address(0)) revert ExecuteFailed();
 
-            emit ContractCreated(op, creation, value);
+            emit Executed(op, creation, value, data);
         } else {
             address creation;
             bytes32 salt = bytes32(uint256(nonce));
@@ -490,7 +483,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (creation == address(0)) revert ExecuteFailed();
 
-            emit ContractCreated(op, creation, value);
+            emit Executed(op, creation, value, data);
         }
     }
 
