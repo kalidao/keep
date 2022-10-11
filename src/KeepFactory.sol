@@ -51,10 +51,10 @@ contract KeepFactory is Multicallable {
     }
 
     function deployKeep(
-        bytes32 name, // create2 salt.
         Call[] calldata calls,
         address[] calldata signers,
-        uint256 threshold
+        uint256 threshold,
+        bytes32 name // create2 salt.
     ) public payable virtual {
         Keep keep = Keep(
             address(keepTemplate).cloneDeterministic(
