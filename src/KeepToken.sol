@@ -175,7 +175,7 @@ abstract contract KeepToken {
     }
 
     /// -----------------------------------------------------------------------
-    /// Checkpoint Storage
+    /// ID Storage
     /// -----------------------------------------------------------------------
 
     uint256 internal constant EXECUTE_ID = uint32(0x6c4b5546); // `execute()`
@@ -187,6 +187,10 @@ abstract contract KeepToken {
     mapping(uint256 => bool) public permissioned;
 
     mapping(address => mapping(uint256 => bool)) public userPermissioned;
+    
+    /// -----------------------------------------------------------------------
+    /// Checkpoint Storage
+    /// -----------------------------------------------------------------------
 
     mapping(address => mapping(uint256 => address)) internal _delegates;
 
