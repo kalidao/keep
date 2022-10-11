@@ -1075,79 +1075,77 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 amount
     ) public payable {
         vm.assume(amount <= type(uint216).max);
+        vm.assume(id != 2094031643);  // Bad 
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
         vm.assume(userC != address(0));
         vm.assume(userA != userB);
         vm.assume(userB != userC);
+        vm.assume(userA != userC);
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
         vm.assume(userC.code.length == 0);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(id, true);
-        vm.stopPrank();
-        assertTrue(keep.transferable(id));
+        uint256 preBalanceA = keep.balanceOf(userA, id);
+        uint256 preBalanceB = keep.balanceOf(userB, id);
+        uint256 preBalanceC = keep.balanceOf(userC, id);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(userA, id, amount, "");
+        vm.startPrank(address(keep));
+
+        keep.setTransferability(id, true);
+        assertTrue(keep.transferable(id));
+        
         keep.setPermission(id, true);
+        assertTrue(keep.permissioned(id));
+
         keep.setUserPermission(userA, id, true);
         keep.setUserPermission(userB, id, true);
-        vm.stopPrank();
-
-        startHoax(userA, userA, type(uint256).max);
-        keep.safeTransferFrom(userA, userB, id, amount, "");
-        vm.stopPrank();
-
         assertTrue(keep.userPermissioned(userA, id));
         assertTrue(keep.userPermissioned(userB, id));
         assertFalse(keep.userPermissioned(userC, id));
 
-        assertTrue(keep.balanceOf(userA, id) == 0);
-        assertTrue(keep.balanceOf(userB, id) == amount);
-
-        startHoax(userB, userB, type(uint256).max);
-        keep.setApprovalForAll(userC, true);
+        keep.mint(userA, id, amount, "");
+        assertTrue(keep.balanceOf(userA, id) == preBalanceA + amount);
         vm.stopPrank();
+
+        vm.prank(userA);
+        keep.safeTransferFrom(userA, userB, id, amount, "");
+        assertTrue(keep.balanceOf(userA, id) == preBalanceA);
+        assertTrue(keep.balanceOf(userB, id) == preBalanceB + amount);
+
+        vm.prank(userB);
+        keep.setApprovalForAll(userC, true);
         assertTrue(keep.isApprovedForAll(userB, userC));
 
-        startHoax(userC, userC, type(uint256).max);
+        vm.prank(userC);
         vm.expectRevert(bytes4(keccak256("NotPermitted()")));
-        keep.safeTransferFrom(userB, userC, id, amount, "");
-        vm.stopPrank();
+        keep.safeTransferFrom(userB, userC, id, amount, ""); // C not permissioned 
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        assertTrue(keep.balanceOf(userA, id) == preBalanceA);
+        assertTrue(keep.balanceOf(userB, id) == preBalanceB + amount);
+        assertTrue(keep.balanceOf(userC, id) == preBalanceC);
+
+        vm.prank(address(keep));
         keep.setUserPermission(userC, id, true);
-        vm.stopPrank();
-
-        assertTrue(keep.balanceOf(userA, id) == 0);
-        assertTrue(keep.balanceOf(userB, id) == amount);
-        assertTrue(keep.balanceOf(userC, id) == 0);
-
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setUserPermission(userC, id, true);
-        vm.stopPrank();
-
         assertTrue(keep.userPermissioned(userC, id));
 
-        startHoax(userC, userC, type(uint256).max);
+        vm.prank(userC);
         keep.safeTransferFrom(userB, userC, id, amount, "");
-        vm.stopPrank();
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        assertTrue(keep.balanceOf(userB, id) == preBalanceB);
+        assertTrue(keep.balanceOf(userC, id) == preBalanceC + amount);
+
+        vm.prank(address(keep));
         keep.setTransferability(id, false);
-        vm.stopPrank();
         assertFalse(keep.transferable(id));
 
-        startHoax(userC, userC, type(uint256).max);
+        vm.prank(userC);
         vm.expectRevert(bytes4(keccak256("NonTransferable()")));
         keep.safeTransferFrom(userC, userA, id, amount, "");
-        vm.stopPrank();
 
-        assertTrue(keep.balanceOf(userA, id) == 0);
-        assertTrue(keep.balanceOf(userB, id) == 0);
-        assertTrue(keep.balanceOf(userC, id) == amount);
+        assertTrue(keep.balanceOf(userA, id) == preBalanceA);
+        assertTrue(keep.balanceOf(userB, id) == preBalanceB);
+        assertTrue(keep.balanceOf(userC, id) == preBalanceC + amount);
     }
 
     function testKeepTokenTransferFailNonTransferable(uint256 id)
