@@ -16,33 +16,10 @@ jobs:
       - uses: actions/setup-node@v2
 
       - name: Install dev dependencies
-        run: yarn
+        run: pnpm install --frozen-lockfile
 
       - name: Run formatter
-        run: yarn run format
-
-      # - name: Set up python
-      #   id: setup-python
-      #   uses: actions/setup-python@v2
-      #   with:
-      #     python-version: 3.9
-
-      # - name: Install Poetry
-      #   uses: snok/install-poetry@v1
-
-      # - name: Load cached venv
-      #   id: cached-poetry-dependencies
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: .venv
-      #     key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      # - name: Install dependencies
-      #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      #   run: poetry install --no-interaction --no-root
-
-      # - name: Install library
-      #   run: poetry install --no-interaction
+        run: pnpm run format
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -50,14 +27,10 @@ jobs:
           version: nightly
 
       - name: Pull Submodules
-        run: yarn sync
+        run: pnpm sync
 
       - name: Run tests
-        run: forge clean && forge test --optimize --optimizer-runs 9999999 -vvv
+        run: pnpm tun test
 
-      - name: Run lint 
-        run: yarn run solhint
-
-      # TODO(Figure out how to allow this to find the correct solc binary)
-      # - name: Run audit
-      # run: poetry run slither --solc-remaps "solmate=lib/solmate/src" --solc-args optimize src/ --exclude-dependencies
+      - name: Run lint
+        run: pnpm run solhint
