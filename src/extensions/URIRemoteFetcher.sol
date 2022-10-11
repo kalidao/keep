@@ -14,7 +14,7 @@ contract URIRemoteFetcher is Owned {
     event BetaURISet(
         address indexed user,
         address indexed origin,
-        string indexed betaURI
+        string betaURI
     );
 
     event URISet(
