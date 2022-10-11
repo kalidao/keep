@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      
+
       - uses: pnpm/action-setup@v2.0.1
         name: Install pnpm
         id: pnpm-install
@@ -37,9 +37,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install dependencies
-        run: pnpm install
-
       - name: Install dev dependencies
         run: pnpm i
 
@@ -55,7 +52,7 @@ jobs:
         run: pnpm sync
 
       - name: Run tests
-        run: pnpm tun test
+        run: pnpm run test
 
       - name: Run lint
         run: pnpm run solhint
