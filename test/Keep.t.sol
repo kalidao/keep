@@ -33,6 +33,8 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     uint256 internal EXECUTE_ID;
 
+    string internal nameString;
+
     /// @dev Users.
 
     uint256 immutable alicesPk =
@@ -104,7 +106,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
                     keccak256(
                         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
                     ),
-                    keccak256(bytes("Keep")),
+                    keccak256(bytes(nameString)),
                     keccak256("1"),
                     block.chainid,
                     addr
@@ -203,6 +205,9 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         // Store chainId.
         chainId = block.chainid;
+
+        // Store name string.
+        nameString = keep.name();
     }
 
     /// @notice Check setup conditions.
@@ -344,12 +349,9 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     // We use this to check fetching when exposing function as `public`.
-    /*function testInitChainId() public {
-        assertEq(
-            keep._initialChainId(),
-            block.chainid
-        );
-    }*/
+    function testInitChainId() public {
+        assertEq(keep._initialChainId(), block.chainid);
+    }
 
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
@@ -898,26 +900,29 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assert(keep.balanceOf(alice, 1) == 100);
     }
 
-    function testSetTransferability(uint256 id) public payable {
+    function testSetTransferability() public payable {
         // The keep itself should be able to flip pause.
-        vm.assume(id != 742900294); // TODO: why
-        vm.startPrank(address(keep));
-        keep.setTransferability(id, true);
-        assertTrue(keep.transferable(id) == true);
+        //vm.assume(id != 742900294); // TODO: why
 
-        keep.mint(charlie, id, 1, "");
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(1, true);
+        assertTrue(keep.transferable(1) == true);
+        keep.mint(charlie, 1, 1, "");
         vm.stopPrank();
 
-        vm.prank(charlie);
-        keep.safeTransferFrom(charlie, alice, id, 1, "");
+        startHoax(charlie, charlie, type(uint256).max);
+        keep.safeTransferFrom(charlie, alice, 1, 1, "");
+        vm.stopPrank();
 
-        vm.prank(address(keep));
-        keep.setTransferability(id, false);
-        assertTrue(!keep.transferable(id));
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(1, false);
+        assertTrue(!keep.transferable(1));
+        vm.stopPrank();
 
-        vm.prank(alice);
+        startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NonTransferable()")));
-        keep.safeTransferFrom(alice, charlie, id, 1, "");
+        keep.safeTransferFrom(alice, charlie, 1, 1, "");
+        vm.stopPrank();
     }
 
     function testCannotSetTransferability(address dave, uint256 id)

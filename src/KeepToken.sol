@@ -133,7 +133,11 @@ abstract contract KeepToken {
                 : _computeDomainSeparator();
     }
 
-    function _initialChainId() internal pure virtual returns (uint256) {
+    function name() public pure virtual returns (string memory) {
+        return string(abi.encodePacked(_computeArgUint(2)));
+    }
+
+    function _initialChainId() public pure virtual returns (uint256) {
         return _computeArgUint(7);
     }
 
@@ -144,7 +148,7 @@ abstract contract KeepToken {
                     keccak256(
                         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
                     ),
-                    keccak256(bytes("Keep")),
+                    keccak256(bytes(name())),
                     keccak256("1"),
                     block.chainid,
                     address(this)

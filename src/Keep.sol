@@ -101,12 +101,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         else return uriFetcher.uri(id);
     }
 
-    /// @dev The immutable name of this Keep.
-    /// @return Name string.
-    function name() public pure virtual returns (string memory) {
-        return string(abi.encodePacked(_computeArgUint(2)));
-    }
-
     /// @dev Access control check for ID key balance holders.
     function _authorized() internal view virtual returns (bool) {
         if (_coreKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
