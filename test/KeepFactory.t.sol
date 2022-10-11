@@ -47,14 +47,14 @@ contract KeepFactoryTest is Test {
     }
 
     function testDeploy() public payable {
-        factory.deployKeep(calls, signers, 2, name);
+        factory.deployKeep(name, calls, signers, 2);
     }
 
     function testDetermination() public payable {
         // Check CREATE2 clones match expected outputs.
         keepAddr = factory.determineKeep(name);
         keep = Keep(keepAddr);
-        factory.deployKeep(calls, signers, 2, name);
+        factory.deployKeep(name, calls, signers, 2);
         assertEq(address(keep), keepAddr);
     }
 }

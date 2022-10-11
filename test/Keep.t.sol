@@ -188,7 +188,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         keepAddr = factory.determineKeep(name);
         keep = Keep(keepAddr);
 
-        factory.deployKeep(calls, signers, 2, name);
+        factory.deployKeep(name, calls, signers, 2);
         EXECUTE_ID = uint32(keep.execute.selector);
 
         // Approve Keep as spender of mock ERC20.
@@ -231,7 +231,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         keepAddrRepeat = factory.determineKeep(name2);
         keepRepeat = Keep(keepAddrRepeat);
-        factory.deployKeep(calls, signers, 2, name2);
+        factory.deployKeep(name2, calls, signers, 2);
 
         vm.expectRevert(bytes4(keccak256("AlreadyInit()")));
         keepRepeat.initialize(calls, signers, 2);
@@ -244,7 +244,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[1] = alice > bob ? alice : bob;
 
         vm.expectRevert(bytes(""));
-        factory.deployKeep(calls, signers, 0, name2);
+        factory.deployKeep(name2, calls, signers, 0);
     }
 
     function testExcessiveQuorumSetup() public payable {
@@ -254,7 +254,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[1] = alice > bob ? alice : bob;
 
         vm.expectRevert(bytes4(keccak256("QuorumOverSupply()")));
-        factory.deployKeep(calls, signers, 3, name2);
+        factory.deployKeep(name2, calls, signers, 3);
     }
 
     function testOutOfOrderSignerSetup() public payable {
@@ -264,7 +264,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         signers[1] = alice > bob ? bob : alice;
 
         vm.expectRevert(bytes4(keccak256("InvalidSig()")));
-        factory.deployKeep(calls, signers, 2, name2);
+        factory.deployKeep(name2, calls, signers, 2);
     }
 
     /// -----------------------------------------------------------------------
@@ -1434,10 +1434,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         uint256 privateKey = 0xBEEF;
         address userA = vm.addr(0xBEEF);
 
-        vm.startPrank(address(keep));
+        startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(userA, id, amount, "");
-        keep.setTransferability(id, true);
-        assertTrue(keep.transferable(id));
+        //keep.setTransferability(id, true);
+        //assertTrue(keep.transferable(id));
         vm.stopPrank();
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
