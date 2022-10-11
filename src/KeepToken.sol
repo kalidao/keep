@@ -75,12 +75,12 @@ abstract contract KeepToken {
         bool set
     );
 
-    event PermissionSet(address indexed operator, uint256 id, bool set);
+    event PermissionSet(address indexed operator, uint256 indexed id, bool set);
 
     event UserPermissionSet(
         address indexed operator,
         address indexed to,
-        uint256 id,
+        uint256 indexed id,
         bool set
     );
 
@@ -134,7 +134,7 @@ abstract contract KeepToken {
     }
 
     function _initialChainId() internal pure virtual returns (uint256) {
-        return _computeArgUint256(7);
+        return _computeArgUint(7);
     }
 
     function _computeDomainSeparator() internal view virtual returns (bytes32) {
@@ -152,7 +152,7 @@ abstract contract KeepToken {
             );
     }
 
-    function _computeArgUint256(uint256 argOffset)
+    function _computeArgUint(uint256 argOffset)
         internal
         pure
         virtual
