@@ -49,4 +49,4 @@ You can find the [docs](https://keep-kalico.vercel.app/) for Keep contracts here
 
 ## License
 
-[MIT](https://github.com/kalidao/multi-sig/blob/main/LICENSE)
+[MIT](https://github.com/kalidao/keep/blob/main/LICENSE)

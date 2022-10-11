@@ -1,9 +1,9 @@
 {
-  "name": "keep",
+  "name": "Keep",
   "version": "1.0.0",
   "description": "Tokenized multisig wallet",
   "main": "index.js",
-  "repository": "https://github.com/kalidao/multi-sig",
+  "repository": "https://github.com/kalidao/keep",
   "author": "KaliCo LLC <kalidao@protonmail.com>",
   "license": "MIT",
   "private": false,
