@@ -1,5 +1,5 @@
 {
-  "name": "Keep",
+  "name": "keep",
   "version": "1.0.0",
   "description": "Tokenized multisig wallet",
   "main": "index.js",
@@ -8,22 +8,20 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "prettier": "prettier --write 'src/**/*.sol'",
-    "prettier:list": "prettier --list-different 'src/**/*.sol'",
-    "prettier:check": "prettier --check 'src/**/*.sol'",
+    "format": "prettier --write src/**.sol src/utils/**.sol test/**.sol --plugin-search-dir=.",
+    "format:list": "prettier --list-different 'src/**/*.sol' --plugin-search-dir=.",
+    "format:check": "prettier --check 'src/**/*.sol' --plugin-search-dir=.",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix --ignore-path .solhintignore",
     "solhint:check": "solhint --config ./.solhint.json 'src/**/*.sol'",
-    "format": "yarn run prettier",
     "clean": "forge clean",
     "setup": "forge clean && forge build --optimize --optimizer-runs 9999999",
     "sync": "forge update",
     "test": "forge clean && forge test --optimize --optimizer-runs 9999999 -vvv",
-    "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 9999999",
-    "lint": "prettier --write src/**.sol src/utils/**.sol test/**.sol"
+    "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 9999999"
   },
-  "dependencies": {
+  "devDependencies": {
     "prettier": "^2.7.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.19",
-    "solhint": "^3.3.6"
+    "prettier-plugin-solidity": "1.0.0-beta.24",
+    "solhint": "^3.3.7"
   }
 }

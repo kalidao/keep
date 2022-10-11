@@ -43,6 +43,10 @@ Using [foundry.toml](./foundry.toml), Foundry is easily configurable.
 
 For a full list of configuration options, see the Foundry [configuration documentation](https://github.com/gakonst/foundry/blob/master/config/README.md#all-options).
 
+## Learn more 
+
+You can find the [docs](https://keep-kalico.vercel.app/) for Keep contracts here.
+
 ## License
 
 [MIT](https://github.com/kalidao/multi-sig/blob/main/LICENSE)

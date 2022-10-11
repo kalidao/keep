@@ -13,36 +13,35 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dev dependencies
-        run: yarn
+        run: pnpm i
 
       - name: Run formatter
-        run: yarn run format
-
-      # - name: Set up python
-      #   id: setup-python
-      #   uses: actions/setup-python@v2
-      #   with:
-      #     python-version: 3.9
-
-      # - name: Install Poetry
-      #   uses: snok/install-poetry@v1
-
-      # - name: Load cached venv
-      #   id: cached-poetry-dependencies
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: .venv
-      #     key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      # - name: Install dependencies
-      #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      #   run: poetry install --no-interaction --no-root
-
-      # - name: Install library
-      #   run: poetry install --no-interaction
+        run: pnpm run format
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -50,14 +49,10 @@ jobs:
           version: nightly
 
       - name: Pull Submodules
-        run: yarn sync
+        run: pnpm sync
 
       - name: Run tests
-        run: forge clean && forge test --optimize --optimizer-runs 9999999 -vvv
+        run: pnpm run test
 
-      - name: Run lint 
-        run: yarn run solhint
-
-      # TODO(Figure out how to allow this to find the correct solc binary)
-      # - name: Run audit
-      # run: poetry run slither --solc-remaps "solmate=lib/solmate/src" --solc-args optimize src/ --exclude-dependencies
+      - name: Run lint
+        run: pnpm run solhint
