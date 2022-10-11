@@ -1,0 +1,11 @@
+---
+title: Keep Token - Events
+description: Events used in Keep Token
+---
+
+import KeepToken from '../../../out/KeepToken.sol/KeepToken.json'; 
+import Event from '../../src/Event';
+
+# Token Events
+{KeepToken.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[1].nodes.filter(node => node.nodeType == "EventDefinition").map(event => <Event key={event.name} event={event} />)}
+

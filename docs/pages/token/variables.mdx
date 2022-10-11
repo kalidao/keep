@@ -1,0 +1,11 @@
+---
+title: Keep Token - Variables
+description: Variables declared in Keep Token
+---
+
+import KeepToken from '../../../out/KeepToken.sol/KeepToken.json'; 
+import Variable from '../../src/Variable';
+
+# Variables
+
+{KeepToken.ast.nodes.filter(node => node.nodeType == "ContractDefinition")[1].nodes.filter(node => node.nodeType == "VariableDeclaration").map(variable => <Variable key={variable.name} variable={variable} />)}
