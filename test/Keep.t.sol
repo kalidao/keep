@@ -4,6 +4,8 @@ pragma solidity ^0.8.4;
 import {ERC1155TokenReceiver, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
+import {URIFetcher} from "../src/extensions/URIFetcher.sol";
+
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
@@ -20,6 +22,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     Keep keep;
     Keep keepRepeat;
     KeepFactory factory;
+    URIFetcher uriFetcher;
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
@@ -155,7 +158,8 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function setUp() public payable {
         // Initialize templates.
-        keep = new Keep(Keep(alice));
+        uriFetcher = new URIFetcher(alice);
+        keep = new Keep(Keep(address(uriFetcher)));
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
@@ -213,7 +217,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     function testRepeatKeepSetup() public payable {
-        keepRepeat = new Keep(Keep(alice));
+        keepRepeat = new Keep(Keep(address(uriFetcher)));
 
         // Create the Signer[].
         address[] memory signers = new address[](2);
@@ -1415,7 +1419,6 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
     function testKeepTokenDelegateBySig(
         address userB,
-        bool approved,
         uint256 id,
         uint256 amount
     ) public payable {
