@@ -175,7 +175,7 @@ abstract contract KeepToken {
     }
 
     /// -----------------------------------------------------------------------
-    /// Voting Storage
+    /// Checkpoint Storage
     /// -----------------------------------------------------------------------
 
     uint256 internal constant EXECUTE_ID = uint32(0x6c4b5546); // `execute()`
@@ -434,7 +434,7 @@ abstract contract KeepToken {
     }
 
     /// -----------------------------------------------------------------------
-    /// Checkpoint Storage/Logic
+    /// Checkpoint Logic
     /// -----------------------------------------------------------------------
 
     function getVotes(address account, uint256 id)
@@ -516,7 +516,7 @@ abstract contract KeepToken {
     }
 
     /// -----------------------------------------------------------------------
-    /// Delegation Storage/Logic
+    /// Delegation Logic
     /// -----------------------------------------------------------------------
 
     function delegates(address account, uint256 id)
