@@ -10,21 +10,15 @@ contract URIRemoteFetcher is Owned {
     /// -----------------------------------------------------------------------
 
     event URISet(
-        address indexed owner, 
+        address indexed user, 
         address indexed origin, 
         uint256 indexed id, 
         string uri
     );
 
-    event AlphaURISet(address indexed owner, string indexed alphaURI);
+    event AlphaURISet(address indexed user, string indexed alphaURI);
 
-    event BaseURISet(address indexed owner, string indexed baseURI);
-
-    /// -----------------------------------------------------------------------
-    /// Errors
-    /// -----------------------------------------------------------------------
-
-    error NotAuthorized();
+    event BaseURISet(address indexed user, string indexed baseURI);
 
     /// -----------------------------------------------------------------------
     /// URI Storage
