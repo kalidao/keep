@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next",
+    "build": "next build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
