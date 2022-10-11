@@ -17,7 +17,7 @@ contract URIFetcher is Owned {
     );
 
     /// -----------------------------------------------------------------------
-    /// URI Storage
+    /// URI Remote Storage
     /// -----------------------------------------------------------------------
 
     URIRemoteFetcher public uriRemoteFetcher;
