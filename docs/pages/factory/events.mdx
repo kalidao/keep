@@ -1,0 +1,11 @@
+---
+title: Keep Factory
+description: Events emitted by Keep Factory
+---
+
+import KeepFactory from '../../../out/KeepFactory.sol/KeepFactory.json'; 
+import Event from '../../src/Event';
+
+# Events
+
+{KeepFactory.abi.filter(event => event.type == "event").map(event => <Event key={event.name} name={event.name} inputs={event.inputs} />)}
