@@ -100,9 +100,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         view
         virtual
         override
-        returns (string memory tokenURI)
+        returns (string memory)
     {
-        tokenURI = _uris[id];
+        string memory tokenURI = _uris[id];
 
         if (bytes(tokenURI).length != 0) return tokenURI;
         else return uriFetcher.uri(id);
