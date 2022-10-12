@@ -9,6 +9,7 @@ import {Multicallable} from "./utils/Multicallable.sol";
 /// @author z0r0z.eth
 /// @custom:coauthor boredretard.eth
 /// @custom:coauthor vectorized.eth
+/// @custom:coauthor horsefacts.eth
 /// @custom:coauthor shivanshi.eth
 /// @custom:coauthor @0xAlcibiades
 /// @custom:coauthor @0xmichalis
