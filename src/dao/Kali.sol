@@ -191,7 +191,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// Initialization Logic
     /// -----------------------------------------------------------------------
 
-    function init(
+    function initialize(
         KeepTokenBalances _token, 
         string calldata _daoURI,
         address[] calldata _extensions,
@@ -257,17 +257,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 : _computeDomainSeparator();
     }
 
-    function _initialChainId() internal pure virtual returns (uint256 arg) {
-        uint256 offset;
+    function name() public pure virtual returns (string memory) {
+        return string(abi.encodePacked(_computeArgUint(2)));
+    }
 
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-
-            arg := calldataload(add(offset, 66))
-        }
+    function _initialChainId() internal pure virtual returns (uint256) {
+        return _computeArgUint(7);
     }
 
     function _computeDomainSeparator() internal view virtual returns (bytes32) {
@@ -283,6 +278,24 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                     address(this)
                 )
             );
+    }
+
+    function _computeArgUint(uint256 argOffset)
+        internal
+        pure
+        virtual
+        returns (uint256 arg)
+    {
+        uint256 offset;
+
+        assembly {
+            offset := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+
+            arg := calldataload(add(offset, argOffset))
+        }
     }
 
     /// -----------------------------------------------------------------------
