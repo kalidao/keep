@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {Owned} from "./utils/Owned.sol";
 
-/// @notice Remote metadata fetcher for ERC1155 URI.
+/// @notice Remote metadata fetcher for ERC1155.
 contract URIRemoteFetcher is Owned {
     /// -----------------------------------------------------------------------
     /// Events
