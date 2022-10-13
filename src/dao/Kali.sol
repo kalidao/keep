@@ -2,24 +2,10 @@
 pragma solidity ^0.8.4;
 
 import {ERC1155TokenReceiver} from "./../KeepToken.sol";
+import {KaliExtension} from "./utils/KaliExtension.sol";
 import {Multicallable} from "./../utils/Multicallable.sol";
 import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
-
-/// @notice Interface for Keep token.
-abstract contract KeepToken {
-    function balanceOf(address account, uint256 id) public view virtual returns (uint256);
-
-    function totalSupply(uint256 id) public view virtual returns (uint256);
-
-    function transferable(uint256 id) public view virtual returns (bool);
-
-    function getPriorVotes(address account, uint256 id, uint256 timestamp) public view virtual returns (uint256);
-}
-
-/// @notice Interface for Kali DAO extensions.
-abstract contract KaliExtension {
-    function setExtension(bytes calldata extensionData) external virtual;
-}
+import {KeepTokenBalances} from "./utils/KeepTokenBalances.sol";
 
 /// @notice Kali DAO core for on-chain governance.
 contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
@@ -122,7 +108,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     uint64 public supermajority; // 1-100
 
-    KeepToken public token;
+    KeepTokenBalances public token;
     
     mapping(address => bool) public extensions;
 
@@ -206,12 +192,10 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
 
     function init(
-        KeepToken _token, 
+        KeepTokenBalances _token, 
         string calldata _daoURI,
         address[] calldata _extensions,
         bytes[] calldata _extensionsData,
-        address[] calldata _voters,
-        uint256[] calldata _shares,
         uint64[5] calldata _govSettings
     ) public payable virtual {
         if (_extensions.length != _extensionsData.length) revert LengthMismatch();
@@ -245,7 +229,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             }
         }
 
-        token = token;
+        token = _token;
 
         daoURI = _daoURI;
         
