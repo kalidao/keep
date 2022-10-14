@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Multicallable} from "@solbase/utils/Multicallable.sol";
+import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {KeepTokenBalances, Kali} from "./Kali.sol";
 import {LibClone} from "./../utils/LibClone.sol";
 
