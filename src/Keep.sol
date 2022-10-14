@@ -106,7 +106,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function _authorized() internal view virtual returns (bool) {
         if (_coreKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
             return true;
-        else revert NotAuthorized();
+        else revert Unauthorized();
     }
 
     /// @dev Core access control check.
@@ -515,7 +515,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             msg.sender != from &&
             !isApprovedForAll[from][msg.sender] &&
             !_authorized()
-        ) revert NotAuthorized();
+        ) revert Unauthorized();
 
         _burn(from, id, amount);
 

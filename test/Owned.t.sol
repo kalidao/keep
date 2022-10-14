@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {MockOwned} from "./mocks/MockOwned.sol";
+import {MockOwned} from "@solbase/test/utils/mocks/MockOwned.sol";
 
 import "@std/Test.sol";
 
@@ -25,7 +25,7 @@ contract OwnedTest is Test {
     }
 
     function testSetOwner(address newOwner) public {
-        mockOwned.setOwner(newOwner);
+        mockOwned.transferOwnership(newOwner);
 
         assertEq(mockOwned.owner(), newOwner);
     }
@@ -33,9 +33,9 @@ contract OwnedTest is Test {
     function testCallFunctionAsNonOwner(address owner) public {
         vm.assume(owner != address(this));
 
-        mockOwned.setOwner(owner);
+        mockOwned.transferOwnership(owner);
 
-        vm.expectRevert(bytes4(keccak256("NotAuthorized()")));
+        vm.expectRevert(bytes4(keccak256("Unauthorized()")));
         mockOwned.updateFlag();
     }
 }

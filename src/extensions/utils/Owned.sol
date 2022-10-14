@@ -9,13 +9,13 @@ abstract contract Owned {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event OwnerUpdated(address indexed user, address indexed newOwner);
+    event OwnershipTransferred(address indexed user, address indexed newOwner);
 
     /// -----------------------------------------------------------------------
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error NotAuthorized();
+    error Unauthorized();
 
     /// -----------------------------------------------------------------------
     /// Ownership Storage
@@ -24,7 +24,7 @@ abstract contract Owned {
     address public owner;
 
     modifier onlyOwner() virtual {
-        if (msg.sender != owner) revert NotAuthorized();
+        if (msg.sender != owner) revert Unauthorized();
 
         _;
     }
@@ -36,16 +36,21 @@ abstract contract Owned {
     constructor(address _owner) {
         owner = _owner;
 
-        emit OwnerUpdated(address(0), _owner);
+        emit OwnershipTransferred(address(0), _owner);
     }
 
     /// -----------------------------------------------------------------------
     /// Ownership Logic
     /// -----------------------------------------------------------------------
 
-    function setOwner(address newOwner) public payable virtual onlyOwner {
+    function transferOwnership(address newOwner)
+        public
+        payable
+        virtual
+        onlyOwner
+    {
         owner = newOwner;
 
-        emit OwnerUpdated(msg.sender, newOwner);
+        emit OwnershipTransferred(msg.sender, newOwner);
     }
 }

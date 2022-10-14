@@ -92,7 +92,7 @@ abstract contract KeepToken {
 
     error LengthMismatch();
 
-    error NotAuthorized();
+    error Unauthorized();
 
     error NonTransferable();
 
@@ -187,7 +187,7 @@ abstract contract KeepToken {
     mapping(uint256 => bool) public permissioned;
 
     mapping(address => mapping(uint256 => bool)) public userPermissioned;
-    
+
     /// -----------------------------------------------------------------------
     /// Checkpoint Storage
     /// -----------------------------------------------------------------------
@@ -277,7 +277,7 @@ abstract contract KeepToken {
         bytes calldata data
     ) public payable virtual {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert NotAuthorized();
+            revert Unauthorized();
 
         if (!transferable[id]) revert NonTransferable();
 
@@ -327,7 +327,7 @@ abstract contract KeepToken {
         if (ids.length != amounts.length) revert LengthMismatch();
 
         if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert NotAuthorized();
+            revert Unauthorized();
 
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
