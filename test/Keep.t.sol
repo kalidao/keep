@@ -29,7 +29,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     MockERC20 mockDai;
     MockERC721 mockNFT;
     MockERC1155 mock1155;
-    MockERC1271Wallet mockERC1271Wallet;
+    MockSmartWallet mockERC1271Wallet;
 
     uint256 internal EXECUTE_ID;
 
@@ -168,7 +168,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
-        mockERC1271Wallet = new MockERC1271Wallet(alice);
+        mockERC1271Wallet = new MockSmartWallet(alice);
 
         // Mint mock ERC20.
         mockDai.mint(address(this), 1000000000 * 1e18);
