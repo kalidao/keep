@@ -11,7 +11,7 @@ import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
 
-import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+import {MockSmartWallet} from "./mocks/MockSmartWallet.sol";
 
 import "@std/Test.sol";
 
