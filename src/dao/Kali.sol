@@ -3,9 +3,9 @@ pragma solidity ^0.8.4;
 
 import {ERC1155TokenReceiver} from "./../KeepToken.sol";
 import {KaliExtension} from "./utils/KaliExtension.sol";
-import {Multicallable} from "./../utils/Multicallable.sol";
-import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
 import {KeepTokenBalances} from "./utils/KeepTokenBalances.sol";
+import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
+import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 
 /// @notice Kali DAO core for on-chain governance.
 contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
