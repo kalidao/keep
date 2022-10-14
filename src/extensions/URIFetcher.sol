@@ -11,10 +11,7 @@ contract URIFetcher is Owned {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event URIRemoteFetcherSet(
-        address indexed user,
-        URIRemoteFetcher indexed uriRemoteFetcher
-    );
+    event URIRemoteFetcherSet(URIRemoteFetcher indexed uriRemoteFetcher);
 
     /// -----------------------------------------------------------------------
     /// URI Remote Storage
@@ -49,6 +46,6 @@ contract URIFetcher is Owned {
     {
         uriRemoteFetcher = _uriRemoteFetcher;
 
-        emit URIRemoteFetcherSet(msg.sender, _uriRemoteFetcher);
+        emit URIRemoteFetcherSet(_uriRemoteFetcher);
     }
 }
