@@ -9,33 +9,26 @@ contract URIRemoteFetcher is Owned {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event AlphaURISet(address indexed operator, string alphaURI);
+    event AlphaURISet(string alphaURI);
 
-    event BetaURISet(
-        address indexed operator,
-        address indexed origin,
-        string betaURI
-    );
+    event BetaURISet(address indexed origin, string betaURI);
 
     event URISet(
-        address indexed operator,
         address indexed origin,
         uint256 indexed id,
         string uri
     );
     
     event UserURISet(
-        address indexed operator,
         address indexed origin,
         address indexed user,
         string uri
     );
     
     event UserIdURISet(
-        address indexed operator,
         address indexed origin,
         address indexed user,
-        uint256 id,
+        uint256 indexed id,
         string uri
     );
 
@@ -86,7 +79,7 @@ contract URIRemoteFetcher is Owned {
     {
         alphaURI = _alphaURI;
 
-        emit AlphaURISet(msg.sender, _alphaURI);
+        emit AlphaURISet(_alphaURI);
     }
 
     function setBetaURI(address origin, string calldata beta)
@@ -97,7 +90,7 @@ contract URIRemoteFetcher is Owned {
     {
         betaURI[origin] = beta;
 
-        emit BetaURISet(msg.sender, origin, beta);
+        emit BetaURISet(origin, beta);
     }
 
     function setURI(
@@ -107,7 +100,7 @@ contract URIRemoteFetcher is Owned {
     ) public payable virtual onlyOwner {
         uris[origin][id] = uri;
 
-        emit URISet(msg.sender, origin, id, uri);
+        emit URISet(origin, id, uri);
     }
     
     function setUserURI(
@@ -117,7 +110,7 @@ contract URIRemoteFetcher is Owned {
     ) public payable virtual onlyOwner {
         userUris[origin][user] = uri;
 
-        emit UserURISet(msg.sender, origin, user, uri);
+        emit UserURISet(origin, user, uri);
     }
     
     function setUserIdURI(
@@ -128,6 +121,6 @@ contract URIRemoteFetcher is Owned {
     ) public payable virtual onlyOwner {
         userIdUris[origin][user][id] = uri;
 
-        emit UserIdURISet(msg.sender, origin, user, id, uri);
+        emit UserIdURISet(origin, user, id, uri);
     }
 }
