@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {MockOwned} from "./mocks/MockOwned.sol";
+import {MockOwned} from "@solbase/test/utils/mocks/MockOwned.sol";
 
 import "@std/Test.sol";
 
