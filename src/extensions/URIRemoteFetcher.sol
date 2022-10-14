@@ -30,6 +30,14 @@ contract URIRemoteFetcher is Owned {
         address indexed user,
         string uri
     );
+    
+    event UserIdURISet(
+        address indexed operator,
+        address indexed origin,
+        address indexed user,
+        uint256 id,
+        string uri
+    );
 
     /// -----------------------------------------------------------------------
     /// URI Storage
@@ -42,6 +50,8 @@ contract URIRemoteFetcher is Owned {
     mapping(address => mapping(uint256 => string)) public uris;
     
     mapping(address => mapping(address => string)) public userUris;
+    
+    mapping(address => mapping(address => mapping(uint256 => string))) public userIdUris;
 
     /// -----------------------------------------------------------------------
     /// Constructor
@@ -108,5 +118,16 @@ contract URIRemoteFetcher is Owned {
         userUris[origin][user] = uri;
 
         emit UserURISet(msg.sender, origin, user, uri);
+    }
+    
+    function setUserIdURI(
+        address origin,
+        address user,
+        uint256 id,
+        string calldata uri
+    ) public payable virtual onlyOwner {
+        userIdUris[origin][user][id] = uri;
+
+        emit UserIdURISet(msg.sender, origin, user, id, uri);
     }
 }
