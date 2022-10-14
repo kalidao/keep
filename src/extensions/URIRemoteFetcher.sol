@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Owned} from "./utils/Owned.sol";
+import {Owned} from "@solbase/src/auth/Owned.sol";
 
 /// @notice Remote metadata fetcher for ERC1155.
 contract URIRemoteFetcher is Owned {
