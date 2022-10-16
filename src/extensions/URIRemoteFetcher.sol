@@ -13,18 +13,10 @@ contract URIRemoteFetcher is Owned {
 
     event BetaURISet(address indexed origin, string betaURI);
 
-    event URISet(
-        address indexed origin,
-        uint256 indexed id,
-        string uri
-    );
-    
-    event UserURISet(
-        address indexed origin,
-        address indexed user,
-        string uri
-    );
-    
+    event URISet(address indexed origin, uint256 indexed id, string uri);
+
+    event UserURISet(address indexed origin, address indexed user, string uri);
+
     event UserIdURISet(
         address indexed origin,
         address indexed user,
@@ -41,10 +33,11 @@ contract URIRemoteFetcher is Owned {
     mapping(address => string) public betaURI;
 
     mapping(address => mapping(uint256 => string)) public uris;
-    
+
     mapping(address => mapping(address => string)) public userUris;
-    
-    mapping(address => mapping(address => mapping(uint256 => string))) public userIdUris;
+
+    mapping(address => mapping(address => mapping(uint256 => string)))
+        public userIdUris;
 
     /// -----------------------------------------------------------------------
     /// Constructor
@@ -102,7 +95,7 @@ contract URIRemoteFetcher is Owned {
 
         emit URISet(origin, id, uri);
     }
-    
+
     function setUserURI(
         address origin,
         address user,
@@ -112,7 +105,7 @@ contract URIRemoteFetcher is Owned {
 
         emit UserURISet(origin, user, uri);
     }
-    
+
     function setUserIdURI(
         address origin,
         address user,

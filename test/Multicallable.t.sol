@@ -11,9 +11,14 @@ contract MulticallableTest is Test {
         multicallable = new MockMulticallable();
     }
 
-    function testMulticallableRevertWithMessage(string memory revertMessage) public {
+    function testMulticallableRevertWithMessage(string memory revertMessage)
+        public
+    {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeWithSelector(MockMulticallable.revertsWithString.selector, revertMessage);
+        data[0] = abi.encodeWithSelector(
+            MockMulticallable.revertsWithString.selector,
+            revertMessage
+        );
         vm.expectRevert(bytes(revertMessage));
         multicallable.multicall(data);
     }
@@ -24,14 +29,18 @@ contract MulticallableTest is Test {
 
     function testMulticallableRevertWithCustomError() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeWithSelector(MockMulticallable.revertsWithCustomError.selector);
+        data[0] = abi.encodeWithSelector(
+            MockMulticallable.revertsWithCustomError.selector
+        );
         vm.expectRevert(MockMulticallable.CustomError.selector);
         multicallable.multicall(data);
     }
 
     function testMulticallableRevertWithNothing() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeWithSelector(MockMulticallable.revertsWithNothing.selector);
+        data[0] = abi.encodeWithSelector(
+            MockMulticallable.revertsWithNothing.selector
+        );
         vm.expectRevert();
         multicallable.multicall(data);
     }
@@ -43,21 +52,43 @@ contract MulticallableTest is Test {
         uint256 b1
     ) public {
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeWithSelector(MockMulticallable.returnsTuple.selector, a0, b0);
-        data[1] = abi.encodeWithSelector(MockMulticallable.returnsTuple.selector, a1, b1);
+        data[0] = abi.encodeWithSelector(
+            MockMulticallable.returnsTuple.selector,
+            a0,
+            b0
+        );
+        data[1] = abi.encodeWithSelector(
+            MockMulticallable.returnsTuple.selector,
+            a1,
+            b1
+        );
         bytes[] memory returnedData = multicallable.multicall(data);
-        MockMulticallable.Tuple memory t0 = abi.decode(returnedData[0], (MockMulticallable.Tuple));
-        MockMulticallable.Tuple memory t1 = abi.decode(returnedData[1], (MockMulticallable.Tuple));
+        MockMulticallable.Tuple memory t0 = abi.decode(
+            returnedData[0],
+            (MockMulticallable.Tuple)
+        );
+        MockMulticallable.Tuple memory t1 = abi.decode(
+            returnedData[1],
+            (MockMulticallable.Tuple)
+        );
         assertEq(t0.a, a0);
         assertEq(t0.b, b0);
         assertEq(t1.a, a1);
         assertEq(t1.b, b1);
     }
 
-    function testMulticallableReturnDataIsProperlyEncoded(string memory sIn) public {
+    function testMulticallableReturnDataIsProperlyEncoded(string memory sIn)
+        public
+    {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeWithSelector(MockMulticallable.returnsString.selector, sIn);
-        string memory sOut = abi.decode(multicallable.multicall(data)[0], (string));
+        data[0] = abi.encodeWithSelector(
+            MockMulticallable.returnsString.selector,
+            sIn
+        );
+        string memory sOut = abi.decode(
+            multicallable.multicall(data)[0],
+            (string)
+        );
         assertEq(sIn, sOut);
     }
 
@@ -69,7 +100,11 @@ contract MulticallableTest is Test {
         unchecked {
             bytes[] memory data = new bytes[](10);
             for (uint256 i; i != data.length; ++i) {
-                data[i] = abi.encodeWithSelector(MockMulticallable.returnsTuple.selector, i, i + 1);
+                data[i] = abi.encodeWithSelector(
+                    MockMulticallable.returnsTuple.selector,
+                    i,
+                    i + 1
+                );
             }
             bytes[] memory returnedData = multicallable.multicall(data);
             assertEq(returnedData.length, data.length);
@@ -80,7 +115,11 @@ contract MulticallableTest is Test {
         unchecked {
             bytes[] memory data = new bytes[](10);
             for (uint256 i; i != data.length; ++i) {
-                data[i] = abi.encodeWithSelector(MockMulticallable.returnsTuple.selector, i, i + 1);
+                data[i] = abi.encodeWithSelector(
+                    MockMulticallable.returnsTuple.selector,
+                    i,
+                    i + 1
+                );
             }
             bytes[] memory returnedData = multicallable.multicallOriginal(data);
             assertEq(returnedData.length, data.length);
@@ -110,9 +149,14 @@ contract MulticallableTest is Test {
     function testMulticallablePreservesMsgSender() public {
         address caller = address(uint160(0xbeef));
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeWithSelector(MockMulticallable.returnsSender.selector);
+        data[0] = abi.encodeWithSelector(
+            MockMulticallable.returnsSender.selector
+        );
         vm.prank(caller);
-        address returnedAddress = abi.decode(multicallable.multicall(data)[0], (address));
+        address returnedAddress = abi.decode(
+            multicallable.multicall(data)[0],
+            (address)
+        );
         assertEq(caller, returnedAddress);
     }
 }

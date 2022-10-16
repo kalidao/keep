@@ -55,7 +55,7 @@ contract KaliFactory is Multicallable {
     }
 
     function deployKali(
-        KeepTokenBalances _token, 
+        KeepTokenBalances _token,
         bytes32 _name, // create2 salt.
         string calldata _daoURI,
         address[] calldata _extensions,
@@ -70,10 +70,10 @@ contract KaliFactory is Multicallable {
         );
 
         kali.initialize{value: msg.value}(
-            _token, 
-            _daoURI, 
-            _extensions, 
-            _extensionsData, 
+            _token,
+            _daoURI,
+            _extensions,
+            _extensionsData,
             _govSettings
         );
 

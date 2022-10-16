@@ -202,6 +202,10 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         // Store chainId.
         chainId = block.chainid;
+
+        // Deposit ETH.
+        (bool sent, ) = address(keep).call{value: 5 ether}("");
+        assert(sent);
     }
 
     /// @notice Check setup conditions.
@@ -546,6 +550,72 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         );
     }
 
+    function testExecuteEthCallWithSignatures() public payable {
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            alice,
+            alicesPk,
+            Operation.call,
+            alice,
+            1 ether,
+            ""
+        );
+        bobSig = signExecution(bob, bobsPk, Operation.call, alice, 1 ether, "");
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, alice, 1 ether, "", sigs);
+    }
+
+    function testExecuteCallWithContractSignatures() public payable {
+        mockDai.transfer(address(keep), 100);
+        address aliceAddress = alice;
+        bytes memory tx_data = "";
+
+        assembly {
+            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
+            mstore(add(tx_data, 0x24), aliceAddress)
+            mstore(add(tx_data, 0x44), 100)
+            mstore(tx_data, 0x44)
+            // Update free memory pointer.
+            mstore(0x40, add(tx_data, 0x80))
+        }
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            address(mockERC1271Wallet),
+            alicesPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+        bobSig = signExecution(
+            bob,
+            bobsPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        sigs[0] = alice > bob ? bobSig : aliceSig;
+        sigs[1] = alice > bob ? aliceSig : bobSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    }
+
     /// @notice Check execution malconditions.
 
     function testCannotExecuteWithImproperSignatures() public payable {
@@ -588,7 +658,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert();
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -711,50 +781,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert();
-        // Execute tx.
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
-
-    function testExecuteCallWithContractSignatures() public payable {
-        mockDai.transfer(address(keep), 100);
-        address aliceAddress = alice;
-        bytes memory tx_data = "";
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), aliceAddress)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
-
-        Signature[] memory sigs = new Signature[](2);
-
-        Signature memory aliceSig;
-        Signature memory bobSig;
-
-        aliceSig = signExecution(
-            address(mockERC1271Wallet),
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
-        bobSig = signExecution(
-            bob,
-            bobsPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
-
-        sigs[0] = alice > bob ? bobSig : aliceSig;
-        sigs[1] = alice > bob ? aliceSig : bobSig;
-
+        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
@@ -1441,24 +1468,9 @@ contract KeepTest is Test, ERC1155TokenReceiver {
             "Delegation(address delegatee,uint256 nonce,uint256 deadline,uint256 id)"
         );
 
-    function testKeepTokenPermit(
-        address userB,
-        bool approved,
-        uint256 id,
-        uint256 amount
-    ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
-        vm.assume(userB != address(0));
-        vm.assume(userB.code.length == 0);
-
+    function testKeepTokenPermit(address userB, bool approved) public payable {
         uint256 privateKey = 0xBEEF;
         address userA = vm.addr(0xBEEF);
-
-        vm.startPrank(address(keep));
-        keep.mint(userA, id, amount, "");
-        keep.setTransferability(id, true);
-        assertTrue(keep.transferable(id));
-        vm.stopPrank();
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             privateKey,
