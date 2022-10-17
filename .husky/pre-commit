@@ -4,4 +4,3 @@
 pnpm run format
 pnpm run test
 pnpm run snapshot
-cd docs && pnpm run build && pnpm run export

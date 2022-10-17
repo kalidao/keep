@@ -79,7 +79,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
                     keccak256(
                         abi.encode(
                             keccak256(
-                                "Execute(Operation op,address to,uint256 value,bytes data,uint256 nonce)"
+                                "Execute(uint8 op,address to,uint256 value,bytes data,uint256 nonce)"
                             ),
                             op,
                             to,
