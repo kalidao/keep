@@ -56,7 +56,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Throws if `initialize()` is called more than once.
     error AlreadyInit();
 
-    /// @dev Throws if quorum exceeds `totalSupply(EXECUTE_ID)`.
+    /// @dev Throws if quorum exceeds `totalSupply(SIGNER_KEY)`.
     error QuorumOverSupply();
 
     /// @dev Throws if `execute()` doesn't complete operation.
@@ -72,7 +72,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
 
     /// @dev Core ID key permission.
-    uint256 internal immutable CORE_ID = uint32(type(KeepToken).interfaceId);
+    uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
 
     /// @dev Default metadata fetcher for `uri()`.
     Keep internal immutable uriFetcher;
@@ -80,7 +80,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Record of states verifying `execute()`.
     uint120 public nonce;
 
-    /// @dev EXECUTE_ID threshold to `execute()`.
+    /// @dev SIGNER_KEY threshold to `execute()`.
     uint120 public quorum;
 
     /// @dev Internal ID metadata mapping.
@@ -116,8 +116,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// including retaining `address(this)`, via `mint()`.
     function _coreKeyHolder() internal view virtual returns (bool) {
         return
-            (totalSupply[CORE_ID] == 0 && msg.sender == address(this)) ||
-            balanceOf[msg.sender][CORE_ID] != 0;
+            (totalSupply[CORE_KEY] == 0 && msg.sender == address(this)) ||
+            balanceOf[msg.sender][CORE_KEY] != 0;
     }
 
     /// -----------------------------------------------------------------------
@@ -213,16 +213,16 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             // Won't realistically overflow.
             unchecked {
-                ++balanceOf[signer][EXECUTE_ID];
+                ++balanceOf[signer][SIGNER_KEY];
                 ++supply;
                 ++i;
             }
 
             // We don't call `_moveDelegates()` to save deployment gas.
-            emit TransferSingle(msg.sender, address(0), signer, EXECUTE_ID, 1);
+            emit TransferSingle(msg.sender, address(0), signer, SIGNER_KEY, 1);
         }
 
-        totalSupply[EXECUTE_ID] = supply;
+        totalSupply[SIGNER_KEY] = supply;
         quorum = uint120(threshold);
         KeepToken._initialize();
     }
@@ -283,8 +283,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             // Check signature recovery.
             _recoverSig(hash, user, sig.v, sig.r, sig.s);
 
-            // Check EXECUTE_ID balance.
-            if (balanceOf[user][EXECUTE_ID] == 0) revert InvalidSig();
+            // Check SIGNER_KEY balance.
+            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
 
             // Check duplicates.
             if (previous >= user) revert InvalidSig();
@@ -519,8 +519,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         _burn(from, id, amount);
 
-        if (id == EXECUTE_ID)
-            if (quorum > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
+        if (id == SIGNER_KEY)
+            if (quorum > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
     }
 
     /// -----------------------------------------------------------------------
@@ -540,7 +540,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         // Note: Make sure signers don't concentrate ID keys,
         // as this could cause issues in reaching quorum.
-        if (threshold > totalSupply[EXECUTE_ID]) revert QuorumOverSupply();
+        if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
 
         quorum = uint120(threshold);
 

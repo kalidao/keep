@@ -178,7 +178,7 @@ abstract contract KeepToken {
     /// ID Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant EXECUTE_ID = uint32(0x6c4b5546); // `execute()`
+    uint256 internal constant SIGNER_KEY = uint32(0x6c4b5546); // `execute()`
 
     mapping(uint256 => uint256) public totalSupply;
 
@@ -313,7 +313,7 @@ abstract contract KeepToken {
             }
         }
 
-        if (id != EXECUTE_ID)
+        if (id != SIGNER_KEY)
             _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
 
@@ -351,7 +351,7 @@ abstract contract KeepToken {
                 balanceOf[to][id] += amount;
             }
 
-            if (id != EXECUTE_ID)
+            if (id != SIGNER_KEY)
                 _moveDelegates(
                     delegates(from, id),
                     delegates(to, id),
@@ -736,7 +736,7 @@ abstract contract KeepToken {
             revert InvalidRecipient();
         }
 
-        if (id != EXECUTE_ID)
+        if (id != SIGNER_KEY)
             _moveDelegates(address(0), delegates(to, id), id, amount);
     }
 
@@ -755,7 +755,7 @@ abstract contract KeepToken {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
-        if (id != EXECUTE_ID)
+        if (id != SIGNER_KEY)
             _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 
