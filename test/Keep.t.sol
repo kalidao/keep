@@ -995,7 +995,6 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        assertTrue(keep.transferable(id) == true);
         keep.mint(charlie, id, amount, "");
         vm.stopPrank();
 
