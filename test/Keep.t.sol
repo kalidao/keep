@@ -1513,8 +1513,6 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(userA, id, amount, "");
-        keep.setTransferability(id, true);
-        assertTrue(keep.transferable(id));
         vm.stopPrank();
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
