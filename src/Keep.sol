@@ -12,6 +12,7 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 /// @custom:coauthor horsefacts.eth
 /// @custom:coauthor shivanshi.eth
 /// @custom:coauthor @0xAlcibiades
+/// @custom:coauthor LeXpunK Army
 /// @custom:coauthor @0xmichalis
 /// @custom:coauthor @m1guelpf
 /// @custom:coauthor @asnared
@@ -341,7 +342,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x40, m)
         }
 
-        // If recovery doesn't match `user` verify contract signature with ERC1271.
+        // If recovery doesn't match `user`, verify contract signature with ERC1271.
         if (user != signer) {
             bool valid;
 
