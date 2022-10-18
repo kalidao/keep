@@ -68,7 +68,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         address to,
         uint256 value,
         bytes memory data,
-        uint256 nonce,
+        uint120 nonce,
         bytes32 domainSeparator
     ) internal pure returns (bytes32) {
         return
@@ -79,7 +79,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
                     keccak256(
                         abi.encode(
                             keccak256(
-                                "Execute(uint8 op,address to,uint256 value,bytes data,uint256 nonce)"
+                                "Execute(uint8 op,address to,uint256 value,bytes data,uint120 nonce)"
                             ),
                             op,
                             to,
