@@ -72,16 +72,16 @@ abstract contract KeepToken {
     event TransferabilitySet(
         address indexed operator,
         uint256 indexed id,
-        bool set
+        bool on
     );
 
-    event PermissionSet(address indexed operator, uint256 indexed id, bool set);
+    event PermissionSet(address indexed operator, uint256 indexed id, bool on);
 
     event UserPermissionSet(
         address indexed operator,
         address indexed to,
         uint256 indexed id,
-        bool set
+        bool on
     );
 
     event URI(string value, uint256 indexed id);
@@ -766,25 +766,25 @@ abstract contract KeepToken {
     /// Internal Permission Logic
     /// -----------------------------------------------------------------------
 
-    function _setTransferability(uint256 id, bool set) internal virtual {
-        transferable[id] = set;
+    function _setTransferability(uint256 id, bool on) internal virtual {
+        transferable[id] = on;
 
-        emit TransferabilitySet(msg.sender, id, set);
+        emit TransferabilitySet(msg.sender, id, on);
     }
 
-    function _setPermission(uint256 id, bool set) internal virtual {
-        permissioned[id] = set;
+    function _setPermission(uint256 id, bool on) internal virtual {
+        permissioned[id] = on;
 
-        emit PermissionSet(msg.sender, id, set);
+        emit PermissionSet(msg.sender, id, on);
     }
 
     function _setUserPermission(
         address to,
         uint256 id,
-        bool set
+        bool on
     ) internal virtual {
-        userPermissioned[to][id] = set;
+        userPermissioned[to][id] = on;
 
-        emit UserPermissionSet(msg.sender, to, id, set);
+        emit UserPermissionSet(msg.sender, to, id, on);
     }
 }

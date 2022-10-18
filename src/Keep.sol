@@ -387,7 +387,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
     }
 
-    /// @notice Execute operations from Keep with `execute()` or as key holder.
+    /// @notice Execute operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
     /// @return successes Fetches whether operations succeeded.
     function multiExecute(Call[] calldata calls)
@@ -552,45 +552,41 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// ID Setting Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice ID transferability setter.
+    /// @notice ID transferability setting.
     /// @param id ID to set transferability for.
-    /// @param transferability Transferability setting.
-    function setTransferability(uint256 id, bool transferability)
-        public
-        payable
-        virtual
-    {
+    /// @param on Transferability setting.
+    function setTransferability(uint256 id, bool on) public payable virtual {
         _authorized();
 
-        _setTransferability(id, transferability);
+        _setTransferability(id, on);
     }
 
     /// @notice ID transfer permission toggle.
     /// @param id ID to set permission for.
-    /// @param set Permission setting.
+    /// @param on Permission setting.
     /// @dev This sets account-based ID restriction globally.
-    function setPermission(uint256 id, bool set) public payable virtual {
+    function setPermission(uint256 id, bool on) public payable virtual {
         _authorized();
 
-        _setPermission(id, set);
+        _setPermission(id, on);
     }
 
     /// @notice ID transfer permission setting.
     /// @param to Account to set permission for.
     /// @param id ID to set permission for.
-    /// @param set Permission setting.
+    /// @param on Permission setting.
     /// @dev This sets account-based ID restriction specifically.
     function setUserPermission(
         address to,
         uint256 id,
-        bool set
+        bool on
     ) public payable virtual {
         _authorized();
 
-        _setUserPermission(to, id, set);
+        _setUserPermission(to, id, on);
     }
 
-    /// @notice ID metadata setter.
+    /// @notice ID metadata setting.
     /// @param id ID to set metadata for.
     /// @param tokenURI Metadata setting.
     function setURI(uint256 id, string calldata tokenURI)
