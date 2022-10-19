@@ -1108,7 +1108,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                         op,
                         to,
                         value,
-                        data,
+                        keccak256(data),
                         nonce
                     )
                 )
