@@ -1,0 +1,201 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "extensionData",
+          "type": "bytes"
+        }
+      ],
+      "name": "setExtension",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "setExtension(bytes)": "fb0c4441"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"extensionData\",\"type\":\"bytes\"}],\"name\":\"setExtension\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Interface for Kali DAO extensions.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/dao/utils/KaliExtension.sol\":\"KaliExtension\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"src/dao/utils/KaliExtension.sol\":{\"keccak256\":\"0xc1f1bee528bc2cf66278f82a08ac5f262cc68d3c8ae87ed37d866ed121aca8c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3d4234ebd06a6e37e1566f1decf4ca5aa1e44702de2dd7db452aeb1cf9449ffa\",\"dweb:/ipfs/QmSyUqGEd2uq54fVn8BHbaYindzLwKM1ryWYzCBcfBbXyt\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "extensionData",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setExtension"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@solbase/=lib/solbase/",
+        ":@std/=lib/forge-std/src/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":solbase/=lib/solbase/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 1000000
+      },
+      "metadata": {
+        "bytecodeHash": "none"
+      },
+      "compilationTarget": {
+        "src/dao/utils/KaliExtension.sol": "KaliExtension"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/dao/utils/KaliExtension.sol": {
+        "keccak256": "0xc1f1bee528bc2cf66278f82a08ac5f262cc68d3c8ae87ed37d866ed121aca8c4",
+        "urls": [
+          "bzz-raw://3d4234ebd06a6e37e1566f1decf4ca5aa1e44702de2dd7db452aeb1cf9449ffa",
+          "dweb:/ipfs/QmSyUqGEd2uq54fVn8BHbaYindzLwKM1ryWYzCBcfBbXyt"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/dao/utils/KaliExtension.sol",
+    "id": 31430,
+    "exportedSymbols": {
+      "KaliExtension": [
+        31429
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:180:31",
+    "nodes": [
+      {
+        "id": 31422,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:31",
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ]
+      },
+      {
+        "id": 31429,
+        "nodeType": "ContractDefinition",
+        "src": "104:107:31",
+        "nodes": [
+          {
+            "id": 31428,
+            "nodeType": "FunctionDefinition",
+            "src": "142:67:31",
+            "functionSelector": "fb0c4441",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setExtension",
+            "nameLocation": "151:12:31",
+            "parameters": {
+              "id": 31426,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31425,
+                  "mutability": "mutable",
+                  "name": "extensionData",
+                  "nameLocation": "179:13:31",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31428,
+                  "src": "164:28:31",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 31424,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "164:5:31",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "163:30:31"
+            },
+            "returnParameters": {
+              "id": 31427,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "208:0:31"
+            },
+            "scope": 31429,
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "abstract": true,
+        "baseContracts": [],
+        "canonicalName": "KaliExtension",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 31423,
+          "nodeType": "StructuredDocumentation",
+          "src": "57:47:31",
+          "text": "@notice Interface for Kali DAO extensions."
+        },
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          31429
+        ],
+        "name": "KaliExtension",
+        "nameLocation": "122:13:31",
+        "scope": 31430,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 31
+}

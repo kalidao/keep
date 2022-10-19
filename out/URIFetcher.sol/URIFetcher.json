@@ -1,0 +1,1145 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "contract URIRemoteFetcher",
+          "name": "_uriRemoteFetcher",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract URIRemoteFetcher",
+          "name": "uriRemoteFetcher",
+          "type": "address"
+        }
+      ],
+      "name": "URIRemoteFetcherSet",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract URIRemoteFetcher",
+          "name": "_uriRemoteFetcher",
+          "type": "address"
+        }
+      ],
+      "name": "setURIRemoteFetcher",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "uri",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "uriRemoteFetcher",
+      "outputs": [
+        {
+          "internalType": "contract URIRemoteFetcher",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405260405161064f38038061064f833981016040819052610022916100a9565b600080546001600160a01b0319166001600160a01b03841690811782556040518492907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a350600180546001600160a01b0319166001600160a01b0392909216919091179055506100e3565b6001600160a01b03811681146100a657600080fd5b50565b600080604083850312156100bc57600080fd5b82516100c781610091565b60208401519092506100d881610091565b809150509250929050565b61055d806100f26000396000f3fe60806040526004361061005a5760003560e01c806352a591a31161004357806352a591a3146100aa5780638da5cb5b146100fc578063f2fde38b1461012957600080fd5b80630e89341c1461005f5780634ada4dd114610095575b600080fd5b34801561006b57600080fd5b5061007f61007a36600461037f565b61013c565b60405161008c91906103bc565b60405180910390f35b6100a86100a3366004610432565b6101fe565b005b3480156100b657600080fd5b506001546100d79073ffffffffffffffffffffffffffffffffffffffff1681565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161008c565b34801561010857600080fd5b506000546100d79073ffffffffffffffffffffffffffffffffffffffff1681565b6100a8610137366004610432565b6102be565b6001546040517f04add0dd0000000000000000000000000000000000000000000000000000000081523360048201526024810183905260609173ffffffffffffffffffffffffffffffffffffffff16906304add0dd90604401600060405180830381865afa1580156101b2573d6000803e3d6000fd5b505050506040513d6000823e601f3d9081017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe01682016040526101f89190810190610485565b92915050565b60005473ffffffffffffffffffffffffffffffffffffffff16331461024f576040517f82b4290000000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600180547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081179091556040517fbafc1a5b68d3b96c500d6a9aad016ad064d0b0f3d2f9c8dafdd0950c52f5772f90600090a250565b60005473ffffffffffffffffffffffffffffffffffffffff16331461030f576040517f82b4290000000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081178255604051909133917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a350565b60006020828403121561039157600080fd5b5035919050565b60005b838110156103b357818101518382015260200161039b565b50506000910152565b60208152600082518060208401526103db816040850160208701610398565b601f017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0169190910160400192915050565b73ffffffffffffffffffffffffffffffffffffffff8116811461042f57600080fd5b50565b60006020828403121561044457600080fd5b813561044f8161040d565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b60006020828403121561049757600080fd5b815167ffffffffffffffff808211156104af57600080fd5b818401915084601f8301126104c357600080fd5b8151818111156104d5576104d5610456565b604051601f82017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0908116603f0116810190838211818310171561051b5761051b610456565b8160405282815287602084870101111561053457600080fd5b610545836020830160208801610398565b97965050505050505056fea164736f6c6343000811000a",
+    "sourceMap": "241:1436:33:-:0;;;943:159;;;;;;;;;;;;;;;;;;:::i;:::-;1344:5:7;:14;;-1:-1:-1;;;;;;1344:14:7;-1:-1:-1;;;;;1344:14:7;;;;;;;1374:40;;1344:14;;:5;1374:40;;1344:5;;1374:40;-1:-1:-1;1059:16:33::1;:36:::0;;-1:-1:-1;;;;;;1059:36:33::1;-1:-1:-1::0;;;;;1059:36:33;;;::::1;::::0;;;::::1;::::0;;-1:-1:-1;241:1436:33;;14:131:41;-1:-1:-1;;;;;89:31:41;;79:42;;69:70;;135:1;132;125:12;69:70;14:131;:::o;150:411::-;255:6;263;316:2;304:9;295:7;291:23;287:32;284:52;;;332:1;329;322:12;284:52;364:9;358:16;383:31;408:5;383:31;:::i;:::-;483:2;468:18;;462:25;433:5;;-1:-1:-1;496:33:41;462:25;496:33;:::i;:::-;548:7;538:17;;;150:411;;;;;:::o;:::-;241:1436:33;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x60806040526004361061005a5760003560e01c806352a591a31161004357806352a591a3146100aa5780638da5cb5b146100fc578063f2fde38b1461012957600080fd5b80630e89341c1461005f5780634ada4dd114610095575b600080fd5b34801561006b57600080fd5b5061007f61007a36600461037f565b61013c565b60405161008c91906103bc565b60405180910390f35b6100a86100a3366004610432565b6101fe565b005b3480156100b657600080fd5b506001546100d79073ffffffffffffffffffffffffffffffffffffffff1681565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161008c565b34801561010857600080fd5b506000546100d79073ffffffffffffffffffffffffffffffffffffffff1681565b6100a8610137366004610432565b6102be565b6001546040517f04add0dd0000000000000000000000000000000000000000000000000000000081523360048201526024810183905260609173ffffffffffffffffffffffffffffffffffffffff16906304add0dd90604401600060405180830381865afa1580156101b2573d6000803e3d6000fd5b505050506040513d6000823e601f3d9081017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe01682016040526101f89190810190610485565b92915050565b60005473ffffffffffffffffffffffffffffffffffffffff16331461024f576040517f82b4290000000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600180547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081179091556040517fbafc1a5b68d3b96c500d6a9aad016ad064d0b0f3d2f9c8dafdd0950c52f5772f90600090a250565b60005473ffffffffffffffffffffffffffffffffffffffff16331461030f576040517f82b4290000000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff83169081178255604051909133917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a350565b60006020828403121561039157600080fd5b5035919050565b60005b838110156103b357818101518382015260200161039b565b50506000910152565b60208152600082518060208401526103db816040850160208701610398565b601f017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0169190910160400192915050565b73ffffffffffffffffffffffffffffffffffffffff8116811461042f57600080fd5b50565b60006020828403121561044457600080fd5b813561044f8161040d565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b60006020828403121561049757600080fd5b815167ffffffffffffffff808211156104af57600080fd5b818401915084601f8301126104c357600080fd5b8151818111156104d5576104d5610456565b604051601f82017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0908116603f0116810190838211818310171561051b5761051b610456565b8160405282815287602084870101111561053457600080fd5b610545836020830160208801610398565b97965050505050505056fea164736f6c6343000811000a",
+    "sourceMap": "241:1436:33:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1294:134;;;;;;;;;;-1:-1:-1;1294:134:33;;;;;:::i;:::-;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;1434:241;;;;;;:::i;:::-;;:::i;:::-;;715:40;;;;;;;;;;-1:-1:-1;715:40:33;;;;;;;;;;;1589:42:41;1577:55;;;1559:74;;1547:2;1532:18;715:40:33;1387:252:41;988:20:7;;;;;;;;;;-1:-1:-1;988:20:7;;;;;;;;1612:169;;;;;;:::i;:::-;;:::i;1294:134:33:-;1380:16;;:41;;;;;1406:10;1380:41;;;2319:74:41;2409:18;;;2402:34;;;1348:13:33;;1380:16;;;:25;;2292:18:41;;1380:41:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;1373:48;1294:134;-1:-1:-1;;1294:134:33:o;1434:241::-;1072:5:7;;;;1058:10;:19;1054:46;;1086:14;;;;;;;;;;;;;;1054:46;1578:16:33::1;:36:::0;;;::::1;;::::0;::::1;::::0;;::::1;::::0;;;1630:38:::1;::::0;::::1;::::0;-1:-1:-1;;1630:38:33::1;1434:241:::0;:::o;1612:169:7:-;1072:5;;;;1058:10;:19;1054:46;;1086:14;;;;;;;;;;;;;;1054:46;1700:5:::1;:16:::0;;;::::1;;::::0;::::1;::::0;;::::1;::::0;;1732:42:::1;::::0;1700:16;;1753:10:::1;::::0;1732:42:::1;::::0;1700:5;1732:42:::1;1612:169:::0;:::o;14:180:41:-;73:6;126:2;114:9;105:7;101:23;97:32;94:52;;;142:1;139;132:12;94:52;-1:-1:-1;165:23:41;;14:180;-1:-1:-1;14:180:41:o;199:250::-;284:1;294:113;308:6;305:1;302:13;294:113;;;384:11;;;378:18;365:11;;;358:39;330:2;323:10;294:113;;;-1:-1:-1;;441:1:41;423:16;;416:27;199:250::o;454:455::-;603:2;592:9;585:21;566:4;635:6;629:13;678:6;673:2;662:9;658:18;651:34;694:79;766:6;761:2;750:9;746:18;741:2;733:6;729:15;694:79;:::i;:::-;825:2;813:15;830:66;809:88;794:104;;;;900:2;790:113;;454:455;-1:-1:-1;;454:455:41:o;914:172::-;1018:42;1011:5;1007:54;1000:5;997:65;987:93;;1076:1;1073;1066:12;987:93;914:172;:::o;1091:291::-;1176:6;1229:2;1217:9;1208:7;1204:23;1200:32;1197:52;;;1245:1;1242;1235:12;1197:52;1284:9;1271:23;1303:49;1346:5;1303:49;:::i;:::-;1371:5;1091:291;-1:-1:-1;;;1091:291:41:o;2447:184::-;2499:77;2496:1;2489:88;2596:4;2593:1;2586:15;2620:4;2617:1;2610:15;2636:956;2716:6;2769:2;2757:9;2748:7;2744:23;2740:32;2737:52;;;2785:1;2782;2775:12;2737:52;2818:9;2812:16;2847:18;2888:2;2880:6;2877:14;2874:34;;;2904:1;2901;2894:12;2874:34;2942:6;2931:9;2927:22;2917:32;;2987:7;2980:4;2976:2;2972:13;2968:27;2958:55;;3009:1;3006;2999:12;2958:55;3038:2;3032:9;3060:2;3056;3053:10;3050:36;;;3066:18;;:::i;:::-;3200:2;3194:9;3262:4;3254:13;;3105:66;3250:22;;;3274:2;3246:31;3242:40;3230:53;;;3298:18;;;3318:22;;;3295:46;3292:72;;;3344:18;;:::i;:::-;3384:10;3380:2;3373:22;3419:2;3411:6;3404:18;3459:7;3454:2;3449;3445;3441:11;3437:20;3434:33;3431:53;;;3480:1;3477;3470:12;3431:53;3493:68;3558:2;3553;3545:6;3541:15;3536:2;3532;3528:11;3493:68;:::i;:::-;3580:6;2636:956;-1:-1:-1;;;;;;;2636:956:41:o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "owner()": "8da5cb5b",
+    "setURIRemoteFetcher(address)": "4ada4dd1",
+    "transferOwnership(address)": "f2fde38b",
+    "uri(uint256)": "0e89341c",
+    "uriRemoteFetcher()": "52a591a3"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"_uriRemoteFetcher\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"Unauthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"uriRemoteFetcher\",\"type\":\"address\"}],\"name\":\"URIRemoteFetcherSet\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"_uriRemoteFetcher\",\"type\":\"address\"}],\"name\":\"setURIRemoteFetcher\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"uri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"uriRemoteFetcher\",\"outputs\":[{\"internalType\":\"contract URIRemoteFetcher\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"z0r0z.eth\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"errors\":{\"Unauthorized()\":[{\"notice\":\"----------------------------------------------------------------------- Custom Errors -----------------------------------------------------------------------\"}]},\"events\":{\"OwnershipTransferred(address,address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"},\"URIRemoteFetcherSet(address)\":{\"notice\":\"----------------------------------------------------------------------- Events -----------------------------------------------------------------------\"}},\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"----------------------------------------------------------------------- Constructor -----------------------------------------------------------------------\"},\"owner()\":{\"notice\":\"----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------\"},\"transferOwnership(address)\":{\"notice\":\"----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------\"},\"uri(uint256)\":{\"notice\":\"----------------------------------------------------------------------- URI Remote Logic -----------------------------------------------------------------------\"},\"uriRemoteFetcher()\":{\"notice\":\"----------------------------------------------------------------------- URI Remote Storage -----------------------------------------------------------------------\"}},\"notice\":\"Open-ended metadata fetcher for ERC1155.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/extensions/URIFetcher.sol\":\"URIFetcher\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"enabled\":true,\"runs\":1000000},\"remappings\":[\":@solbase/=lib/solbase/\",\":@std/=lib/forge-std/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":solbase/=lib/solbase/src/\"]},\"sources\":{\"lib/solbase/src/auth/Owned.sol\":{\"keccak256\":\"0x38e7e5b0643a08b38a4454ec385271b15d0f20d946828f8e37c0d56c273ca70d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c8cb74c246c0480a63363eb9107a53a1bdf52921e4f2ecdb31c8287dab1c4270\",\"dweb:/ipfs/QmRn9DdqpjLfPxgd4Kj8YtoEpHcBbYKYdPP8qVwVBM2VZo\"]},\"src/extensions/URIFetcher.sol\":{\"keccak256\":\"0x7a308452ab2332996a4635a5da2f6a134e31066b0ed0ab0447c799768703bb6e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9e3084349512211590d3f1cb967d51f9f99557934ce9986553b0cd5fe93f700f\",\"dweb:/ipfs/QmfVadpbCewnqNBQxeoxi6Fb64mfiRPSssTX5i6SogzqNY\"]},\"src/extensions/URIRemoteFetcher.sol\":{\"keccak256\":\"0xf5c4f62a6a82794fbc41d6373836704ee8c6083f5db4939348f23f2d4a220ad6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b83d72223ecf35bff4d0a78cad5688ae30f979dfe6b47d47e33ab0abc068c61c\",\"dweb:/ipfs/QmWW3RDm9bs3ofAkd69CcSLYn81hCnCpkTjKVnPvH8XqQC\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_owner",
+              "type": "address"
+            },
+            {
+              "internalType": "contract URIRemoteFetcher",
+              "name": "_uriRemoteFetcher",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "payable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "Unauthorized"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "OwnershipTransferred",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract URIRemoteFetcher",
+              "name": "uriRemoteFetcher",
+              "type": "address",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "URIRemoteFetcherSet",
+          "anonymous": false
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "owner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract URIRemoteFetcher",
+              "name": "_uriRemoteFetcher",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "payable",
+          "type": "function",
+          "name": "setURIRemoteFetcher"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "payable",
+          "type": "function",
+          "name": "transferOwnership"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "uri",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "uriRemoteFetcher",
+          "outputs": [
+            {
+              "internalType": "contract URIRemoteFetcher",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "constructor": {
+            "notice": "----------------------------------------------------------------------- Constructor -----------------------------------------------------------------------"
+          },
+          "owner()": {
+            "notice": "----------------------------------------------------------------------- Ownership Storage -----------------------------------------------------------------------"
+          },
+          "transferOwnership(address)": {
+            "notice": "----------------------------------------------------------------------- Ownership Logic -----------------------------------------------------------------------"
+          },
+          "uri(uint256)": {
+            "notice": "----------------------------------------------------------------------- URI Remote Logic -----------------------------------------------------------------------"
+          },
+          "uriRemoteFetcher()": {
+            "notice": "----------------------------------------------------------------------- URI Remote Storage -----------------------------------------------------------------------"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@solbase/=lib/solbase/",
+        ":@std/=lib/forge-std/src/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":solbase/=lib/solbase/src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 1000000
+      },
+      "metadata": {
+        "bytecodeHash": "none"
+      },
+      "compilationTarget": {
+        "src/extensions/URIFetcher.sol": "URIFetcher"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/solbase/src/auth/Owned.sol": {
+        "keccak256": "0x38e7e5b0643a08b38a4454ec385271b15d0f20d946828f8e37c0d56c273ca70d",
+        "urls": [
+          "bzz-raw://c8cb74c246c0480a63363eb9107a53a1bdf52921e4f2ecdb31c8287dab1c4270",
+          "dweb:/ipfs/QmRn9DdqpjLfPxgd4Kj8YtoEpHcBbYKYdPP8qVwVBM2VZo"
+        ],
+        "license": "MIT"
+      },
+      "src/extensions/URIFetcher.sol": {
+        "keccak256": "0x7a308452ab2332996a4635a5da2f6a134e31066b0ed0ab0447c799768703bb6e",
+        "urls": [
+          "bzz-raw://9e3084349512211590d3f1cb967d51f9f99557934ce9986553b0cd5fe93f700f",
+          "dweb:/ipfs/QmfVadpbCewnqNBQxeoxi6Fb64mfiRPSssTX5i6SogzqNY"
+        ],
+        "license": "MIT"
+      },
+      "src/extensions/URIRemoteFetcher.sol": {
+        "keccak256": "0xf5c4f62a6a82794fbc41d6373836704ee8c6083f5db4939348f23f2d4a220ad6",
+        "urls": [
+          "bzz-raw://b83d72223ecf35bff4d0a78cad5688ae30f979dfe6b47d47e33ab0abc068c61c",
+          "dweb:/ipfs/QmWW3RDm9bs3ofAkd69CcSLYn81hCnCpkTjKVnPvH8XqQC"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/extensions/URIFetcher.sol",
+    "id": 31538,
+    "exportedSymbols": {
+      "Owned": [
+        23293
+      ],
+      "URIFetcher": [
+        31537
+      ],
+      "URIRemoteFetcher": [
+        31799
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:1646:33",
+    "nodes": [
+      {
+        "id": 31469,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:33",
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ]
+      },
+      {
+        "id": 31471,
+        "nodeType": "ImportDirective",
+        "src": "57:50:33",
+        "absolutePath": "lib/solbase/src/auth/Owned.sol",
+        "file": "@solbase/src/auth/Owned.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 31538,
+        "sourceUnit": 23294,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 31470,
+              "name": "Owned",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 23293,
+              "src": "65:5:33",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 31473,
+        "nodeType": "ImportDirective",
+        "src": "108:56:33",
+        "absolutePath": "src/extensions/URIRemoteFetcher.sol",
+        "file": "./URIRemoteFetcher.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 31538,
+        "sourceUnit": 31800,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 31472,
+              "name": "URIRemoteFetcher",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 31799,
+              "src": "116:16:33",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 31537,
+        "nodeType": "ContractDefinition",
+        "src": "241:1436:33",
+        "nodes": [
+          {
+            "id": 31482,
+            "nodeType": "EventDefinition",
+            "src": "452:69:33",
+            "anonymous": false,
+            "documentation": {
+              "id": 31477,
+              "nodeType": "StructuredDocumentation",
+              "src": "276:171:33",
+              "text": "-----------------------------------------------------------------------\n Events\n -----------------------------------------------------------------------"
+            },
+            "eventSelector": "bafc1a5b68d3b96c500d6a9aad016ad064d0b0f3d2f9c8dafdd0950c52f5772f",
+            "name": "URIRemoteFetcherSet",
+            "nameLocation": "458:19:33",
+            "parameters": {
+              "id": 31481,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31480,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "uriRemoteFetcher",
+                  "nameLocation": "503:16:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31482,
+                  "src": "478:41:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                    "typeString": "contract URIRemoteFetcher"
+                  },
+                  "typeName": {
+                    "id": 31479,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31478,
+                      "name": "URIRemoteFetcher",
+                      "nameLocations": [
+                        "478:16:33"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31799,
+                      "src": "478:16:33"
+                    },
+                    "referencedDeclaration": 31799,
+                    "src": "478:16:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                      "typeString": "contract URIRemoteFetcher"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "477:43:33"
+            }
+          },
+          {
+            "id": 31486,
+            "nodeType": "VariableDeclaration",
+            "src": "715:40:33",
+            "constant": false,
+            "documentation": {
+              "id": 31483,
+              "nodeType": "StructuredDocumentation",
+              "src": "527:183:33",
+              "text": "-----------------------------------------------------------------------\n URI Remote Storage\n -----------------------------------------------------------------------"
+            },
+            "functionSelector": "52a591a3",
+            "mutability": "mutable",
+            "name": "uriRemoteFetcher",
+            "nameLocation": "739:16:33",
+            "scope": 31537,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+              "typeString": "contract URIRemoteFetcher"
+            },
+            "typeName": {
+              "id": 31485,
+              "nodeType": "UserDefinedTypeName",
+              "pathNode": {
+                "id": 31484,
+                "name": "URIRemoteFetcher",
+                "nameLocations": [
+                  "715:16:33"
+                ],
+                "nodeType": "IdentifierPath",
+                "referencedDeclaration": 31799,
+                "src": "715:16:33"
+              },
+              "referencedDeclaration": 31799,
+              "src": "715:16:33",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                "typeString": "contract URIRemoteFetcher"
+              }
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 31503,
+            "nodeType": "FunctionDefinition",
+            "src": "943:159:33",
+            "body": {
+              "id": 31502,
+              "nodeType": "Block",
+              "src": "1049:53:33",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 31500,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 31498,
+                      "name": "uriRemoteFetcher",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 31486,
+                      "src": "1059:16:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                        "typeString": "contract URIRemoteFetcher"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 31499,
+                      "name": "_uriRemoteFetcher",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 31492,
+                      "src": "1078:17:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                        "typeString": "contract URIRemoteFetcher"
+                      }
+                    },
+                    "src": "1059:36:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                      "typeString": "contract URIRemoteFetcher"
+                    }
+                  },
+                  "id": 31501,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1059:36:33"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 31487,
+              "nodeType": "StructuredDocumentation",
+              "src": "762:176:33",
+              "text": "-----------------------------------------------------------------------\n Constructor\n -----------------------------------------------------------------------"
+            },
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "id": 31495,
+                    "name": "_owner",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 31489,
+                    "src": "1037:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 31496,
+                "kind": "baseConstructorSpecifier",
+                "modifierName": {
+                  "id": 31494,
+                  "name": "Owned",
+                  "nameLocations": [
+                    "1031:5:33"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 23293,
+                  "src": "1031:5:33"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1031:13:33"
+              }
+            ],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "parameters": {
+              "id": 31493,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31489,
+                  "mutability": "mutable",
+                  "name": "_owner",
+                  "nameLocation": "963:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31503,
+                  "src": "955:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31488,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "955:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31492,
+                  "mutability": "mutable",
+                  "name": "_uriRemoteFetcher",
+                  "nameLocation": "988:17:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31503,
+                  "src": "971:34:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                    "typeString": "contract URIRemoteFetcher"
+                  },
+                  "typeName": {
+                    "id": 31491,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31490,
+                      "name": "URIRemoteFetcher",
+                      "nameLocations": [
+                        "971:16:33"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31799,
+                      "src": "971:16:33"
+                    },
+                    "referencedDeclaration": 31799,
+                    "src": "971:16:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                      "typeString": "contract URIRemoteFetcher"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "954:52:33"
+            },
+            "returnParameters": {
+              "id": 31497,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1049:0:33"
+            },
+            "scope": 31537,
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "id": 31519,
+            "nodeType": "FunctionDefinition",
+            "src": "1294:134:33",
+            "body": {
+              "id": 31518,
+              "nodeType": "Block",
+              "src": "1363:65:33",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 31513,
+                          "name": "msg",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": -15,
+                          "src": "1406:3:33",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_message",
+                            "typeString": "msg"
+                          }
+                        },
+                        "id": 31514,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1410:6:33",
+                        "memberName": "sender",
+                        "nodeType": "MemberAccess",
+                        "src": "1406:10:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "id": 31515,
+                        "name": "id",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 31506,
+                        "src": "1418:2:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "id": 31511,
+                        "name": "uriRemoteFetcher",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 31486,
+                        "src": "1380:16:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                          "typeString": "contract URIRemoteFetcher"
+                        }
+                      },
+                      "id": 31512,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1397:8:33",
+                      "memberName": "fetchURI",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 31678,
+                      "src": "1380:25:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$_t_address_$_t_uint256_$returns$_t_string_memory_ptr_$",
+                        "typeString": "function (address,uint256) view external returns (string memory)"
+                      }
+                    },
+                    "id": 31516,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1380:41:33",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_memory_ptr",
+                      "typeString": "string memory"
+                    }
+                  },
+                  "functionReturnParameters": 31510,
+                  "id": 31517,
+                  "nodeType": "Return",
+                  "src": "1373:48:33"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 31504,
+              "nodeType": "StructuredDocumentation",
+              "src": "1108:181:33",
+              "text": "-----------------------------------------------------------------------\n URI Remote Logic\n -----------------------------------------------------------------------"
+            },
+            "functionSelector": "0e89341c",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "uri",
+            "nameLocation": "1303:3:33",
+            "parameters": {
+              "id": 31507,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31506,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "1315:2:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31519,
+                  "src": "1307:10:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31505,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1307:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1306:12:33"
+            },
+            "returnParameters": {
+              "id": 31510,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31509,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31519,
+                  "src": "1348:13:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 31508,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1348:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1347:15:33"
+            },
+            "scope": 31537,
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "id": 31536,
+            "nodeType": "FunctionDefinition",
+            "src": "1434:241:33",
+            "body": {
+              "id": 31535,
+              "nodeType": "Block",
+              "src": "1568:107:33",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 31529,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 31527,
+                      "name": "uriRemoteFetcher",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 31486,
+                      "src": "1578:16:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                        "typeString": "contract URIRemoteFetcher"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 31528,
+                      "name": "_uriRemoteFetcher",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 31522,
+                      "src": "1597:17:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                        "typeString": "contract URIRemoteFetcher"
+                      }
+                    },
+                    "src": "1578:36:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                      "typeString": "contract URIRemoteFetcher"
+                    }
+                  },
+                  "id": 31530,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1578:36:33"
+                },
+                {
+                  "eventCall": {
+                    "arguments": [
+                      {
+                        "id": 31532,
+                        "name": "_uriRemoteFetcher",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 31522,
+                        "src": "1650:17:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                          "typeString": "contract URIRemoteFetcher"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                          "typeString": "contract URIRemoteFetcher"
+                        }
+                      ],
+                      "id": 31531,
+                      "name": "URIRemoteFetcherSet",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 31482,
+                      "src": "1630:19:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_contract$_URIRemoteFetcher_$31799_$returns$__$",
+                        "typeString": "function (contract URIRemoteFetcher)"
+                      }
+                    },
+                    "id": 31533,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1630:38:33",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 31534,
+                  "nodeType": "EmitStatement",
+                  "src": "1625:43:33"
+                }
+              ]
+            },
+            "functionSelector": "4ada4dd1",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "id": 31525,
+                "kind": "modifierInvocation",
+                "modifierName": {
+                  "id": 31524,
+                  "name": "onlyOwner",
+                  "nameLocations": [
+                    "1554:9:33"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 23254,
+                  "src": "1554:9:33"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1554:9:33"
+              }
+            ],
+            "name": "setURIRemoteFetcher",
+            "nameLocation": "1443:19:33",
+            "parameters": {
+              "id": 31523,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31522,
+                  "mutability": "mutable",
+                  "name": "_uriRemoteFetcher",
+                  "nameLocation": "1480:17:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31536,
+                  "src": "1463:34:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                    "typeString": "contract URIRemoteFetcher"
+                  },
+                  "typeName": {
+                    "id": 31521,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31520,
+                      "name": "URIRemoteFetcher",
+                      "nameLocations": [
+                        "1463:16:33"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31799,
+                      "src": "1463:16:33"
+                    },
+                    "referencedDeclaration": 31799,
+                    "src": "1463:16:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_URIRemoteFetcher_$31799",
+                      "typeString": "contract URIRemoteFetcher"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1462:36:33"
+            },
+            "returnParameters": {
+              "id": 31526,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1568:0:33"
+            },
+            "scope": 31537,
+            "stateMutability": "payable",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 31475,
+              "name": "Owned",
+              "nameLocations": [
+                "264:5:33"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 23293,
+              "src": "264:5:33"
+            },
+            "id": 31476,
+            "nodeType": "InheritanceSpecifier",
+            "src": "264:5:33"
+          }
+        ],
+        "canonicalName": "URIFetcher",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 31474,
+          "nodeType": "StructuredDocumentation",
+          "src": "166:75:33",
+          "text": "@notice Open-ended metadata fetcher for ERC1155.\n @author z0r0z.eth"
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          31537,
+          23293
+        ],
+        "name": "URIFetcher",
+        "nameLocation": "250:10:33",
+        "scope": 31538,
+        "usedErrors": [
+          23239
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 33
+}

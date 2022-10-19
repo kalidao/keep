@@ -288,6 +288,12 @@ abstract contract KeepToken {
             if (!userPermissioned[from][id] || !userPermissioned[to][id])
                 revert NotPermitted();
 
+        // If not transferring SIGNER_KEY, update delegation balance.
+        // Otherwise, prevent transfer to SIGNER_KEY holder.
+        if (id != SIGNER_KEY)
+            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+        else if (balanceOf[to][id] != 0) revert Overflow();
+
         balanceOf[from][id] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -315,9 +321,6 @@ abstract contract KeepToken {
                 revert InvalidRecipient();
             }
         }
-
-        if (id != SIGNER_KEY)
-            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
 
     function safeBatchTransferFrom(
@@ -346,14 +349,8 @@ abstract contract KeepToken {
                 if (!userPermissioned[from][id] || !userPermissioned[to][id])
                     revert NotPermitted();
 
-            balanceOf[from][id] -= amount;
-
-            // Cannot overflow because the sum of all user
-            // balances can't exceed the max uint256 value.
-            unchecked {
-                balanceOf[to][id] += amount;
-            }
-
+            // If not transferring SIGNER_KEY, update delegation balance.
+            // Otherwise, prevent transfer to SIGNER_KEY holder.
             if (id != SIGNER_KEY)
                 _moveDelegates(
                     delegates(from, id),
@@ -361,6 +358,15 @@ abstract contract KeepToken {
                     id,
                     amount
                 );
+            else if (balanceOf[to][id] != 0) revert Overflow();
+
+            balanceOf[from][id] -= amount;
+
+            // Cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value.
+            unchecked {
+                balanceOf[to][id] += amount;
+            }
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -715,6 +721,12 @@ abstract contract KeepToken {
     ) internal virtual {
         _safeCastTo216(totalSupply[id] += amount);
 
+        // If not minting SIGNER_KEY, update delegation balance.
+        // Otherwise, prevent minting to SIGNER_KEY holder.
+        if (id != SIGNER_KEY)
+            _moveDelegates(address(0), delegates(to, id), id, amount);
+        else if (balanceOf[to][id] != 0) revert Overflow();
+
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
         unchecked {
@@ -738,9 +750,6 @@ abstract contract KeepToken {
         } else if (to == address(0)) {
             revert InvalidRecipient();
         }
-
-        if (id != SIGNER_KEY)
-            _moveDelegates(address(0), delegates(to, id), id, amount);
     }
 
     function _burn(
@@ -758,6 +767,7 @@ abstract contract KeepToken {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
+        // If not burning SIGNER_KEY, update delegation balance.
         if (id != SIGNER_KEY)
             _moveDelegates(delegates(from, id), address(0), id, amount);
     }

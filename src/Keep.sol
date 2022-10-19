@@ -539,8 +539,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         }
 
-        // Note: Make sure signers don't concentrate ID keys,
-        // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
 
         quorum = uint120(threshold);

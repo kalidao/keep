@@ -1043,16 +1043,17 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         console.log(bobPreBalance);
         vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        assertTrue(keep.transferable(id) == true);
         keep.mint(charlie, id, 1, "");
         vm.stopPrank();
 
         vm.prank(charlie);
         keep.setApprovalForAll(alice, true);
         assertTrue(keep.isApprovedForAll(charlie, alice));
+        vm.stopPrank();
 
         vm.prank(alice);
         keep.safeTransferFrom(charlie, bob, id, 1, "");
+        vm.stopPrank();
 
         assertTrue(keep.balanceOf(charlie, id) == 0);
         assertEq(keep.balanceOf(bob, id), bobPreBalance + 1);
