@@ -162,6 +162,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param _uriFetcher Metadata default.
     constructor(Keep _uriFetcher) payable {
         uriFetcher = _uriFetcher;
+
+        // Deploys this template as singleton.
+        quorum = 1;
     }
 
     /// @notice Initialize Keep configuration.
