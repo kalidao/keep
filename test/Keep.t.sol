@@ -787,6 +787,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
     }
 
     /// @notice Check governance.
+
     function testMint(
         uint256 id,
         uint256 amount,
@@ -801,6 +802,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         vm.prank(address(keep));
         keep.mint(charlie, id, amount, data);
+        vm.stopPrank();
 
         assert(keep.balanceOf(charlie, id) == preBalance + amount);
         assert(keep.totalSupply(id) == preTotalSupply + amount);
@@ -813,6 +815,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         vm.prank(address(keep));
         keep.mint(charlie, EXECUTE_ID, 1, "");
+        vm.stopPrank();
 
         assert(keep.balanceOf(charlie, EXECUTE_ID) == executeBalance + 1);
         assert(keep.totalSupply(EXECUTE_ID) == executeTotalSupply + 1);
@@ -829,6 +832,7 @@ contract KeepTest is Test, ERC1155TokenReceiver {
 
         vm.prank(address(keep));
         keep.mint(charlie, CORE_ID, amount, "");
+        vm.stopPrank();
 
         assert(keep.balanceOf(charlie, CORE_ID) == balance + amount);
         assert(keep.totalSupply(CORE_ID) == totalSupply + amount);
@@ -880,6 +884,18 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         vm.prank(address(keep));
         vm.expectRevert(bytes4(keccak256("Overflow()")));
         keep.mint(charlie, 3, amount, "");
+        vm.stopPrank();
+    }
+
+    function testCannotMintOverflowExecuteID() public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, EXECUTE_ID, 1, "");
+        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        keep.mint(charlie, EXECUTE_ID, 1, "");
+        keep.burn(charlie, EXECUTE_ID, 1);
+        keep.mint(charlie, EXECUTE_ID, 1, "");
+        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        keep.mint(charlie, EXECUTE_ID, 1, "");
         vm.stopPrank();
     }
 
@@ -1174,6 +1190,30 @@ contract KeepTest is Test, ERC1155TokenReceiver {
         assertTrue(keep.balanceOf(userA, id) == preBalanceA);
         assertTrue(keep.balanceOf(userB, id) == preBalanceB);
         assertTrue(keep.balanceOf(userC, id) == preBalanceC + amount);
+    }
+
+    function testCannotTransferExecuteOverflow() public payable {
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(EXECUTE_ID, true);
+        keep.mint(charlie, EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        vm.prank(charlie);
+        keep.safeTransferFrom(charlie, address(0xBeef), EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(charlie, EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        vm.prank(charlie);
+        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        keep.safeTransferFrom(charlie, address(0xBeef), EXECUTE_ID, 1, "");
+        vm.stopPrank();
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.burn(address(0xBeef), EXECUTE_ID, 1);
+        vm.stopPrank();
     }
 
     function testCannotTransferKeepTokenNonTransferable(uint256 id)
