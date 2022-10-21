@@ -136,9 +136,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         returns (bool)
     {
         return
-            interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
-            interfaceId == type(ERC1155TokenReceiver).interfaceId || // ERC165 Interface ID for ERC1155TokenReceiver.
-            super.supportsInterface(interfaceId); // ERC165 Interface IDs for ERC1155.
+            // ERC165 Interface ID for ERC721TokenReceiver.
+            interfaceId == this.onERC721Received.selector ||
+            // ERC165 Interface ID for ERC1155TokenReceiver.
+            interfaceId == type(ERC1155TokenReceiver).interfaceId ||
+            // ERC165 Interface IDs for ERC1155.
+            super.supportsInterface(interfaceId);
     }
 
     /// -----------------------------------------------------------------------
@@ -163,7 +166,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     constructor(Keep _uriFetcher) payable {
         uriFetcher = _uriFetcher;
 
-        // Deploys this template as singleton.
+        // Deploy as singleton.
         quorum = 1;
     }
 
@@ -241,16 +244,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param value Amount of ETH to send in operation.
     /// @param data Payload to send in operation.
     /// @param sigs Array of Keep signatures sorted in ascending order by addresses.
-    /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail.
-    /// @return success Fetch whether operation succeeded.
     function execute(
         Operation op,
         address to,
         uint256 value,
         bytes calldata data,
         Signature[] calldata sigs
-    ) public payable virtual returns (bool success) {
-        // Begin signature validation with payload hash.
+    ) public payable virtual {
+        // Begin signature validation with hashed inputs.
         bytes32 hash = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -270,7 +271,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             )
         );
 
-        // Start from zero in loop to ensure ascending addresses.
+        // Start zero in loop to ensure ascending addresses.
         address previous;
 
         // Validation is length of quorum threshold.
@@ -303,7 +304,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         }
 
-        success = _execute(op, to, value, data);
+        _execute(op, to, value, data);
     }
 
     function _recoverSig(
@@ -392,19 +393,15 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Execute operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
-    /// @return successes Fetches whether operations succeeded.
     function multiExecute(Call[] calldata calls)
         public
         payable
         virtual
-        returns (bool[] memory successes)
     {
         _authorized();
 
-        successes = new bool[](calls.length);
-
         for (uint256 i; i < calls.length; ) {
-            successes[i] = _execute(
+            _execute(
                 calls[i].op,
                 calls[i].to,
                 calls[i].value,
@@ -424,7 +421,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address to,
         uint256 value,
         bytes memory data
-    ) internal virtual returns (bool success) {
+    ) internal virtual {
         // Unchecked because the only math done is incrementing
         // Keep nonce which cannot realistically overflow.
         unchecked {
@@ -432,6 +429,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         if (op == Operation.call) {
+            bool success;
+
             assembly {
                 success := call(
                     gas(),
@@ -448,6 +447,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             emit Executed(op, to, value, data);
         } else if (op == Operation.delegatecall) {
+            bool success;
+
             assembly {
                 success := delegatecall(
                     gas(),
@@ -474,6 +475,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             emit Executed(op, creation, value, data);
         } else {
             address creation;
+
+            // Salt is hashed from the new nonce.
+            // Thus, creation is deterministic
+            // without introducing new variables,
+            // though less flexible than calling
+            // a create2 factory.
             bytes32 salt = bytes32(uint256(nonce));
 
             assembly {
