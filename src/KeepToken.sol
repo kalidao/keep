@@ -224,9 +224,12 @@ abstract contract KeepToken {
         returns (bool)
     {
         return
-            interfaceId == this.supportsInterface.selector || // ERC165 interface ID for ERC165.
-            interfaceId == 0xd9b67a26 || // ERC165 interface ID for ERC1155.
-            interfaceId == 0x0e89341c; // ERC165 interface ID for ERC1155MetadataURI.
+            // ERC165 interface ID for ERC165.
+            interfaceId == this.supportsInterface.selector ||
+            // ERC165 interface ID for ERC1155.
+            interfaceId == 0xd9b67a26 ||
+            // ERC165 interface ID for ERC1155MetadataURI.
+            interfaceId == 0x0e89341c;
     }
 
     /// -----------------------------------------------------------------------
