@@ -98,7 +98,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
                             op,
                             to,
                             value,
-                            data,
+                            keccak256(data),
                             nonce
                         )
                     )
