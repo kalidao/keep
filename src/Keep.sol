@@ -285,16 +285,17 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             sig = sigs[i];
             address user = sig.user;
 
+            // Check SIGNER_KEY balance.
+            // This also confirms non-zero `user`.
+            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
+
             // Check signature recovery.
             _recoverSig(hash, user, sig.v, sig.r, sig.s);
 
-            // Check SIGNER_KEY balance.
-            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
-
-            // Check duplicates.
+            // Check against duplicates.
             if (previous >= user) revert InvalidSig();
 
-            // Memo signer for next iteration until quorum.
+            // Memo signature for next iteration until quorum.
             previous = user;
 
             // An array can't have a total length
