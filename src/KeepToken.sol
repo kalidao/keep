@@ -288,7 +288,7 @@ abstract contract KeepToken {
         if (!transferable[id]) revert NonTransferable();
 
         if (permissioned[id])
-            if (!userPermissioned[from][id] || !userPermissioned[to][id])
+            if (!userPermissioned[to][id] || !userPermissioned[from][id])
                 revert NotPermitted();
 
         // If not transferring SIGNER_KEY, update delegation balance.
@@ -349,7 +349,7 @@ abstract contract KeepToken {
             if (!transferable[id]) revert NonTransferable();
 
             if (permissioned[id])
-                if (!userPermissioned[from][id] || !userPermissioned[to][id])
+                if (!userPermissioned[to][id] || !userPermissioned[from][id])
                     revert NotPermitted();
 
             // If not transferring SIGNER_KEY, update delegation balance.
