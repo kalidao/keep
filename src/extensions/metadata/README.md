@@ -1,0 +1,1 @@
+# Keep metadata extensions

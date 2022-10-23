@@ -6,8 +6,8 @@ import {ERC1155TokenReceiver, KeepToken, Operation, Call, Signature, Keep} from 
 import {KeepFactory} from "../src/KeepFactory.sol";
 
 /// @dev Extensions.
-import {URIFetcher} from "../src/extensions/URIFetcher.sol";
-import {URIRemoteFetcher} from "../src/extensions/URIRemoteFetcher.sol";
+import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
+import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 /// @dev Mocks.
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";

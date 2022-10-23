@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "format": "prettier --write src/**.sol src/utils/**.sol src/extensions/**.sol src/extensions/tribute/**.sol src/extensions/tribute/utils/**.sol src/dao/**.sol src/dao/utils/**.sol test/**.sol --plugin-search-dir=.",
+    "format": "prettier --write src/**.sol src/utils/**.sol src/extensions/metadata/**.sol src/extensions/tribute/**.sol src/extensions/tribute/utils/**.sol src/extensions/dao/**.sol src/extensions/dao/utils/**.sol test/**.sol --plugin-search-dir=.",
     "format:list": "prettier --list-different 'src/**/*.sol' --plugin-search-dir=.",
     "format:check": "prettier --check 'src/**/*.sol' --plugin-search-dir=.",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix --ignore-path .solhintignore",
