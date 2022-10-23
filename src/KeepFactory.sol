@@ -17,7 +17,7 @@ contract KeepFactory is Multicallable {
     /// -----------------------------------------------------------------------
 
     event Deployed(
-        Keep keep,
+        Keep indexed keep,
         bytes32 name,
         address[] signers,
         uint256 threshold
