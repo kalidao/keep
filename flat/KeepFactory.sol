@@ -224,9 +224,12 @@ abstract contract KeepToken {
         returns (bool)
     {
         return
-            interfaceId == this.supportsInterface.selector || // ERC165 interface ID for ERC165.
-            interfaceId == 0xd9b67a26 || // ERC165 interface ID for ERC1155.
-            interfaceId == 0x0e89341c; // ERC165 interface ID for ERC1155MetadataURI.
+            // ERC165 interface ID for ERC165.
+            interfaceId == this.supportsInterface.selector ||
+            // ERC165 interface ID for ERC1155.
+            interfaceId == 0xd9b67a26 ||
+            // ERC165 interface ID for ERC1155MetadataURI.
+            interfaceId == 0x0e89341c;
     }
 
     /// -----------------------------------------------------------------------
@@ -288,6 +291,12 @@ abstract contract KeepToken {
             if (!userPermissioned[from][id] || !userPermissioned[to][id])
                 revert NotPermitted();
 
+        // If not transferring SIGNER_KEY, update delegation balance.
+        // Otherwise, prevent transfer to SIGNER_KEY holder.
+        if (id != SIGNER_KEY)
+            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
+        else if (balanceOf[to][id] != 0) revert Overflow();
+
         balanceOf[from][id] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -315,9 +324,6 @@ abstract contract KeepToken {
                 revert InvalidRecipient();
             }
         }
-
-        if (id != SIGNER_KEY)
-            _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
     }
 
     function safeBatchTransferFrom(
@@ -346,14 +352,8 @@ abstract contract KeepToken {
                 if (!userPermissioned[from][id] || !userPermissioned[to][id])
                     revert NotPermitted();
 
-            balanceOf[from][id] -= amount;
-
-            // Cannot overflow because the sum of all user
-            // balances can't exceed the max uint256 value.
-            unchecked {
-                balanceOf[to][id] += amount;
-            }
-
+            // If not transferring SIGNER_KEY, update delegation balance.
+            // Otherwise, prevent transfer to SIGNER_KEY holder.
             if (id != SIGNER_KEY)
                 _moveDelegates(
                     delegates(from, id),
@@ -361,6 +361,15 @@ abstract contract KeepToken {
                     id,
                     amount
                 );
+            else if (balanceOf[to][id] != 0) revert Overflow();
+
+            balanceOf[from][id] -= amount;
+
+            // Cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value.
+            unchecked {
+                balanceOf[to][id] += amount;
+            }
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -715,6 +724,12 @@ abstract contract KeepToken {
     ) internal virtual {
         _safeCastTo216(totalSupply[id] += amount);
 
+        // If not minting SIGNER_KEY, update delegation balance.
+        // Otherwise, prevent minting to SIGNER_KEY holder.
+        if (id != SIGNER_KEY)
+            _moveDelegates(address(0), delegates(to, id), id, amount);
+        else if (balanceOf[to][id] != 0) revert Overflow();
+
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
         unchecked {
@@ -738,9 +753,6 @@ abstract contract KeepToken {
         } else if (to == address(0)) {
             revert InvalidRecipient();
         }
-
-        if (id != SIGNER_KEY)
-            _moveDelegates(address(0), delegates(to, id), id, amount);
     }
 
     function _burn(
@@ -758,6 +770,7 @@ abstract contract KeepToken {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
+        // If not burning SIGNER_KEY, update delegation balance.
         if (id != SIGNER_KEY)
             _moveDelegates(delegates(from, id), address(0), id, amount);
     }
@@ -984,9 +997,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         returns (bool)
     {
         return
-            interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
-            interfaceId == type(ERC1155TokenReceiver).interfaceId || // ERC165 Interface ID for ERC1155TokenReceiver.
-            super.supportsInterface(interfaceId); // ERC165 Interface IDs for ERC1155.
+            // ERC165 Interface ID for ERC721TokenReceiver.
+            interfaceId == this.onERC721Received.selector ||
+            // ERC165 Interface ID for ERC1155TokenReceiver.
+            interfaceId == type(ERC1155TokenReceiver).interfaceId ||
+            // ERC165 Interface IDs for ERC1155.
+            super.supportsInterface(interfaceId);
     }
 
     /// -----------------------------------------------------------------------
@@ -1010,6 +1026,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param _uriFetcher Metadata default.
     constructor(Keep _uriFetcher) payable {
         uriFetcher = _uriFetcher;
+
+        // Deploy as singleton.
+        quorum = 1;
     }
 
     /// @notice Initialize Keep configuration.
@@ -1060,7 +1079,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            // Won't realistically overflow.
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
                 ++balanceOf[signer][SIGNER_KEY];
                 ++supply;
@@ -1086,16 +1106,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param value Amount of ETH to send in operation.
     /// @param data Payload to send in operation.
     /// @param sigs Array of Keep signatures sorted in ascending order by addresses.
-    /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail.
-    /// @return success Fetch whether operation succeeded.
     function execute(
         Operation op,
         address to,
         uint256 value,
         bytes calldata data,
         Signature[] calldata sigs
-    ) public payable virtual returns (bool success) {
-        // Begin signature validation with payload hash.
+    ) public payable virtual {
+        // Begin signature validation with hashed inputs.
         bytes32 hash = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -1108,14 +1126,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                         op,
                         to,
                         value,
-                        data,
+                        keccak256(data),
                         nonce
                     )
                 )
             )
         );
 
-        // Start from zero in loop to ensure ascending addresses.
+        // Start zero in loop to ensure ascending addresses.
         address previous;
 
         // Validation is length of quorum threshold.
@@ -1129,16 +1147,17 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             sig = sigs[i];
             address user = sig.user;
 
+            // Check SIGNER_KEY balance.
+            // This also confirms non-zero `user`.
+            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
+
             // Check signature recovery.
             _recoverSig(hash, user, sig.v, sig.r, sig.s);
 
-            // Check SIGNER_KEY balance.
-            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
-
-            // Check duplicates.
+            // Check against duplicates.
             if (previous >= user) revert InvalidSig();
 
-            // Memo signer for next iteration until quorum.
+            // Memo signature for next iteration until quorum.
             previous = user;
 
             // An array can't have a total length
@@ -1148,7 +1167,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         }
 
-        success = _execute(op, to, value, data);
+        _execute(op, to, value, data);
     }
 
     function _recoverSig(
@@ -1237,24 +1256,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Execute operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
-    /// @return successes Fetches whether operations succeeded.
-    function multiExecute(Call[] calldata calls)
-        public
-        payable
-        virtual
-        returns (bool[] memory successes)
-    {
+    function multiExecute(Call[] calldata calls) public payable virtual {
         _authorized();
 
-        successes = new bool[](calls.length);
-
         for (uint256 i; i < calls.length; ) {
-            successes[i] = _execute(
-                calls[i].op,
-                calls[i].to,
-                calls[i].value,
-                calls[i].data
-            );
+            _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -1269,7 +1275,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address to,
         uint256 value,
         bytes memory data
-    ) internal virtual returns (bool success) {
+    ) internal virtual {
         // Unchecked because the only math done is incrementing
         // Keep nonce which cannot realistically overflow.
         unchecked {
@@ -1277,6 +1283,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         if (op == Operation.call) {
+            bool success;
+
             assembly {
                 success := call(
                     gas(),
@@ -1293,6 +1301,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             emit Executed(op, to, value, data);
         } else if (op == Operation.delegatecall) {
+            bool success;
+
             assembly {
                 success := delegatecall(
                     gas(),
@@ -1319,6 +1329,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             emit Executed(op, creation, value, data);
         } else {
             address creation;
+
+            // Salt is hashed from the new nonce.
+            // Thus, creation is deterministic
+            // without introducing new variables,
+            // though less flexible than calling
+            // a create2 factory.
             bytes32 salt = bytes32(uint256(nonce));
 
             assembly {
@@ -1387,8 +1403,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         }
 
-        // Note: Make sure signers don't concentrate ID keys,
-        // as this could cause issues in reaching quorum.
         if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
 
         quorum = uint120(threshold);
@@ -1612,7 +1626,7 @@ contract KeepFactory is Multicallable {
     /// -----------------------------------------------------------------------
 
     event Deployed(
-        Keep keep,
+        Keep indexed keep,
         bytes32 name,
         address[] signers,
         uint256 threshold

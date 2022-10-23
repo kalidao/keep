@@ -211,7 +211,7 @@
 			{
 				"indexed": false,
 				"internalType": "bool",
-				"name": "set",
+				"name": "on",
 				"type": "bool"
 			}
 		],
@@ -329,7 +329,7 @@
 			{
 				"indexed": false,
 				"internalType": "bool",
-				"name": "set",
+				"name": "on",
 				"type": "bool"
 			}
 		],
@@ -379,7 +379,7 @@
 			{
 				"indexed": false,
 				"internalType": "bool",
-				"name": "set",
+				"name": "on",
 				"type": "bool"
 			}
 		],
@@ -640,13 +640,7 @@
 			}
 		],
 		"name": "execute",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"
 	},
@@ -884,13 +878,7 @@
 			}
 		],
 		"name": "multiExecute",
-		"outputs": [
-			{
-				"internalType": "bool[]",
-				"name": "successes",
-				"type": "bool[]"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"
 	},
@@ -1262,7 +1250,7 @@
 			},
 			{
 				"internalType": "bool",
-				"name": "set",
+				"name": "on",
 				"type": "bool"
 			}
 		],
@@ -1293,7 +1281,7 @@
 			},
 			{
 				"internalType": "bool",
-				"name": "transferability",
+				"name": "on",
 				"type": "bool"
 			}
 		],
@@ -1334,7 +1322,7 @@
 			},
 			{
 				"internalType": "bool",
-				"name": "set",
+				"name": "on",
 				"type": "bool"
 			}
 		],
