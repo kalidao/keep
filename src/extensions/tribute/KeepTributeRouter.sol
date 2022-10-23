@@ -1,142 +1,19 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.4;
 
-/// @dev The ETH transfer has failed.
-error ETHTransferFailed();
+import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 
-/// @dev Sends `amount` (in wei) ETH to `to`.
-/// Reverts upon failure.
-function safeTransferETH(address to, uint256 amount) {
-    assembly {
-        // Transfer the ETH and check if it succeeded or not.
-        if iszero(call(gas(), to, amount, 0, 0, 0, 0)) {
-            // Store the function selector of `ETHTransferFailed()`.
-            mstore(0x00, 0xb12d13eb)
-            // Revert with (offset, size).
-            revert(0x1c, 0x04)
-        }
-    }
-}
+import {safeTransferETH, safeTransfer, safeTransferFrom} from "@solbase/src/utils/SafeTransfer.sol";
 
-/// @dev The ERC20 `transfer` has failed.
-error TransferFailed();
+import {KeepTokenMint} from "./utils/KeepTokenMint.sol";
 
-/// @dev Sends `amount` of ERC20 `token` from the current contract to `to`.
-/// Reverts upon failure.
-function safeTransfer(
-    address token,
-    address to,
-    uint256 amount
-) {
-    assembly {
-        // We'll write our calldata to this slot below, but restore it later.
-        let memPointer := mload(0x40)
-
-        // Write the abi-encoded calldata into memory, beginning with the function selector.
-        mstore(0x00, 0xa9059cbb)
-        mstore(0x20, to) // Append the "to" argument.
-        mstore(0x40, amount) // Append the "amount" argument.
-
-        if iszero(
-            and(
-                // Set success to whether the call reverted, if not we check it either
-                // returned exactly 1 (can't just be non-zero data), or had no return data.
-                or(eq(mload(0x00), 1), iszero(returndatasize())),
-                // We use 0x44 because that's the total length of our calldata (0x04 + 0x20 * 2)
-                // Counterintuitively, this call() must be positioned after the or() in the
-                // surrounding and() because and() evaluates its arguments from right to left.
-                call(gas(), token, 0, 0x1c, 0x44, 0x00, 0x20)
-            )
-        ) {
-            // Store the function selector of `TransferFailed()`.
-            mstore(0x00, 0x90b8ec18)
-            // Revert with (offset, size).
-            revert(0x1c, 0x04)
-        }
-
-        mstore(0x40, memPointer) // Restore the memPointer.
-    }
-}
-
-/// @dev The ERC20 `transferFrom` has failed.
-error TransferFromFailed();
-
-/// @dev Sends `amount` of ERC20 `token` from `from` to `to`.
-/// Reverts upon failure.
-///
-/// The `from` account must have at least `amount` approved for
-/// the current contract to manage.
-function safeTransferFrom(
-    address token,
-    address from,
-    address to,
-    uint256 amount
-) {
-    assembly {
-        // We'll write our calldata to this slot below, but restore it later.
-        let memPointer := mload(0x40)
-
-        // Write the abi-encoded calldata into memory, beginning with the function selector.
-        mstore(0x00, 0x23b872dd)
-        mstore(0x20, from) // Append the "from" argument.
-        mstore(0x40, to) // Append the "to" argument.
-        mstore(0x60, amount) // Append the "amount" argument.
-
-        if iszero(
-            and(
-                // Set success to whether the call reverted, if not we check it either
-                // returned exactly 1 (can't just be non-zero data), or had no return data.
-                or(eq(mload(0x00), 1), iszero(returndatasize())),
-                // We use 0x64 because that's the total length of our calldata (0x04 + 0x20 * 3)
-                // Counterintuitively, this call() must be positioned after the or() in the
-                // surrounding and() because and() evaluates its arguments from right to left.
-                call(gas(), token, 0, 0x1c, 0x64, 0x00, 0x20)
-            )
-        ) {
-            // Store the function selector of `TransferFromFailed()`.
-            mstore(0x00, 0x7939f424)
-            // Revert with (offset, size).
-            revert(0x1c, 0x04)
-        }
-
-        mstore(0x60, 0) // Restore the zero slot to zero.
-        mstore(0x40, memPointer) // Restore the memPointer.
-    }
-}
-
-/// @dev Interface for Keep token minting.
-interface KeepTokenMint {
-    function balanceOf(address account, uint256 id) external view returns (uint256);
-
-    function mint(
-        address to,
-        uint256 id, 
-        uint256 amount, 
-        bytes calldata data
-    ) external;
-}
-
-/// @notice Gas-optimized reentrancy protection for smart contracts.
-/// @author SolDAO (https://github.com/Sol-DAO/solbase/blob/main/src/utils/ReentrancyGuard.sol)
-abstract contract ReentrancyGuard {
-    error Reentrancy();
-
-    uint256 private locked = 1;
-
-    modifier nonReentrant() virtual {
-        if (locked == 2) revert Reentrancy();
-
-        locked = 2;
-
-        _;
-
-        locked = 1;
-    }
-}
-
-/// @dev Tribute is initialized by Keep by giving it a mint ID key.
+/// @notice Moloch-style Keep tribute router in ETH and ERC20/721.
+/// @dev This extension is enabled while it holds a Keep mint ID key.
 contract KeepTributeRouter is ReentrancyGuard {
+    /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
+
     event MakeTribute(
         uint256 id,
         address from,
@@ -147,19 +24,26 @@ contract KeepTributeRouter is ReentrancyGuard {
         uint256 forAmount
     );
 
-    event ReleaseTribute(
-        address operator,
-        uint256 id,
-        bool approve
-    );
+    event ReleaseTribute(address operator, uint256 id, bool approve);
 
-    uint256 public currentId;
-
-    mapping(uint256 => Tribute) public tributes;
+    /// -----------------------------------------------------------------------
+    /// Custom Errors
+    /// -----------------------------------------------------------------------
 
     error InsufficientETH();
 
     error Unauthorized();
+
+    /// -----------------------------------------------------------------------
+    /// Tribute Storage
+    /// -----------------------------------------------------------------------
+
+    uint256 internal constant MINT_KEY =
+        uint32(KeepTokenMint.balanceOf.selector);
+
+    uint256 public currentId;
+
+    mapping(uint256 => Tribute) public tributes;
 
     struct Tribute {
         address from;
@@ -170,13 +54,33 @@ contract KeepTributeRouter is ReentrancyGuard {
         uint96 forAmount;
     }
 
+    /// -----------------------------------------------------------------------
+    /// Constructor
+    /// -----------------------------------------------------------------------
+
+    /// @dev Gas optimization.
+    constructor() payable {}
+
+    /// -----------------------------------------------------------------------
+    /// Tribute Logic
+    /// -----------------------------------------------------------------------
+
+    /// @notice Escrow for a Keep token mint.
+    /// @param to The Keep to make tribute to.
+    /// @param asset The asset type to make tribute in.
+    /// @param tribute The amout of asset to make tribute in.
+    /// @param forId The ERC1155 Keep token ID to make tribute for.
+    /// @param forAmount The ERC1155 Keep token ID amount to make tribute for.
+    /// @return id The Keep escrow ID assigned incrementally for each tribute.
     function makeTribute(
-        address to, 
-        address asset, 
+        address to,
+        address asset,
         uint256 tribute,
         uint256 forId,
         uint256 forAmount
-    ) public payable nonReentrant virtual returns (uint256 id) {
+    ) public payable virtual nonReentrant returns (uint256 id) {
+        // Unchecked because the only math done is incrementing
+        // currentId which cannot realistically overflow.
         unchecked {
             id = currentId++;
 
@@ -190,11 +94,16 @@ contract KeepTributeRouter is ReentrancyGuard {
             });
         }
 
-        if (asset == address(0) && msg.value != tribute) revert InsufficientETH();
+        // If user selects zero address `asset`, ETH is handled.
+        // Otherwise, token transfer performed.
+        if (asset == address(0) && msg.value != tribute)
+            revert InsufficientETH();
         else safeTransferFrom(asset, msg.sender, address(this), tribute);
 
         emit MakeTribute(
+            // Tribute escrow ID.
             id,
+            // Tribute proposer.
             msg.sender,
             to,
             asset,
@@ -204,26 +113,45 @@ contract KeepTributeRouter is ReentrancyGuard {
         );
     }
 
-    function releaseTribute(uint256 id, bool approve) public payable nonReentrant virtual {
+    /// @notice Escrow release for a Keep token mint.
+    /// @param id The escrow ID to activate tribute release for.
+    /// @param approve If `true`, escrow will release to Keep for mint.
+    /// If `false, tribute will be returned back to the tribute proposer.
+    /// @dev Calls are permissioned to the Keep itself or mint ID key holder.
+    function releaseTribute(uint256 id, bool approve)
+        public
+        payable
+        virtual
+        nonReentrant
+    {
+        // Fetch tribute details from storage.
         Tribute storage trib = tributes[id];
 
-        if (KeepTokenMint(trib.to).balanceOf(msg.sender, uint32(KeepTokenMint.balanceOf.selector)) == 0)
-            revert Unauthorized();
-        
-        if (approve) {
-            trib.asset == address(0) ? safeTransferETH(trib.to, trib.tribute)
-            : safeTransfer(trib.asset, trib.to, trib.tribute);
+        // Check permissions for tribute release.
+        if (
+            msg.sender != trib.to &&
+            KeepTokenMint(trib.to).balanceOf(msg.sender, MINT_KEY) == 0
+        ) revert Unauthorized();
 
-            KeepTokenMint(trib.to).mint(trib.to, trib.forId, trib.forAmount, "");
+        // Branch release and minting on approval,
+        // as well as on whether asset is ETH or token.
+        if (approve) {
+            trib.asset == address(0)
+                ? safeTransferETH(trib.to, trib.tribute)
+                : safeTransfer(trib.asset, trib.to, trib.tribute);
+
+            KeepTokenMint(trib.to).mint(
+                trib.to,
+                trib.forId,
+                trib.forAmount,
+                ""
+            );
         } else {
-            trib.asset == address(0) ? safeTransferETH(trib.from, trib.tribute)
-            : safeTransfer(trib.asset, trib.from, trib.tribute);
+            trib.asset == address(0)
+                ? safeTransferETH(trib.from, trib.tribute)
+                : safeTransfer(trib.asset, trib.from, trib.tribute);
         }
 
-        emit ReleaseTribute(
-            msg.sender,
-            id,
-            approve
-        );
+        emit ReleaseTribute(msg.sender, id, approve);
     }
 }

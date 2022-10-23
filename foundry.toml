@@ -6,7 +6,8 @@ optimizer_runs = 1000000
 # Configure remappings
 remappings = [
   "@std=lib/forge-std/src/",
-  "@solbase=lib/solbase/"
+  "@solbase=lib/solbase/",
+  "@kali=lib/rage-router/src"
 ]
 
 [profile.intense.fuzz]

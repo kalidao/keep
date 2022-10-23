@@ -218,7 +218,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            // Won't realistically overflow.
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
                 ++balanceOf[signer][SIGNER_KEY];
                 ++supply;
@@ -394,20 +395,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Execute operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
-    function multiExecute(Call[] calldata calls)
-        public
-        payable
-        virtual
-    {
+    function multiExecute(Call[] calldata calls) public payable virtual {
         _authorized();
 
         for (uint256 i; i < calls.length; ) {
-            _execute(
-                calls[i].op,
-                calls[i].to,
-                calls[i].value,
-                calls[i].data
-            );
+            _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
 
             // An array can't have a total length
             // larger than the max uint256 value.
