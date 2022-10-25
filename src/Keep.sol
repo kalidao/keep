@@ -217,6 +217,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             if (previous >= signer) revert InvalidSig();
 
             previous = signer;
+            
+            emit TransferSingle(
+                tx.origin, 
+                address(0), 
+                signer, 
+                SIGNER_KEY, 
+                1
+            );
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -225,9 +233,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 ++supply;
                 ++i;
             }
-
-            // We don't call `_moveDelegates()` to save deployment gas.
-            emit TransferSingle(msg.sender, address(0), signer, SIGNER_KEY, 1);
         }
 
         totalSupply[SIGNER_KEY] = supply;
@@ -244,7 +249,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param to Address to send operation to.
     /// @param value Amount of ETH to send in operation.
     /// @param data Payload to send in operation.
-    /// @param sigs Array of Keep signatures sorted in ascending order by addresses.
+    /// @param sigs Array of Keep signatures in ascending order by addresses.
     function execute(
         Operation op,
         address to,
