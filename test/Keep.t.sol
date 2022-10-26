@@ -1364,7 +1364,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assertTrue(keep.transferable(id));
         assertTrue(keep.permissioned(id));
 
-        vm.prank(userA);
+        startHoax(userA, userA, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("NotPermitted()")));
         keep.safeTransferFrom(userA, userB, id, amount, "");
         vm.stopPrank();
@@ -1478,7 +1478,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
         vm.warp(1665378008);
 
-        vm.startPrank(address(keep));
+        startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(userA, id, amount, "");
         vm.stopPrank();
 
@@ -1498,13 +1498,13 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == 0);
         assert(keep.getPastVotes(userB, id, block.timestamp - 1) == 0);
 
-        vm.startPrank(address(keep));
+        startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(id, true);
         vm.stopPrank();
 
         assertTrue(keep.transferable(id));
 
-        vm.startPrank(userA);
+        startHoax(userA, userA, type(uint256).max);
         keep.safeTransferFrom(userA, userB, id, amount, "");
         vm.stopPrank();
 

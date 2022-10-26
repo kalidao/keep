@@ -21,8 +21,7 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 enum Operation {
     call,
     delegatecall,
-    create,
-    create2
+    create
 }
 
 struct Call {
@@ -455,28 +454,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             if (!success) revert ExecuteFailed();
 
             emit Executed(op, to, value, data);
-        } else if (op == Operation.create) {
+        } else {
             address creation;
 
             assembly {
                 creation := create(value, add(data, 0x20), mload(data))
-            }
-
-            if (creation == address(0)) revert ExecuteFailed();
-
-            emit Executed(op, creation, value, data);
-        } else {
-            address creation;
-
-            // Salt is hashed from the new nonce.
-            // Thus, creation is deterministic
-            // without introducing new variables,
-            // though less flexible than calling
-            // a create2 factory.
-            bytes32 salt = bytes32(uint256(nonce));
-
-            assembly {
-                creation := create2(value, add(0x20, data), mload(data), salt)
             }
 
             if (creation == address(0)) revert ExecuteFailed();
@@ -599,5 +581,5 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         _uris[id] = tokenURI;
 
         emit URI(tokenURI, id);
-    } 
+    }
 }
