@@ -1,36 +1,42 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
-
-import {safeTransferETH, safeTransfer, safeTransferFrom} from "@solbase/src/utils/SafeTransfer.sol";
-
 import {KeepTokenMint} from "./utils/KeepTokenMint.sol";
+import {SelfPermit} from "@solbase/src/utils/SelfPermit.sol";
+import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
+import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
+import {safeTransferETH, safeTransfer, safeTransferFrom} from "@solbase/src/utils/SafeTransfer.sol";
 
 /// @notice Moloch-style Keep tribute router in ETH and ERC20/721.
 /// @dev This extension is enabled while it holds a Keep mint ID key.
-contract KeepTributeRouter is ReentrancyGuard {
+contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
     event MakeTribute(
-        uint256 id,
-        address from,
-        address to,
+        uint256 indexed id,
+        address indexed from,
+        address indexed to,
         address asset,
         uint256 tribute,
         uint256 forId,
         uint256 forAmount
     );
 
-    event ReleaseTribute(address operator, uint256 id, bool approve);
+    event ReleaseTribute(
+        address indexed operator,
+        uint256 indexed id,
+        bool approve
+    );
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
     error InsufficientETH();
+
+    error AlreadyReleased();
 
     error Unauthorized();
 
@@ -46,12 +52,12 @@ contract KeepTributeRouter is ReentrancyGuard {
     mapping(uint256 => Tribute) public tributes;
 
     struct Tribute {
+        uint96 tribute;
+        uint64 forId;
+        uint96 forAmount;
         address from;
         address to;
         address asset;
-        uint96 tribute;
-        uint96 forId;
-        uint96 forAmount;
     }
 
     /// -----------------------------------------------------------------------
@@ -84,13 +90,14 @@ contract KeepTributeRouter is ReentrancyGuard {
         unchecked {
             id = currentId++;
 
+            // Store packed variables.
             tributes[id] = Tribute({
+                tribute: uint96(tribute),
+                forId: uint64(forId),
+                forAmount: uint96(forAmount),
                 from: msg.sender,
                 to: to,
-                asset: asset,
-                tribute: uint96(tribute),
-                forId: uint96(forId),
-                forAmount: uint96(forAmount)
+                asset: asset
             });
         }
 
@@ -127,6 +134,9 @@ contract KeepTributeRouter is ReentrancyGuard {
         // Fetch tribute details from storage.
         Tribute storage trib = tributes[id];
 
+        // Ensure no replay of tribute escrow.
+        if (trib.from == address(0)) revert AlreadyReleased();
+
         // Check permissions for tribute release.
         if (
             msg.sender != trib.to &&
@@ -141,7 +151,7 @@ contract KeepTributeRouter is ReentrancyGuard {
                 : safeTransfer(trib.asset, trib.to, trib.tribute);
 
             KeepTokenMint(trib.to).mint(
-                trib.to,
+                trib.from,
                 trib.forId,
                 trib.forAmount,
                 ""
@@ -151,6 +161,9 @@ contract KeepTributeRouter is ReentrancyGuard {
                 ? safeTransferETH(trib.from, trib.tribute)
                 : safeTransfer(trib.asset, trib.from, trib.tribute);
         }
+
+        // Delete tribute escrow from storage so it can't be replayed.
+        delete tributes[id];
 
         emit ReleaseTribute(msg.sender, id, approve);
     }
