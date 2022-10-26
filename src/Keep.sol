@@ -217,14 +217,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             if (previous >= signer) revert InvalidSig();
 
             previous = signer;
-            
-            emit TransferSingle(
-                tx.origin, 
-                address(0), 
-                signer, 
-                SIGNER_KEY, 
-                1
-            );
+
+            emit TransferSingle(tx.origin, address(0), signer, SIGNER_KEY, 1);
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -605,5 +599,5 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         _uris[id] = tokenURI;
 
         emit URI(tokenURI, id);
-    }
+    } 
 }
