@@ -323,7 +323,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testCannotSetupWithZeroQuorum() public payable {
-        vm.expectRevert(bytes(""));
+        vm.expectRevert(bytes4(keccak256("InvalidThreshold()")));
         factory.deployKeep(name2, calls, signers, 0);
     }
 

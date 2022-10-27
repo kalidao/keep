@@ -59,6 +59,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Throws if quorum exceeds `totalSupply(SIGNER_KEY)`.
     error QuorumOverSupply();
 
+    /// @dev Throws if quorum with `threshold = 0` is set.
+    error InvalidThreshold();
+
     /// @dev Throws if `execute()` doesn't complete operation.
     error ExecuteFailed();
 
@@ -180,11 +183,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual {
         if (quorum != 0) revert AlreadyInit();
 
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
+        if (threshold == 0) revert InvalidThreshold();
 
         if (threshold > signers.length) revert QuorumOverSupply();
 
@@ -517,11 +516,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function setQuorum(uint256 threshold) public payable virtual {
         _authorized();
 
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
+        if (threshold == 0) revert InvalidThreshold();
 
         if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
 
