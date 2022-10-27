@@ -440,16 +440,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         // Mock execution.
         startHoax(address(alice), address(alice), type(uint256).max);
 
-        bytes memory data;
-
-        assembly {
-            mstore(add(data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(data, 0x24), alice)
-            mstore(add(data, 0x44), 100)
-            mstore(data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(data, 0x100))
-        }
+        bytes memory data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Call[] memory call = new Call[](1);
 
@@ -467,16 +458,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testExecuteCallWithSignatures() public payable {
-        bytes memory tx_data;
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), alice)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -577,16 +559,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testExecuteCallWithContractSignatures() public payable {
-        bytes memory tx_data;
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), alice)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -621,16 +594,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     /// @dev Check execution errors.
 
     function testCannotExecuteWithImproperSignatures() public payable {
-        bytes memory tx_data;
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), alice)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -664,16 +628,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testCannotExecuteWithSignaturesOutOfOrder() public payable {
-        bytes memory tx_data;
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), alice)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -707,16 +662,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testCannotExecuteWithSignaturesRepeated() public payable {
-        bytes memory tx_data;
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), alice)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -740,16 +686,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testCannotExecuteWithNullSignatures() public payable {
-        bytes memory tx_data;
-
-        assembly {
-            mstore(add(tx_data, 0x20), shl(0xE0, 0xa9059cbb)) // `transfer(address,uint256)`.
-            mstore(add(tx_data, 0x24), alice)
-            mstore(add(tx_data, 0x44), 100)
-            mstore(tx_data, 0x44)
-            // Update free memory pointer.
-            mstore(0x40, add(tx_data, 0x80))
-        }
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
 
