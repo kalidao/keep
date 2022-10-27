@@ -142,28 +142,6 @@ abstract contract KeepToken {
             );
     }
 
-    function name() public pure virtual returns (string memory) {
-        return string(abi.encodePacked(_computeArgUint(2)));
-    }
-
-    function _computeArgUint(uint256 argOffset)
-        internal
-        pure
-        virtual
-        returns (uint256 arg)
-    {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-
-            arg := calldataload(add(offset, argOffset))
-        }
-    }
-
     /// -----------------------------------------------------------------------
     /// ID Storage
     /// -----------------------------------------------------------------------
@@ -199,6 +177,21 @@ abstract contract KeepToken {
     /// -----------------------------------------------------------------------
 
     function uri(uint256 id) public view virtual returns (string memory);
+
+    function name() public pure virtual returns (string memory) {
+        uint256 placeholder;
+
+        assembly {
+            placeholder := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+
+            placeholder := calldataload(add(placeholder, 2))
+        }
+
+        return string(abi.encodePacked(placeholder));
+    }
 
     /// -----------------------------------------------------------------------
     /// ERC165 Logic
