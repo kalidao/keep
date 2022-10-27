@@ -16,6 +16,7 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 /// @custom:coauthor @0xmichalis
 /// @custom:coauthor @m1guelpf
 /// @custom:coauthor @asnared
+/// @custom:coauthor @0xPhaze
 /// @custom:coauthor out.eth
 
 enum Operation {
@@ -58,6 +59,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev Throws if quorum exceeds `totalSupply(SIGNER_KEY)`.
     error QuorumOverSupply();
+
+    /// @dev Throws if quorum with `threshold = 0` is set.
+    error InvalidThreshold();
 
     /// @dev Throws if `execute()` doesn't complete operation.
     error ExecuteFailed();
@@ -180,11 +184,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual {
         if (quorum != 0) revert AlreadyInit();
 
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
+        if (threshold == 0) revert InvalidThreshold();
 
         if (threshold > signers.length) revert QuorumOverSupply();
 
@@ -277,7 +277,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 threshold = quorum;
 
         // Store outside loop for gas optimization.
-        Signature memory sig;
+        Signature calldata sig;
 
         for (uint256 i; i < threshold; ) {
             // Load signature items.
@@ -517,11 +517,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function setQuorum(uint256 threshold) public payable virtual {
         _authorized();
 
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
+        if (threshold == 0) revert InvalidThreshold();
 
         if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
 
