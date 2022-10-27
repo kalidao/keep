@@ -277,7 +277,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 threshold = quorum;
 
         // Store outside loop for gas optimization.
-        Signature memory sig;
+        Signature calldata sig;
 
         for (uint256 i; i < threshold; ) {
             // Load signature items.
