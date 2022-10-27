@@ -122,26 +122,9 @@ abstract contract KeepToken {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    bytes32 internal _initialDomainSeparator;
-
     mapping(address => uint256) public nonces;
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            block.chainid == _initialChainId()
-                ? _initialDomainSeparator
-                : _computeDomainSeparator();
-    }
-
-    function name() public pure virtual returns (string memory) {
-        return string(abi.encodePacked(_computeArgUint(2)));
-    }
-
-    function _initialChainId() internal pure virtual returns (uint256) {
-        return _computeArgUint(7);
-    }
-
-    function _computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -157,6 +140,10 @@ abstract contract KeepToken {
                     address(this)
                 )
             );
+    }
+
+    function name() public pure virtual returns (string memory) {
+        return string(abi.encodePacked(_computeArgUint(2)));
     }
 
     function _computeArgUint(uint256 argOffset)
@@ -230,14 +217,6 @@ abstract contract KeepToken {
             interfaceId == 0xd9b67a26 ||
             // ERC165 interface ID for ERC1155MetadataURI.
             interfaceId == 0x0e89341c;
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Initialization Logic
-    /// -----------------------------------------------------------------------
-
-    function _initialize() internal virtual {
-        _initialDomainSeparator = _computeDomainSeparator();
     }
 
     /// -----------------------------------------------------------------------

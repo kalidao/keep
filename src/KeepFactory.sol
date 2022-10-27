@@ -44,7 +44,7 @@ contract KeepFactory is Multicallable {
     function determineKeep(bytes32 name) public view virtual returns (address) {
         return
             address(keepTemplate).predictDeterministicAddress(
-                abi.encodePacked(name, uint40(block.chainid)),
+                abi.encodePacked(name),
                 name,
                 address(this)
             );
@@ -58,7 +58,7 @@ contract KeepFactory is Multicallable {
     ) public payable virtual {
         Keep keep = Keep(
             address(keepTemplate).cloneDeterministic(
-                abi.encodePacked(name, uint40(block.chainid)),
+                abi.encodePacked(name),
                 name
             )
         );
