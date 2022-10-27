@@ -216,7 +216,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            emit TransferSingle(tx.origin, address(0), signer, SIGNER_KEY, 1);
+            emit TransferSingle(msg.sender, address(0), signer, SIGNER_KEY, 1);
 
             // An array can't have a total length
             // larger than the max uint256 value.
