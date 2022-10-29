@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 /// @dev Core.
-import {ERC1155TokenReceiver, KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
+import {KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
 /// @dev Extensions.
@@ -14,6 +14,7 @@ import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
 import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
 
 /// @dev Test framework.
 import "@std/Test.sol";
@@ -41,6 +42,7 @@ contract KeepTest is Keep(this), Test {
     MockERC721 internal mockNFT;
     MockERC1155 internal mock1155;
     MockERC1271Wallet internal mockERC1271Wallet;
+    MockUnsafeERC1155Receiver internal mockUnsafeERC1155Receiver;
 
     uint256 internal chainId;
 
@@ -184,6 +186,7 @@ contract KeepTest is Keep(this), Test {
         mockNFT = new MockERC721("NFT", "NFT");
         mock1155 = new MockERC1155();
         mockERC1271Wallet = new MockERC1271Wallet(alice);
+        mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();
 
         // Mint mock ERC20.
         mockDai.mint(address(this), 1_000_000_000 ether);
@@ -1444,10 +1447,19 @@ contract KeepTest is Keep(this), Test {
         keep.setTransferability(2, true);
         vm.stopPrank();
 
-        // Fail on receiver-noncompliant address.
+        // Fail on receiver-noncompliant addresses.
         startHoax(address(alice), address(alice), type(uint256).max);
         vm.expectRevert();
         keep.safeTransferFrom(alice, address(mockDai), 2, 1, "");
+
+        vm.expectRevert(UnsafeRecipient.selector);
+        keep.safeTransferFrom(
+            alice,
+            address(mockUnsafeERC1155Receiver),
+            2,
+            1,
+            ""
+        );
 
         // Success on receiver-compliant address.
         keep.safeTransferFrom(alice, address(keep), 2, 1, "");
@@ -1470,10 +1482,19 @@ contract KeepTest is Keep(this), Test {
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1;
 
-        // Fail on receiver-noncompliant address.
+        // Fail on receiver-noncompliant addresses.
         startHoax(address(alice), address(alice), type(uint256).max);
         vm.expectRevert();
         keep.safeBatchTransferFrom(alice, address(mockDai), ids, amounts, "");
+
+        vm.expectRevert(UnsafeRecipient.selector);
+        keep.safeBatchTransferFrom(
+            alice,
+            address(mockUnsafeERC1155Receiver),
+            ids,
+            amounts,
+            ""
+        );
 
         // Success on receiver-compliant address.
         keep.safeBatchTransferFrom(alice, address(keep), ids, amounts, "");
