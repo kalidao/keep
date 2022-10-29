@@ -353,11 +353,6 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assertEq(keep.name(), string(abi.encodePacked(name)));
     }
 
-    // We use this to check fetching when exposing function as `public`.
-    /*function testInitChainId() public {
-        assertEq(keep._initialChainId(), block.chainid);
-    }*/
-
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
         assert(keep.totalSupply(SIGNER_KEY) == 3);
@@ -377,6 +372,14 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
     function testTotalSignerSupply() public view {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
+    }
+
+    function testSupportsInterface() public {
+        assertTrue(keep.supportsInterface(0x150b7a02));
+        assertTrue(keep.supportsInterface(0x4e2312e0));
+        assertTrue(keep.supportsInterface(0x01ffc9a7));
+        assertTrue(keep.supportsInterface(0xd9b67a26));
+        assertTrue(keep.supportsInterface(0x0e89341c));
     }
 
     /// -----------------------------------------------------------------------
