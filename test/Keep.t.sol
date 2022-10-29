@@ -344,23 +344,20 @@ contract KeepTest is Keep(this), Test {
     /// Keep State Tests
     /// -----------------------------------------------------------------------
 
-    function testNonce() public view {
-        assert(keep.nonce() == 0);
-    }
-
     function testName() public {
         assertEq(keep.name(), string(abi.encodePacked(name1)));
     }
 
+    function testKeepNonce() public view {
+        assert(keep.nonce() == 0);
+    }
+
+    function testUserNonce() public view {
+        assert(keep.nonces(alice) == 0);
+    }
+
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
-
-        vm.prank(address(keep));
-        keep.mint(charlie, SIGNER_KEY, 1, "");
-        vm.stopPrank();
-
-        assert(keep.totalSupply(SIGNER_KEY) == 4);
 
         vm.prank(address(keep));
         keep.setQuorum(3);
@@ -369,8 +366,82 @@ contract KeepTest is Keep(this), Test {
         assert(keep.quorum() == 3);
     }
 
-    function testTotalSignerSupply() public view {
+    function testBalanceOf() public {
+        assert(keep.balanceOf(alice, 0) == 0);
+
+        vm.prank(address(keep));
+        keep.mint(alice, 0, 1, "");
+        vm.stopPrank();
+
+        assert(keep.balanceOf(alice, 0) == 1);
+    }
+
+    function testBalanceOfSigner() public {
+        assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
+
+        vm.prank(address(keep));
+        keep.mint(charlie, SIGNER_KEY, 1, "");
+        vm.stopPrank();
+
+        assert(keep.balanceOf(charlie, SIGNER_KEY) == 1);
+    }
+
+    function testBalanceOfBatch() public {
+        address[] memory owners = new address[](2);
+        owners[0] = alice;
+        owners[1] = bob;
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = SIGNER_KEY;
+
+        uint256[] memory balances = new uint256[](2);
+        balances = keep.balanceOfBatch(owners, ids);
+
+        assert(balances[0] == 0);
+        assert(balances[1] == 1);
+
+        vm.prank(address(keep));
+        keep.mint(alice, 0, 1, "");
+        vm.stopPrank();
+
+        balances = keep.balanceOfBatch(owners, ids);
+
+        assert(balances[0] == 1);
+        assert(balances[1] == 1);
+    }
+
+    function testCannotFetchMismatchedLengthBalanceOfBatch() public {
+        address[] memory owners = new address[](2);
+        owners[0] = alice;
+        owners[1] = bob;
+
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 0;
+
+        uint256[] memory balances = new uint256[](2);
+        vm.expectRevert(LengthMismatch.selector);
+        balances = keep.balanceOfBatch(owners, ids);
+    }
+
+    function testTotalSupply() public {
+        assert(keep.totalSupply(0) == 0);
+
+        vm.prank(address(keep));
+        keep.mint(alice, 0, 1, "");
+        vm.stopPrank();
+
+        assert(keep.totalSupply(0) == 1);
+    }
+
+    function testTotalSignerSupply() public {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
+
+        vm.prank(address(keep));
+        keep.mint(charlie, SIGNER_KEY, 1, "");
+        vm.stopPrank();
+
+        assert(keep.totalSupply(SIGNER_KEY) == 4);
     }
 
     function testSupportsInterface() public {
