@@ -863,7 +863,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.totalSupply(CORE_KEY) == totalSupply + amount);
     }
 
-    function testCannotMintZeroAddress() public payable {
+    function testCannotMintToZeroAddress() public payable {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
 
         startHoax(address(keep), address(keep), type(uint256).max);
@@ -871,6 +871,34 @@ contract KeepTest is Keep(this), Test {
         keep.mint(address(0), SIGNER_KEY, 1, "");
         vm.expectRevert(InvalidRecipient.selector);
         keep.mint(address(0), 1, 1, "");
+        vm.stopPrank();
+
+        assert(keep.balanceOf(address(0), SIGNER_KEY) == 0);
+        assert(keep.balanceOf(address(0), 1) == 0);
+
+        assert(keep.totalSupply(SIGNER_KEY) == 3);
+        assert(keep.totalSupply(1) == 0);
+
+        assert(keep.quorum() == 2);
+    }
+
+    function testCannotMintToUnsafeAddress() public payable {
+        assert(keep.totalSupply(SIGNER_KEY) == 3);
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+
+        vm.expectRevert();
+        keep.mint(address(mockDai), SIGNER_KEY, 1, "");
+
+        vm.expectRevert(UnsafeRecipient.selector);
+        keep.mint(address(mockUnsafeERC1155Receiver), SIGNER_KEY, 1, "");
+
+        vm.expectRevert();
+        keep.mint(address(mockDai), 1, 1, "");
+
+        vm.expectRevert(UnsafeRecipient.selector);
+        keep.mint(address(mockUnsafeERC1155Receiver), 1, 1, "");
+
         vm.stopPrank();
 
         assert(keep.balanceOf(address(0), SIGNER_KEY) == 0);
