@@ -432,7 +432,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
     /// @dev Check call execution.
 
-    function testExecuteCallWithRole() public payable {
+    function testExecuteTokenCallWithRole() public payable {
         uint256 nonceInit = keep.nonce();
 
         // Mint executor role.
@@ -460,7 +460,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assert((nonceInit + 1) == nonceAfter);
     }
 
-    function testExecuteCallWithSignatures() public payable {
+    function testExecuteTokenCallWithSignatures() public payable {
         bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Signature[] memory sigs = new Signature[](2);
@@ -490,7 +490,64 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
-    function testExecuteDelegateCallWithSignatures() public payable {
+    function testExecuteTokenCallWithContractSignatures() public payable {
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            address(mockERC1271Wallet),
+            alicesPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        bobSig = signExecution(
+            bob,
+            bobsPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        sigs[0] = bobSig;
+        sigs[1] = aliceSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    }
+
+    function testExecuteEthCall() public payable {
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            alice,
+            alicesPk,
+            Operation.call,
+            alice,
+            1 ether,
+            ""
+        );
+
+        bobSig = signExecution(bob, bobsPk, Operation.call, alice, 1 ether, "");
+
+        sigs[0] = bobSig;
+        sigs[1] = aliceSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, alice, 1 ether, "", sigs);
+    }
+
+    function testExecuteDelegateCall() public payable {
         bytes memory tx_data;
 
         assembly {
@@ -537,52 +594,25 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         );
     }
 
-    function testExecuteEthCallWithSignatures() public payable {
-        Signature[] memory sigs = new Signature[](2);
-
-        Signature memory aliceSig;
-        Signature memory bobSig;
-
-        aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.call,
-            alice,
-            1 ether,
-            ""
-        );
-
-        bobSig = signExecution(bob, bobsPk, Operation.call, alice, 1 ether, "");
-
-        sigs[0] = bobSig;
-        sigs[1] = aliceSig;
-
-        // Execute tx.
-        keep.execute(Operation.call, alice, 1 ether, "", sigs);
-    }
-
-    function testExecuteCallWithContractSignatures() public payable {
-        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    function testExecuteCreateCall() public payable {
+        bytes memory tx_data = type(MockERC1155).creationCode;
 
         Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig;
-        Signature memory bobSig;
-
-        aliceSig = signExecution(
-            address(mockERC1271Wallet),
+        Signature memory aliceSig = signExecution(
+            alice,
             alicesPk,
-            Operation.call,
-            address(mockDai),
+            Operation.create,
+            address(0),
             0,
             tx_data
         );
 
-        bobSig = signExecution(
+        Signature memory bobSig = signExecution(
             bob,
             bobsPk,
-            Operation.call,
-            address(mockDai),
+            Operation.create,
+            address(0),
             0,
             tx_data
         );
@@ -591,7 +621,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         sigs[1] = aliceSig;
 
         // Execute tx.
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+        keep.execute(Operation.create, address(0), 0, tx_data, sigs);
     }
 
     /// @dev Check execution errors.
