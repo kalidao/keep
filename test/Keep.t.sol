@@ -1123,41 +1123,122 @@ contract KeepTest is Keep(this), Test {
     /// Keep Token Tests
     /// -----------------------------------------------------------------------
 
-    function testKeepTokenApprove() public payable {
-        vm.prank(alice);
-        keep.setApprovalForAll(bob, true);
+    function testKeepTokenApprove(address userA, address userB) public payable {
+        vm.prank(userA);
+        keep.setApprovalForAll(userB, true);
         vm.stopPrank();
 
-        assertTrue(keep.isApprovedForAll(alice, bob));
+        assertTrue(keep.isApprovedForAll(userA, userB));
 
-        vm.prank(alice);
-        keep.setApprovalForAll(bob, false);
+        vm.prank(userA);
+        keep.setApprovalForAll(userB, false);
         vm.stopPrank();
 
-        assertFalse(keep.isApprovedForAll(alice, bob));
+        assertFalse(keep.isApprovedForAll(userA, userB));
     }
 
-    function testKeepTokenTransferByOwner(uint256 id, uint256 amount)
-        public
-        payable
-    {
-        vm.assume(id != SIGNER_KEY);
+    function testKeepTokenTransferByOwner(
+        address userA,
+        address userB,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(userA != userB);
+        vm.assume(userA.code.length == 0);
+        vm.assume(userB.code.length == 0);
+        vm.assume(userA != address(0));
+        vm.assume(userB != address(0));
+
         amount = bound(amount, 0, type(uint216).max);
+        if (
+            id == SIGNER_KEY &&
+            (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
+        ) amount = amount - 1;
 
         vm.startPrank(address(keep));
         keep.setTransferability(id, true);
-        keep.mint(charlie, id, amount, "");
+        keep.mint(userA, id, amount, "");
         vm.stopPrank();
 
-        uint256 charliePreBalance = keep.balanceOf(charlie, id);
-        uint256 bobPreBalance = keep.balanceOf(bob, id);
+        uint256 userApreBalance = keep.balanceOf(userA, id);
+        uint256 userBpreBalance = keep.balanceOf(userB, id);
 
-        vm.prank(charlie);
-        keep.safeTransferFrom(charlie, bob, id, amount, "");
+        vm.prank(userA);
+        keep.safeTransferFrom(userA, userB, id, amount, "");
         vm.stopPrank();
 
-        assert(keep.balanceOf(charlie, id) == charliePreBalance - amount);
-        assert(keep.balanceOf(bob, id) == bobPreBalance + amount);
+        assert(keep.balanceOf(userA, id) == userApreBalance - amount);
+        assert(keep.balanceOf(userB, id) == userBpreBalance + amount);
+    }
+
+    function testKeepTokenTransferByOperator(
+        address userA,
+        address userB,
+        address userC,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(userA != userB);
+        vm.assume(userA.code.length == 0);
+        vm.assume(userB.code.length == 0);
+        vm.assume(userA != address(0));
+        vm.assume(userB != address(0));
+
+        amount = bound(amount, 0, type(uint216).max);
+        if (
+            id == SIGNER_KEY &&
+            (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
+        ) amount = amount - 1;
+
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.setTransferability(id, true);
+        keep.mint(userA, id, amount, "");
+        vm.stopPrank();
+
+        uint256 userApreBalance = keep.balanceOf(userA, id);
+        uint256 userBpreBalance = keep.balanceOf(userB, id);
+
+        vm.prank(userA);
+        keep.setApprovalForAll(userC, true);
+        vm.stopPrank();
+
+        assertTrue(keep.isApprovedForAll(userA, userC));
+
+        vm.prank(userC);
+        keep.safeTransferFrom(userA, userB, id, amount, "");
+        vm.stopPrank();
+
+        assert(keep.balanceOf(userA, id) == userApreBalance - amount);
+        assert(keep.balanceOf(userB, id) == userBpreBalance + amount);
+    }
+
+    function testCannotTransferKeepTokenAsUnauthorizedNonOwner(
+        address userA,
+        address userB,
+        uint256 id,
+        uint256 amount
+    ) public payable {
+        vm.assume(userA != userB);
+        vm.assume(userA.code.length == 0);
+        vm.assume(userB.code.length == 0);
+        vm.assume(userA != address(0));
+        vm.assume(userB != address(0));
+
+        amount = bound(amount, 0, type(uint216).max);
+        if (
+            id == SIGNER_KEY &&
+            (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
+        ) amount = amount - 1;
+
+        vm.startPrank(address(keep));
+        keep.setTransferability(id, true);
+        keep.mint(userA, id, amount, "");
+        vm.stopPrank();
+
+        vm.prank(userB);
+        vm.expectRevert(Unauthorized.selector);
+        keep.safeTransferFrom(userA, userB, id, amount, "");
+        vm.stopPrank();
     }
 
     function testKeepTokenBatchTransferByOwner() public payable {
@@ -1190,30 +1271,6 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(charlie, 1) == 1);
         assert(keep.balanceOf(bob, 0) == 1);
         assert(keep.balanceOf(bob, 1) == 1);
-    }
-
-    function testKeepTokenTransferByOperator(uint256 id) public payable {
-        vm.assume(id != SIGNER_KEY);
-
-        uint256 bobPreBalance = keep.balanceOf(bob, id);
-
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(id, true);
-        keep.mint(charlie, id, 1, "");
-        vm.stopPrank();
-
-        vm.prank(charlie);
-        keep.setApprovalForAll(alice, true);
-        vm.stopPrank();
-
-        assertTrue(keep.isApprovedForAll(charlie, alice));
-
-        vm.prank(alice);
-        keep.safeTransferFrom(charlie, bob, id, 1, "");
-        vm.stopPrank();
-
-        assert(keep.balanceOf(charlie, id) == 0);
-        assert(keep.balanceOf(bob, id) == bobPreBalance + 1);
     }
 
     function testKeepTokenBatchTransferByOperator() public payable {
@@ -1261,9 +1318,6 @@ contract KeepTest is Keep(this), Test {
         uint256 id,
         uint256 amount
     ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
-        vm.assume(id != 2094031643); // Bad
-        vm.assume(id != SIGNER_KEY);
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
         vm.assume(userC != address(0));
@@ -1273,6 +1327,12 @@ contract KeepTest is Keep(this), Test {
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
         vm.assume(userC.code.length == 0);
+
+        amount = bound(amount, 0, type(uint216).max);
+        if (
+            id == SIGNER_KEY &&
+            (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
+        ) amount = amount - 1;
 
         uint256 preBalanceA = keep.balanceOf(userA, id);
         uint256 preBalanceB = keep.balanceOf(userB, id);
@@ -1405,7 +1465,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(bob, id) == bobBalance);
     }
 
-    function testCannotTransferKeepTokenNonTransferable() public payable {
+    function testCannotTransferBatchKeepTokenNonTransferable() public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(0, true);
         keep.setTransferability(1, false);
@@ -1470,13 +1530,17 @@ contract KeepTest is Keep(this), Test {
         uint256 id,
         uint256 amount
     ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
         vm.assume(userA != address(0));
         vm.assume(userB != address(0));
         vm.assume(userA != userB);
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
+
+        amount = bound(amount, 0, type(uint216).max);
+        if (
+            id == SIGNER_KEY &&
+            (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
+        ) amount = amount - 1;
 
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.mint(userA, id, amount, "");
@@ -1609,10 +1673,12 @@ contract KeepTest is Keep(this), Test {
         uint256 id,
         uint256 amount
     ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
         vm.assume(user != address(0));
         vm.assume(user.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
+
+        amount = bound(amount, 0, type(uint216).max);
+        if (id == SIGNER_KEY && (keep.balanceOf(user, id) != 0))
+            amount = amount - 1;
 
         vm.warp(1665378008);
 
