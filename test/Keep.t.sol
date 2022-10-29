@@ -387,6 +387,8 @@ contract KeepTest is Keep(this), Test {
     function testReceiveETH() public payable {
         (bool sent, ) = address(keep).call{value: 5 ether}("");
         assert(sent);
+        // We check addition to setup balance.
+        assert(address(keep).balance == 10 ether);
     }
 
     function testReceiveERC721() public payable {
@@ -394,8 +396,25 @@ contract KeepTest is Keep(this), Test {
         assert(mockNFT.ownerOf(1) == address(keep));
     }
 
-    function testReceiveStandardERC1155() public payable {
+    function testReceiveERC1155() public payable {
         mock1155.safeTransferFrom(address(this), address(keep), 1, 1, "");
+        assert(mock1155.balanceOf(address(keep), 1) == 1);
+    }
+
+    function testReceiveBatchERC1155() public payable {
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 1;
+
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 1;
+
+        mock1155.safeBatchTransferFrom(
+            address(this),
+            address(keep),
+            ids,
+            amounts,
+            ""
+        );
         assert(mock1155.balanceOf(address(keep), 1) == 1);
     }
 
@@ -408,22 +427,25 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
 
         keep.safeTransferFrom(local, address(keep), 2, 1, "");
+        assert(keep.balanceOf(address(keep), 2) == 1);
     }
 
-    function testCannotTransferKeepERC1155ToZeroAddress() public payable {
-        // Allow transferability.
+    function testReceiveBatchKeepERC1155() public payable {
+        address local = address(this);
+
         startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(alice, 2, 1, "");
+        keep.mint(local, 2, 1, "");
         keep.setTransferability(2, true);
         vm.stopPrank();
 
-        // Fail on zero address.
-        startHoax(address(alice), address(alice), type(uint256).max);
-        vm.expectRevert(InvalidRecipient.selector);
-        keep.safeTransferFrom(alice, address(0), 2, 1, "");
-        // Success on non-zero address.
-        keep.safeTransferFrom(alice, bob, 2, 1, "");
-        vm.stopPrank();
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 2;
+
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 1;
+
+        keep.safeBatchTransferFrom(local, address(keep), ids, amounts, "");
+        assert(keep.balanceOf(address(keep), 2) == 1);
     }
 
     /// @dev Check call execution.
@@ -1370,6 +1392,92 @@ contract KeepTest is Keep(this), Test {
 
         assert(keep.balanceOf(userA, id) == amount);
         assert(keep.balanceOf(userB, id) == 0);
+    }
+
+    function testCannotTransferKeepERC1155ToZeroAddress() public payable {
+        // Mint and allow transferability.
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(alice, 2, 1, "");
+        keep.setTransferability(2, true);
+        vm.stopPrank();
+
+        // Fail on zero address.
+        startHoax(address(alice), address(alice), type(uint256).max);
+        vm.expectRevert(InvalidRecipient.selector);
+        keep.safeTransferFrom(alice, address(0), 2, 1, "");
+
+        // Success on non-zero address.
+        keep.safeTransferFrom(alice, bob, 2, 1, "");
+        vm.stopPrank();
+    }
+
+    function testCannotBatchTransferKeepERC1155ToZeroAddress() public payable {
+        // Mint and allow transferability.
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(alice, 2, 1, "");
+        keep.setTransferability(2, true);
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 2;
+
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 1;
+
+        // Fail on zero address.
+        startHoax(address(alice), address(alice), type(uint256).max);
+        vm.expectRevert(InvalidRecipient.selector);
+        keep.safeBatchTransferFrom(alice, address(0), ids, amounts, "");
+
+        // Success on non-zero address.
+        keep.safeBatchTransferFrom(alice, bob, ids, amounts, "");
+        vm.stopPrank();
+    }
+
+    function testCannotTransferKeepERC1155ToUnsafeContractAddress()
+        public
+        payable
+    {
+        // Mint and allow transferability.
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(alice, 2, 1, "");
+        keep.setTransferability(2, true);
+        vm.stopPrank();
+
+        // Fail on receiver-noncompliant address.
+        startHoax(address(alice), address(alice), type(uint256).max);
+        vm.expectRevert();
+        keep.safeTransferFrom(alice, address(mockDai), 2, 1, "");
+
+        // Success on receiver-compliant address.
+        keep.safeTransferFrom(alice, address(keep), 2, 1, "");
+        vm.stopPrank();
+    }
+
+    function testCannotBatchTransferKeepERC1155ToUnsafeContractAddress()
+        public
+        payable
+    {
+        // Mint and allow transferability.
+        startHoax(address(keep), address(keep), type(uint256).max);
+        keep.mint(alice, 2, 1, "");
+        keep.setTransferability(2, true);
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 2;
+
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 1;
+
+        // Fail on receiver-noncompliant address.
+        startHoax(address(alice), address(alice), type(uint256).max);
+        vm.expectRevert();
+        keep.safeBatchTransferFrom(alice, address(mockDai), ids, amounts, "");
+
+        // Success on receiver-compliant address.
+        keep.safeBatchTransferFrom(alice, address(keep), ids, amounts, "");
+        vm.stopPrank();
     }
 
     /// -----------------------------------------------------------------------
