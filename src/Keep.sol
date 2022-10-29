@@ -57,7 +57,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Throws if `initialize()` is called more than once.
     error AlreadyInit();
 
-    /// @dev Throws if quorum exceeds `totalSupply(SIGNER_KEY)`.
+    /// @dev Throws if quorum exceeds `totalSupply(SIGN_KEY)`.
     error QuorumOverSupply();
 
     /// @dev Throws if quorum with `threshold = 0` is set.
@@ -84,7 +84,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Record of states verifying `execute()`.
     uint120 public nonce;
 
-    /// @dev SIGNER_KEY threshold to `execute()`.
+    /// @dev SIGN_KEY threshold to `execute()`.
     uint120 public quorum;
 
     /// @dev Internal ID metadata mapping.
@@ -217,18 +217,18 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            emit TransferSingle(tx.origin, address(0), signer, SIGNER_KEY, 1);
+            emit TransferSingle(tx.origin, address(0), signer, SIGN_KEY, 1);
 
             // An array can't have a total length
             // larger than the max uint256 value.
             unchecked {
-                ++balanceOf[signer][SIGNER_KEY];
+                ++balanceOf[signer][SIGN_KEY];
                 ++supply;
                 ++i;
             }
         }
 
-        totalSupply[SIGNER_KEY] = supply;
+        totalSupply[SIGN_KEY] = supply;
         quorum = uint120(threshold);
     }
 
@@ -283,9 +283,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             sig = sigs[i];
             address user = sig.user;
 
-            // Check SIGNER_KEY balance.
+            // Check SIGN_KEY balance.
             // This also confirms non-zero `user`.
-            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
+            if (balanceOf[user][SIGN_KEY] == 0) revert InvalidSig();
 
             // Check signature recovery.
             _recoverSig(hash, user, sig.v, sig.r, sig.s);
@@ -503,8 +503,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         _burn(from, id, amount);
 
-        if (id == SIGNER_KEY)
-            if (quorum > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
+        if (id == SIGN_KEY)
+            if (quorum > totalSupply[SIGN_KEY]) revert QuorumOverSupply();
     }
 
     /// -----------------------------------------------------------------------
@@ -518,7 +518,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         if (threshold == 0) revert InvalidThreshold();
 
-        if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
+        if (threshold > totalSupply[SIGN_KEY]) revert QuorumOverSupply();
 
         quorum = uint120(threshold);
 

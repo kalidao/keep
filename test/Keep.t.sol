@@ -18,64 +18,94 @@ import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol
 /// @dev Test framework.
 import "@std/Test.sol";
 
-contract KeepTest is ERC1155TokenReceiver, Test {
+contract KeepTest is Keep(this), Test {
     /// -----------------------------------------------------------------------
-    /// Keep Test Storage
+    /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
     using stdStorage for StdStorage;
 
-    address keepAddr;
-    address keepAddrRepeat;
+    address internal keepAddr;
+    address internal keepAddrRepeat;
 
-    Keep keep;
-    Keep keepRepeat;
+    Keep internal keep;
+    Keep internal keepRepeat;
 
-    KeepFactory factory;
+    KeepFactory internal factory;
 
-    URIFetcher uriFetcher;
-    URIRemoteFetcher uriRemote;
-    URIRemoteFetcher uriRemoteNew;
+    URIFetcher internal mockUriFetcher;
+    URIRemoteFetcher internal uriRemote;
+    URIRemoteFetcher internal uriRemoteNew;
 
-    MockERC20 mockDai;
-    MockERC721 mockNFT;
-    MockERC1155 mock1155;
-    MockERC1271Wallet mockERC1271Wallet;
+    MockERC20 internal mockDai;
+    MockERC721 internal mockNFT;
+    MockERC1155 internal mock1155;
+    MockERC1271Wallet internal mockERC1271Wallet;
 
-    uint256 internal SIGNER_KEY;
+    uint256 internal chainId;
+
+    uint256 internal immutable SIGNER_KEY = uint32(keep.execute.selector);
+
+    bytes32 internal constant name1 =
+        0x5445535400000000000000000000000000000000000000000000000000000000;
+
+    bytes32 internal constant name2 =
+        0x5445535432000000000000000000000000000000000000000000000000000000;
+
+    bytes32 internal constant PERMIT_TYPEHASH =
+        keccak256(
+            "Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)"
+        );
+
+    bytes32 internal constant DELEGATION_TYPEHASH =
+        keccak256(
+            "Delegation(address delegatee,uint256 nonce,uint256 deadline,uint256 id)"
+        );
+
+    Call[] calls;
 
     address[] signers;
 
-    /// @dev Users.
+    /// @dev Mock Users.
 
     uint256 internal constant alicesPk =
         0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
-    address public constant alice = 0x503408564C50b43208529faEf9bdf9794c015d52;
+    address internal constant alice =
+        0x503408564C50b43208529faEf9bdf9794c015d52;
 
     uint256 internal constant bobsPk =
         0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
-    address public constant bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
+    address internal constant bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
     uint256 internal constant charliesPk =
         0xb9dee2522aae4d21136ba441f976950520adf9479a3c0bda0a88ffc81495ded3;
-    address public constant charlie =
+    address internal constant charlie =
         0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
 
     uint256 internal constant nullPk =
         0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
-    address public constant nully = 0x0ACDf2aC839B7ff4cd5F16e884B2153E902253f2;
+    address internal constant nully = address(0);
 
     /// @dev Helpers.
 
-    Call[] calls;
-
-    uint256 chainId;
-
-    bytes32 name =
-        0x5445535400000000000000000000000000000000000000000000000000000000;
-
-    bytes32 name2 =
-        0x5445535432000000000000000000000000000000000000000000000000000000;
+    function computeDomainSeparator(address addr)
+        internal
+        view
+        returns (bytes32)
+    {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("Keep")),
+                    keccak256("1"),
+                    block.chainid,
+                    addr
+                )
+            );
+    }
 
     function getDigest(
         Operation op,
@@ -106,37 +136,6 @@ contract KeepTest is ERC1155TokenReceiver, Test {
             );
     }
 
-    function computeDomainSeparator(address addr)
-        internal
-        view
-        returns (bytes32)
-    {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes("Keep")),
-                    keccak256("1"),
-                    block.chainid,
-                    addr
-                )
-            );
-    }
-
-    function writeTokenBalance(
-        address who,
-        address token,
-        uint256 amt
-    ) internal {
-        stdstore
-            .target(token)
-            .sig(MockERC20(token).balanceOf.selector)
-            .with_key(who)
-            .checked_write(amt);
-    }
-
     function signExecution(
         address user,
         uint256 pk,
@@ -153,10 +152,10 @@ contract KeepTest is ERC1155TokenReceiver, Test {
             pk,
             getDigest(
                 op,
-                address(to),
+                to,
                 value,
                 data,
-                keep.nonce(),
+                0,
                 computeDomainSeparator(address(keep))
             )
         );
@@ -177,9 +176,9 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         // Initialize templates.
         uriRemote = new URIRemoteFetcher(alice);
         uriRemoteNew = new URIRemoteFetcher(bob);
-        uriFetcher = new URIFetcher(alice, uriRemote);
+        mockUriFetcher = new URIFetcher(alice, uriRemote);
 
-        keep = new Keep(Keep(address(uriFetcher)));
+        keep = new Keep(Keep(address(mockUriFetcher)));
 
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721("NFT", "NFT");
@@ -207,13 +206,10 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
         // Initialize Keep from factory.
         // The factory is fully tested in KeepFactory.t.sol.
-        keepAddr = factory.determineKeep(name);
+        keepAddr = factory.determineKeep(name1);
         keep = Keep(keepAddr);
 
-        factory.deployKeep(name, calls, setupSigners, 2);
-
-        // Store signer ID key.
-        SIGNER_KEY = uint32(keep.execute.selector);
+        factory.deployKeep(name1, calls, setupSigners, 2);
 
         // Mint mock smart wallet a signer ID key.
         vm.prank(address(keep));
@@ -279,11 +275,11 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assertEq(keep.uri(1), "");
 
         vm.prank(address(alice));
-        uriFetcher.setURIRemoteFetcher(uriRemoteNew);
+        mockUriFetcher.setURIRemoteFetcher(uriRemoteNew);
         vm.stopPrank();
 
         vm.prank(address(alice));
-        vm.expectRevert(bytes4(keccak256("Unauthorized()")));
+        vm.expectRevert(Unauthorized.selector);
         uriRemoteNew.setURI(address(keep), 0, "");
         vm.stopPrank();
 
@@ -312,23 +308,23 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     /// @notice Check setup errors.
 
     function testCannotRepeatKeepSetup() public payable {
-        keepRepeat = new Keep(Keep(address(uriFetcher)));
+        keepRepeat = new Keep(Keep(address(mockUriFetcher)));
 
         keepAddrRepeat = factory.determineKeep(name2);
         keepRepeat = Keep(keepAddrRepeat);
         factory.deployKeep(name2, calls, signers, 2);
 
-        vm.expectRevert(bytes4(keccak256("AlreadyInit()")));
+        vm.expectRevert(AlreadyInit.selector);
         keepRepeat.initialize(calls, signers, 2);
     }
 
     function testCannotSetupWithZeroQuorum() public payable {
-        vm.expectRevert(bytes4(keccak256("InvalidThreshold()")));
+        vm.expectRevert(InvalidThreshold.selector);
         factory.deployKeep(name2, calls, signers, 0);
     }
 
     function testCannotSetupWithExcessiveQuorum() public payable {
-        vm.expectRevert(bytes4(keccak256("QuorumOverSupply()")));
+        vm.expectRevert(QuorumOverSupply.selector);
         factory.deployKeep(name2, calls, signers, 3);
     }
 
@@ -337,7 +333,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         outOfOrderSigners[0] = alice > bob ? alice : bob;
         outOfOrderSigners[1] = alice > bob ? bob : alice;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
+        vm.expectRevert(InvalidSig.selector);
         factory.deployKeep(name2, calls, outOfOrderSigners, 2);
     }
 
@@ -350,7 +346,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     }
 
     function testName() public {
-        assertEq(keep.name(), string(abi.encodePacked(name)));
+        assertEq(keep.name(), string(abi.encodePacked(name1)));
     }
 
     function testQuorum() public payable {
@@ -423,7 +419,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
         // Fail on zero address.
         startHoax(address(alice), address(alice), type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        vm.expectRevert(InvalidRecipient.selector);
         keep.safeTransferFrom(alice, address(0), 2, 1, "");
         // Success on non-zero address.
         keep.safeTransferFrom(alice, bob, 2, 1, "");
@@ -547,6 +543,39 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         keep.execute(Operation.call, alice, 1 ether, "", sigs);
     }
 
+    function testNonceIncrementAfterExecute() public payable {
+        assert(keep.nonce() == 0);
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig;
+        Signature memory bobSig;
+
+        aliceSig = signExecution(
+            alice,
+            alicesPk,
+            Operation.call,
+            alice,
+            1 ether,
+            ""
+        );
+
+        bobSig = signExecution(bob, bobsPk, Operation.call, alice, 1 ether, "");
+
+        sigs[0] = bobSig;
+        sigs[1] = aliceSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, alice, 1 ether, "", sigs);
+
+        // Confirm nonce increment.
+        assert(keep.nonce() == 1);
+
+        // Confirm revert for stale nonce.
+        vm.expectRevert(InvalidSig.selector);
+        keep.execute(Operation.call, alice, 1 ether, "", sigs);
+    }
+
     function testExecuteDelegateCall() public payable {
         bytes memory tx_data;
 
@@ -655,8 +684,8 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         sigs[0] = alice > charlie ? charlieSig : aliceSig;
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
+        vm.expectRevert(InvalidSig.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -689,8 +718,8 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         sigs[0] = alice > bob ? aliceSig : bobSig;
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
+        vm.expectRevert(InvalidSig.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -713,8 +742,8 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         sigs[0] = aliceSig;
         sigs[1] = aliceSig;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
+        vm.expectRevert(InvalidSig.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -747,8 +776,8 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         sigs[0] = alice > nully ? nullSig : aliceSig;
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        vm.expectRevert(bytes4(keccak256("InvalidSig()")));
         // Execute tx.
+        vm.expectRevert(InvalidSig.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -813,9 +842,9 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
 
         startHoax(address(keep), address(keep), type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        vm.expectRevert(InvalidRecipient.selector);
         keep.mint(address(0), SIGNER_KEY, 1, "");
-        vm.expectRevert(bytes4(keccak256("InvalidRecipient()")));
+        vm.expectRevert(InvalidRecipient.selector);
         keep.mint(address(0), 1, 1, "");
         vm.stopPrank();
 
@@ -835,15 +864,15 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
         keep.mint(charlie, 0, type(uint96).max, "");
 
-        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        vm.expectRevert(Overflow.selector);
         keep.mint(charlie, 1, type(uint256).max, "");
 
         keep.mint(charlie, 2, type(uint216).max, "");
 
-        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        vm.expectRevert(Overflow.selector);
         keep.mint(charlie, 2, 1, "");
 
-        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        vm.expectRevert(Overflow.selector);
         keep.mint(charlie, 3, amount, "");
 
         vm.stopPrank();
@@ -854,14 +883,14 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
         keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        vm.expectRevert(Overflow.selector);
         keep.mint(charlie, SIGNER_KEY, 1, "");
 
         keep.burn(charlie, SIGNER_KEY, 1);
 
         keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        vm.expectRevert(Overflow.selector);
         keep.mint(charlie, SIGNER_KEY, 1, "");
 
         vm.stopPrank();
@@ -896,7 +925,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
     function testIdKeyRole() public payable {
         vm.prank(charlie);
-        vm.expectRevert(bytes4(keccak256("Unauthorized()")));
+        vm.expectRevert(Unauthorized.selector);
         keep.mint(alice, 1, 100, "");
         vm.stopPrank();
 
@@ -931,7 +960,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assert(keep.balanceOf(alice, 1) == 1);
 
         vm.prank(alice);
-        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        vm.expectRevert(NonTransferable.selector);
         keep.safeTransferFrom(alice, charlie, 1, 1, "");
         vm.stopPrank();
     }
@@ -943,7 +972,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         vm.assume(user != address(keep));
 
         vm.prank(user);
-        vm.expectRevert(bytes4(keccak256("Unauthorized()")));
+        vm.expectRevert(Unauthorized.selector);
         keep.setTransferability(id, true);
         vm.stopPrank();
 
@@ -954,7 +983,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         vm.assume(user != address(keep));
 
         vm.prank(user);
-        vm.expectRevert(bytes4(keccak256("Unauthorized()")));
+        vm.expectRevert(Unauthorized.selector);
         keep.setURI(0, "TEST");
         vm.stopPrank();
 
@@ -1161,7 +1190,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assertTrue(keep.isApprovedForAll(userB, userC));
 
         vm.prank(userC);
-        vm.expectRevert(bytes4(keccak256("NotPermitted()")));
+        vm.expectRevert(NotPermitted.selector);
         keep.safeTransferFrom(userB, userC, id, amount, ""); // C not permissioned
         vm.stopPrank();
 
@@ -1189,7 +1218,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assertFalse(keep.transferable(id));
 
         vm.prank(userC);
-        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        vm.expectRevert(NonTransferable.selector);
         keep.safeTransferFrom(userC, userA, id, amount, "");
         vm.stopPrank();
 
@@ -1213,7 +1242,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         vm.stopPrank();
 
         vm.prank(charlie);
-        vm.expectRevert(bytes4(keccak256("Overflow()")));
+        vm.expectRevert(Overflow.selector);
         keep.safeTransferFrom(charlie, address(0xBeef), SIGNER_KEY, 1, "");
         vm.stopPrank();
 
@@ -1237,14 +1266,14 @@ contract KeepTest is ERC1155TokenReceiver, Test {
 
         vm.startPrank(charlie);
         keep.setApprovalForAll(alice, true);
-        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        vm.expectRevert(NonTransferable.selector);
         keep.safeTransferFrom(charlie, bob, id, 1, "");
         vm.stopPrank();
 
         assertTrue(keep.isApprovedForAll(charlie, alice));
 
         vm.prank(alice);
-        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        vm.expectRevert(NonTransferable.selector);
         keep.safeTransferFrom(charlie, bob, id, 1, "");
         vm.stopPrank();
 
@@ -1275,7 +1304,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         amounts[1] = 1;
 
         startHoax(charlie, charlie, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NonTransferable()")));
+        vm.expectRevert(NonTransferable.selector);
         keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
         vm.stopPrank();
 
@@ -1335,7 +1364,7 @@ contract KeepTest is ERC1155TokenReceiver, Test {
         assertTrue(keep.permissioned(id));
 
         startHoax(userA, userA, type(uint256).max);
-        vm.expectRevert(bytes4(keccak256("NotPermitted()")));
+        vm.expectRevert(NotPermitted.selector);
         keep.safeTransferFrom(userA, userB, id, amount, "");
         vm.stopPrank();
 
@@ -1501,16 +1530,6 @@ contract KeepTest is ERC1155TokenReceiver, Test {
     /// -----------------------------------------------------------------------
     /// Keep MetaTx Tests
     /// -----------------------------------------------------------------------
-
-    bytes32 constant PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)"
-        );
-
-    bytes32 constant DELEGATION_TYPEHASH =
-        keccak256(
-            "Delegation(address delegatee,uint256 nonce,uint256 deadline,uint256 id)"
-        );
 
     function testKeepTokenPermit(address userB, bool approved) public payable {
         uint256 privateKey = 0xBEEF;
