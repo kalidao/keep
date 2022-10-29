@@ -14,10 +14,10 @@
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix --ignore-path .solhintignore",
     "solhint:check": "solhint --config ./.solhint.json 'src/**/*.sol'",
     "clean": "forge clean",
-    "setup": "forge clean && forge build --optimize --optimizer-runs 9999999",
+    "setup": "forge clean && forge build --optimize --optimizer-runs 999999999",
     "sync": "forge update",
-    "test": "forge clean && forge test --optimize --optimizer-runs 9999999 -vvv",
-    "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 9999999",
+    "test": "forge clean && forge test --optimize --optimizer-runs 999999999 -vvv",
+    "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 999999999",
     "prepare": "husky install"
   },
   "devDependencies": {
