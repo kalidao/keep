@@ -254,8 +254,9 @@ abstract contract KeepToken {
         uint256 amount,
         bytes calldata data
     ) public payable virtual {
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert Unauthorized();
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender])
+                revert Unauthorized();
 
         if (!transferable[id]) revert NonTransferable();
 
