@@ -596,47 +596,49 @@ abstract contract KeepToken {
         uint256 id,
         uint256 amount
     ) internal virtual {
-        if (srcRep != dstRep && amount != 0) {
-            if (srcRep != address(0)) {
-                uint256 srcRepNum = numCheckpoints[srcRep][id];
+        if (srcRep != dstRep) {
+            if (amount != 0) {
+                if (srcRep != address(0)) {
+                    uint256 srcRepNum = numCheckpoints[srcRep][id];
 
-                uint256 srcRepOld;
+                    uint256 srcRepOld;
 
-                // Unchecked because subtraction only occurs if positive `srcRepNum`.
-                unchecked {
-                    srcRepOld = srcRepNum != 0
-                        ? checkpoints[srcRep][id][srcRepNum - 1].votes
-                        : 0;
+                    // Unchecked because subtraction only occurs if positive `srcRepNum`.
+                    unchecked {
+                        srcRepOld = srcRepNum != 0
+                            ? checkpoints[srcRep][id][srcRepNum - 1].votes
+                            : 0;
+                    }
+
+                    _writeCheckpoint(
+                        srcRep,
+                        id,
+                        srcRepNum,
+                        srcRepOld,
+                        srcRepOld - amount
+                    );
                 }
 
-                _writeCheckpoint(
-                    srcRep,
-                    id,
-                    srcRepNum,
-                    srcRepOld,
-                    srcRepOld - amount
-                );
-            }
+                if (dstRep != address(0)) {
+                    uint256 dstRepNum = numCheckpoints[dstRep][id];
 
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = numCheckpoints[dstRep][id];
+                    uint256 dstRepOld;
 
-                uint256 dstRepOld;
+                    // Unchecked because subtraction only occurs if positive `dstRepNum`.
+                    unchecked {
+                        dstRepOld = dstRepNum != 0
+                            ? checkpoints[dstRep][id][dstRepNum - 1].votes
+                            : 0;
+                    }
 
-                // Unchecked because subtraction only occurs if positive `dstRepNum`.
-                unchecked {
-                    dstRepOld = dstRepNum != 0
-                        ? checkpoints[dstRep][id][dstRepNum - 1].votes
-                        : 0;
+                    _writeCheckpoint(
+                        dstRep,
+                        id,
+                        dstRepNum,
+                        dstRepOld,
+                        dstRepOld + amount
+                    );
                 }
-
-                _writeCheckpoint(
-                    dstRep,
-                    id,
-                    dstRepNum,
-                    dstRepOld,
-                    dstRepOld + amount
-                );
             }
         }
     }
