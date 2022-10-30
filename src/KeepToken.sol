@@ -445,10 +445,11 @@ abstract contract KeepToken {
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
 
-            return
-                nCheckpoints != 0
-                    ? checkpoints[account][id][nCheckpoints - 1].votes
-                    : 0;
+            uint256 result = 0;
+            if (nCheckpoints != 0) {
+                result = checkpoints[account][id][nCheckpoints - 1].votes;
+            }
+            return result;
         }
     }
 
