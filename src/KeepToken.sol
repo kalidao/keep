@@ -515,7 +515,10 @@ abstract contract KeepToken {
     {
         address current = _delegates[account][id];
 
-        return current == address(0) ? account : current;
+        if (current == address(0)) {
+            current = account;
+        }
+        return current;
     }
 
     function delegate(address delegatee, uint256 id) public payable virtual {
