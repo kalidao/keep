@@ -452,6 +452,20 @@ contract KeepTest is Keep(this), Test {
         assertTrue(keep.supportsInterface(0x0e89341c));
     }
 
+    function testNoKeepKeyCollision() public view {
+        assert(
+            keep.multiexecute.selector != keep.mint.selector &&
+                keep.mint.selector != keep.burn.selector &&
+                keep.burn.selector != keep.setQuorum.selector &&
+                keep.setQuorum.selector != keep.setTransferability.selector &&
+                keep.setTransferability.selector !=
+                keep.setPermission.selector &&
+                keep.setPermission.selector !=
+                keep.setUserPermission.selector &&
+                keep.setUserPermission.selector != keep.setURI.selector
+        );
+    }
+
     /// -----------------------------------------------------------------------
     /// Keep Operations Tests
     /// -----------------------------------------------------------------------
@@ -529,7 +543,7 @@ contract KeepTest is Keep(this), Test {
 
         // Mint executor role.
         vm.prank(address(keep));
-        keep.mint(alice, uint32(keep.multiExecute.selector), 1, "");
+        keep.mint(alice, uint32(keep.multiexecute.selector), 1, "");
         vm.stopPrank();
 
         // Mock execution.
@@ -544,7 +558,7 @@ contract KeepTest is Keep(this), Test {
         call[0].value = 0;
         call[0].data = data;
 
-        keep.multiExecute(call);
+        keep.multiexecute(call);
         vm.stopPrank();
 
         assert(mockDai.balanceOf(alice) == 100);

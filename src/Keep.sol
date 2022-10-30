@@ -392,7 +392,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Execute operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
-    function multiExecute(Call[] calldata calls) public payable virtual {
+    function multiexecute(Call[] calldata calls) public payable virtual {
         _authorized();
 
         for (uint256 i; i < calls.length; ) {
