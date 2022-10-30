@@ -308,8 +308,10 @@ abstract contract KeepToken {
     ) public payable virtual {
         if (ids.length != amounts.length) revert LengthMismatch();
 
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert Unauthorized();
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender]) {
+                revert Unauthorized();
+            }
 
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
