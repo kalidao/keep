@@ -1857,6 +1857,44 @@ contract KeepTest is Keep(this), Test {
         assert(keep.nonces(userA) == 1);
     }
 
+    function testCannotSpendKeepTokenPermitAfterDeadline(
+        address userB,
+        bool approved
+    ) public payable {
+        uint256 privateKey = 0xBEEF;
+        address userA = vm.addr(0xBEEF);
+
+        uint256 deadline = block.timestamp;
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            privateKey,
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    keep.DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(
+                            PERMIT_TYPEHASH,
+                            userA,
+                            userB,
+                            approved,
+                            0,
+                            deadline
+                        )
+                    )
+                )
+            )
+        );
+
+        // Shift into future.
+        vm.warp(block.timestamp + 1);
+
+        vm.startPrank(userA);
+        vm.expectRevert(ExpiredSig.selector);
+        keep.permit(userA, userB, approved, deadline, v, r, s);
+        vm.stopPrank();
+    }
+
     function testKeepTokenDelegateBySig(
         address userB,
         uint256 id,
@@ -1899,5 +1937,36 @@ contract KeepTest is Keep(this), Test {
 
         assert(keep.delegates(userA, id) == userB);
         assert(keep.nonces(userA) == 1);
+    }
+
+    function testCannotSpendKeepTokenDelegateBySigAfterDeadline(
+        address userB,
+        uint256 id
+    ) public payable {
+        uint256 privateKey = 0xBEEF;
+        address userA = vm.addr(0xBEEF);
+
+        uint256 deadline = block.timestamp;
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            privateKey,
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    keep.DOMAIN_SEPARATOR(),
+                    keccak256(
+                        abi.encode(DELEGATION_TYPEHASH, userB, 0, deadline, id)
+                    )
+                )
+            )
+        );
+
+        // Shift into future.
+        vm.warp(block.timestamp + 1);
+
+        vm.startPrank(userA);
+        vm.expectRevert(ExpiredSig.selector);
+        keep.delegateBySig(userB, 0, deadline, id, v, r, s);
+        vm.stopPrank();
     }
 }
