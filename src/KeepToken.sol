@@ -622,13 +622,13 @@ abstract contract KeepToken {
                 if (dstRep != address(0)) {
                     uint256 dstRepNum = numCheckpoints[dstRep][id];
 
-                    uint256 dstRepOld;
+                    uint256 dstRepOld = 0;
 
                     // Unchecked because subtraction only occurs if positive `dstRepNum`.
                     unchecked {
-                        dstRepOld = dstRepNum != 0
-                            ? checkpoints[dstRep][id][dstRepNum - 1].votes
-                            : 0;
+                        if (dstRepNum != 0) {
+                            dstRepOld = checkpoints[dstRep][id][dstRepNum - 1].votes;
+                        }
                     }
 
                     _writeCheckpoint(
