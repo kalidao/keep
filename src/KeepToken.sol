@@ -651,27 +651,23 @@ abstract contract KeepToken {
         uint256 newVotes
     ) internal virtual {
         // Unchecked because subtraction only occurs if positive `nCheckpoints`.
-        unchecked {
-            if (
-                nCheckpoints != 0 &&
-                checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp ==
-                block.timestamp
-            ) {
-                checkpoints[delegatee][id][nCheckpoints - 1]
-                    .votes = _safeCastTo216(newVotes);
-            } else {
-                checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
-                    _safeCastTo40(block.timestamp),
-                    _safeCastTo216(newVotes)
-                );
-
-                // Unchecked because the only math done is incrementing
-                // checkpoints which cannot realistically overflow.
-                ++numCheckpoints[delegatee][id];
-            }
-        }
-
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
+        unchecked {
+            if (nCheckpoints != 0) {
+                if (checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp == block.timestamp) {
+                    checkpoints[delegatee][id][nCheckpoints - 1].votes = _safeCastTo216(newVotes);
+                    return;
+                }
+            } 
+            checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
+                _safeCastTo40(block.timestamp),
+                _safeCastTo216(newVotes)
+            );
+
+            // Unchecked because the only math done is incrementing
+            // checkpoints which cannot realistically overflow.
+            ++numCheckpoints[delegatee][id];
+        }
     }
 
     /// -----------------------------------------------------------------------
