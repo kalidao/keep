@@ -102,7 +102,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     {
         string memory tokenURI = _uris[id];
 
-        if (bytes(tokenURI).length != 0) return tokenURI;
+        if (bytes(tokenURI).length > 0) return tokenURI;
         else return uriFetcher.uri(id);
     }
 
