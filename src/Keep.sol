@@ -495,11 +495,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 id,
         uint256 amount
     ) public payable virtual {
-        if (
-            msg.sender != from &&
-            !isApprovedForAll[from][msg.sender] &&
-            !_authorized()
-        ) revert Unauthorized();
+        if (msg.sender != from) {
+            if (!isApprovedForAll[from][msg.sender]) {
+                if (!_authorized()) {
+                    revert Unauthorized();
+                }
+            }
+        }
 
         _burn(from, id, amount);
 
