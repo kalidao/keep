@@ -7,6 +7,7 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 /// @title Keep
 /// @notice Tokenized multisig wallet.
 /// @author z0r0z.eth
+/// @custom:coauthor @ControlCplusControlV
 /// @custom:coauthor boredretard.eth
 /// @custom:coauthor vectorized.eth
 /// @custom:coauthor horsefacts.eth

@@ -288,9 +288,7 @@ abstract contract KeepToken {
                     amount,
                     data
                 ) != ERC1155TokenReceiver.onERC1155Received.selector
-            ) {
-                revert UnsafeRecipient();
-            }
+            ) revert UnsafeRecipient();
         } else {
             if (to == address(0)) {
                 revert InvalidRecipient();
@@ -308,9 +306,7 @@ abstract contract KeepToken {
         if (ids.length != amounts.length) revert LengthMismatch();
 
         if (msg.sender != from)
-            if (!isApprovedForAll[from][msg.sender]) {
-                revert Unauthorized();
-            }
+            if (!isApprovedForAll[from][msg.sender]) revert Unauthorized();
 
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
@@ -363,9 +359,7 @@ abstract contract KeepToken {
                     amounts,
                     data
                 ) != ERC1155TokenReceiver.onERC1155BatchReceived.selector
-            ) {
-                revert UnsafeRecipient();
-            }
+            ) revert UnsafeRecipient();
         } else if (to == address(0)) {
             revert InvalidRecipient();
         }
@@ -446,10 +440,11 @@ abstract contract KeepToken {
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
 
-            uint256 result = 0;
-            if (nCheckpoints != 0) {
+            uint256 result;
+
+            if (nCheckpoints != 0)
                 result = checkpoints[account][id][nCheckpoints - 1].votes;
-            }
+
             return result;
         }
     }
@@ -518,9 +513,8 @@ abstract contract KeepToken {
     {
         address current = _delegates[account][id];
 
-        if (current == address(0)) {
-            current = account;
-        }
+        if (current == address(0)) current = account;
+
         return current;
     }
 
@@ -624,14 +618,13 @@ abstract contract KeepToken {
                 if (dstRep != address(0)) {
                     uint256 dstRepNum = numCheckpoints[dstRep][id];
 
-                    uint256 dstRepOld = 0;
+                    uint256 dstRepOld;
 
                     // Unchecked because subtraction only occurs if positive `dstRepNum`.
                     unchecked {
-                        if (dstRepNum != 0) {
+                        if (dstRepNum != 0)
                             dstRepOld = checkpoints[dstRep][id][dstRepNum - 1]
                                 .votes;
-                        }
                     }
 
                     _writeCheckpoint(
@@ -653,8 +646,9 @@ abstract contract KeepToken {
         uint256 oldVotes,
         uint256 newVotes
     ) internal virtual {
-        // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
+
+        // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             if (nCheckpoints != 0) {
                 if (
@@ -666,6 +660,7 @@ abstract contract KeepToken {
                     return;
                 }
             }
+
             checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
                 _safeCastTo40(block.timestamp),
                 _safeCastTo216(newVotes)
@@ -728,9 +723,7 @@ abstract contract KeepToken {
                     amount,
                     data
                 ) != ERC1155TokenReceiver.onERC1155Received.selector
-            ) {
-                revert UnsafeRecipient();
-            }
+            ) revert UnsafeRecipient();
         } else if (to == address(0)) {
             revert InvalidRecipient();
         }
