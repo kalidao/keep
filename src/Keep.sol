@@ -49,13 +49,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     event Executed(
         uint120 indexed nonce,
         Operation op,
-        address indexed to,
+        address to,
         uint256 value,
         bytes data
     );
 
     /// @dev Emitted when quorum threshold is updated.
-    event QuorumSet(address indexed operator, uint256 threshold);
+    event QuorumSet(uint256 threshold);
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -533,7 +533,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         quorum = uint120(threshold);
 
-        emit QuorumSet(msg.sender, threshold);
+        emit QuorumSet(threshold);
     }
 
     /// -----------------------------------------------------------------------
