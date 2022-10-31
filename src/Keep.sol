@@ -46,7 +46,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @dev Emitted when Keep executes call.
-    event Executed(Operation op, address indexed to, uint256 value, bytes data);
+    event Executed(
+        uint120 indexed nonce,
+        Operation op,
+        address indexed to,
+        uint256 value,
+        bytes data
+    );
 
     /// @dev Emitted when quorum threshold is updated.
     event QuorumSet(address indexed operator, uint256 threshold);
@@ -409,12 +415,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 value,
         bytes memory data
     ) internal virtual {
-        // Unchecked because the only math done is incrementing
-        // Keep nonce which cannot realistically overflow.
-        unchecked {
-            ++nonce;
-        }
-
         if (op == Operation.call) {
             bool success;
 
@@ -432,7 +432,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (!success) revert ExecuteFailed();
 
-            emit Executed(op, to, value, data);
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                emit Executed(++nonce, op, to, value, data);
+            }
         } else if (op == Operation.delegatecall) {
             bool success;
 
@@ -449,7 +453,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (!success) revert ExecuteFailed();
 
-            emit Executed(op, to, value, data);
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                emit Executed(++nonce, op, to, value, data);
+            }
         } else {
             address creation;
 
@@ -459,7 +467,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (creation == address(0)) revert ExecuteFailed();
 
-            emit Executed(op, creation, value, data);
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                emit Executed(++nonce, op, creation, value, data);
+            }
         }
     }
 
