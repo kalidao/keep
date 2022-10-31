@@ -254,8 +254,9 @@ abstract contract KeepToken {
         uint256 amount,
         bytes calldata data
     ) public payable virtual {
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert Unauthorized();
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender])
+                revert Unauthorized();
 
         if (!transferable[id]) revert NonTransferable();
 
@@ -307,8 +308,10 @@ abstract contract KeepToken {
     ) public payable virtual {
         if (ids.length != amounts.length) revert LengthMismatch();
 
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert Unauthorized();
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender]) {
+                revert Unauthorized();
+            }
 
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
@@ -444,10 +447,11 @@ abstract contract KeepToken {
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
 
-            return
-                nCheckpoints != 0
-                    ? checkpoints[account][id][nCheckpoints - 1].votes
-                    : 0;
+            uint256 result = 0;
+            if (nCheckpoints != 0) {
+                result = checkpoints[account][id][nCheckpoints - 1].votes;
+            }
+            return result;
         }
     }
 
@@ -515,7 +519,10 @@ abstract contract KeepToken {
     {
         address current = _delegates[account][id];
 
-        return current == address(0) ? account : current;
+        if (current == address(0)) {
+            current = account;
+        }
+        return current;
     }
 
     function delegate(address delegatee, uint256 id) public payable virtual {
@@ -592,47 +599,49 @@ abstract contract KeepToken {
         uint256 id,
         uint256 amount
     ) internal virtual {
-        if (srcRep != dstRep && amount != 0) {
-            if (srcRep != address(0)) {
-                uint256 srcRepNum = numCheckpoints[srcRep][id];
+        if (srcRep != dstRep) {
+            if (amount != 0) {
+                if (srcRep != address(0)) {
+                    uint256 srcRepNum = numCheckpoints[srcRep][id];
 
-                uint256 srcRepOld;
+                    uint256 srcRepOld;
 
-                // Unchecked because subtraction only occurs if positive `srcRepNum`.
-                unchecked {
-                    srcRepOld = srcRepNum != 0
-                        ? checkpoints[srcRep][id][srcRepNum - 1].votes
-                        : 0;
+                    // Unchecked because subtraction only occurs if positive `srcRepNum`.
+                    unchecked {
+                        srcRepOld = srcRepNum != 0
+                            ? checkpoints[srcRep][id][srcRepNum - 1].votes
+                            : 0;
+                    }
+
+                    _writeCheckpoint(
+                        srcRep,
+                        id,
+                        srcRepNum,
+                        srcRepOld,
+                        srcRepOld - amount
+                    );
                 }
 
-                _writeCheckpoint(
-                    srcRep,
-                    id,
-                    srcRepNum,
-                    srcRepOld,
-                    srcRepOld - amount
-                );
-            }
+                if (dstRep != address(0)) {
+                    uint256 dstRepNum = numCheckpoints[dstRep][id];
 
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = numCheckpoints[dstRep][id];
+                    uint256 dstRepOld = 0;
 
-                uint256 dstRepOld;
+                    // Unchecked because subtraction only occurs if positive `dstRepNum`.
+                    unchecked {
+                        if (dstRepNum != 0) {
+                            dstRepOld = checkpoints[dstRep][id][dstRepNum - 1].votes;
+                        }
+                    }
 
-                // Unchecked because subtraction only occurs if positive `dstRepNum`.
-                unchecked {
-                    dstRepOld = dstRepNum != 0
-                        ? checkpoints[dstRep][id][dstRepNum - 1].votes
-                        : 0;
+                    _writeCheckpoint(
+                        dstRep,
+                        id,
+                        dstRepNum,
+                        dstRepOld,
+                        dstRepOld + amount
+                    );
                 }
-
-                _writeCheckpoint(
-                    dstRep,
-                    id,
-                    dstRepNum,
-                    dstRepOld,
-                    dstRepOld + amount
-                );
             }
         }
     }
@@ -645,27 +654,23 @@ abstract contract KeepToken {
         uint256 newVotes
     ) internal virtual {
         // Unchecked because subtraction only occurs if positive `nCheckpoints`.
-        unchecked {
-            if (
-                nCheckpoints != 0 &&
-                checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp ==
-                block.timestamp
-            ) {
-                checkpoints[delegatee][id][nCheckpoints - 1]
-                    .votes = _safeCastTo216(newVotes);
-            } else {
-                checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
-                    _safeCastTo40(block.timestamp),
-                    _safeCastTo216(newVotes)
-                );
-
-                // Unchecked because the only math done is incrementing
-                // checkpoints which cannot realistically overflow.
-                ++numCheckpoints[delegatee][id];
-            }
-        }
-
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
+        unchecked {
+            if (nCheckpoints != 0) {
+                if (checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp == block.timestamp) {
+                    checkpoints[delegatee][id][nCheckpoints - 1].votes = _safeCastTo216(newVotes);
+                    return;
+                }
+            } 
+            checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
+                _safeCastTo40(block.timestamp),
+                _safeCastTo216(newVotes)
+            );
+
+            // Unchecked because the only math done is incrementing
+            // checkpoints which cannot realistically overflow.
+            ++numCheckpoints[delegatee][id];
+        }
     }
 
     /// -----------------------------------------------------------------------

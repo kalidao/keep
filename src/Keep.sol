@@ -102,7 +102,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     {
         string memory tokenURI = _uris[id];
 
-        if (bytes(tokenURI).length != 0) return tokenURI;
+        if (bytes(tokenURI).length > 0) return tokenURI;
         else return uriFetcher.uri(id);
     }
 
@@ -495,11 +495,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 id,
         uint256 amount
     ) public payable virtual {
-        if (
-            msg.sender != from &&
-            !isApprovedForAll[from][msg.sender] &&
-            !_authorized()
-        ) revert Unauthorized();
+        if (msg.sender != from) {
+            if (!isApprovedForAll[from][msg.sender]) {
+                if (!_authorized()) {
+                    revert Unauthorized();
+                }
+            }
+        }
 
         _burn(from, id, amount);
 
