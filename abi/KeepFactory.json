@@ -14,7 +14,7 @@
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "contract Keep",
 				"name": "keep",
 				"type": "address"

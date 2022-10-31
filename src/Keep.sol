@@ -7,6 +7,7 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 /// @title Keep
 /// @notice Tokenized multisig wallet.
 /// @author z0r0z.eth
+/// @custom:coauthor @ControlCplusControlV
 /// @custom:coauthor boredretard.eth
 /// @custom:coauthor vectorized.eth
 /// @custom:coauthor horsefacts.eth
@@ -16,13 +17,13 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 /// @custom:coauthor @0xmichalis
 /// @custom:coauthor @m1guelpf
 /// @custom:coauthor @asnared
+/// @custom:coauthor @0xPhaze
 /// @custom:coauthor out.eth
 
 enum Operation {
     call,
     delegatecall,
-    create,
-    create2
+    create
 }
 
 struct Call {
@@ -57,8 +58,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Throws if `initialize()` is called more than once.
     error AlreadyInit();
 
-    /// @dev Throws if quorum exceeds `totalSupply(SIGNER_KEY)`.
+    /// @dev Throws if quorum exceeds `totalSupply(SIGN_KEY)`.
     error QuorumOverSupply();
+
+    /// @dev Throws if quorum with `threshold = 0` is set.
+    error InvalidThreshold();
 
     /// @dev Throws if `execute()` doesn't complete operation.
     error ExecuteFailed();
@@ -81,7 +85,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Record of states verifying `execute()`.
     uint120 public nonce;
 
-    /// @dev SIGNER_KEY threshold to `execute()`.
+    /// @dev SIGN_KEY threshold to `execute()`.
     uint120 public quorum;
 
     /// @dev Internal ID metadata mapping.
@@ -99,26 +103,22 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     {
         string memory tokenURI = _uris[id];
 
-        if (bytes(tokenURI).length != 0) return tokenURI;
+        if (bytes(tokenURI).length > 0) return tokenURI;
         else return uriFetcher.uri(id);
     }
 
     /// @dev Access control check for ID key balance holders.
-    function _authorized() internal view virtual returns (bool) {
-        if (_coreKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
-            return true;
-        else revert Unauthorized();
-    }
-
-    /// @dev Core access control check.
     /// Initalizes with `address(this)` having implicit permission
     /// without writing to storage by checking `totalSupply()` is zero.
     /// Otherwise, this permission can be set to additional accounts,
     /// including retaining `address(this)`, via `mint()`.
-    function _coreKeyHolder() internal view virtual returns (bool) {
-        return
+    function _authorized() internal view virtual returns (bool) {
+        if (
             (totalSupply[CORE_KEY] == 0 && msg.sender == address(this)) ||
-            balanceOf[msg.sender][CORE_KEY] != 0;
+            balanceOf[msg.sender][CORE_KEY] != 0 ||
+            balanceOf[msg.sender][uint32(msg.sig)] != 0
+        ) return true;
+        else revert Unauthorized();
     }
 
     /// -----------------------------------------------------------------------
@@ -136,9 +136,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         returns (bool)
     {
         return
-            interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
-            interfaceId == type(ERC1155TokenReceiver).interfaceId || // ERC165 Interface ID for ERC1155TokenReceiver.
-            super.supportsInterface(interfaceId); // ERC165 Interface IDs for ERC1155.
+            // ERC165 Interface ID for ERC721TokenReceiver.
+            interfaceId == this.onERC721Received.selector ||
+            // ERC165 Interface ID for ERC1155TokenReceiver.
+            interfaceId == type(ERC1155TokenReceiver).interfaceId ||
+            // ERC165 Interface IDs for ERC1155.
+            super.supportsInterface(interfaceId);
     }
 
     /// -----------------------------------------------------------------------
@@ -162,6 +165,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param _uriFetcher Metadata default.
     constructor(Keep _uriFetcher) payable {
         uriFetcher = _uriFetcher;
+
+        // Deploy as singleton.
+        quorum = 1;
     }
 
     /// @notice Initialize Keep configuration.
@@ -175,11 +181,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual {
         if (quorum != 0) revert AlreadyInit();
 
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
+        if (threshold == 0) revert InvalidThreshold();
 
         if (threshold > signers.length) revert QuorumOverSupply();
 
@@ -212,20 +214,19 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            // Won't realistically overflow.
+            emit TransferSingle(tx.origin, address(0), signer, SIGN_KEY, 1);
+
+            // An array can't have a total length
+            // larger than the max uint256 value.
             unchecked {
-                ++balanceOf[signer][SIGNER_KEY];
+                ++balanceOf[signer][SIGN_KEY];
                 ++supply;
                 ++i;
             }
-
-            // We don't call `_moveDelegates()` to save deployment gas.
-            emit TransferSingle(msg.sender, address(0), signer, SIGNER_KEY, 1);
         }
 
-        totalSupply[SIGNER_KEY] = supply;
+        totalSupply[SIGN_KEY] = supply;
         quorum = uint120(threshold);
-        KeepToken._initialize();
     }
 
     /// -----------------------------------------------------------------------
@@ -237,17 +238,15 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param to Address to send operation to.
     /// @param value Amount of ETH to send in operation.
     /// @param data Payload to send in operation.
-    /// @param sigs Array of Keep signatures sorted in ascending order by addresses.
-    /// @dev Make sure signatures are sorted in ascending order - otherwise verification will fail.
-    /// @return success Fetch whether operation succeeded.
+    /// @param sigs Array of Keep signatures in ascending order by addresses.
     function execute(
         Operation op,
         address to,
         uint256 value,
         bytes calldata data,
         Signature[] calldata sigs
-    ) public payable virtual returns (bool success) {
-        // Begin signature validation with payload hash.
+    ) public payable virtual {
+        // Begin signature validation with hashed inputs.
         bytes32 hash = keccak256(
             abi.encodePacked(
                 "\x19\x01",
@@ -260,37 +259,38 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                         op,
                         to,
                         value,
-                        data,
+                        keccak256(data),
                         nonce
                     )
                 )
             )
         );
 
-        // Start from zero in loop to ensure ascending addresses.
+        // Start zero in loop to ensure ascending addresses.
         address previous;
 
         // Validation is length of quorum threshold.
         uint256 threshold = quorum;
 
         // Store outside loop for gas optimization.
-        Signature memory sig;
+        Signature calldata sig;
 
         for (uint256 i; i < threshold; ) {
             // Load signature items.
             sig = sigs[i];
             address user = sig.user;
 
+            // Check SIGN_KEY balance.
+            // This also confirms non-zero `user`.
+            if (balanceOf[user][SIGN_KEY] == 0) revert InvalidSig();
+
             // Check signature recovery.
             _recoverSig(hash, user, sig.v, sig.r, sig.s);
 
-            // Check SIGNER_KEY balance.
-            if (balanceOf[user][SIGNER_KEY] == 0) revert InvalidSig();
-
-            // Check duplicates.
+            // Check against duplicates.
             if (previous >= user) revert InvalidSig();
 
-            // Memo signer for next iteration until quorum.
+            // Memo signature for next iteration until quorum.
             previous = user;
 
             // An array can't have a total length
@@ -300,7 +300,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         }
 
-        success = _execute(op, to, value, data);
+        _execute(op, to, value, data);
     }
 
     function _recoverSig(
@@ -366,7 +366,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     and(
                         // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
                         eq(mload(0x00), f),
-                        // Whether the returndata is exactly 0x20 bytes (1 word) long .
+                        // Whether the returndata is exactly 0x20 bytes (1 word) long.
                         eq(returndatasize(), 0x20)
                     ),
                     // Whether the staticcall does not revert.
@@ -389,24 +389,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Execute operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as arrays of `op, to, value, data`.
-    /// @return successes Fetches whether operations succeeded.
-    function multiExecute(Call[] calldata calls)
-        public
-        payable
-        virtual
-        returns (bool[] memory successes)
-    {
+    function multiexecute(Call[] calldata calls) public payable virtual {
         _authorized();
 
-        successes = new bool[](calls.length);
-
         for (uint256 i; i < calls.length; ) {
-            successes[i] = _execute(
-                calls[i].op,
-                calls[i].to,
-                calls[i].value,
-                calls[i].data
-            );
+            _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -421,7 +408,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address to,
         uint256 value,
         bytes memory data
-    ) internal virtual returns (bool success) {
+    ) internal virtual {
         // Unchecked because the only math done is incrementing
         // Keep nonce which cannot realistically overflow.
         unchecked {
@@ -429,6 +416,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         if (op == Operation.call) {
+            bool success;
+
             assembly {
                 success := call(
                     gas(),
@@ -445,6 +434,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             emit Executed(op, to, value, data);
         } else if (op == Operation.delegatecall) {
+            bool success;
+
             assembly {
                 success := delegatecall(
                     gas(),
@@ -459,22 +450,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             if (!success) revert ExecuteFailed();
 
             emit Executed(op, to, value, data);
-        } else if (op == Operation.create) {
+        } else {
             address creation;
 
             assembly {
                 creation := create(value, add(data, 0x20), mload(data))
-            }
-
-            if (creation == address(0)) revert ExecuteFailed();
-
-            emit Executed(op, creation, value, data);
-        } else {
-            address creation;
-            bytes32 salt = bytes32(uint256(nonce));
-
-            assembly {
-                creation := create2(value, add(0x20, data), mload(data), salt)
             }
 
             if (creation == address(0)) revert ExecuteFailed();
@@ -512,16 +492,18 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 id,
         uint256 amount
     ) public payable virtual {
-        if (
-            msg.sender != from &&
-            !isApprovedForAll[from][msg.sender] &&
-            !_authorized()
-        ) revert Unauthorized();
+        if (msg.sender != from) {
+            if (!isApprovedForAll[from][msg.sender]) {
+                if (!_authorized()) {
+                    revert Unauthorized();
+                }
+            }
+        }
 
         _burn(from, id, amount);
 
-        if (id == SIGNER_KEY)
-            if (quorum > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
+        if (id == SIGN_KEY)
+            if (quorum > totalSupply[SIGN_KEY]) revert QuorumOverSupply();
     }
 
     /// -----------------------------------------------------------------------
@@ -533,13 +515,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function setQuorum(uint256 threshold) public payable virtual {
         _authorized();
 
-        assembly {
-            if iszero(threshold) {
-                revert(0, 0)
-            }
-        }
+        if (threshold == 0) revert InvalidThreshold();
 
-        if (threshold > totalSupply[SIGNER_KEY]) revert QuorumOverSupply();
+        if (threshold > totalSupply[SIGN_KEY]) revert QuorumOverSupply();
 
         quorum = uint120(threshold);
 

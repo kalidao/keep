@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {ERC1155TokenReceiver} from "./../KeepToken.sol";
+import {ERC1155TokenReceiver} from "./../../KeepToken.sol";
 import {KaliExtension} from "./utils/KaliExtension.sol";
 import {KeepTokenBalances} from "./utils/KeepTokenBalances.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
@@ -10,48 +10,48 @@ import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 /// @notice Kali DAO core for on-chain governance.
 contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
-    /// EVENTS
+    /// Events
     /// -----------------------------------------------------------------------
 
     event NewProposal(
         address indexed proposer,
-        uint256 proposal,
+        uint256 indexed proposal,
         ProposalType proposalType,
         bytes32 description,
         address[] accounts,
         uint256[] amounts,
         bytes[] payloads,
-        uint32 creationTime,
+        uint256 creationTime,
         bool selfSponsor
     );
 
-    event ProposalCancelled(address indexed proposer, uint256 proposal);
+    event ProposalCancelled(address indexed proposer, uint256 indexed proposal);
 
-    event ProposalSponsored(address indexed sponsor, uint256 proposal);
+    event ProposalSponsored(address indexed sponsor, uint256 indexed proposal);
 
     event VoteCast(
         address indexed voter,
-        uint256 proposal,
+        uint256 indexed proposal,
         bool approve,
         uint256 weight,
-        string details
+        bytes32 details
     );
 
-    event ProposalProcessed(uint256 proposal, bool didProposalPass);
+    event ProposalProcessed(uint256 indexed proposal, bool didProposalPass);
 
-    event ExtensionSet(address extension, bool set);
+    event ExtensionSet(address indexed extension, bool set);
 
     event URIset(string daoURI);
 
     event GovSettingsUpdated(
-        uint64 votingPeriod,
-        uint64 gracePeriod,
-        uint64 quorum,
-        uint64 supermajority
+        uint256 votingPeriod,
+        uint256 gracePeriod,
+        uint256 quorum,
+        uint256 supermajority
     );
 
     /// -----------------------------------------------------------------------
-    /// ERRORS
+    /// Errors
     /// -----------------------------------------------------------------------
 
     error LengthMismatch();
@@ -72,7 +72,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     error Sponsored();
 
-    error InvalidSignature();
+    error InvalidSig();
 
     error NotMember();
 
@@ -91,24 +91,24 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     error NotExtension();
 
     /// -----------------------------------------------------------------------
-    /// DAO STORAGE/LOGIC
+    /// DAO Storage/Logic
     /// -----------------------------------------------------------------------
-
-    string public daoURI;
 
     uint256 internal currentSponsoredProposal;
 
     uint256 public proposalCount;
 
-    uint64 public votingPeriod;
-
-    uint64 public gracePeriod;
-
-    uint64 public quorum; // 1-100
-
-    uint64 public supermajority; // 1-100
+    string public daoURI;
 
     KeepTokenBalances public token;
+
+    uint16 public votingPeriod;
+
+    uint16 public gracePeriod;
+
+    uint8 public quorum; // 1-100
+
+    uint8 public supermajority; // 1-100
 
     mapping(address => bool) public extensions;
 
@@ -169,9 +169,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         returns (bool)
     {
         return
-            interfaceId == this.supportsInterface.selector || // ERC165 interface ID for ERC165.
-            interfaceId == this.onERC721Received.selector || // ERC165 Interface ID for ERC721TokenReceiver.
-            interfaceId == type(ERC1155TokenReceiver).interfaceId; // ERC165 Interface ID for ERC1155TokenReceiver.
+            // ERC165 interface ID for ERC165.
+            interfaceId == this.supportsInterface.selector ||
+            // ERC165 Interface ID for ERC721TokenReceiver.
+            interfaceId == this.onERC721Received.selector ||
+            // ERC165 Interface ID for ERC1155TokenReceiver.
+            interfaceId == type(ERC1155TokenReceiver).interfaceId;
     }
 
     /// -----------------------------------------------------------------------
@@ -196,7 +199,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         string calldata _daoURI,
         address[] calldata _extensions,
         bytes[] calldata _extensionsData,
-        uint64[5] calldata _govSettings
+        uint256[5] calldata _govSettings
     ) public payable virtual {
         if (_extensions.length != _extensionsData.length)
             revert LengthMismatch();
@@ -236,13 +239,13 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
         daoURI = _daoURI;
 
-        votingPeriod = _govSettings[0];
+        votingPeriod = uint16(_govSettings[0]);
 
-        gracePeriod = _govSettings[1];
+        gracePeriod = uint16(_govSettings[1]);
 
-        quorum = _govSettings[2];
+        quorum = uint8(_govSettings[2]);
 
-        supermajority = _govSettings[3];
+        supermajority = uint8(_govSettings[3]);
 
         _initialDomainSeparator = _computeDomainSeparator();
     }
@@ -302,7 +305,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     /// -----------------------------------------------------------------------
-    /// PROPOSAL LOGIC
+    /// Proposal Logic
     /// -----------------------------------------------------------------------
 
     function propose(
@@ -409,7 +412,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     function vote(
         uint256 proposal,
         bool approve,
-        string calldata details
+        bytes32 details
     ) public payable virtual {
         _vote(msg.sender, proposal, approve, details);
     }
@@ -417,7 +420,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     function voteBySig(
         uint256 proposal,
         bool approve,
-        string calldata details,
+        bytes32 details,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -444,7 +447,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             s
         );
 
-        if (recoveredAddress == address(0)) revert InvalidSignature();
+        if (recoveredAddress == address(0)) revert InvalidSig();
 
         _vote(recoveredAddress, proposal, approve, details);
     }
@@ -453,7 +456,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         address signer,
         uint256 proposal,
         bool approve,
-        string calldata details
+        bytes32 details
     ) internal virtual {
         Proposal storage prop = proposals[proposal];
 
@@ -591,13 +594,13 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                         results[i] = result;
                     }
                 } else if (proposalType == ProposalType.VPERIOD) {
-                    if (amounts[0] != 0) votingPeriod = uint64(amounts[0]);
+                    if (amounts[0] != 0) votingPeriod = uint16(amounts[0]);
                 } else if (proposalType == ProposalType.GPERIOD) {
-                    if (amounts[0] != 0) gracePeriod = uint64(amounts[0]);
+                    if (amounts[0] != 0) gracePeriod = uint16(amounts[0]);
                 } else if (proposalType == ProposalType.QUORUM) {
-                    if (amounts[0] != 0) quorum = uint64(amounts[0]);
+                    if (amounts[0] != 0) quorum = uint8(amounts[0]);
                 } else if (proposalType == ProposalType.SUPERMAJORITY) {
-                    if (amounts[0] != 0) supermajority = uint64(amounts[0]);
+                    if (amounts[0] != 0) supermajority = uint8(amounts[0]);
                 } else if (proposalType == ProposalType.TYPE) {
                     proposalVoteTypes[ProposalType(amounts[0])] = VoteType(
                         amounts[1]
@@ -692,7 +695,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     /// -----------------------------------------------------------------------
-    /// EXTENSION LOGIC
+    /// Extension Logic
     /// -----------------------------------------------------------------------
 
     modifier onlyExtension() {
@@ -736,24 +739,24 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function updateGovSettings(
-        uint64 votingPeriod_,
-        uint64 gracePeriod_,
-        uint64 quorum_,
-        uint64 supermajority_
+        uint256 _votingPeriod,
+        uint256 _gracePeriod,
+        uint256 _quorum,
+        uint256 _supermajority
     ) public payable virtual onlyExtension {
-        if (votingPeriod_ != 0) votingPeriod = votingPeriod_;
+        if (_votingPeriod != 0) votingPeriod = uint16(_votingPeriod);
 
-        if (gracePeriod_ != 0) gracePeriod = gracePeriod_;
+        if (_gracePeriod != 0) gracePeriod = uint16(_gracePeriod);
 
-        if (quorum_ != 0) quorum = quorum_;
+        if (_quorum != 0) quorum = uint8(_quorum);
 
-        if (supermajority_ != 0) supermajority = supermajority_;
+        if (_supermajority != 0) supermajority = uint8(_supermajority);
 
         emit GovSettingsUpdated(
-            votingPeriod_,
-            gracePeriod_,
-            quorum_,
-            supermajority_
+            _votingPeriod,
+            _gracePeriod,
+            _quorum,
+            _supermajority
         );
     }
 }

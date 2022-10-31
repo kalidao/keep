@@ -122,26 +122,9 @@ abstract contract KeepToken {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    bytes32 internal _initialDomainSeparator;
-
     mapping(address => uint256) public nonces;
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            block.chainid == _initialChainId()
-                ? _initialDomainSeparator
-                : _computeDomainSeparator();
-    }
-
-    function name() public pure virtual returns (string memory) {
-        return string(abi.encodePacked(_computeArgUint(2)));
-    }
-
-    function _initialChainId() internal pure virtual returns (uint256) {
-        return _computeArgUint(7);
-    }
-
-    function _computeDomainSeparator() internal view virtual returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -159,29 +142,11 @@ abstract contract KeepToken {
             );
     }
 
-    function _computeArgUint(uint256 argOffset)
-        internal
-        pure
-        virtual
-        returns (uint256 arg)
-    {
-        uint256 offset;
-
-        assembly {
-            offset := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-
-            arg := calldataload(add(offset, argOffset))
-        }
-    }
-
     /// -----------------------------------------------------------------------
     /// ID Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant SIGNER_KEY = uint32(0x6c4b5546); // `execute()`
+    uint256 internal constant SIGN_KEY = uint32(0x6c4b5546); // `execute()`
 
     mapping(uint256 => uint256) public totalSupply;
 
@@ -213,6 +178,21 @@ abstract contract KeepToken {
 
     function uri(uint256 id) public view virtual returns (string memory);
 
+    function name() public pure virtual returns (string memory) {
+        uint256 placeholder;
+
+        assembly {
+            placeholder := sub(
+                calldatasize(),
+                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            )
+
+            placeholder := calldataload(add(placeholder, 2))
+        }
+
+        return string(abi.encodePacked(placeholder));
+    }
+
     /// -----------------------------------------------------------------------
     /// ERC165 Logic
     /// -----------------------------------------------------------------------
@@ -224,17 +204,12 @@ abstract contract KeepToken {
         returns (bool)
     {
         return
-            interfaceId == this.supportsInterface.selector || // ERC165 interface ID for ERC165.
-            interfaceId == 0xd9b67a26 || // ERC165 interface ID for ERC1155.
-            interfaceId == 0x0e89341c; // ERC165 interface ID for ERC1155MetadataURI.
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Initialization Logic
-    /// -----------------------------------------------------------------------
-
-    function _initialize() internal virtual {
-        _initialDomainSeparator = _computeDomainSeparator();
+            // ERC165 interface ID for ERC165.
+            interfaceId == this.supportsInterface.selector ||
+            // ERC165 interface ID for ERC1155.
+            interfaceId == 0xd9b67a26 ||
+            // ERC165 interface ID for ERC1155MetadataURI.
+            interfaceId == 0x0e89341c;
     }
 
     /// -----------------------------------------------------------------------
@@ -279,18 +254,18 @@ abstract contract KeepToken {
         uint256 amount,
         bytes calldata data
     ) public payable virtual {
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert Unauthorized();
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender]) revert Unauthorized();
 
         if (!transferable[id]) revert NonTransferable();
 
         if (permissioned[id])
-            if (!userPermissioned[from][id] || !userPermissioned[to][id])
+            if (!userPermissioned[to][id] || !userPermissioned[from][id])
                 revert NotPermitted();
 
-        // If not transferring SIGNER_KEY, update delegation balance.
-        // Otherwise, prevent transfer to SIGNER_KEY holder.
-        if (id != SIGNER_KEY)
+        // If not transferring SIGN_KEY, update delegation balance.
+        // Otherwise, prevent transfer to SIGN_KEY holder.
+        if (id != SIGN_KEY)
             _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
         else if (balanceOf[to][id] != 0) revert Overflow();
 
@@ -313,14 +288,8 @@ abstract contract KeepToken {
                     amount,
                     data
                 ) != ERC1155TokenReceiver.onERC1155Received.selector
-            ) {
-                revert UnsafeRecipient();
-            }
-        } else {
-            if (to == address(0)) {
-                revert InvalidRecipient();
-            }
-        }
+            ) revert UnsafeRecipient();
+        } else if (to == address(0)) revert InvalidRecipient();
     }
 
     function safeBatchTransferFrom(
@@ -332,8 +301,8 @@ abstract contract KeepToken {
     ) public payable virtual {
         if (ids.length != amounts.length) revert LengthMismatch();
 
-        if (msg.sender != from && !isApprovedForAll[from][msg.sender])
-            revert Unauthorized();
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender]) revert Unauthorized();
 
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
@@ -346,12 +315,12 @@ abstract contract KeepToken {
             if (!transferable[id]) revert NonTransferable();
 
             if (permissioned[id])
-                if (!userPermissioned[from][id] || !userPermissioned[to][id])
+                if (!userPermissioned[to][id] || !userPermissioned[from][id])
                     revert NotPermitted();
 
-            // If not transferring SIGNER_KEY, update delegation balance.
-            // Otherwise, prevent transfer to SIGNER_KEY holder.
-            if (id != SIGNER_KEY)
+            // If not transferring SIGN_KEY, update delegation balance.
+            // Otherwise, prevent transfer to SIGN_KEY holder.
+            if (id != SIGN_KEY)
                 _moveDelegates(
                     delegates(from, id),
                     delegates(to, id),
@@ -386,12 +355,8 @@ abstract contract KeepToken {
                     amounts,
                     data
                 ) != ERC1155TokenReceiver.onERC1155BatchReceived.selector
-            ) {
-                revert UnsafeRecipient();
-            }
-        } else if (to == address(0)) {
-            revert InvalidRecipient();
-        }
+            ) revert UnsafeRecipient();
+        } else if (to == address(0)) revert InvalidRecipient();
     }
 
     /// -----------------------------------------------------------------------
@@ -469,10 +434,12 @@ abstract contract KeepToken {
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
 
-            return
-                nCheckpoints != 0
-                    ? checkpoints[account][id][nCheckpoints - 1].votes
-                    : 0;
+            uint256 result;
+
+            if (nCheckpoints != 0)
+                result = checkpoints[account][id][nCheckpoints - 1].votes;
+
+            return result;
         }
     }
 
@@ -540,7 +507,9 @@ abstract contract KeepToken {
     {
         address current = _delegates[account][id];
 
-        return current == address(0) ? account : current;
+        if (current == address(0)) current = account;
+
+        return current;
     }
 
     function delegate(address delegatee, uint256 id) public payable virtual {
@@ -617,47 +586,49 @@ abstract contract KeepToken {
         uint256 id,
         uint256 amount
     ) internal virtual {
-        if (srcRep != dstRep && amount != 0) {
-            if (srcRep != address(0)) {
-                uint256 srcRepNum = numCheckpoints[srcRep][id];
+        if (srcRep != dstRep) {
+            if (amount != 0) {
+                if (srcRep != address(0)) {
+                    uint256 srcRepNum = numCheckpoints[srcRep][id];
 
-                uint256 srcRepOld;
+                    uint256 srcRepOld;
 
-                // Unchecked because subtraction only occurs if positive `srcRepNum`.
-                unchecked {
-                    srcRepOld = srcRepNum != 0
-                        ? checkpoints[srcRep][id][srcRepNum - 1].votes
-                        : 0;
+                    // Unchecked because subtraction only occurs if positive `srcRepNum`.
+                    unchecked {
+                        srcRepOld = srcRepNum != 0
+                            ? checkpoints[srcRep][id][srcRepNum - 1].votes
+                            : 0;
+                    }
+
+                    _writeCheckpoint(
+                        srcRep,
+                        id,
+                        srcRepNum,
+                        srcRepOld,
+                        srcRepOld - amount
+                    );
                 }
 
-                _writeCheckpoint(
-                    srcRep,
-                    id,
-                    srcRepNum,
-                    srcRepOld,
-                    srcRepOld - amount
-                );
-            }
+                if (dstRep != address(0)) {
+                    uint256 dstRepNum = numCheckpoints[dstRep][id];
 
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = numCheckpoints[dstRep][id];
+                    uint256 dstRepOld;
 
-                uint256 dstRepOld;
+                    // Unchecked because subtraction only occurs if positive `dstRepNum`.
+                    unchecked {
+                        if (dstRepNum != 0)
+                            dstRepOld = checkpoints[dstRep][id][dstRepNum - 1]
+                                .votes;
+                    }
 
-                // Unchecked because subtraction only occurs if positive `dstRepNum`.
-                unchecked {
-                    dstRepOld = dstRepNum != 0
-                        ? checkpoints[dstRep][id][dstRepNum - 1].votes
-                        : 0;
+                    _writeCheckpoint(
+                        dstRep,
+                        id,
+                        dstRepNum,
+                        dstRepOld,
+                        dstRepOld + amount
+                    );
                 }
-
-                _writeCheckpoint(
-                    dstRep,
-                    id,
-                    dstRepNum,
-                    dstRepOld,
-                    dstRepOld + amount
-                );
             }
         }
     }
@@ -669,28 +640,30 @@ abstract contract KeepToken {
         uint256 oldVotes,
         uint256 newVotes
     ) internal virtual {
+        emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
+
         // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
-            if (
-                nCheckpoints != 0 &&
-                checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp ==
-                block.timestamp
-            ) {
-                checkpoints[delegatee][id][nCheckpoints - 1]
-                    .votes = _safeCastTo216(newVotes);
-            } else {
-                checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
-                    _safeCastTo40(block.timestamp),
-                    _safeCastTo216(newVotes)
-                );
-
-                // Unchecked because the only math done is incrementing
-                // checkpoints which cannot realistically overflow.
-                ++numCheckpoints[delegatee][id];
+            if (nCheckpoints != 0) {
+                if (
+                    checkpoints[delegatee][id][nCheckpoints - 1]
+                        .fromTimestamp == block.timestamp
+                ) {
+                    checkpoints[delegatee][id][nCheckpoints - 1]
+                        .votes = _safeCastTo216(newVotes);
+                    return;
+                }
             }
-        }
 
-        emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
+            checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
+                _safeCastTo40(block.timestamp),
+                _safeCastTo216(newVotes)
+            );
+
+            // Unchecked because the only math done is incrementing
+            // checkpoints which cannot realistically overflow.
+            ++numCheckpoints[delegatee][id];
+        }
     }
 
     /// -----------------------------------------------------------------------
@@ -721,9 +694,9 @@ abstract contract KeepToken {
     ) internal virtual {
         _safeCastTo216(totalSupply[id] += amount);
 
-        // If not minting SIGNER_KEY, update delegation balance.
-        // Otherwise, prevent minting to SIGNER_KEY holder.
-        if (id != SIGNER_KEY)
+        // If not minting SIGN_KEY, update delegation balance.
+        // Otherwise, prevent minting to SIGN_KEY holder.
+        if (id != SIGN_KEY)
             _moveDelegates(address(0), delegates(to, id), id, amount);
         else if (balanceOf[to][id] != 0) revert Overflow();
 
@@ -744,12 +717,8 @@ abstract contract KeepToken {
                     amount,
                     data
                 ) != ERC1155TokenReceiver.onERC1155Received.selector
-            ) {
-                revert UnsafeRecipient();
-            }
-        } else if (to == address(0)) {
-            revert InvalidRecipient();
-        }
+            ) revert UnsafeRecipient();
+        } else if (to == address(0)) revert InvalidRecipient();
     }
 
     function _burn(
@@ -767,8 +736,8 @@ abstract contract KeepToken {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
-        // If not burning SIGNER_KEY, update delegation balance.
-        if (id != SIGNER_KEY)
+        // If not burning SIGN_KEY, update delegation balance.
+        if (id != SIGN_KEY)
             _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @notice Interface for Keep token balances.
+/// @notice Contract helper for Keep token balances.
 abstract contract KeepTokenBalances {
     function balanceOf(address account, uint256 id)
         public

@@ -11,7 +11,7 @@ contract RiskyContract is ReentrancyGuard {
     function unprotectedCall() public {
         enterTimes++;
 
-        if (enterTimes > 1) return;
+        if (enterTimes > 2) return;
 
         this.protectedCall();
     }

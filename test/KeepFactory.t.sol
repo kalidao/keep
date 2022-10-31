@@ -3,8 +3,8 @@ pragma solidity ^0.8.4;
 
 import {Call, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
-import {URIFetcher} from "../src/extensions/URIFetcher.sol";
-import {URIRemoteFetcher} from "../src/extensions/URIRemoteFetcher.sol";
+import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
+import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 import "@std/Test.sol";
 
