@@ -289,11 +289,7 @@ abstract contract KeepToken {
                     data
                 ) != ERC1155TokenReceiver.onERC1155Received.selector
             ) revert UnsafeRecipient();
-        } else {
-            if (to == address(0)) {
-                revert InvalidRecipient();
-            }
-        }
+        } else if (to == address(0)) revert InvalidRecipient();
     }
 
     function safeBatchTransferFrom(
@@ -360,9 +356,7 @@ abstract contract KeepToken {
                     data
                 ) != ERC1155TokenReceiver.onERC1155BatchReceived.selector
             ) revert UnsafeRecipient();
-        } else if (to == address(0)) {
-            revert InvalidRecipient();
-        }
+        } else if (to == address(0)) revert InvalidRecipient();
     }
 
     /// -----------------------------------------------------------------------
@@ -724,9 +718,7 @@ abstract contract KeepToken {
                     data
                 ) != ERC1155TokenReceiver.onERC1155Received.selector
             ) revert UnsafeRecipient();
-        } else if (to == address(0)) {
-            revert InvalidRecipient();
-        }
+        } else if (to == address(0)) revert InvalidRecipient();
     }
 
     function _burn(
