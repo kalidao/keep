@@ -24,7 +24,7 @@ contract KaliFactory is Multicallable {
         string daoURI,
         address[] extensions,
         bytes[] extensionsData,
-        uint64[5] govSettings
+        uint256[5] govSettings
     );
 
     /// -----------------------------------------------------------------------
@@ -60,7 +60,7 @@ contract KaliFactory is Multicallable {
         string calldata _daoURI,
         address[] calldata _extensions,
         bytes[] calldata _extensionsData,
-        uint64[5] calldata _govSettings
+        uint256[5] calldata _govSettings
     ) public payable virtual {
         Kali kali = Kali(
             address(kaliTemplate).cloneDeterministic(
