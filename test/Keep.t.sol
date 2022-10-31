@@ -544,11 +544,8 @@ contract KeepTest is Keep(this), Test {
         // Mint executor role.
         vm.prank(address(keep));
         keep.mint(alice, uint32(keep.multiexecute.selector), 1, "");
-        vm.stopPrank();
 
         // Mock execution.
-        startHoax(address(alice), address(alice), type(uint256).max);
-
         bytes memory data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
         Call[] memory call = new Call[](1);
@@ -558,8 +555,8 @@ contract KeepTest is Keep(this), Test {
         call[0].value = 0;
         call[0].data = data;
 
+        vm.prank(address(alice));
         keep.multiexecute(call);
-        vm.stopPrank();
 
         assert(mockDai.balanceOf(alice) == 100);
         uint256 nonceAfter = keep.nonce();
@@ -1065,15 +1062,12 @@ contract KeepTest is Keep(this), Test {
         vm.prank(charlie);
         vm.expectRevert(Unauthorized.selector);
         keep.mint(alice, 1, 100, "");
-        vm.stopPrank();
 
         vm.prank(address(keep));
         keep.mint(charlie, uint32(keep.mint.selector), 1, "");
-        vm.stopPrank();
 
         vm.prank(charlie);
         keep.mint(alice, 1, 100, "");
-        vm.stopPrank();
 
         assert(keep.balanceOf(alice, 1) == 100);
     }

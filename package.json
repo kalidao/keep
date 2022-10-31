@@ -1,5 +1,5 @@
 {
-  "name": "Keep",
+  "name": "keep",
   "version": "1.0.0",
   "description": "Tokenized multisig wallet",
   "main": "index.js",
