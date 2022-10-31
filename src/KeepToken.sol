@@ -255,8 +255,7 @@ abstract contract KeepToken {
         bytes calldata data
     ) public payable virtual {
         if (msg.sender != from)
-            if (!isApprovedForAll[from][msg.sender])
-                revert Unauthorized();
+            if (!isApprovedForAll[from][msg.sender]) revert Unauthorized();
 
         if (!transferable[id]) revert NonTransferable();
 
@@ -630,7 +629,8 @@ abstract contract KeepToken {
                     // Unchecked because subtraction only occurs if positive `dstRepNum`.
                     unchecked {
                         if (dstRepNum != 0) {
-                            dstRepOld = checkpoints[dstRep][id][dstRepNum - 1].votes;
+                            dstRepOld = checkpoints[dstRep][id][dstRepNum - 1]
+                                .votes;
                         }
                     }
 
@@ -657,11 +657,15 @@ abstract contract KeepToken {
         emit DelegateVotesChanged(delegatee, id, oldVotes, newVotes);
         unchecked {
             if (nCheckpoints != 0) {
-                if (checkpoints[delegatee][id][nCheckpoints - 1].fromTimestamp == block.timestamp) {
-                    checkpoints[delegatee][id][nCheckpoints - 1].votes = _safeCastTo216(newVotes);
+                if (
+                    checkpoints[delegatee][id][nCheckpoints - 1]
+                        .fromTimestamp == block.timestamp
+                ) {
+                    checkpoints[delegatee][id][nCheckpoints - 1]
+                        .votes = _safeCastTo216(newVotes);
                     return;
                 }
-            } 
+            }
             checkpoints[delegatee][id][nCheckpoints] = Checkpoint(
                 _safeCastTo40(block.timestamp),
                 _safeCastTo216(newVotes)

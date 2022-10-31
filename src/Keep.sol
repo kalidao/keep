@@ -107,21 +107,17 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     }
 
     /// @dev Access control check for ID key balance holders.
-    function _authorized() internal view virtual returns (bool) {
-        if (_coreKeyHolder() || balanceOf[msg.sender][uint32(msg.sig)] != 0)
-            return true;
-        else revert Unauthorized();
-    }
-
-    /// @dev Core access control check.
     /// Initalizes with `address(this)` having implicit permission
     /// without writing to storage by checking `totalSupply()` is zero.
     /// Otherwise, this permission can be set to additional accounts,
     /// including retaining `address(this)`, via `mint()`.
-    function _coreKeyHolder() internal view virtual returns (bool) {
-        return
+    function _authorized() internal view virtual returns (bool) {
+        if (
             (totalSupply[CORE_KEY] == 0 && msg.sender == address(this)) ||
-            balanceOf[msg.sender][CORE_KEY] != 0;
+            balanceOf[msg.sender][CORE_KEY] != 0 ||
+            balanceOf[msg.sender][uint32(msg.sig)] != 0
+        ) return true;
+        else revert Unauthorized();
     }
 
     /// -----------------------------------------------------------------------
