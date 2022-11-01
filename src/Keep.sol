@@ -431,12 +431,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
 
             if (!success) revert ExecuteFailed();
-
-            // Unchecked because the only math done is incrementing
-            // Keep nonce which cannot realistically overflow.
-            unchecked {
-                emit Executed(++nonce, op, to, value, data);
-            }
         } else if (op == Operation.delegatecall) {
             bool success;
 
@@ -452,26 +446,18 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
 
             if (!success) revert ExecuteFailed();
-
-            // Unchecked because the only math done is incrementing
-            // Keep nonce which cannot realistically overflow.
-            unchecked {
-                emit Executed(++nonce, op, to, value, data);
-            }
         } else {
-            address creation;
-
             assembly {
-                creation := create(value, add(data, 0x20), mload(data))
+                to := create(value, add(data, 0x20), mload(data))
             }
 
-            if (creation == address(0)) revert ExecuteFailed();
+            if (to == address(0)) revert ExecuteFailed();
+        }
 
-            // Unchecked because the only math done is incrementing
-            // Keep nonce which cannot realistically overflow.
-            unchecked {
-                emit Executed(++nonce, op, creation, value, data);
-            }
+        // Unchecked because the only math done is incrementing
+        // Keep nonce which cannot realistically overflow.
+        unchecked {
+            emit Executed(++nonce, op, to, value, data);
         }
     }
 
