@@ -15,6 +15,7 @@ import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 /// @custom:coauthor @0xAlcibiades
 /// @custom:coauthor LeXpunK Army
 /// @custom:coauthor @0xmichalis
+/// @custom:coauthor @iFrostizz
 /// @custom:coauthor @m1guelpf
 /// @custom:coauthor @asnared
 /// @custom:coauthor @0xPhaze
