@@ -459,7 +459,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (!success) revert ExecuteFailed();
         } else {
-            uint256 txNonce = nonce++;
+            uint256 txNonce;
+
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                txNonce = nonce++;
+            }
 
             assembly {
                 to := create(value, add(data, 0x20), mload(data))
@@ -467,11 +473,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             if (to == address(0)) revert ExecuteFailed();
 
-            // Unchecked because the only math done is incrementing
-            // Keep nonce which cannot realistically overflow.
-            unchecked {
-                emit Executed(txNonce, op, to, value, data);
-            }
+            emit Executed(txNonce, op, to, value, data);
         }
     }
 
