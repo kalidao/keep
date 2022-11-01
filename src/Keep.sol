@@ -47,7 +47,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev Emitted when Keep executes call.
     event Executed(
-        uint120 indexed nonce,
+        uint256 indexed nonce,
         Operation op,
         address to,
         uint256 value,
@@ -431,6 +431,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
 
             if (!success) revert ExecuteFailed();
+
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                emit Executed(nonce++, op, to, value, data);
+            }
         } else if (op == Operation.delegatecall) {
             bool success;
 
@@ -446,18 +452,24 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
 
             if (!success) revert ExecuteFailed();
+
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                emit Executed(nonce++, op, to, value, data);
+            }
         } else {
             assembly {
                 to := create(value, add(data, 0x20), mload(data))
             }
 
             if (to == address(0)) revert ExecuteFailed();
-        }
 
-        // Unchecked because the only math done is incrementing
-        // Keep nonce which cannot realistically overflow.
-        unchecked {
-            emit Executed(++nonce, op, to, value, data);
+            // Unchecked because the only math done is incrementing
+            // Keep nonce which cannot realistically overflow.
+            unchecked {
+                emit Executed(nonce++, op, to, value, data);
+            }
         }
     }
 
@@ -490,13 +502,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 id,
         uint256 amount
     ) public payable virtual {
-        if (msg.sender != from) {
-            if (!isApprovedForAll[from][msg.sender]) {
-                if (!_authorized()) {
-                    revert Unauthorized();
-                }
-            }
-        }
+        if (msg.sender != from)
+            if (!isApprovedForAll[from][msg.sender])
+                if (!_authorized()) revert Unauthorized();
 
         _burn(from, id, amount);
 

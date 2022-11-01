@@ -1,7 +1,7 @@
 [profile.default]
 solc = "0.8.17"
 bytecode_hash = "none"
-optimizer_runs = 999999999
+optimizer_runs = 9999999
 
 # Configure remappings
 remappings = [
