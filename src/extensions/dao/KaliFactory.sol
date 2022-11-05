@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
-import {KeepTokenBalances, Kali} from "./Kali.sol";
+import {KeepTokenBalances, Multicallable, Kali} from "./Kali.sol";
 import {LibClone} from "./../../utils/LibClone.sol";
 
 /// @notice Kali Factory.
@@ -24,7 +23,7 @@ contract KaliFactory is Multicallable {
         string daoURI,
         address[] extensions,
         bytes[] extensionsData,
-        uint256[5] govSettings
+        uint120[5] govSettings
     );
 
     /// -----------------------------------------------------------------------
@@ -45,10 +44,15 @@ contract KaliFactory is Multicallable {
     /// Deployment Logic
     /// -----------------------------------------------------------------------
 
-    function determineKali(bytes32 name) public view virtual returns (address) {
+    function determineKali(KeepTokenBalances token, bytes32 name)
+        public
+        view
+        virtual
+        returns (address)
+    {
         return
             address(kaliTemplate).predictDeterministicAddress(
-                abi.encodePacked(name, uint40(block.chainid)),
+                abi.encodePacked(token, name),
                 name,
                 address(this)
             );
@@ -60,17 +64,16 @@ contract KaliFactory is Multicallable {
         string calldata _daoURI,
         address[] calldata _extensions,
         bytes[] calldata _extensionsData,
-        uint256[5] calldata _govSettings
+        uint120[5] calldata _govSettings
     ) public payable virtual {
         Kali kali = Kali(
             address(kaliTemplate).cloneDeterministic(
-                abi.encodePacked(_name, uint40(block.chainid)),
+                abi.encodePacked(_token, _name),
                 _name
             )
         );
 
         kali.initialize{value: msg.value}(
-            _token,
             _daoURI,
             _extensions,
             _extensionsData,
