@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @dev Contract helper for Keep token minting.
+/// @notice Contract helper for Keep token minting.
 abstract contract KeepTokenMint {
     function balanceOf(address account, uint256 id)
         public

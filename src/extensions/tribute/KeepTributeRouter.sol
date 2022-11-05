@@ -34,7 +34,7 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
-    error InsufficientETH();
+    error InvalidETHTribute();
 
     error AlreadyReleased();
 
@@ -44,8 +44,7 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     /// Tribute Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant MINT_KEY =
-        uint32(KeepTokenMint.balanceOf.selector);
+    uint256 internal constant MINT_KEY = uint32(KeepTokenMint.mint.selector);
 
     uint256 public currentId;
 
@@ -101,17 +100,17 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
             });
         }
 
-        // If user selects zero address `asset`, ETH is handled.
+        // If user attaches ETH, handle as tribute.
         // Otherwise, token transfer performed.
-        if (asset == address(0) && msg.value != tribute)
-            revert InsufficientETH();
-        else safeTransferFrom(asset, msg.sender, address(this), tribute);
+        if (msg.value != 0)
+            if (msg.value != tribute)
+                if (asset != address(0)) revert InvalidETHTribute();
+                else
+                    safeTransferFrom(asset, msg.sender, address(this), tribute);
 
         emit MakeTribute(
-            // Tribute escrow ID.
-            id,
-            // Tribute proposer.
-            msg.sender,
+            id, // Tribute escrow ID.
+            msg.sender, // Tribute proposer.
             to,
             asset,
             tribute,
@@ -123,7 +122,7 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     /// @notice Escrow release for a Keep token mint.
     /// @param id The escrow ID to activate tribute release for.
     /// @param approve If `true`, escrow will release to Keep for mint.
-    /// If `false, tribute will be returned back to the tribute proposer.
+    /// If `false`, tribute will be returned back to the tribute proposer.
     /// @dev Calls are permissioned to the Keep itself or mint ID key holder.
     function releaseTribute(uint256 id, bool approve)
         public
@@ -138,10 +137,9 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
         if (trib.from == address(0)) revert AlreadyReleased();
 
         // Check permissions for tribute release.
-        if (
-            msg.sender != trib.to &&
-            KeepTokenMint(trib.to).balanceOf(msg.sender, MINT_KEY) == 0
-        ) revert Unauthorized();
+        if (msg.sender != trib.to)
+            if (KeepTokenMint(trib.to).balanceOf(msg.sender, MINT_KEY) == 0)
+                revert Unauthorized();
 
         // Branch release and minting on approval,
         // as well as on whether asset is ETH or token.
