@@ -2,29 +2,42 @@
 pragma solidity ^0.8.4;
 
 import {KeepTokenMint} from "./utils/KeepTokenMint.sol";
+import {IERC1155STF} from "@kali/interfaces/IERC1155STF.sol";
 import {SelfPermit} from "@solbase/src/utils/SelfPermit.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 import {safeTransferETH, safeTransfer, safeTransferFrom} from "@solbase/src/utils/SafeTransfer.sol";
 
-/// @notice Moloch-style Keep tribute router in ETH and ERC20/721.
+/// @title Tribute Router
+/// @notice Moloch-style Keep tribute escrow router in ETH and any token (ERC20/721/1155).
 /// @dev This extension is enabled while it holds a Keep mint ID key.
-contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
+
+enum Standard {
+    ETH,
+    ERC20,
+    ERC721,
+    ERC1155
+}
+
+/// @author z0r0z.eth
+contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event MakeTribute(
+    event TributeMade(
         uint256 indexed id,
         address indexed from,
         address indexed to,
         address asset,
-        uint256 tribute,
-        uint256 forId,
-        uint256 forAmount
+        Standard std,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
     );
 
-    event ReleaseTribute(
+    event TributeReleased(
         address indexed operator,
         uint256 indexed id,
         bool approve
@@ -51,12 +64,14 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     mapping(uint256 => Tribute) public tributes;
 
     struct Tribute {
-        uint96 tribute;
-        uint64 forId;
-        uint96 forAmount;
         address from;
         address to;
+        uint96 forId;
         address asset;
+        Standard std;
+        uint88 tokenId;
+        uint128 amount;
+        uint128 forAmount;
     }
 
     /// -----------------------------------------------------------------------
@@ -72,17 +87,22 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
 
     /// @notice Escrow for a Keep token mint.
     /// @param to The Keep to make tribute to.
-    /// @param asset The asset type to make tribute in.
-    /// @param tribute The amout of asset to make tribute in.
+    /// @param asset The token address for tribute.
+    /// @param std The EIP interface for tribute `asset`.
+    /// @param tokenId The ID of `asset` to make tribute in.
+    /// @param amount The amount of `asset` to make tribute in.
     /// @param forId The ERC1155 Keep token ID to make tribute for.
     /// @param forAmount The ERC1155 Keep token ID amount to make tribute for.
     /// @return id The Keep escrow ID assigned incrementally for each tribute.
+    /// @dev The `tokenId` will be used where tribute `asset` is ERC721 or ERC1155.
     function makeTribute(
         address to,
         address asset,
-        uint256 tribute,
-        uint256 forId,
-        uint256 forAmount
+        Standard std,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
     ) public payable virtual nonReentrant returns (uint256 id) {
         // Unchecked because the only math done is incrementing
         // currentId which cannot realistically overflow.
@@ -91,29 +111,43 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
 
             // Store packed variables.
             tributes[id] = Tribute({
-                tribute: uint96(tribute),
-                forId: uint64(forId),
-                forAmount: uint96(forAmount),
                 from: msg.sender,
                 to: to,
-                asset: asset
+                forId: forId,
+                asset: asset,
+                std: std,
+                tokenId: tokenId,
+                amount: amount,
+                forAmount: forAmount
             });
         }
 
         // If user attaches ETH, handle as tribute.
         // Otherwise, token transfer performed.
         if (msg.value != 0)
-            if (msg.value != tribute)
-                if (asset != address(0)) revert InvalidETHTribute();
+            if (msg.value != amount)
+                if (std != Standard.ETH) revert InvalidETHTribute();
+                else if (std == Standard.ERC20)
+                    safeTransferFrom(asset, msg.sender, address(this), amount);
+                else if (std == Standard.ERC721)
+                    safeTransferFrom(asset, msg.sender, address(this), tokenId);
                 else
-                    safeTransferFrom(asset, msg.sender, address(this), tribute);
+                    IERC1155STF(asset).safeTransferFrom(
+                        msg.sender,
+                        address(this),
+                        tokenId,
+                        amount,
+                        ""
+                    );
 
-        emit MakeTribute(
+        emit TributeMade(
             id, // Tribute escrow ID.
             msg.sender, // Tribute proposer.
             to,
             asset,
-            tribute,
+            std,
+            tokenId,
+            amount,
             forId,
             forAmount
         );
@@ -144,9 +178,24 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
         // Branch release and minting on approval,
         // as well as on whether asset is ETH or token.
         if (approve) {
-            trib.asset == address(0)
-                ? safeTransferETH(trib.to, trib.tribute)
-                : safeTransfer(trib.asset, trib.to, trib.tribute);
+            if (trib.std == Standard.ETH) safeTransferETH(trib.to, trib.amount);
+            else if (trib.std == Standard.ERC20)
+                safeTransfer(trib.asset, trib.to, trib.amount);
+            else if (trib.std == Standard.ERC721)
+                safeTransferFrom(
+                    trib.asset,
+                    address(this),
+                    trib.to,
+                    trib.tokenId
+                );
+            else
+                IERC1155STF(trib.asset).safeTransferFrom(
+                    address(this),
+                    trib.to,
+                    trib.tokenId,
+                    trib.amount,
+                    ""
+                );
 
             KeepTokenMint(trib.to).mint(
                 trib.from,
@@ -155,14 +204,30 @@ contract KeepTributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
                 ""
             );
         } else {
-            trib.asset == address(0)
-                ? safeTransferETH(trib.from, trib.tribute)
-                : safeTransfer(trib.asset, trib.from, trib.tribute);
+            if (trib.std == Standard.ETH)
+                safeTransferETH(trib.from, trib.amount);
+            else if (trib.std == Standard.ERC20)
+                safeTransfer(trib.asset, trib.from, trib.amount);
+            else if (trib.std == Standard.ERC721)
+                safeTransferFrom(
+                    trib.asset,
+                    address(this),
+                    trib.from,
+                    trib.tokenId
+                );
+            else
+                IERC1155STF(trib.asset).safeTransferFrom(
+                    address(this),
+                    trib.from,
+                    trib.tokenId,
+                    trib.amount,
+                    ""
+                );
         }
 
         // Delete tribute escrow from storage so it can't be replayed.
         delete tributes[id];
 
-        emit ReleaseTribute(msg.sender, id, approve);
+        emit TributeReleased(msg.sender, id, approve);
     }
 }
