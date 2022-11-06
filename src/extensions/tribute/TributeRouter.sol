@@ -70,7 +70,7 @@ contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
 
     uint256 internal constant MINT_KEY = uint32(KeepTokenMint.mint.selector);
 
-    uint256 public currentId;
+    uint256 public count;
 
     mapping(uint256 => Tribute) public tributes;
 
@@ -107,7 +107,7 @@ contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
         // Unchecked because the only math done is incrementing
         // currentId which cannot realistically overflow.
         unchecked {
-            id = currentId++;
+            id = count++;
 
             // Store packed variables.
             tributes[id] = Tribute({
