@@ -19,6 +19,17 @@ enum Standard {
     ERC1155
 }
 
+struct Tribute {
+    address from;
+    address to;
+    uint96 forId;
+    address asset;
+    Standard std;
+    uint88 tokenId;
+    uint128 amount;
+    uint128 forAmount;
+}
+
 /// @author z0r0z.eth
 contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
@@ -62,17 +73,6 @@ contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
     uint256 public currentId;
 
     mapping(uint256 => Tribute) public tributes;
-
-    struct Tribute {
-        address from;
-        address to;
-        uint96 forId;
-        address asset;
-        Standard std;
-        uint88 tokenId;
-        uint128 amount;
-        uint128 forAmount;
-    }
 
     /// -----------------------------------------------------------------------
     /// Constructor
