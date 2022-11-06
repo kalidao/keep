@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import {ERC1155STF} from "@kali/utils/ERC1155STF.sol";
 import {KeepTokenMint} from "./utils/KeepTokenMint.sol";
-import {IERC1155STF} from "@kali/interfaces/IERC1155STF.sol";
 import {SelfPermit} from "@solbase/src/utils/SelfPermit.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
@@ -132,7 +132,7 @@ contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
                 else if (std == Standard.ERC721)
                     safeTransferFrom(asset, msg.sender, address(this), tokenId);
                 else
-                    IERC1155STF(asset).safeTransferFrom(
+                    ERC1155STF(asset).safeTransferFrom(
                         msg.sender,
                         address(this),
                         tokenId,
@@ -189,7 +189,7 @@ contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
                     trib.tokenId
                 );
             else
-                IERC1155STF(trib.asset).safeTransferFrom(
+                ERC1155STF(trib.asset).safeTransferFrom(
                     address(this),
                     trib.to,
                     trib.tokenId,
@@ -216,7 +216,7 @@ contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
                     trib.tokenId
                 );
             else
-                IERC1155STF(trib.asset).safeTransferFrom(
+                ERC1155STF(trib.asset).safeTransferFrom(
                     address(this),
                     trib.from,
                     trib.tokenId,
