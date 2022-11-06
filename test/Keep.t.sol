@@ -145,7 +145,7 @@ contract KeepTest is Keep(this), Test {
         address to,
         uint256 value,
         bytes memory data
-    ) internal returns (Signature memory sig) {
+    ) internal view returns (Signature memory sig) {
         uint8 v;
         bytes32 r;
         bytes32 s;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Standard, RageRouter} from "@kali/RageRouter.sol";
+import {Standard, Withdrawal, RageRouter} from "@kali/RageRouter.sol";
 
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
 import {MockERC721Supply} from "@solbase/test/utils/mocks/MockERC721Supply.sol";
@@ -129,12 +129,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -169,13 +169,13 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockWeth);
-        multiAsset[0] = address(mockDai);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[0] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[1] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, multiAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -211,12 +211,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 0);
+        router.ragequit(treasury, draw, 0);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -252,13 +252,13 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockWeth);
-        multiAsset[0] = address(mockDai);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[0] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[1] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, multiAsset, 0);
+        router.ragequit(treasury, draw, 0);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -293,12 +293,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -333,13 +333,13 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockWeth);
-        multiAsset[0] = address(mockDai);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[0] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[1] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, multiAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -376,12 +376,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -394,7 +394,7 @@ contract RageRouterTest is Test {
 
         // Mock bob to redeem gov for wETH.
         startHoax(bob, bob, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -407,7 +407,7 @@ contract RageRouterTest is Test {
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -421,13 +421,13 @@ contract RageRouterTest is Test {
         // Expect revert in underflow for Alice repeat.
         startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(stdError.arithmeticError);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Mock bob to redeem gov for wETH.
         // This completes redemption.
         startHoax(bob, bob, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -460,12 +460,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 50 ether);
+        router.ragequit(treasury, draw, 50 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -479,7 +479,7 @@ contract RageRouterTest is Test {
         // Mock bob to redeem gov for wETH.
         // This completes redemption.
         startHoax(bob, bob, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 50 ether);
+        router.ragequit(treasury, draw, 50 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -491,7 +491,7 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 0 ether);
     }
 
-    function testCannotRedeemEarly() public payable {
+    function testCannotRagequitEarly() public payable {
         router.setRagequit(
             address(0),
             address(mockGovERC20),
@@ -512,14 +512,14 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH too early.
         vm.warp(start - 1);
         vm.expectRevert(bytes4(keccak256("NotStarted()")));
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 50 ether);
+        router.ragequit(treasury, draw, 50 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -554,14 +554,14 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockDai);
-        multiAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[1] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("InvalidAssetOrder()")));
-        router.ragequit(treasury, multiAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -600,12 +600,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -643,13 +643,13 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockWeth);
-        multiAsset[0] = address(mockDai);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[0] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[1] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, multiAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -688,12 +688,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 0);
+        router.ragequit(treasury, draw, 0);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -731,13 +731,13 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockWeth);
-        multiAsset[0] = address(mockDai);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[0] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[1] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, multiAsset, 0);
+        router.ragequit(treasury, draw, 0);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -774,12 +774,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -817,13 +817,13 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockWeth);
-        multiAsset[0] = address(mockDai);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[0] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[1] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, multiAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -863,12 +863,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -884,7 +884,7 @@ contract RageRouterTest is Test {
 
         // Mock bob to redeem gov for wETH.
         startHoax(bob, bob, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -900,7 +900,7 @@ contract RageRouterTest is Test {
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -917,13 +917,13 @@ contract RageRouterTest is Test {
         // Expect revert in underflow for Alice repeat.
         startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(0x7939f424);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Mock bob to redeem gov for wETH.
         // This completes redemption.
         startHoax(bob, bob, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -959,12 +959,12 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH.
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 50 ether);
+        router.ragequit(treasury, draw, 50 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -981,7 +981,7 @@ contract RageRouterTest is Test {
         // Mock bob to redeem gov for wETH.
         // This completes redemption.
         startHoax(bob, bob, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 50 ether);
+        router.ragequit(treasury, draw, 50 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -1017,14 +1017,14 @@ contract RageRouterTest is Test {
         assertTrue(mockWeth.balanceOf(treasury) == 10 ether);
 
         // Set up wETH claim.
-        address[] memory singleAsset = new address[](1);
-        singleAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](1);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH too early.
         vm.warp(start - 1);
         vm.expectRevert(bytes4(keccak256("NotStarted()")));
         startHoax(alice, alice, type(uint256).max);
-        router.ragequit(treasury, singleAsset, 50 ether);
+        router.ragequit(treasury, draw, 50 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
@@ -1059,14 +1059,14 @@ contract RageRouterTest is Test {
         assertTrue(mockDai.balanceOf(treasury) == 1000 ether);
 
         // Set up wETH/Dai claim.
-        address[] memory multiAsset = new address[](2);
-        multiAsset[1] = address(mockDai);
-        multiAsset[0] = address(mockWeth);
+        Withdrawal[] memory draw = new Withdrawal[](2);
+        draw[1] = Withdrawal(address(mockDai), Standard.ERC20, 0);
+        draw[0] = Withdrawal(address(mockWeth), Standard.ERC20, 0);
 
         // Mock alice to redeem gov for wETH/Dai.
         startHoax(alice, alice, type(uint256).max);
         vm.expectRevert(bytes4(keccak256("InvalidAssetOrder()")));
-        router.ragequit(treasury, multiAsset, 25 ether);
+        router.ragequit(treasury, draw, 25 ether);
         vm.stopPrank();
 
         // Check resulting gov balances.
