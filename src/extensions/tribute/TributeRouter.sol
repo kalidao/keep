@@ -4,8 +4,8 @@ pragma solidity ^0.8.4;
 import {ERC1155STF} from "@kali/utils/ERC1155STF.sol";
 import {KeepTokenMint} from "./utils/KeepTokenMint.sol";
 import {SelfPermit} from "@solbase/src/utils/SelfPermit.sol";
-import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
+import {SafeMulticallable} from "@solbase/src/utils/SafeMulticallable.sol";
 import {safeTransferETH, safeTransfer, safeTransferFrom} from "@solbase/src/utils/SafeTransfer.sol";
 
 /// @title Tribute Router
@@ -31,7 +31,7 @@ struct Tribute {
 }
 
 /// @author z0r0z.eth
-contract TributeRouter is SelfPermit, Multicallable, ReentrancyGuard {
+contract TributeRouter is SelfPermit, ReentrancyGuard, SafeMulticallable {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
