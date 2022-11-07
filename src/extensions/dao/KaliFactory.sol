@@ -19,11 +19,12 @@ contract KaliFactory is Multicallable {
     event Deployed(
         Kali kali,
         KeepTokenBalances token,
+        uint256 tokenId,
         bytes32 name,
         string daoURI,
         address[] extensions,
         bytes[] extensionsData,
-        uint120[5] govSettings
+        uint120[4] govSettings
     );
 
     /// -----------------------------------------------------------------------
@@ -44,15 +45,14 @@ contract KaliFactory is Multicallable {
     /// Deployment Logic
     /// -----------------------------------------------------------------------
 
-    function determineKali(KeepTokenBalances token, bytes32 name)
-        public
-        view
-        virtual
-        returns (address)
-    {
+    function determineKali(
+        KeepTokenBalances token,
+        uint256 tokenId,
+        bytes32 name
+    ) public view virtual returns (address) {
         return
             address(kaliTemplate).predictDeterministicAddress(
-                abi.encodePacked(token, name),
+                abi.encodePacked(token, tokenId, name),
                 name,
                 address(this)
             );
@@ -60,15 +60,16 @@ contract KaliFactory is Multicallable {
 
     function deployKali(
         KeepTokenBalances _token,
+        uint256 _tokenId,
         bytes32 _name, // create2 salt.
         string calldata _daoURI,
         address[] calldata _extensions,
         bytes[] calldata _extensionsData,
-        uint120[5] calldata _govSettings
+        uint120[4] calldata _govSettings
     ) public payable virtual {
         Kali kali = Kali(
             address(kaliTemplate).cloneDeterministic(
-                abi.encodePacked(_token, _name),
+                abi.encodePacked(_token, _tokenId, _name),
                 _name
             )
         );
@@ -83,6 +84,7 @@ contract KaliFactory is Multicallable {
         emit Deployed(
             kali,
             _token,
+            _tokenId,
             _name,
             _daoURI,
             _extensions,
