@@ -115,3 +115,5 @@ ReentrancyGuardTest:invariantReentrancyStatusAlways1() (runs: 256, calls: 3840, 
 ReentrancyGuardTest:testFailUnprotectedCall() (gas: 46104)
 ReentrancyGuardTest:testNoReentrancy() (gas: 7515)
 ReentrancyGuardTest:testProtectedCall() (gas: 33392)
+TributeRouterTest:testTributeInERC20(address,uint88,uint128,uint96,uint128) (runs: 256, μ: 312900, ~: 317206)
+TributeRouterTest:testTributeInETH(address,uint88,uint128,uint96,uint128) (runs: 256, μ: 240741, ~: 245288)

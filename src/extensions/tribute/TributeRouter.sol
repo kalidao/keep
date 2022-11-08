@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import {ERC1155STF} from "@kali/utils/ERC1155STF.sol";
 import {KeepTokenMint} from "./utils/KeepTokenMint.sol";
+import {ERC1155TokenReceiver} from "../../KeepToken.sol";
 import {SelfPermit} from "@solbase/src/utils/SelfPermit.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 import {SafeMulticallable} from "@solbase/src/utils/SafeMulticallable.sol";
@@ -31,7 +32,12 @@ struct Tribute {
 }
 
 /// @author z0r0z.eth
-contract TributeRouter is SelfPermit, ReentrancyGuard, SafeMulticallable {
+contract TributeRouter is
+    ERC1155TokenReceiver,
+    SelfPermit,
+    ReentrancyGuard,
+    SafeMulticallable
+{
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -124,21 +130,22 @@ contract TributeRouter is SelfPermit, ReentrancyGuard, SafeMulticallable {
 
         // If user attaches ETH, handle as tribute.
         // Otherwise, token transfer performed.
-        if (msg.value != 0)
-            if (msg.value != amount)
-                if (std != Standard.ETH) revert InvalidETHTribute();
-                else if (std == Standard.ERC20)
-                    safeTransferFrom(asset, msg.sender, address(this), amount);
-                else if (std == Standard.ERC721)
-                    safeTransferFrom(asset, msg.sender, address(this), tokenId);
-                else
-                    ERC1155STF(asset).safeTransferFrom(
-                        msg.sender,
-                        address(this),
-                        tokenId,
-                        amount,
-                        ""
-                    );
+        if (msg.value != 0) {
+            if (msg.value != amount || std != Standard.ETH)
+                revert InvalidETHTribute();
+        } else if (std == Standard.ERC20) {
+            safeTransferFrom(asset, msg.sender, address(this), amount);
+        } else if (std == Standard.ERC721) {
+            safeTransferFrom(asset, msg.sender, address(this), tokenId);
+        } else if (std != Standard.ETH) {
+            ERC1155STF(asset).safeTransferFrom(
+                msg.sender,
+                address(this),
+                tokenId,
+                amount,
+                ""
+            );
+        }
 
         emit TributeMade(
             id, // Tribute escrow ID.
