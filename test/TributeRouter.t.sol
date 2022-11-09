@@ -510,7 +510,8 @@ contract TributeRouterTest is Test, Keep(this) {
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 2, type(uint88).max));
+        vm.assume(amount > 1);
+        vm.assume(amount <= type(uint88).max);
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -553,7 +554,8 @@ contract TributeRouterTest is Test, Keep(this) {
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 1, type(uint88).max));
+        vm.assume(amount != 0);
+        vm.assume(amount <= type(uint88).max);
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
