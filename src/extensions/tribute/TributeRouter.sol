@@ -255,9 +255,6 @@ contract TributeRouter is
         // Fetch tribute details from storage.
         Tribute storage trib = tributes[id];
 
-        // Ensure no replay of tribute escrow.
-        if (trib.from == address(0)) revert AlreadyReleased();
-
         // Check permission for tribute release.
         if (msg.sender != trib.from) revert Unauthorized();
 
