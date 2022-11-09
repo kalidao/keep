@@ -261,20 +261,20 @@ contract TributeRouter is
         // Check deadline for tribute release.
         if (block.timestamp <= trib.deadline) revert DeadlinePending();
 
-        if (trib.std == Standard.ETH) safeTransferETH(trib.from, trib.amount);
+        if (trib.std == Standard.ETH) safeTransferETH(msg.sender, trib.amount);
         else if (trib.std == Standard.ERC20)
-            safeTransfer(trib.asset, trib.from, trib.amount);
+            safeTransfer(trib.asset, msg.sender, trib.amount);
         else if (trib.std == Standard.ERC721)
             safeTransferFrom(
                 trib.asset,
                 address(this),
-                trib.from,
+                msg.sender,
                 trib.tokenId
             );
         else
             ERC1155STF(trib.asset).safeTransferFrom(
                 address(this),
-                trib.from,
+                msg.sender,
                 trib.tokenId,
                 trib.amount,
                 ""
