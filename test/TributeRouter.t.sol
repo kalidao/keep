@@ -11,6 +11,12 @@ import {Standard, TributeRouter} from "../src/extensions/tribute/TributeRouter.s
 
 import "@std/Test.sol";
 
+error InvalidETHTribute();
+
+error AlreadyReleased();
+
+error Unauthorized();
+
 contract TributeRouterTest is Test, Keep(this) {
     MockERC20 internal mockDai;
     MockERC721 internal mockNFT;
@@ -103,6 +109,54 @@ contract TributeRouterTest is Test, Keep(this) {
         assertEq(keep.balanceOf(from, forId), forAmount);
     }
 
+    function testTributeInETHRefund(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply ETH for mock tribute.
+        (bool sent, ) = from.call{value: amount}("");
+        assert(sent);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(from);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ETH,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, amount);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, false);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        // Check no Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), 0);
+    }
+
     function testTributeInERC20(
         address from,
         uint88 tokenId,
@@ -150,5 +204,514 @@ contract TributeRouterTest is Test, Keep(this) {
 
         // Check Keep ID minted.
         assertEq(keep.balanceOf(from, forId), forAmount);
+    }
+
+    function testTributeInERC20Refund(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply Dai for mock tribute.
+        mockDai.mint(from, amount);
+
+        assertEq(mockDai.balanceOf(from), amount);
+        assertEq(mockDai.balanceOf(address(tribute)), 0);
+        assertEq(mockDai.balanceOf(address(keep)), 0);
+
+        vm.prank(from);
+        mockDai.approve(address(tribute), amount);
+        vm.prank(from);
+        tribute.makeTribute(
+            address(keep),
+            address(mockDai),
+            Standard.ERC20,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(mockDai.balanceOf(from), 0);
+        assertEq(mockDai.balanceOf(address(tribute)), amount);
+        assertEq(mockDai.balanceOf(address(keep)), 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, false);
+
+        assertEq(mockDai.balanceOf(from), amount);
+        assertEq(mockDai.balanceOf(address(tribute)), 0);
+        assertEq(mockDai.balanceOf(address(keep)), 0);
+
+        // Check no Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), 0);
+    }
+
+    function testTributeInERC721(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply NFT for mock tribute.
+        mockNFT.mint(from, tokenId);
+
+        assertEq(mockNFT.balanceOf(from), 1);
+        assertEq(mockNFT.balanceOf(address(tribute)), 0);
+        assertEq(mockNFT.balanceOf(address(keep)), 0);
+
+        vm.prank(from);
+        mockNFT.approve(address(tribute), tokenId);
+        vm.prank(from);
+        tribute.makeTribute(
+            address(keep),
+            address(mockNFT),
+            Standard.ERC721,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(mockNFT.balanceOf(from), 0);
+        assertEq(mockNFT.balanceOf(address(tribute)), 1);
+        assertEq(mockNFT.balanceOf(address(keep)), 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, true);
+
+        assertEq(mockNFT.balanceOf(from), 0);
+        assertEq(mockNFT.balanceOf(address(tribute)), 0);
+        assertEq(mockNFT.balanceOf(address(keep)), 1);
+
+        // Check Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), forAmount);
+    }
+
+    function testTributeInERC721Refund(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply NFT for mock tribute.
+        mockNFT.mint(from, tokenId);
+
+        assertEq(mockNFT.balanceOf(from), 1);
+        assertEq(mockNFT.balanceOf(address(tribute)), 0);
+        assertEq(mockNFT.balanceOf(address(keep)), 0);
+
+        vm.prank(from);
+        mockNFT.approve(address(tribute), tokenId);
+        vm.prank(from);
+        tribute.makeTribute(
+            address(keep),
+            address(mockNFT),
+            Standard.ERC721,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(mockNFT.balanceOf(from), 0);
+        assertEq(mockNFT.balanceOf(address(tribute)), 1);
+        assertEq(mockNFT.balanceOf(address(keep)), 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, false);
+
+        assertEq(mockNFT.balanceOf(from), 1);
+        assertEq(mockNFT.balanceOf(address(tribute)), 0);
+        assertEq(mockNFT.balanceOf(address(keep)), 0);
+
+        // Check no Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), 0);
+    }
+
+    function testTributeInERC1155(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply NFT for mock tribute.
+        mock1155.mint(from, tokenId, amount, "");
+
+        assertEq(mock1155.balanceOf(from, tokenId), amount);
+        assertEq(mock1155.balanceOf(address(tribute), tokenId), 0);
+        assertEq(mock1155.balanceOf(address(keep), tokenId), 0);
+
+        vm.prank(from);
+        mock1155.setApprovalForAll(address(tribute), true);
+        vm.prank(from);
+        tribute.makeTribute(
+            address(keep),
+            address(mock1155),
+            Standard.ERC1155,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(mock1155.balanceOf(from, tokenId), 0);
+        assertEq(mock1155.balanceOf(address(tribute), tokenId), amount);
+        assertEq(mock1155.balanceOf(address(keep), tokenId), 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, true);
+
+        assertEq(mock1155.balanceOf(from, tokenId), 0);
+        assertEq(mock1155.balanceOf(address(tribute), tokenId), 0);
+        assertEq(mock1155.balanceOf(address(keep), tokenId), amount);
+
+        // Check Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), forAmount);
+    }
+
+    function testTributeInERC1155Refund(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply NFT for mock tribute.
+        mock1155.mint(from, tokenId, amount, "");
+
+        assertEq(mock1155.balanceOf(from, tokenId), amount);
+        assertEq(mock1155.balanceOf(address(tribute), tokenId), 0);
+        assertEq(mock1155.balanceOf(address(keep), tokenId), 0);
+
+        vm.prank(from);
+        mock1155.setApprovalForAll(address(tribute), true);
+        vm.prank(from);
+        tribute.makeTribute(
+            address(keep),
+            address(mock1155),
+            Standard.ERC1155,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(mock1155.balanceOf(from, tokenId), 0);
+        assertEq(mock1155.balanceOf(address(tribute), tokenId), amount);
+        assertEq(mock1155.balanceOf(address(keep), tokenId), 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, false);
+
+        assertEq(mock1155.balanceOf(from, tokenId), amount);
+        assertEq(mock1155.balanceOf(address(tribute), tokenId), 0);
+        assertEq(mock1155.balanceOf(address(keep), tokenId), 0);
+
+        // Check Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), 0);
+    }
+
+    function testReleaseTributeAsKeep(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply ETH for mock tribute.
+        (bool sent, ) = from.call{value: amount}("");
+        assert(sent);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(from);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ETH,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, amount);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(address(keep));
+        tribute.releaseTribute(0, true);
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, amount);
+
+        // Check Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), forAmount);
+    }
+
+    /// @dev Adverse cases.
+
+    function testCannotMakeETHTributeWithInvalidETH(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 2, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply ETH for mock tribute.
+        (bool sent, ) = from.call{value: amount}("");
+        assert(sent);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(from);
+        vm.expectRevert(InvalidETHTribute.selector);
+        tribute.makeTribute{value: amount - 1}(
+            address(keep),
+            address(0),
+            Standard.ETH,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        // Check no release.
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        // Check no Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), 0);
+    }
+
+    function testCannotMakeETHTributeWithInvalidStandard(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 1, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply ETH for mock tribute.
+        (bool sent, ) = from.call{value: amount}("");
+        assert(sent);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(from);
+        vm.expectRevert(InvalidETHTribute.selector);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ERC20,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        vm.expectRevert(InvalidETHTribute.selector);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ERC721,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        vm.expectRevert(InvalidETHTribute.selector);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ERC1155,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        // Check no release.
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        // Check no Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), 0);
+    }
+
+    function testCannotReleaseTributeMoreThanOnce(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply ETH for mock tribute.
+        (bool sent, ) = from.call{value: amount}("");
+        assert(sent);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(from);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ETH,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, amount);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(vm.addr(1));
+        tribute.releaseTribute(0, true);
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, amount);
+
+        // Check Keep ID minted.
+        assertEq(keep.balanceOf(from, forId), forAmount);
+
+        vm.prank(vm.addr(1));
+        vm.expectRevert(AlreadyReleased.selector);
+        tribute.releaseTribute(0, true);
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, amount);
+    }
+
+    function testCannotReleaseTributeWithoutKey(
+        address from,
+        uint88 tokenId,
+        uint128 amount,
+        uint96 forId,
+        uint128 forAmount
+    ) public payable {
+        vm.assume(from != address(0));
+        vm.assume(from.code.length == 0);
+        amount = uint128(bound(amount, 0, type(uint88).max));
+
+        // Check Keep ID balance.
+        assertEq(keep.balanceOf(from, forId), 0);
+
+        // Supply ETH for mock tribute.
+        (bool sent, ) = from.call{value: amount}("");
+        assert(sent);
+
+        assertEq(from.balance, amount);
+        assertEq(address(tribute).balance, 0);
+        assertEq(address(keep).balance, 0);
+
+        vm.prank(from);
+        tribute.makeTribute{value: amount}(
+            address(keep),
+            address(0),
+            Standard.ETH,
+            tokenId,
+            amount,
+            forId,
+            forAmount
+        );
+
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, amount);
+        assertEq(address(keep).balance, 0);
+
+        vm.expectRevert(Unauthorized.selector);
+        vm.prank(vm.addr(2));
+        tribute.releaseTribute(0, true);
+
+        // Check no release.
+        assertEq(from.balance, 0);
+        assertEq(address(tribute).balance, amount);
+        assertEq(address(keep).balance, 0);
+
+        // Check no Keep ID minted,
+        assertEq(keep.balanceOf(from, forId), 0);
     }
 }

@@ -111,7 +111,7 @@ contract TributeRouter is
         uint128 forAmount
     ) public payable virtual nonReentrant returns (uint256 id) {
         // Unchecked because the only math done is incrementing
-        // currentId which cannot realistically overflow.
+        // count which cannot realistically overflow.
         unchecked {
             id = count++;
 
