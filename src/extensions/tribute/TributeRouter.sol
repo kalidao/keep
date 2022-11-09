@@ -27,8 +27,9 @@ struct Tribute {
     address asset;
     Standard std;
     uint88 tokenId;
-    uint128 amount;
-    uint128 forAmount;
+    uint112 amount;
+    uint112 forAmount;
+    uint32 deadline;
 }
 
 /// @author z0r0z.eth
@@ -49,9 +50,10 @@ contract TributeRouter is
         address asset,
         Standard std,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount,
+        uint32 deadline
     );
 
     event TributeReleased(
@@ -69,6 +71,8 @@ contract TributeRouter is
     error AlreadyReleased();
 
     error Unauthorized();
+
+    error DeadlinePending();
 
     /// -----------------------------------------------------------------------
     /// Tribute Storage
@@ -99,16 +103,18 @@ contract TributeRouter is
     /// @param amount The amount of `asset` to make tribute in.
     /// @param forId The ERC1155 Keep token ID to make tribute for.
     /// @param forAmount The ERC1155 Keep token ID amount to make tribute for.
-    /// @return id The Keep escrow ID assigned incrementally for each tribute.
-    /// @dev The `tokenId` will be used where tribute `asset` is ERC721 or ERC1155.
+    /// @param deadline The unix time at which the escrowed tribute will expire.
+    /// @return id The Keep escrow ID assigned incrementally for each escrow tribute.
+    /// @dev The `tokenId` will be used where tribute `asset` follows ERC721 or ERC1155.
     function makeTribute(
         address to,
         address asset,
         Standard std,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount,
+        uint32 deadline
     ) public payable virtual nonReentrant returns (uint256 id) {
         // Unchecked because the only math done is incrementing
         // count which cannot realistically overflow.
@@ -124,7 +130,8 @@ contract TributeRouter is
                 std: std,
                 tokenId: tokenId,
                 amount: amount,
-                forAmount: forAmount
+                forAmount: forAmount,
+                deadline: deadline
             });
         }
 
@@ -156,7 +163,8 @@ contract TributeRouter is
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            deadline
         );
     }
 
@@ -236,5 +244,48 @@ contract TributeRouter is
         delete tributes[id];
 
         emit TributeReleased(msg.sender, id, approve);
+    }
+
+    /// @notice Timed depositor escrow release.
+    /// @param id The escrow ID to activate tribute release for.
+    /// @dev Deadline of zero effectively is strings-attached deposit.
+    /// Otherwise, depositors might demonstrate greater faith in tribute
+    /// by setting deadline timer. This can entertain time-based tokenomics.
+    function withdrawTribute(uint256 id) public payable virtual nonReentrant {
+        // Fetch tribute details from storage.
+        Tribute storage trib = tributes[id];
+
+        // Ensure no replay of tribute escrow.
+        if (trib.from == address(0)) revert AlreadyReleased();
+
+        // Check permission for tribute release.
+        if (msg.sender != trib.from) revert Unauthorized();
+
+        // Check deadline for tribute release.
+        if (block.timestamp <= trib.deadline) revert DeadlinePending();
+
+        if (trib.std == Standard.ETH) safeTransferETH(trib.from, trib.amount);
+        else if (trib.std == Standard.ERC20)
+            safeTransfer(trib.asset, trib.from, trib.amount);
+        else if (trib.std == Standard.ERC721)
+            safeTransferFrom(
+                trib.asset,
+                address(this),
+                trib.from,
+                trib.tokenId
+            );
+        else
+            ERC1155STF(trib.asset).safeTransferFrom(
+                address(this),
+                trib.from,
+                trib.tokenId,
+                trib.amount,
+                ""
+            );
+
+        // Delete tribute escrow from storage so it can't be replayed.
+        delete tributes[id];
+
+        emit TributeReleased(msg.sender, id, false);
     }
 }

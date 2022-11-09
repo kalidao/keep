@@ -64,13 +64,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInETH(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -91,7 +91,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(from.balance, 0);
@@ -112,13 +113,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInETHRefund(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -139,7 +140,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(from.balance, 0);
@@ -160,13 +162,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInERC20(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -188,7 +190,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(mockDai.balanceOf(from), 0);
@@ -209,13 +212,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInERC20Refund(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -237,7 +240,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(mockDai.balanceOf(from), 0);
@@ -258,13 +262,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInERC721(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -286,7 +290,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(mockNFT.balanceOf(from), 0);
@@ -307,13 +312,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInERC721Refund(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -335,7 +340,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(mockNFT.balanceOf(from), 0);
@@ -356,13 +362,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInERC1155(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -384,7 +390,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(mock1155.balanceOf(from, tokenId), 0);
@@ -405,13 +412,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testTributeInERC1155Refund(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -433,7 +440,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(mock1155.balanceOf(from, tokenId), 0);
@@ -454,13 +462,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testReleaseTributeAsKeep(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -481,7 +489,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(from.balance, 0);
@@ -504,9 +513,9 @@ contract TributeRouterTest is Test, Keep(this) {
     function testCannotMakeETHTributeWithInvalidETH(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
@@ -533,7 +542,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         // Check no release.
@@ -548,9 +558,9 @@ contract TributeRouterTest is Test, Keep(this) {
     function testCannotMakeETHTributeWithInvalidStandard(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
@@ -577,7 +587,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         vm.expectRevert(InvalidETHTribute.selector);
@@ -588,7 +599,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         vm.expectRevert(InvalidETHTribute.selector);
@@ -599,7 +611,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         // Check no release.
@@ -614,13 +627,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testCannotReleaseTributeMoreThanOnce(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -641,7 +654,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(from.balance, 0);
@@ -670,13 +684,13 @@ contract TributeRouterTest is Test, Keep(this) {
     function testCannotReleaseTributeWithoutKey(
         address from,
         uint88 tokenId,
-        uint128 amount,
+        uint112 amount,
         uint96 forId,
-        uint128 forAmount
+        uint112 forAmount
     ) public payable {
         vm.assume(from != address(0));
         vm.assume(from.code.length == 0);
-        amount = uint128(bound(amount, 0, type(uint88).max));
+        amount = uint112(bound(amount, 0, type(uint88).max));
 
         // Check Keep ID balance.
         assertEq(keep.balanceOf(from, forId), 0);
@@ -697,7 +711,8 @@ contract TributeRouterTest is Test, Keep(this) {
             tokenId,
             amount,
             forId,
-            forAmount
+            forAmount,
+            0
         );
 
         assertEq(from.balance, 0);
