@@ -28,11 +28,21 @@ struct Trade {
 }
 
 enum TradeType {
-    UNAVAILABLE,
-    CLAIM,
-    SALE,
-    LICENSE,
-    DERIVATIVE
+    MINT, // mint an asset
+    BURN, // burn an asset
+    CLAIM, // set asset up for claim
+    SALE, // set asset up for sale
+    LICENSE, // set asset up for license 
+    DERIVATIVE, // set asset up for derivative work
+    DISPUTE // set asset up for ADR
+}
+
+enum TokenType {
+    FUNGIBLE,
+    NONFUNGIBLE,
+    ERC20,
+    ERC721,
+    ERC1155
 }
 
 /// @author audsssy.eth
@@ -43,11 +53,27 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
     event AdminSet(address indexed caller, address indexed to);
 
+    event ManagerSet(address indexed caller, address indexed to);
+
     event TokenPauseSet(address indexed caller, uint256[] ids, bool[] pauses);
 
     event BaseURIset(address indexed caller, string baseURI);
 
     event InsuranceRateSet(address indexed caller, uint256 insuranceRate);
+
+    /// -----------------------------------------------------------------------
+    /// Custom Errors
+    /// -----------------------------------------------------------------------
+
+    error InvalidDeadline();
+
+    error TradeExpired();
+
+    error InvalidLicense();
+
+    error InvalidDerivative();
+
+    error NotAuthorized(); // could refactor to use Unauthorized() in ERC1155
 
     /// -----------------------------------------------------------------------
     /// TradingPost Storage
@@ -57,11 +83,13 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
     string private baseURI;
 
-    uint8 public insuranceRate;
+    // uint8 public insuranceRate;
 
-    uint256 public insurance;
+    // uint256 public insurance;
 
     address public admin;
+    
+    address public manager;
 
     IKaliAccessManager private immutable accessManager;
 
@@ -73,8 +101,8 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
     mapping(uint256 => string) private tokenURIs;
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "NOT_ADMIN");
+    modifier onlyAuthorized() {
+        if (msg.sender != admin || msg.sender != manager) revert NotAuthorized();
 
         _;
     }
@@ -91,14 +119,14 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     constructor(
         string memory _name,
         string memory _baseURI,
-        uint8 _insuranceRate,
+        // uint8 _insuranceRate,
         IKaliAccessManager _accessManager
     ) payable {
         name = _name;
 
         baseURI = _baseURI;
 
-        insuranceRate = _insuranceRate;
+        // insuranceRate = _insuranceRate;
 
         admin = msg.sender;
 
@@ -106,7 +134,7 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
         emit BaseURIset(address(0), _baseURI);
 
-        emit InsuranceRateSet(address(0), insuranceRate);
+        // emit InsuranceRateSet(address(0), insuranceRate);
 
         emit AdminSet(address(0), admin);
     }
@@ -115,82 +143,99 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// Internal Functions
     /// -----------------------------------------------------------------------
 
-    function manageMint(
+    function mint(
         uint256[] calldata ids,
         uint256[] calldata amounts,
         bytes calldata data,
         string[] calldata _tokenURIs
-    ) internal {
-        require(msg.sender == admin, "NOT_AUTHORIZED");
-
-        __batchMint(admin, ids, amounts, data, _tokenURIs);
+    ) internal onlyAuthorized {
+        __batchMint(address(this), ids, amounts, data, _tokenURIs);
     }
 
-    function manageBurn(
-        address from,
+    function burn(
         uint256[] calldata ids,
         uint256[] calldata amounts
-    ) internal {
-        require(msg.sender == admin, "NOT_AUTHORIZED");
-
-        _batchBurn(from, ids, amounts);
+    ) internal onlyAuthorized {
+        _batchBurn(address(this), ids, amounts);
     }
 
     /// -----------------------------------------------------------------------
     /// TradingPost Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice Set trading post task
-    /// @param to The Keep to make tribute to.
-    /// @param asset The token address for tribute.
-    /// @param std The EIP interface for tribute `asset`.
-    /// @param tokenId The ID of `asset` to make tribute in.
-    /// @param amount The amount of `asset` to make tribute in.
-    /// @param forId The ERC1155 Keep token ID to make tribute for.
-    /// @param forAmount The ERC1155 Keep token ID amount to make tribute for.
-    /// @return id The Keep escrow ID assigned incrementally for each tribute.
-    /// @dev The `tokenId` will be used where tribute `asset` is ERC721 or ERC1155.
+    /// @notice Set parameter for a trade
+    /// @param tradeType Type of trade.
+    /// @param list The allow list for trade.
+    /// @param ids The IDs of assets for trade.
+    /// @param amounts The amounts of assets for trade.
+    /// @param _tokenURIs The metadata of assets for trade.
+    /// @param currency The token address required to complete a trade.
+    /// @param payment The amount required to complete a trade.
+    /// @param expiry The deadline to complete a trade.
+    /// @param docs The document associated with a trade.
+    /// @param data Data for compliant ERC1155 transfer.
+    /// @dev 
     function setTrade(
         TradeType tradeType,
         uint256 list,
         uint256[] calldata ids,
         uint256[] calldata amounts,
+        string[] calldata _tokenURIs,
         address currency,
         uint256 payment, // SALE / LICENSE - payment, CLAIM - list id
         uint96 expiry,
         string calldata docs,
         bytes calldata data
-    ) external payable {
-        require(msg.sender == admin, "NOT_AUTHORIZED");
-        require(expiry > block.timestamp, "INVALID_EXPIRY");
-
-        // Retain insurance for LICENSE trades
-        if (tradeType == TradeType.LICENSE) {
-            // cannot possibly overflow on human timescale
-            unchecked {
-                require(
-                    msg.value == (1 ether * insuranceRate) / 1000,
-                    "NOT_FEE"
-                );
-                insurance = msg.value + insurance;
-            }
-        }
-
+    ) external payable onlyAuthorized {
+        if (ids.length != amounts.length) revert LengthMismatch();
+        if (ids.length != _tokenURIs.length) revert LengthMismatch();
+        if (expiry > block.timestamp) revert InvalidDeadline();
+        
         unchecked {
             tradeCount++;
         }
+        // Retain insurance for LICENSE trades
+        // if (tradeType == TradeType.LICENSE) {
+        //     unchecked {
+        //         require(
+        //             msg.value == (1 ether * insuranceRate) / 1000,
+        //             "NOT_FEE"
+        //         );
+        //         insurance = msg.value + insurance;
+        //     }
+        // }
 
-        trades[tradeCount].tradeType = tradeType;
-        trades[tradeCount].list = list;
-        trades[tradeCount].ids = ids;
-        trades[tradeCount].amounts = amounts;
-        trades[tradeCount].currency = currency;
-        trades[tradeCount].payment = payment;
-        trades[tradeCount].expiry = expiry;
-        trades[tradeCount].docs = docs;
+        if (tradeType == TradeType.MINT) {
+            mint(ids, amounts, data, _tokenURIs);
 
-        // Transfer Trade subject matter to TradingPost indicating intention to trade
-        transferAssets(tradeCount, admin, address(this), false, data);
+            // Update Trade only if payment is defined
+            if (payment != 0) {
+                trades[tradeCount] = Trade({
+                    tradeType: TradeType.SALE,
+                    list: list,
+                    ids: ids,
+                    amounts: amounts,
+                    currency: currency,
+                    payment: payment,
+                    expiry: expiry,
+                    docs: docs
+                });
+            }
+        } else if (tradeType == TradeType.BURN) {
+            burn(ids, amounts);
+        } else {
+            trades[tradeCount] = Trade({
+                tradeType: tradeType,
+                list: list,
+                ids: ids,
+                amounts: amounts,
+                currency: currency,
+                payment: payment,
+                expiry: expiry,
+                docs: docs
+            });
+            // transferAssets(tradeCount, admin, address(this), false, data);
+        }
     }
 
     function completeTrade(
@@ -198,18 +243,12 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         string calldata tokenUri,
         bytes calldata data
     ) external payable {
-        require(
-            trades[trade].tradeType != TradeType.UNAVAILABLE,
-            "TRADE_UNAVAILABLE"
-        );
-        require(trades[trade].expiry > block.timestamp, "TRADE_EXPIRED");
+        if (trades[trade].expiry > block.timestamp) revert TradeExpired();
 
         // Check if access list enforced
         if (trades[trade].list != 0) {
-            require(
-                accessManager.balanceOf(msg.sender, trades[trade].list) != 0,
-                "NOT_LISTED"
-            );
+            if (accessManager.balanceOf(msg.sender, trades[trade].list) != 0) 
+                revert NotAuthorized() ;
         }
 
         // CLAIM
@@ -226,7 +265,7 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         }
 
         // LICENSE
-        // Mint usage agreement per asset(s)
+        // Mint agreement NFT per asset(s)
         if (trades[trade].tradeType == TradeType.LICENSE) {
             processTradingFee(trades[trade].currency, trades[trade].payment);
             __mint(trade, trades[trade].docs, data);
@@ -255,21 +294,21 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// Admin Functions
     /// -----------------------------------------------------------------------
 
-    function setBaseURI(string calldata _baseURI) external payable onlyAdmin {
+    function setBaseURI(string calldata _baseURI) external payable onlyAuthorized {
         baseURI = _baseURI;
 
         emit BaseURIset(msg.sender, _baseURI);
     }
 
-    function setInsuranceRate(uint8 _insuranceRate) external payable onlyAdmin {
-        insuranceRate = _insuranceRate;
+    // function setInsuranceRate(uint8 _insuranceRate) external payable onlyAuthorized {
+    //     insuranceRate = _insuranceRate;
 
-        emit InsuranceRateSet(msg.sender, _insuranceRate);
-    }
+    //     emit InsuranceRateSet(msg.sender, _insuranceRate);
+    // }
 
-    function claimFee(address to, uint256 amount) external payable onlyAdmin {
+    function claimFee(address to, uint256 amount) external payable onlyAuthorized {
         // Admin cannot claim insurance
-        require(address(this).balance - amount >= insurance, "OVERDRAFT");
+        // require(address(this).balance - amount >= insurance, "OVERDRAFT");
 
         assembly {
             // Transfer the ETH and check if it succeeded or not.
@@ -283,10 +322,16 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         }
     }
 
-    function setAdmin(address to) external payable onlyAdmin {
+    function setAdmin(address to) external payable onlyAuthorized {
         admin = to;
 
         emit AdminSet(msg.sender, to);
+    }
+
+    function setManager(address to) external payable onlyAuthorized {
+        manager = to;
+
+        emit ManagerSet(msg.sender, to);
     }
 
     /// -----------------------------------------------------------------------
@@ -303,8 +348,6 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         _batchMint(to, ids, amounts, data);
 
         uint256 idsLength = ids.length;
-
-        require(idsLength == _tokenURIs.length, "LENGTH_MISMATCH");
 
         for (uint256 i = 0; i < idsLength; ) {
             if (bytes(tokenURIs[i]).length != 0) {
@@ -327,12 +370,12 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         string memory docs,
         bytes calldata data
     ) internal {
-        require(bytes(docs).length == 0, "LICENSE_UNDEFINED");
+        if (bytes(docs).length == 0) revert InvalidLicense();
 
         uint256 licenseId;
 
         unchecked {
-            licenseId = 10**20 + trade;
+            licenseId = type(uint256).max / 3;
         }
 
         tokenURIs[licenseId] = docs;
@@ -347,12 +390,12 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         string memory docs,
         bytes calldata data
     ) internal {
-        require(bytes(docs).length == 0, "DERIVATIVE_NOT_FOUND");
+        if (bytes(docs).length == 0) revert InvalidDerivative();
 
         uint256 derivativeId;
 
         unchecked {
-            derivativeId = 2 * 10**20 + trade;
+            derivativeId = type(uint256).max / 3 * 2;
         }
 
         tokenURIs[derivativeId] = docs;
