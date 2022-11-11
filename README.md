@@ -17,6 +17,17 @@ src
 ├─ Keep — "Tokenized multisig wallet"
 └─ KeepFactory — "Keep Factory"
 ```
+## Model
+
+Keep is a governance system represented as an ERC1155 collection of NFTs. It includes multi-sig and DAO voting features. Keep NFTs are semi-fungible. This means in some cases, they represent 1:1 rights, such as multi-sig roles. Otherwise, they might be DAO voting balances or assets.
+
+Keep is deployed to every chain at the following addresses:
+
+`KeepFactory`: `0x00000000001cd071bd24a7561e642b3e121c9761`
+
+`Keep`: `0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4`
+
+`URIfetcher`: `0xcCfC4897C01e3E0885AEe45643868276894c40eb`
 
 ## Development
 
