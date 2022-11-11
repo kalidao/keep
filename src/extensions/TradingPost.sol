@@ -7,7 +7,7 @@ import { SafeMulticallable } from "@solbase/src/utils/SafeMulticallable.sol";
 import { ReentrancyGuard } from "@solbase/src/utils/ReentrancyGuard.sol";
 import { safeTransferETH, safeTransfer, safeTransferFrom } from "@solbase/src/utils/SafeTransfer.sol";
 
-/// @notice Kali DAO access manager interface
+/// @notice Kali access manager interface
 interface IKaliAccessManager {
     function balanceOf(address account, uint256 id) external returns (uint256);
 }
@@ -37,14 +37,6 @@ enum TradeType {
     DISPUTE // set asset up for ADR
 }
 
-enum TokenType {
-    FUNGIBLE,
-    NONFUNGIBLE,
-    ERC20,
-    ERC721,
-    ERC1155
-}
-
 /// @author audsssy.eth
 contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// -----------------------------------------------------------------------
@@ -58,8 +50,6 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     event TokenPauseSet(address indexed caller, uint256[] ids, bool[] pauses);
 
     event BaseURIset(address indexed caller, string baseURI);
-
-    event InsuranceRateSet(address indexed caller, uint256 insuranceRate);
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -83,17 +73,11 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
     string private baseURI;
 
-    // uint8 public insuranceRate;
-
-    // uint256 public insurance;
-
     address public admin;
     
     address public manager;
 
     IKaliAccessManager private immutable accessManager;
-
-    // address private immutable wETH;
 
     uint256 public tradeCount;
 
@@ -119,22 +103,17 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     constructor(
         string memory _name,
         string memory _baseURI,
-        // uint8 _insuranceRate,
         IKaliAccessManager _accessManager
     ) payable {
         name = _name;
 
         baseURI = _baseURI;
 
-        // insuranceRate = _insuranceRate;
-
         admin = msg.sender;
 
         accessManager = _accessManager;
 
         emit BaseURIset(address(0), _baseURI);
-
-        // emit InsuranceRateSet(address(0), insuranceRate);
 
         emit AdminSet(address(0), admin);
     }
@@ -194,16 +173,6 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         unchecked {
             tradeCount++;
         }
-        // Retain insurance for LICENSE trades
-        // if (tradeType == TradeType.LICENSE) {
-        //     unchecked {
-        //         require(
-        //             msg.value == (1 ether * insuranceRate) / 1000,
-        //             "NOT_FEE"
-        //         );
-        //         insurance = msg.value + insurance;
-        //     }
-        // }
 
         if (tradeType == TradeType.MINT) {
             mint(ids, amounts, data, _tokenURIs);
@@ -234,7 +203,6 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
                 expiry: expiry,
                 docs: docs
             });
-            // transferAssets(tradeCount, admin, address(this), false, data);
         }
     }
 
@@ -254,27 +222,27 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         // CLAIM
         // Transfer asset(s) for free
         if (trades[trade].tradeType == TradeType.CLAIM) {
-            transferAssets(trade, address(this), msg.sender, true, data);
+            this.safeBatchTransferFrom(address(this), msg.sender, trades[trade].ids, trades[trade].amounts, data);
         }
 
         // SALE
-        // Transfer asset(s) with a fee
+        // Pay for asset(s)
         if (trades[trade].tradeType == TradeType.SALE) {
-            processTradingFee(trades[trade].currency, trades[trade].payment);
-            transferAssets(trade, address(this), msg.sender, true, data);
+            processPayment(trades[trade].currency, trades[trade].payment);
+            this.safeBatchTransferFrom(address(this), msg.sender, trades[trade].ids, trades[trade].amounts, data);
         }
 
         // LICENSE
         // Mint agreement NFT per asset(s)
         if (trades[trade].tradeType == TradeType.LICENSE) {
-            processTradingFee(trades[trade].currency, trades[trade].payment);
-            __mint(trade, trades[trade].docs, data);
+            processPayment(trades[trade].currency, trades[trade].payment);
+            __mint(trade, tokenUri, data);
         }
 
         // DERIVATIVE
         // Mint new asset based on existing asset(s)
         if (trades[trade].tradeType == TradeType.DERIVATIVE) {
-            processTradingFee(trades[trade].currency, trades[trade].payment);
+            processPayment(trades[trade].currency, trades[trade].payment);
             ___mint(trade, tokenUri, data);
         }
     }
@@ -298,28 +266,6 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         baseURI = _baseURI;
 
         emit BaseURIset(msg.sender, _baseURI);
-    }
-
-    // function setInsuranceRate(uint8 _insuranceRate) external payable onlyAuthorized {
-    //     insuranceRate = _insuranceRate;
-
-    //     emit InsuranceRateSet(msg.sender, _insuranceRate);
-    // }
-
-    function claimFee(address to, uint256 amount) external payable onlyAuthorized {
-        // Admin cannot claim insurance
-        // require(address(this).balance - amount >= insurance, "OVERDRAFT");
-
-        assembly {
-            // Transfer the ETH and check if it succeeded or not.
-            if iszero(call(gas(), to, amount, 0, 0, 0, 0)) {
-                mstore(0x00, hex"08c379a0") // Function selector of the error method.
-                mstore(0x04, 0x20) // Offset of the error string.
-                mstore(0x24, 19) // Length of the error string.
-                mstore(0x44, "ETH_TRANSFER_FAILED") // The error string.
-                revert(0x00, 0x64) // Revert with (offset, size).
-            }
-        }
     }
 
     function setAdmin(address to) external payable onlyAuthorized {
@@ -375,7 +321,7 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         uint256 licenseId;
 
         unchecked {
-            licenseId = type(uint256).max / 3;
+            licenseId = type(uint256).max / 3 + trade;
         }
 
         tokenURIs[licenseId] = docs;
@@ -395,7 +341,7 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         uint256 derivativeId;
 
         unchecked {
-            derivativeId = type(uint256).max / 3 * 2;
+            derivativeId = type(uint256).max / 3 * 2 + trade;
         }
 
         tokenURIs[derivativeId] = docs;
@@ -404,48 +350,11 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         emit URI(docs, derivativeId);
     }
 
-    function processTradingFee(address currency, uint256 amount) internal {
+    function processPayment(address currency, uint256 amount) internal {
         if (currency == address(0)) {
-            // send ETH to DAO
-            admin._safeTransferETH(amount);
-        } else if (currency == address(0xDead)) {
-            // send ETH to wETH
-            wETH._safeTransferETH(amount);
-            // send wETH to DAO
-            wETH._safeTransfer(admin, amount);
+            safeTransferETH(admin, amount);
         } else {
-            // send tokens to DAO
-            currency._safeTransferFrom(msg.sender, admin, amount);
-        }
-    }
-
-    function transferAssets(
-        uint256 trade,
-        address from,
-        address to,
-        bool outbound,
-        bytes calldata data
-    ) internal {
-        //  uint256 idLength = trades[trade].ids.length;
-
-        if (outbound) {
-            // initialize an array of 1s with idLength length to restrict outbound transfers to 1 per tx
-            uint256[] memory arrayOfOnes;
-            safeBatchTransferFrom(
-                from,
-                to,
-                trades[trade].ids,
-                arrayOfOnes,
-                data
-            );
-        } else {
-            safeBatchTransferFrom(
-                from,
-                to,
-                trades[trade].ids,
-                trades[trade].amounts,
-                data
-            );
+            safeTransfer(currency, admin, amount);
         }
     }
 }
