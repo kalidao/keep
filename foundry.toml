@@ -2,6 +2,7 @@
 solc = "0.8.17"
 bytecode_hash = "none"
 optimizer_runs = 9999999
+via_ir = true
 
 # Configure remappings
 remappings = [
