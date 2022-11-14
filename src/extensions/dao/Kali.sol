@@ -94,6 +94,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// DAO Storage/Logic
     /// -----------------------------------------------------------------------
 
+    bytes32 internal constant MALLEABILITY_THRESHOLD =
+        0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
+
     uint256 internal currentSponsoredProposal;
 
     uint256 public proposalCount;
@@ -423,6 +426,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function voteBySig(
+        address user,
         uint256 proposal,
         bool approve,
         bytes32 details,
@@ -430,31 +434,27 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         bytes32 r,
         bytes32 s
     ) public payable virtual nonReentrant {
-        address recoveredAddress = ecrecover(
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(
-                            keccak256(
-                                "SignVote(uint256 proposal,bool approve,bytes32 details)"
-                            ),
-                            proposal,
-                            approve,
-                            details
-                        )
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "SignVote(uint256 proposal,bool approve,bytes32 details)"
+                        ),
+                        proposal,
+                        approve,
+                        details
                     )
                 )
-            ),
-            v,
-            r,
-            s
+            )
         );
 
-        if (recoveredAddress == address(0)) revert InvalidSig();
+        // Check signature recovery.
+        _recoverSig(hash, user, v, r, s);
 
-        _vote(recoveredAddress, proposal, approve, details);
+        _vote(user, proposal, approve, details);
     }
 
     function _vote(
@@ -495,6 +495,94 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         }
 
         emit VoteCast(signer, proposal, approve, weight, details);
+    }
+
+    function _recoverSig(
+        bytes32 hash,
+        address user,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal view virtual {
+        if (user == address(0)) revert InvalidSig();
+
+        address signer;
+
+        // Perform signature recovery via ecrecover.
+        /// @solidity memory-safe-assembly
+        assembly {
+            // Copy the free memory pointer so that we can restore it later.
+            let m := mload(0x40)
+
+            // If `s` in lower half order, such that the signature is not malleable.
+            if iszero(gt(s, MALLEABILITY_THRESHOLD)) {
+                mstore(0x00, hash)
+                mstore(0x20, v)
+                mstore(0x40, r)
+                mstore(0x60, s)
+                pop(
+                    staticcall(
+                        gas(), // Amount of gas left for the transaction.
+                        0x01, // Address of `ecrecover`.
+                        0x00, // Start of input.
+                        0x80, // Size of input.
+                        0x40, // Start of output.
+                        0x20 // Size of output.
+                    )
+                )
+                // Restore the zero slot.
+                mstore(0x60, 0)
+                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                signer := mload(sub(0x60, returndatasize()))
+            }
+            // Restore the free memory pointer.
+            mstore(0x40, m)
+        }
+
+        // If recovery doesn't match `user`, verify contract signature with ERC1271.
+        if (user != signer) {
+            bool valid;
+
+            /// @solidity memory-safe-assembly
+            assembly {
+                // Load the free memory pointer.
+                // Simply using the free memory usually costs less if many slots are needed.
+                let m := mload(0x40)
+
+                // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+                let f := shl(224, 0x1626ba7e)
+                // Write the abi-encoded calldata into memory, beginning with the function selector.
+                mstore(m, f) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+                mstore(add(m, 0x04), hash)
+                mstore(add(m, 0x24), 0x40) // The offset of the `signature` in the calldata.
+                mstore(add(m, 0x44), 65) // Store the length of the signature.
+                mstore(add(m, 0x64), r) // Store `r` of the signature.
+                mstore(add(m, 0x84), s) // Store `s` of the signature.
+                mstore8(add(m, 0xa4), v) // Store `v` of the signature.
+
+                valid := and(
+                    and(
+                        // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+                        eq(mload(0x00), f),
+                        // Whether the returndata is exactly 0x20 bytes (1 word) long.
+                        eq(returndatasize(), 0x20)
+                    ),
+                    // Whether the staticcall does not revert.
+                    // This must be placed at the end of the `and` clause,
+                    // as the arguments are evaluated from right to left.
+                    staticcall(
+                        gas(), // Remaining gas.
+                        user, // The `user` address.
+                        m, // Offset of calldata in memory.
+                        0xa5, // Length of calldata in memory.
+                        0x00, // Offset of returndata.
+                        0x20 // Length of returndata to write.
+                    )
+                )
+            }
+
+            if (!valid) revert InvalidSig();
+        }
     }
 
     function processProposal(
