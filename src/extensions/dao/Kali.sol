@@ -546,10 +546,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         // and `gracePeriod` are capped so they will not combine
         // with unix time to exceed the max uint256 value.
         if (!passed || gracePeriod != 0) {
-            if (
-                block.timestamp <=
-                prop.creationTime + votingPeriod + gracePeriod
-            ) revert VotingNotEnded();
+            unchecked {
+                if (
+                    block.timestamp <=
+                    prop.creationTime + votingPeriod + gracePeriod
+                ) revert VotingNotEnded();
+            }
         }
 
         if (passed) {
@@ -759,7 +761,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
         if (_gracePeriod <= 365 days) gracePeriod = _gracePeriod;
 
-        quorum = _quorum;
+        if (_quorum <= 100) quorum = _quorum;
 
         if (_supermajority > 51)
             if (_supermajority <= 100) supermajority = _supermajority;
