@@ -8,11 +8,12 @@ pragma solidity >=0.8.4;
 struct Data {
     Location locationType;
     string content;
+    address owner;
 }
 
 enum Location {
-    ROOM,
-    FOLDER
+    SHARED,
+    USER
 }
 
 contract DataRoom {
@@ -28,15 +29,9 @@ contract DataRoom {
 
     event RecordSet (
         Location location,
-        address indexed caller,
-        string indexed data
-    );
-
-    /// -----------------------------------------------------------------------
-    /// Custom Errors
-    /// -----------------------------------------------------------------------
-
-    error NotOperator();    
+        string indexed data,
+        address indexed owner
+    );  
    
     /// -----------------------------------------------------------------------
     /// DataRoom Storage
@@ -44,15 +39,9 @@ contract DataRoom {
 
     address public operator;
 
-    mapping(address => Data[]) public collection;
+    mapping(Location => Data[]) public collection;
 
-    mapping(address => bool) public status;
-
-    modifier onlyOperator {
-        if (msg.sender != operator || !status[msg.sender]) revert NotOperator();
-
-        _;
-    }
+    mapping(address => bool) public authorized;
 
     /// -----------------------------------------------------------------------
     /// Constructor
@@ -61,7 +50,7 @@ contract DataRoom {
     constructor() payable {
         operator = msg.sender;
 
-        emit OperatorSet(Location.ROOM, operator, true);
+        emit OperatorSet(Location.SHARED, operator, true);
     }
 
     /// -----------------------------------------------------------------------
@@ -70,40 +59,43 @@ contract DataRoom {
 
     /// @notice Record data on-chain.
     /// @param data The data to record on-chain.
-    /// @dev Calls are permissioned to the operator of a given room.
-    function setRecord(string calldata data) 
+    /// @dev Calls are permissioned to the operator of a given storage location.
+    function setRecord(Location location, string calldata data) 
         external 
-        payable 
-        onlyOperator 
+        payable  
     {
-        if (msg.sender == operator) {
-            collection[msg.sender].push(
+        if (location == Location.SHARED) {
+            require(msg.sender == operator, "NotOperator");
+            collection[location].push(
                 Data({
-                    locationType: Location.ROOM,
-                    content: data
+                    locationType: location,
+                    content: data,
+                    owner: msg.sender
                 })
             );
-            emit RecordSet(Location.ROOM, msg.sender, data);
+            emit RecordSet(location, data, msg.sender);
         } else {
-            collection[msg.sender].push(
+            require(msg.sender == operator || authorized[msg.sender], "NotAuthorized");
+            collection[location].push(
                 Data({
-                    locationType: Location.FOLDER,
-                    content: data
+                    locationType: location,
+                    content: data,
+                    owner: msg.sender
                 })
             );
-            emit RecordSet(Location.FOLDER, msg.sender, data);
+            emit RecordSet(location, data, msg.sender);
         }
     }
 
     /// @notice Retrieve a collection of Data.
-    /// @param account The account to retrieve collection with.
+    /// @param location The Location to retrieve collection with.
     /// @return data An array of Data.
-    function getCollection(address account) 
+    function getCollection(Location location) 
         external 
         view 
         returns (Data[] memory data) 
     {
-        data = collection[account];
+        data = collection[location];
     }
 
     /// -----------------------------------------------------------------------
@@ -117,14 +109,15 @@ contract DataRoom {
     function setOperator(Location location, address account) 
         external 
         payable 
-        onlyOperator 
     {
-        if (location == Location.ROOM) {
+        if (location == Location.SHARED) {
+            require(msg.sender == operator, "NotOperator");
             operator = account;
             emit OperatorSet(location, operator, true);
         } else {
-            status[msg.sender] = !status[msg.sender];
-            emit OperatorSet(location, msg.sender, status[msg.sender]);
+            require(msg.sender == operator || authorized[msg.sender], "NotAuthorized");
+            authorized[account] = !authorized[account];
+            emit OperatorSet(location, account, authorized[account]);
         }
     }
 }
