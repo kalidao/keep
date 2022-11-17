@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import { ERC1155 } from "@solbase/src/tokens/ERC1155/ERC1155.sol";
 import { ERC1155TokenReceiver } from "../KeepToken.sol";
-import { SafeMulticallable } from "@solbase/src/utils/SafeMulticallable.sol";
+// import { SafeMulticallable } from "@solbase/src/utils/SafeMulticallable.sol";
 import { ReentrancyGuard } from "@solbase/src/utils/ReentrancyGuard.sol";
 import { safeTransferETH, safeTransfer, safeTransferFrom } from "@solbase/src/utils/SafeTransfer.sol";
 
@@ -13,8 +13,8 @@ interface IKaliAccessManager {
 }
 
 /// @title TradingPost
-/// @author KaliCo LLC
-/// @notice TradingPost for on-chain entities.
+/// @notice A marketplace for on-chain orgs.
+/// @author audsssy.eth | KaliCo LLC
 
 struct Trade {
     TradeType tradeType;
@@ -27,6 +27,12 @@ struct Trade {
     string docs;
 }
 
+struct Trial {
+    uint256 trade;
+    address currency;
+    uint256 amount;
+}
+
 enum TradeType {
     MINT, // mint an asset
     BURN, // burn an asset
@@ -37,7 +43,6 @@ enum TradeType {
     DISPUTE // set asset up for ADR
 }
 
-/// @author audsssy.eth
 contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Events
@@ -56,6 +61,10 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// -----------------------------------------------------------------------
 
     error InvalidDeadline();
+
+    error InvalidTrial();
+
+    error TrialExpired();
 
     error TradeExpired();
 
@@ -81,9 +90,15 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
     uint256 public tradeCount;
 
+    uint40 public trialLength;
+
     mapping(uint256 => Trade) public trades;
 
     mapping(uint256 => string) private tokenURIs;
+
+    // mapping(address => uint256) private trial;
+
+    mapping(address => Trade[]) private trials;
 
     modifier onlyAuthorized() {
         if (msg.sender != admin || msg.sender != manager) revert NotAuthorized();
@@ -103,7 +118,8 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     constructor(
         string memory _name,
         string memory _baseURI,
-        IKaliAccessManager _accessManager
+        IKaliAccessManager _accessManager,
+        uint40 _trialLength
     ) payable {
         name = _name;
 
@@ -112,6 +128,8 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         admin = msg.sender;
 
         accessManager = _accessManager;
+
+        trialLength = _trialLength;
 
         emit BaseURIset(address(0), _baseURI);
 
@@ -163,6 +181,7 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         address currency,
         uint256 payment, // SALE / LICENSE - payment, CLAIM - list id
         uint96 expiry,
+        uint40 trialDeadline,
         string calldata docs,
         bytes calldata data
     ) external payable onlyAuthorized {
@@ -171,13 +190,15 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         if (expiry > block.timestamp) revert InvalidDeadline();
         
         unchecked {
+            if (block.timestamp + trialDeadline > expiry) revert InvalidDeadline();
+            
             tradeCount++;
         }
 
         if (tradeType == TradeType.MINT) {
             mint(ids, amounts, data, _tokenURIs);
 
-            // Update Trade only if payment is defined
+            // Update Trade to SALE if payment is defined
             if (payment != 0) {
                 trades[tradeCount] = Trade({
                     tradeType: TradeType.SALE,
@@ -207,43 +228,57 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     }
 
     function completeTrade(
+        bool trial,
+        uint256 trialId,
         uint256 trade,
         string calldata tokenUri,
         bytes calldata data
     ) external payable {
-        if (trades[trade].expiry > block.timestamp) revert TradeExpired();
+        if (trial) {
+            // DISPUTE
+            // Dispute Trade for refund
+            Trade memory _trial = trials[msg.sender][trialId];
+            if (_trial.tradeType != TradeType.DISPUTE) revert InvalidTrial();
+            if (_trial.expiry < block.timestamp) revert TrialExpired();
 
-        // Check if access list enforced
-        if (trades[trade].list != 0) {
-            if (accessManager.balanceOf(msg.sender, trades[trade].list) != 0) 
-                revert NotAuthorized() ;
-        }
+            this.safeBatchTransferFrom(msg.sender, address(this), _trial.ids, _trial.amounts, data);
+            processPayment(_trial.currency, _trial.payment, msg.sender);
+        } else {
+            if (trades[trade].expiry > block.timestamp) revert TradeExpired();
 
-        // CLAIM
-        // Transfer asset(s) for free
-        if (trades[trade].tradeType == TradeType.CLAIM) {
-            this.safeBatchTransferFrom(address(this), msg.sender, trades[trade].ids, trades[trade].amounts, data);
-        }
+            // Check if access list enforced
+            if (trades[trade].list != 0) {
+                if (accessManager.balanceOf(msg.sender, trades[trade].list) != 0) 
+                    revert NotAuthorized() ;
+            }
 
-        // SALE
-        // Pay for asset(s)
-        if (trades[trade].tradeType == TradeType.SALE) {
-            processPayment(trades[trade].currency, trades[trade].payment);
-            this.safeBatchTransferFrom(address(this), msg.sender, trades[trade].ids, trades[trade].amounts, data);
-        }
+            // CLAIM
+            // Transfer asset(s) for free
+            if (trades[trade].tradeType == TradeType.CLAIM) {
+                this.safeBatchTransferFrom(address(this), msg.sender, trades[trade].ids, trades[trade].amounts, data);
+            }
 
-        // LICENSE
-        // Mint agreement NFT per asset(s)
-        if (trades[trade].tradeType == TradeType.LICENSE) {
-            processPayment(trades[trade].currency, trades[trade].payment);
-            __mint(trade, tokenUri, data);
-        }
+            // SALE
+            // Pay for asset(s)
+            if (trades[trade].tradeType == TradeType.SALE) {
+                processPayment(trades[trade].currency, trades[trade].payment, address(this));
+                startTrial(trade);
+                this.safeBatchTransferFrom(address(this), msg.sender, trades[trade].ids, trades[trade].amounts, data);
+            }
 
-        // DERIVATIVE
-        // Mint new asset based on existing asset(s)
-        if (trades[trade].tradeType == TradeType.DERIVATIVE) {
-            processPayment(trades[trade].currency, trades[trade].payment);
-            ___mint(trade, tokenUri, data);
+            // LICENSE
+            // Mint agreement NFT per asset(s)
+            if (trades[trade].tradeType == TradeType.LICENSE) {
+                processPayment(trades[trade].currency, trades[trade].payment, address(this));
+                __mint(trade, tokenUri, data);
+            }
+
+            // DERIVATIVE
+            // Mint new asset based on existing asset(s)
+            if (trades[trade].tradeType == TradeType.DERIVATIVE) {
+                processPayment(trades[trade].currency, trades[trade].payment, address(this));
+                ___mint(trade, tokenUri, data);
+            }
         }
     }
 
@@ -350,11 +385,32 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         emit URI(docs, derivativeId);
     }
 
-    function processPayment(address currency, uint256 amount) internal {
+    function processPayment(address currency, uint256 amount, address to) internal {
         if (currency == address(0)) {
-            safeTransferETH(admin, amount);
+            safeTransferETH(to, amount);
         } else {
-            safeTransfer(currency, admin, amount);
+            safeTransfer(currency, to, amount);
+        }
+    }
+
+    function startTrial(uint256 trade) internal {
+        uint40 trialDeadline;
+
+        unchecked{ 
+            trialDeadline = uint40(block.timestamp) + trialLength;
+        }
+
+        if (trialDeadline > 0 && trialDeadline > block.timestamp) {
+            trials[msg.sender].push(Trade({
+                tradeType: TradeType.DISPUTE,
+                list: 0,
+                ids: trades[trade].ids,
+                amounts: trades[trade].amounts,
+                currency: trades[trade].currency,
+                payment: trades[trade].payment,
+                expiry: trialDeadline,
+                docs: ""
+            }));
         }
     }
 }
