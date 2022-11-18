@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import { ERC1155 } from "@solbase/src/tokens/ERC1155/ERC1155.sol";
-import { ERC1155TokenReceiver } from "../KeepToken.sol";
-// import { SafeMulticallable } from "@solbase/src/utils/SafeMulticallable.sol";
+import { ERC1155, ERC1155TokenReceiver } from "@solbase/src/tokens/ERC1155/ERC1155.sol";
+import { SafeMulticallable } from "@solbase/src/utils/SafeMulticallable.sol";
 import { ReentrancyGuard } from "@solbase/src/utils/ReentrancyGuard.sol";
 import { safeTransferETH, safeTransfer, safeTransferFrom } from "@solbase/src/utils/SafeTransfer.sol";
 
@@ -38,12 +37,12 @@ enum TradeType {
     BURN, // burn an asset
     CLAIM, // set asset up for claim
     SALE, // set asset up for sale
-    LICENSE, // set asset up for license 
-    DERIVATIVE, // set asset up for derivative work
-    DISPUTE // set asset up for ADR
+    LICENSE, // set asset up for license (lump-sum only)
+    DERIVATIVE, // set asset up for derivative work 
+    REFUND // refund an asset
 }
 
-contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
+contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard, SafeMulticallable {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -60,6 +59,8 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
+    error InvalidAction();
+    
     error InvalidDeadline();
 
     error InvalidTrial();
@@ -160,71 +161,67 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
     /// TradingPost Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice Set parameter for a trade
-    /// @param tradeType Type of trade.
-    /// @param list The allow list for trade.
-    /// @param ids The IDs of assets for trade.
-    /// @param amounts The amounts of assets for trade.
-    /// @param _tokenURIs The metadata of assets for trade.
-    /// @param currency The token address required to complete a trade.
-    /// @param payment The amount required to complete a trade.
-    /// @param expiry The deadline to complete a trade.
-    /// @param docs The document associated with a trade.
+    /// @notice Manage assets by minting or burning them.
+    /// @param tradeType Type of Trade.
+    /// @param ids The IDs of assets for Trade.
+    /// @param amounts The amounts of assets for Trade.
+    /// @param _tokenURIs The metadata of assets for Trade.
     /// @param data Data for compliant ERC1155 transfer.
+    /// @dev 
+    function manageAsset(
+        TradeType tradeType,
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        string[] calldata _tokenURIs,
+        bytes calldata data
+    ) external payable {
+        if (tradeType != TradeType.MINT || tradeType != TradeType.BURN) revert InvalidAction();
+
+        if (tradeType == TradeType.MINT) {
+            mint(ids, amounts, data, _tokenURIs);
+        } else if (tradeType == TradeType.BURN) {
+            burn(ids, amounts);
+        } else {
+        }
+    }
+
+    /// @notice Set parameter for a Trade
+    /// @param tradeType Type of Trade.
+    /// @param list The allow list for Trade.
+    /// @param ids The IDs of assets for Trade.
+    /// @param amounts The amounts of assets for Trade.
+    /// @param currency The token address required to complete Trade.
+    /// @param payment The amount required to complete Trade.
+    /// @param expiry The deadline to complete Trade.
+    /// @param docs The document associated with a trade.
     /// @dev 
     function setTrade(
         TradeType tradeType,
         uint256 list,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        string[] calldata _tokenURIs,
         address currency,
-        uint256 payment, // SALE / LICENSE - payment, CLAIM - list id
+        uint256 payment,
         uint96 expiry,
-        uint40 trialDeadline,
-        string calldata docs,
-        bytes calldata data
+        string calldata docs
     ) external payable onlyAuthorized {
         if (ids.length != amounts.length) revert LengthMismatch();
-        if (ids.length != _tokenURIs.length) revert LengthMismatch();
         if (expiry > block.timestamp) revert InvalidDeadline();
         
-        unchecked {
-            if (block.timestamp + trialDeadline > expiry) revert InvalidDeadline();
-            
+        unchecked {            
             tradeCount++;
         }
 
-        if (tradeType == TradeType.MINT) {
-            mint(ids, amounts, data, _tokenURIs);
-
-            // Update Trade to SALE if payment is defined
-            if (payment != 0) {
-                trades[tradeCount] = Trade({
-                    tradeType: TradeType.SALE,
-                    list: list,
-                    ids: ids,
-                    amounts: amounts,
-                    currency: currency,
-                    payment: payment,
-                    expiry: expiry,
-                    docs: docs
-                });
-            }
-        } else if (tradeType == TradeType.BURN) {
-            burn(ids, amounts);
-        } else {
-            trades[tradeCount] = Trade({
-                tradeType: tradeType,
-                list: list,
-                ids: ids,
-                amounts: amounts,
-                currency: currency,
-                payment: payment,
-                expiry: expiry,
-                docs: docs
-            });
-        }
+        trades[tradeCount] = Trade({
+            tradeType: tradeType,
+            list: list,
+            ids: ids,
+            amounts: amounts,
+            currency: currency,
+            payment: payment,
+            expiry: expiry,
+            docs: docs
+        });
     }
 
     function completeTrade(
@@ -235,10 +232,10 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
         bytes calldata data
     ) external payable {
         if (trial) {
-            // DISPUTE
-            // Dispute Trade for refund
+            // REFUND
+            // Refund Trade for refund
             Trade memory _trial = trials[msg.sender][trialId];
-            if (_trial.tradeType != TradeType.DISPUTE) revert InvalidTrial();
+            if (_trial.tradeType != TradeType.REFUND) revert InvalidTrial();
             if (_trial.expiry < block.timestamp) revert TrialExpired();
 
             this.safeBatchTransferFrom(msg.sender, address(this), _trial.ids, _trial.amounts, data);
@@ -402,7 +399,7 @@ contract TradingPost is ERC1155, ERC1155TokenReceiver, ReentrancyGuard {
 
         if (trialDeadline > 0 && trialDeadline > block.timestamp) {
             trials[msg.sender].push(Trade({
-                tradeType: TradeType.DISPUTE,
+                tradeType: TradeType.REFUND,
                 list: 0,
                 ids: trades[trade].ids,
                 amounts: trades[trade].amounts,
