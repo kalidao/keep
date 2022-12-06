@@ -1,12 +1,10 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
 /// @title DataRoom
 /// @notice Data room for on-chain orgs.
 /// @author audsssy.eth
-
 contract DataRoom {
-
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -19,7 +17,7 @@ contract DataRoom {
 
     event RecordSet (
         address indexed dao,
-        string indexed data,
+        string data,
         address indexed caller
     );  
    
@@ -56,15 +54,19 @@ contract DataRoom {
     /// @param data The data to record.
     /// @dev Calls are permissioned to those authorized to access a Room.
     function setRecord(address account, string[] calldata data) 
-        external 
-        payable  
+        public 
+        payable
+        virtual
     {
         _authorized(account, msg.sender);
 
         for (uint256 i; i < data.length; ) {
             room[account].push(data[i]);
+            
             emit RecordSet(account, data[i], msg.sender);
-
+            
+            // Unchecked because the only math done is incrementing
+            // the array index counter which cannot possibly overflow.
             unchecked {
                 ++i;
             }
@@ -73,13 +75,14 @@ contract DataRoom {
 
     /// @notice Retrieve data from a Room.
     /// @param account Identifier of a Room.
-    /// @return data The array of data associated with a Room.
+    /// @return The array of data associated with a Room.
     function getRoom(address account) 
-        external 
-        view 
-        returns (string[] memory data) 
+        public 
+        view
+        virtual
+        returns (string[] memory) 
     {
-        data = room[account];
+        return room[account];
     }
 
     /// @notice Initialize a Room or authorize users to a Room.
@@ -89,15 +92,16 @@ contract DataRoom {
     /// @dev Calls are permissioned to the authorized accounts of a Room.
     function setPermission(
         address account, 
-        address[] memory users, 
-        bool[] memory authorize
+        address[] calldata users, 
+        bool[] calldata authorize
     ) 
-        external 
-        payable 
+        public 
+        payable
+        virtual
     {  
         if (account == address(0)) revert InvalidRoom();
 
-        // Initialize Room
+        // Initialize Room.
         if (account == msg.sender && !authorized[account][msg.sender]) {
             authorized[account][msg.sender] = true;
         }
@@ -109,11 +113,13 @@ contract DataRoom {
         if (numUsers != authorize.length) revert LengthMismatch();
 
         if (numUsers != 0) {
-            for (uint i; i < numUsers;) {
-
+            for (uint i; i < numUsers; ) {
                 authorized[account][users[i]] = authorize[i];
+                
                 emit PermissionSet(account, users[i], authorize[i]);
-
+                
+                // Unchecked because the only math done is incrementing
+                // the array index counter which cannot possibly overflow.
                 unchecked {
                     ++i;
                 }
