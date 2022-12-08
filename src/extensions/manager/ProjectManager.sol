@@ -1,6 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.14;
 
+/// @notice ERC1155 interface to receive tokens.
+/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
+abstract contract ERC1155TokenReceiver {
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+}
+
 /// @notice Sporos DAO project manager interface
 interface IProjectManagement {
     /**
@@ -11,15 +35,6 @@ interface IProjectManagement {
     // Future versions will support tribute of work in exchange for tokens
     // function submitTribute(address fromContributor, bytes[] nftTribute, uint256 requestedRewardAmount) external payable;
     // function processTribute(address contributor, bytes[] nftTribute, uint256 rewardAmount) external payable;
-}
-
-/// @notice Minimal ERC-20 interface
-interface IERC20minimal {
-    function balanceOf(address account) external view returns (uint256);
-
-    function totalSupply() external view returns (uint256);
-
-    function burnFrom(address from, uint256 amount) external;
 }
 
 abstract contract ReentrancyGuard {
@@ -213,7 +228,7 @@ function safeTransferFrom(
 }
 
 /// @title ProjectManager
-/// @notice Project Manger for KaliDAOs.
+/// @notice Project Manger for on-chain entities.
 /// @author ivelin.eth | sporosdao.eth
 /// @custom:coauthor audsssy.eth | kalidao.eth
 
@@ -229,22 +244,25 @@ enum Status {
 }
 
 struct Project {
-    address dao; // the address of the DAO that this project belongs to
+    address account; // the address of the DAO that this project belongs to
     Status status; // project status 
     address manager; // manager assigned to this project
     Reward reward; // type of reward to reward contributions
     address token; // token used to reward contributions
     uint256 budget; // maximum allowed tokens the manager is authorized to mint
+    uint256 distributed; // amount already distributed to contributors
     uint40 deadline; // deadline date of the project
     string docs; // structured text referencing key docs for the manager's mandate
 }
 
-contract ProjectManagement is ReentrancyGuard {
+contract ProjectManager is ReentrancyGuard, ERC1155TokenReceiver {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event ExtensionSet(Project project);
+    event ExtensionSet(uint256 projectId, Project project);
+
+    event ProjectUpdated(uint256 projectId, Project project);
 
     event ExtensionCalled(uint256 projectId, address indexed contributor, uint256 amount);
 
@@ -252,11 +270,17 @@ contract ProjectManagement is ReentrancyGuard {
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
+    error SetupFailed();
+
+    error UpdateFailed();
+
     error ExpiredProject();
 
     error InvalidProject();
 
     error InactiveProject();
+
+    error InvalidEthReward();
 
     error NotAuthorized();
 
@@ -273,9 +297,11 @@ contract ProjectManagement is ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// ProjectManager Logic
     /// -----------------------------------------------------------------------
+
     function setExtension(bytes[] calldata extensionData) external payable {
         for (uint256 i; i < extensionData.length; ) {
             (
+                uint256 id,
                 Status status,
                 address manager,
                 Reward reward,
@@ -284,64 +310,26 @@ contract ProjectManagement is ReentrancyGuard {
                 uint40 deadline,
                 string memory docs
             ) = abi.decode(
-                    extensionData[i],
-                    (Status, address, Reward, address, uint256, uint40, string)
-                );
+                extensionData[i],
+                (uint256, Status, address, Reward, address, uint256, uint40, string)
+            );
 
-            if (IERC20minimal(msg.sender).balanceOf(manager) == 0)
-                revert NotAuthorized();
-
-            unchecked {
-                projectId++;
-            }
-
-            if (reward == Reward.ETH) {
-                safeTransferETH(address(this), budget);
-
-                projects[projectId] = Project({
-                    dao: msg.sender,
-                    status: status,
-                    manager: manager,
-                    reward: reward,
-                    token: address(0),
-                    budget: budget,
-                    deadline: deadline,
-                    docs: docs
-                });
-            } else if (reward == Reward.DAO) {
-                safeTransferFrom(msg.sender, msg.sender, address(this), budget);
-
-                projects[projectId] = Project({
-                    dao: msg.sender,
-                    status: status,
-                    manager: manager,
-                    reward: reward,
-                    token: msg.sender,
-                    budget: budget,
-                    deadline: deadline,
-                    docs: docs
-                });
+            if (id == 0) {
+                unchecked {
+                    projectId++;
+                }   
+                if (!_setProject(status, manager, reward, token, budget, deadline, docs))
+                    revert SetupFailed(); 
             } else {
-                safeTransferFrom(token, msg.sender, address(this), budget);
-
-                projects[projectId] = Project({
-                    dao: msg.sender,
-                    status: status,
-                    manager: manager,
-                    reward: reward,
-                    token: token,
-                    budget: budget,
-                    deadline: deadline,
-                    docs: docs
-                });
+                if (status == Status.ACTIVE && manager != address(0)) revert InactiveProject();
+                if (!_updateProject(id, status, manager, reward, token, budget, deadline, docs)) 
+                    revert UpdateFailed();
             }
 
             // cannot realistically overflow
             unchecked {
                 ++i;
             }
-
-            emit ExtensionSet(projects[projectId]);
         }
     }
 
@@ -356,9 +344,9 @@ contract ProjectManagement is ReentrancyGuard {
 
             Project storage project = projects[_projectId];
 
-            if (project.dao == address(0)) revert InvalidProject();
+            if (project.account == address(0)) revert InvalidProject();
 
-            if (project.manager != project.dao || project.manager != msg.sender)
+            if (project.manager != project.account && project.manager != msg.sender)
                 revert NotAuthorized();
 
             if (project.status == Status.INACTIVE) revert InactiveProject();
@@ -367,12 +355,15 @@ contract ProjectManagement is ReentrancyGuard {
 
             if (project.budget < amount) revert InsufficientBudget();
 
+            if (amount == 0) revert InsufficientBudget();
+
             project.budget -= amount;
+            project.distributed += amount;
 
             if (project.reward == Reward.ETH) {
                 safeTransferETH(contributor, amount);
             } else if (project.reward == Reward.DAO) {
-                IProjectManagement(project.dao).mintShares(contributor, amount);
+                IProjectManagement(project.account).mintShares(contributor, amount);
             } else {
                 safeTransferFrom(
                     project.token,
@@ -389,6 +380,95 @@ contract ProjectManagement is ReentrancyGuard {
 
             emit ExtensionCalled(_projectId, contributor, amount);
         }
+    }
 
+    /// -----------------------------------------------------------------------
+    /// Internal Functions
+    /// -----------------------------------------------------------------------
+    
+    function _setProject(
+        Status status, 
+        address manager, 
+        Reward reward, 
+        address token, 
+        uint256 budget, 
+        uint40 deadline, 
+        string memory docs
+    ) internal returns(bool) {
+        if (reward == Reward.ETH) {
+            if (msg.value != budget || reward != Reward.ETH) revert InvalidEthReward();
+
+            projects[projectId] = Project({
+                account: msg.sender,
+                status: status,
+                manager: manager,
+                reward: reward,
+                token: address(0),
+                budget: budget,
+                distributed: 0,
+                deadline: deadline,
+                docs: docs
+            });
+        } else if (reward == Reward.DAO) {
+            safeTransferFrom(msg.sender, msg.sender, address(this), budget);
+
+            projects[projectId] = Project({
+                account: msg.sender,
+                status: status,
+                manager: manager,
+                reward: reward,
+                token: msg.sender,
+                budget: budget,
+                distributed: 0,
+                deadline: deadline,
+                docs: docs
+            });
+        } else {
+            safeTransferFrom(token, msg.sender, address(this), budget);
+
+            projects[projectId] = Project({
+                account: msg.sender,
+                status: status,
+                manager: manager,
+                reward: reward,
+                token: token,
+                budget: budget,
+                distributed: 0,
+                deadline: deadline,
+                docs: docs
+            });
+        }
+        
+        emit ExtensionSet(projectId, projects[projectId]);
+
+        return true;
+    }
+
+    function _updateProject(
+        uint256 id,
+        Status status, 
+        address manager, 
+        Reward reward, 
+        address token, 
+        uint256 budget, 
+        uint40 deadline, 
+        string memory docs
+    ) internal returns(bool) {
+
+        projects[id] = Project({
+            account: (msg.sender != projects[id].account) ? msg.sender : projects[id].account,
+            status: (status != projects[id].status) ? status : projects[id].status,
+            manager: (manager != projects[id].manager) ? manager : projects[id].manager,
+            reward: (reward != projects[id].reward) ? reward : projects[id].reward,
+            token: (token != projects[id].token) ? token : projects[id].token,
+            budget: (budget != projects[id].budget) ? budget : projects[id].budget,
+            distributed: projects[id].distributed,
+            deadline: (deadline != projects[id].deadline) ? deadline : projects[id].deadline,
+            docs: docs
+        });
+
+        emit ProjectUpdated(id, projects[id]);
+
+        return true;
     }
 }
