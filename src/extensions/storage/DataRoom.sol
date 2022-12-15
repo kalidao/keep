@@ -53,11 +53,19 @@ contract DataRoom {
     /// @param account Identifier of a Room.
     /// @param data The data to record.
     /// @dev Calls are permissioned to those authorized to access a Room.
-    function setRecord(address account, string[] calldata data) 
+    function setRecord(
+        address account, 
+        string[] calldata data
+    ) 
         public 
         payable
         virtual
     {
+        // Initialize Room.
+        if (account == msg.sender && !authorized[account][msg.sender]) {
+            authorized[account][msg.sender] = true;
+        }
+        
         _authorized(account, msg.sender);
 
         for (uint256 i; i < data.length; ) {
@@ -91,8 +99,8 @@ contract DataRoom {
     /// @param authorize Authorization status.
     /// @dev Calls are permissioned to the authorized accounts of a Room.
     function setPermission(
-        address account, 
-        address[] calldata users, 
+        address account,
+        address[] calldata users,
         bool[] calldata authorize
     ) 
         public 
@@ -105,7 +113,7 @@ contract DataRoom {
         if (account == msg.sender && !authorized[account][msg.sender]) {
             authorized[account][msg.sender] = true;
         }
-
+        
         _authorized(account, msg.sender);
 
         uint256 numUsers = users.length;
@@ -133,6 +141,7 @@ contract DataRoom {
 
     /// @notice Helper function to check access to a Room.
     /// @param account Identifier of a Room.
+    /// @param user The user in question.
     function _authorized(address account, address user) internal view virtual returns (bool) {
         if (authorized[account][user]) return true;
         else revert Unauthorized();
