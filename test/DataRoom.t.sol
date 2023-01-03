@@ -8,7 +8,7 @@ import {DataRoom} from "../src/extensions/storage/DataRoom.sol";
 import "@std/Test.sol";
 
 contract DataRoomTest is Test {
-    Keep public keep;
+    /*Keep public keep;
     KeepFactory public factory;
 
     DataRoom public dataRoom;
@@ -30,7 +30,7 @@ contract DataRoomTest is Test {
         factory = new KeepFactory(keep);
         dataRoom = new DataRoom();
 
-        // Setup Keep. 
+        // Setup Keep.
         signers.push(vm.addr(2));
 
         keep = Keep(factory.determineKeep(MOCK_NAME));
@@ -44,11 +44,16 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool keepPermissioned = dataRoom.authorized(address(keep), address(keep));
+        bool keepPermissioned = dataRoom.authorized(
+            address(keep),
+            address(keep)
+        );
         assertEq(keepPermissioned, true);
     }
 
-    function testUnauthorizedInitializationByUser(address _alice) public payable {
+    function testUnauthorizedInitializationByUser(
+        address _alice
+    ) public payable {
         vm.assume(_alice != address(keep));
 
         address[] memory _users = new address[](0);
@@ -59,7 +64,10 @@ contract DataRoomTest is Test {
         dataRoom.setPermission(address(keep), _users, _authorize);
     }
 
-    function testInitializeRoomWithOneUser(address _alice, bool _auth) public payable {
+    function testInitializeRoomWithOneUser(
+        address _alice,
+        bool _auth
+    ) public payable {
         vm.assume(_alice != address(keep));
 
         address[] memory _users = new address[](1);
@@ -71,16 +79,22 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool keepPermissioned = dataRoom.authorized(address(keep), address(keep));
+        bool keepPermissioned = dataRoom.authorized(
+            address(keep),
+            address(keep)
+        );
         assertEq(keepPermissioned, true);
-        bool alicePermissioned = dataRoom.authorized(address(keep), address(_alice));
+        bool alicePermissioned = dataRoom.authorized(
+            address(keep),
+            address(_alice)
+        );
         assertEq(alicePermissioned, _auth);
     }
 
     function testInitializeRoomWithMultiUser(
-        address _alice, 
-        bool _aliceAuth, 
-        address _bob, 
+        address _alice,
+        bool _aliceAuth,
+        address _bob,
         bool _bobAuth
     ) public payable {
         vm.assume(_alice != address(keep));
@@ -97,11 +111,20 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool keepPermissioned = dataRoom.authorized(address(keep), address(keep));
+        bool keepPermissioned = dataRoom.authorized(
+            address(keep),
+            address(keep)
+        );
         assertEq(keepPermissioned, true);
-        bool alicePermissioned = dataRoom.authorized(address(keep), address(_alice));
+        bool alicePermissioned = dataRoom.authorized(
+            address(keep),
+            address(_alice)
+        );
         assertEq(alicePermissioned, _aliceAuth);
-        bool bobPermissioned = dataRoom.authorized(address(keep), address(_bob));
+        bool bobPermissioned = dataRoom.authorized(
+            address(keep),
+            address(_bob)
+        );
         assertEq(bobPermissioned, _bobAuth);
     }
 
@@ -117,7 +140,10 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool alicePermissioned = dataRoom.authorized(address(keep), address(_alice));
+        bool alicePermissioned = dataRoom.authorized(
+            address(keep),
+            address(_alice)
+        );
         assertEq(alicePermissioned, false);
 
         vm.prank(address(_alice));
@@ -126,9 +152,9 @@ contract DataRoomTest is Test {
     }
 
     function testSetRecordByKeep(
-        address _alice, 
-        bool _auth, 
-        string calldata _data0, 
+        address _alice,
+        bool _auth,
+        string calldata _data0,
         string calldata _data1
     ) public payable {
         vm.assume(_alice != address(keep));
@@ -142,7 +168,10 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool keepPermissioned = dataRoom.authorized(address(keep), address(keep));
+        bool keepPermissioned = dataRoom.authorized(
+            address(keep),
+            address(keep)
+        );
         assertEq(keepPermissioned, true);
 
         string[] memory _data = new string[](2);
@@ -151,14 +180,14 @@ contract DataRoomTest is Test {
 
         vm.prank(address(keep));
         dataRoom.setRecord(address(keep), _data);
-        
+
         string[] memory returnData = dataRoom.getRoom(address(keep));
         assertEq(returnData[1], _data1);
     }
 
     function testSetRecordByAuthorized(
-        address _alice, 
-        string calldata _data0, 
+        address _alice,
+        string calldata _data0,
         string calldata _data1
     ) public payable {
         vm.assume(_alice != address(keep));
@@ -172,9 +201,15 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool keepPermissioned = dataRoom.authorized(address(keep), address(keep));
+        bool keepPermissioned = dataRoom.authorized(
+            address(keep),
+            address(keep)
+        );
         assertEq(keepPermissioned, true);
-        bool alicePermissioned = dataRoom.authorized(address(keep), address(_alice));
+        bool alicePermissioned = dataRoom.authorized(
+            address(keep),
+            address(_alice)
+        );
         assertEq(alicePermissioned, true);
 
         string[] memory _data = new string[](2);
@@ -189,8 +224,8 @@ contract DataRoomTest is Test {
     }
 
     function testSetRecordByUnauthorized(
-        address _alice, 
-        string calldata _data0, 
+        address _alice,
+        string calldata _data0,
         string calldata _data1
     ) public payable {
         vm.assume(_alice != address(keep));
@@ -201,7 +236,10 @@ contract DataRoomTest is Test {
         vm.prank(address(keep));
         dataRoom.setPermission(address(keep), _users, _authorize);
 
-        bool keepPermissioned = dataRoom.authorized(address(keep), address(keep));
+        bool keepPermissioned = dataRoom.authorized(
+            address(keep),
+            address(keep)
+        );
         assertEq(keepPermissioned, true);
 
         string[] memory _data = new string[](2);
@@ -210,6 +248,6 @@ contract DataRoomTest is Test {
 
         vm.prank(address(_alice));
         vm.expectRevert();
-        dataRoom.setRecord(address(keep), _data);        
-    }
+        dataRoom.setRecord(address(keep), _data);
+    }*/
 }

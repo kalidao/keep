@@ -204,12 +204,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual returns (bool) {
         return
             // ERC165 interface ID for ERC165.
             interfaceId == this.supportsInterface.selector ||
@@ -827,12 +824,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         emit ExtensionSet(extension, on);
     }
 
-    function setURI(string calldata _daoURI)
-        public
-        payable
-        virtual
-        onlyExtension
-    {
+    function setURI(
+        string calldata _daoURI
+    ) public payable virtual onlyExtension {
         daoURI = _daoURI;
 
         emit URIset(_daoURI);

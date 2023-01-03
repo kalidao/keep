@@ -23,10 +23,10 @@ contract URIFetcher is Owned {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(address _owner, URIRemoteFetcher _uriRemoteFetcher)
-        payable
-        Owned(_owner)
-    {
+    constructor(
+        address _owner,
+        URIRemoteFetcher _uriRemoteFetcher
+    ) payable Owned(_owner) {
         uriRemoteFetcher = _uriRemoteFetcher;
     }
 
@@ -38,12 +38,9 @@ contract URIFetcher is Owned {
         return uriRemoteFetcher.fetchURI(msg.sender, id);
     }
 
-    function setURIRemoteFetcher(URIRemoteFetcher _uriRemoteFetcher)
-        public
-        payable
-        virtual
-        onlyOwner
-    {
+    function setURIRemoteFetcher(
+        URIRemoteFetcher _uriRemoteFetcher
+    ) public payable virtual onlyOwner {
         uriRemoteFetcher = _uriRemoteFetcher;
 
         emit URIRemoteFetcherSet(_uriRemoteFetcher);
