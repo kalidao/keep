@@ -24,7 +24,7 @@ Startup founders might deploy a Keep Co. to hold runway in digital currency and 
 
 Close membership associations, such as guilds and professional groups, can represent each member, 1:1, as a Keep multi-sig token holder. Larger cooperatives might engage a board of managers as the Keep multi-sig feature, while representing membership in related Keep tokens. Group decisions can be polled through snapshot-style proposals, and activated once a quorum is met in a single transaction, without the need for on-chain voting. This provides a premium cooperative experience as there is true membership control over their dues and related expenditures, minimal blockchain interaction (*i.e.*, good UX), while having the natural finance of smart contracts. Capital might be contributed through the [tribute extension](https://github.com/kalidao/tribute-router) as a form of association dues, or in more business-like groups, capital contribution to an investment club or company.
 
-##### Keep Protocol
+##### Keep Collective
 
 Software might be distributed and give governance over its development and establish decision hiearchy through Keep tokens. A multi-sig can rotate among popular delegates of Keep tokens, keeping management efficient while distributed. Material decisions, such as minting tokens, moving assets or upgrading protocol contracts might be given over to large, slow on-chain voting. These might be settled through a single, or multiple protocol DAO tokens associated with the Keep.
 
