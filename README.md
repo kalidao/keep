@@ -32,6 +32,18 @@ Software might be distributed and give governance over its development and estab
 
 Keep is designed to be minimalist, easy to build with, and rests on well-documented, gas-optimized snippets from [Solady](https://github.com/Vectorized/solady), [Solmate](https://github.com/transmissions11/solmate), [Zolidity](https://github.com/z0r0z/zolidity) and [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts).
 
+#### Gas comparison with Gnosis Safe (2 signers):
+
+| Transaction   | Safe          | Keep  |
+| ------------- |:-------------:| -----:|
+| Deploy        | 263k          | 178k |
+| Dai transfer  | 88k           | 57k |
+
+Sources:
+
+* [Gnosis Safe deployment](https://help.gnosis-safe.io/en/articles/4290276-costs-of-creating-a-safe).
+* [Gnosis Safe transactions](https://help.gnosis-safe.io/en/articles/4933491-gas-estimation).
+
 ### Tests
 
 All contracts and [tests](https://github.com/kalidao/keep/tree/main/test) are written in [Solidity](https://github.com/ethereum/solidity) and can be run using [forge](https://github.com/foundry-rs/forge-std) commands.
