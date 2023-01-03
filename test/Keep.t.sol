@@ -155,7 +155,7 @@ contract KeepTest is Keep(this), Test {
                 to,
                 value,
                 data,
-                0,
+                1,
                 computeDomainSeparator(address(keep))
             )
         );
@@ -226,6 +226,9 @@ contract KeepTest is Keep(this), Test {
 
         // Deposit Dai.
         mockDai.transfer(address(keep), 100 ether);
+
+        // Initialize nonce at 1 to better understand prod gas.
+        testExecuteTokenCallWithRole();
     }
 
     /// @dev Check setup conditions.
@@ -347,7 +350,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testKeepNonce() public view {
-        assert(keep.nonce() == 0);
+        assert(keep.nonce() == 1);
     }
 
     function testUserNonce() public view {
@@ -553,10 +556,12 @@ contract KeepTest is Keep(this), Test {
         call[0].value = 0;
         call[0].data = data;
 
+        uint256 balanceBefore = mockDai.balanceOf(alice);
+
         vm.prank(address(alice));
         keep.multiexecute(call);
 
-        assert(mockDai.balanceOf(alice) == 100);
+        assert(mockDai.balanceOf(alice) == balanceBefore + 100);
         uint256 nonceAfter = keep.nonce();
         assert((nonceInit + 1) == nonceAfter);
     }
@@ -649,7 +654,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testNonceIncrementAfterExecute() public payable {
-        assert(keep.nonce() == 0);
+        assert(keep.nonce() == 1);
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -674,7 +679,7 @@ contract KeepTest is Keep(this), Test {
         keep.execute(Operation.call, alice, 1 ether, "", sigs);
 
         // Confirm nonce increment.
-        assert(keep.nonce() == 1);
+        assert(keep.nonce() == 2);
 
         // Confirm revert for stale nonce.
         vm.expectRevert(InvalidSig.selector);
