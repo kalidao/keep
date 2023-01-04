@@ -75,13 +75,13 @@ src
 
 Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon` and `Gnosis` blockchains at the following verified addresses:
 
-`KeepFactory`: `0x00000000001cd071bd24a7561e642b3e121c9761`
+`KeepFactory`: [`0x00000000001cd071bd24a7561e642b3e121c9761`](https://etherscan.io/address/0x00000000001cd071bd24a7561e642b3e121c9761#code)
 
-`Keep`: `0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4`
+`Keep`: [`0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4`](https://etherscan.io/address/0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4#code)
 
-`URIfetcher`: `0xcCfC4897C01e3E0885AEe45643868276894c40eb`
+`URIfetcher`: [`0xcCfC4897C01e3E0885AEe45643868276894c40eb`](https://etherscan.io/address/0xccfc4897c01e3e0885aee45643868276894c40eb#code)
 
-`URIRemoteFetcher`: `0xcA0202398bf78E873f46C77ec6D7236f997c2Df5`
+`URIRemoteFetcher`: [`0xcA0202398bf78E873f46C77ec6D7236f997c2Df5`](https://etherscan.io/address/0xca0202398bf78e873f46c77ec6d7236f997c2df5#code)
 
 ## Development
 
