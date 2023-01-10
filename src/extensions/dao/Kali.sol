@@ -322,28 +322,25 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
         if (amounts.length != payloads.length) revert LengthMismatch();
 
-        if (proposalType == ProposalType.MINT) uint256;
+        if (proposalType != ProposalType.MINT) 
+            if (proposalType != ProposalType.BURN) 
+                if (proposalType != ProposalType.CALL)   
+                    if (proposalType == ProposalType.VPERIOD)
+                        if (amounts[0] == 0 || amounts[0] > 365 days) revert PeriodBounds();
 
-        else if (proposalType == ProposalType.BURN) uint256;
+                    else if (proposalType == ProposalType.GPERIOD)
+                        if (amounts[0] > 365 days) revert PeriodBounds();
 
-        else if (proposalType == ProposalType.CALL) uint256;
+                    else if (proposalType == ProposalType.QUORUM)
+                        if (amounts[0] > 100) revert QuorumMax();
 
-        else if (proposalType == ProposalType.VPERIOD)
-            if (amounts[0] == 0 || amounts[0] > 365 days) revert PeriodBounds();
+                    else if (proposalType == ProposalType.SUPERMAJORITY)
+                        if (amounts[0] <= 51 || amounts[0] > 100)
+                            revert SupermajorityBounds();
 
-        else if (proposalType == ProposalType.GPERIOD)
-            if (amounts[0] > 365 days) revert PeriodBounds();
-
-        else if (proposalType == ProposalType.QUORUM)
-            if (amounts[0] > 100) revert QuorumMax();
-
-        else if (proposalType == ProposalType.SUPERMAJORITY)
-            if (amounts[0] <= 51 || amounts[0] > 100)
-                revert SupermajorityBounds();
-
-        else if (proposalType == ProposalType.TYPE)
-            if (amounts[0] > 11 || amounts[1] > 3 || amounts.length != 2)
-                revert TypeBounds();
+                    else if (proposalType == ProposalType.TYPE)
+                        if (amounts[0] > 11 || amounts[1] > 3 || amounts.length != 2)
+                            revert TypeBounds();
 
         bool selfSponsor;
 
@@ -385,7 +382,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             selfSponsor
         );
     }
-
+    
     function cancelProposal(uint256 proposal) public payable virtual {
         Proposal storage prop = proposals[proposal];
 
