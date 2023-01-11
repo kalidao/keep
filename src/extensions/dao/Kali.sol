@@ -7,7 +7,46 @@ import {KeepTokenBalances} from "./utils/KeepTokenBalances.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 
+/// @title Kali
 /// @notice Kali DAO core for on-chain governance.
+/// @author z0r0z.eth
+
+enum ProposalType {
+    MINT, // Add membership.
+    BURN, // Revoke membership.
+    CALL, // Call contracts.
+    VPERIOD, // Set `votingPeriod`.
+    GPERIOD, // Set `gracePeriod`.
+    QUORUM, // Set `quorum`.
+    SUPERMAJORITY, // Set `supermajority`.
+    TYPE, // Set `VoteType` to `ProposalType`.
+    PAUSE, // Flip membership transferability.
+    EXTENSION, // Flip `extensions` whitelisting.
+    ESCAPE, // Delete pending proposal in case of revert.
+    DOCS // Amend org docs.
+}
+
+enum VoteType {
+    SIMPLE_MAJORITY,
+    SIMPLE_MAJORITY_QUORUM_REQUIRED,
+    SUPERMAJORITY,
+    SUPERMAJORITY_QUORUM_REQUIRED
+}
+
+struct Proposal {
+    uint256 prevProposal;
+    bytes32 proposalHash;
+    address proposer;
+    uint40 creationTime;
+    uint216 yesVotes;
+    uint216 noVotes;
+}
+
+struct ProposalState {
+    bool passed;
+    bool processed;
+}
+
 contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Events
@@ -123,42 +162,6 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     mapping(address => uint256) public lastYesVote;
 
-    enum ProposalType {
-        MINT, // add membership
-        BURN, // revoke membership
-        CALL, // call contracts
-        VPERIOD, // set `votingPeriod`
-        GPERIOD, // set `gracePeriod`
-        QUORUM, // set `quorum`
-        SUPERMAJORITY, // set `supermajority`
-        TYPE, // set `VoteType` to `ProposalType`
-        PAUSE, // flip membership transferability
-        EXTENSION, // flip `extensions` whitelisting
-        ESCAPE, // delete pending proposal in case of revert
-        DOCS // amend org docs
-    }
-
-    enum VoteType {
-        SIMPLE_MAJORITY,
-        SIMPLE_MAJORITY_QUORUM_REQUIRED,
-        SUPERMAJORITY,
-        SUPERMAJORITY_QUORUM_REQUIRED
-    }
-
-    struct Proposal {
-        uint256 prevProposal;
-        bytes32 proposalHash;
-        address proposer;
-        uint40 creationTime;
-        uint216 yesVotes;
-        uint216 noVotes;
-    }
-
-    struct ProposalState {
-        bool passed;
-        bool processed;
-    }
-
     function token() public pure returns (KeepTokenBalances tkn) {
         uint256 placeholder;
 
@@ -173,19 +176,16 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function tokenId() public pure virtual returns (uint256 id) {
-        uint256 placeholder;
-
-        assembly {
-            placeholder := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
-            )
-
-            id := calldataload(add(placeholder, 22))
-        }
+        return _fetchImmutable(22);
     }
 
     function name() public pure virtual returns (string memory) {
+        return string(abi.encodePacked(_fetchImmutable(54)));
+    }
+
+    function _fetchImmutable(
+        uint256 place
+    ) internal pure virtual returns (uint256 ref) {
         uint256 placeholder;
 
         assembly {
@@ -194,10 +194,8 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
 
-            placeholder := calldataload(add(placeholder, 54))
+            ref := calldataload(add(placeholder, place))
         }
-
-        return string(abi.encodePacked(placeholder));
     }
 
     /// -----------------------------------------------------------------------
