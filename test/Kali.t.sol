@@ -11,6 +11,13 @@ import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol"
 import {KeepTokenBalances, Proposal, ProposalType, Kali} from "../src/extensions/dao/Kali.sol";
 import {KaliFactory} from "../src/extensions/dao/KaliFactory.sol";
 
+/// @dev Mocks.
+import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
+import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
+import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
+import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
+
 import "@std/Test.sol";
 
 contract KaliTest is Test, Kali {
@@ -25,6 +32,12 @@ contract KaliTest is Test, Kali {
 
     Kali kali;
     KaliFactory kaliFactory;
+
+    MockERC20 internal mockDai;
+    MockERC721 internal mockNFT;
+    MockERC1155 internal mock1155;
+    MockERC1271Wallet internal mockERC1271Wallet;
+    MockUnsafeERC1155Receiver internal mockUnsafeERC1155Receiver;
 
     address[] signers;
 
@@ -51,6 +64,19 @@ contract KaliTest is Test, Kali {
     /// @notice Set up the testing suite.
 
     function setUp() public payable {
+        mockDai = new MockERC20("Dai", "DAI", 18);
+        mockNFT = new MockERC721("NFT", "NFT");
+        mock1155 = new MockERC1155();
+        mockERC1271Wallet = new MockERC1271Wallet(alice);
+        mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();
+
+        // Mint mock ERC20.
+        mockDai.mint(address(this), 1_000_000_000 ether);
+        // Mint mock 721.
+        mockNFT.mint(address(this), 1);
+        // Mint mock 1155.
+        mock1155.mint(address(this), 1, 1, "");
+
         // Create the Keep templates.
         uriRemote = new URIRemoteFetcher(alice);
         uriFetcher = new URIFetcher(alice, uriRemote);
@@ -351,6 +377,46 @@ contract KaliTest is Test, Kali {
 
     function testSupermajority() public payable {
         assertEq(kali.supermajority(), 52);
+    }
+
+    function testSupportsInterface() public payable {
+        assert(kali.supportsInterface(0x01ffc9a7));
+        assert(kali.supportsInterface(0x150b7a02));
+        assert(kali.supportsInterface(0x4e2312e0));
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Kali Receiver Tests
+    /// -----------------------------------------------------------------------
+
+    function testERC20Receiver() public payable {
+        mockDai.transfer(address(kali), 1 ether);
+    }
+
+    function testERC721Receiver() public payable {
+        mockNFT.transferFrom(address(this), address(kali), 1);
+    }
+
+    function testERC1155Receiver() public payable {
+        mock1155.safeTransferFrom(address(this), address(kali), 1, 1, "");
+    }
+
+    function testERC1155BatchReceiver() public payable {
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 1;
+        ids[1] = 1;
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1;
+        amounts[1] = 0;
+
+        mock1155.safeBatchTransferFrom(
+            address(this),
+            address(kali),
+            ids,
+            amounts,
+            ""
+        );
     }
 
     /// -----------------------------------------------------------------------
