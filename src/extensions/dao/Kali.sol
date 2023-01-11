@@ -12,18 +12,18 @@ import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 /// @author z0r0z.eth
 
 enum ProposalType {
-    MINT, // Add membership.
+    MINT, // Add to membership.
     BURN, // Revoke membership.
-    CALL, // Call contracts.
+    CALL, // Call to external code.
     VPERIOD, // Set `votingPeriod`.
     GPERIOD, // Set `gracePeriod`.
     QUORUM, // Set `quorum`.
     SUPERMAJORITY, // Set `supermajority`.
-    TYPE, // Set `VoteType` to `ProposalType`.
+    TYPE, // Set `VoteType` `ProposalType`.
     PAUSE, // Flip membership transferability.
-    EXTENSION, // Flip `extensions` whitelisting.
-    ESCAPE, // Delete pending proposal in case of revert.
-    DOCS // Amend org docs.
+    EXTENSION, // Flip `extensions` permission.
+    ESCAPE, // Delete pending proposal in queue.
+    DOCS // Amend root documentation for the DAO.
 }
 
 enum VoteType {
@@ -162,7 +162,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     mapping(address => uint256) public lastYesVote;
 
-    function token() public pure returns (KeepTokenBalances tkn) {
+    function token() public pure virtual returns (KeepTokenBalances tkn) {
         uint256 placeholder;
 
         assembly {

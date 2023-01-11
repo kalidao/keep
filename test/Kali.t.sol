@@ -13,7 +13,7 @@ import {KaliFactory} from "../src/extensions/dao/KaliFactory.sol";
 
 import "@std/Test.sol";
 
-contract KaliTest is Test {
+contract KaliTest is Test, Kali {
     address keepAddr;
     address kaliAddr;
 
@@ -43,6 +43,10 @@ contract KaliTest is Test {
 
     bytes32 name2 =
         0x5445535432000000000000000000000000000000000000000000000000000000;
+
+    /// -----------------------------------------------------------------------
+    /// Kali Setup Tests
+    /// -----------------------------------------------------------------------
 
     /// @notice Set up the testing suite.
 
@@ -122,6 +126,19 @@ contract KaliTest is Test {
         vm.warp(block.timestamp + 1000);
     }
 
+    /// @notice Check deployment.
+
+    function testDetermination() public payable {
+        // Check CREATE2 clones match expected outputs.
+        address computedAddr = kaliFactory.determineKali(
+            KeepTokenBalances(keep),
+            0,
+            name1
+        );
+
+        assertEq(address(kali), computedAddr);
+    }
+
     function testDeploy() public payable {
         // Create the Signer[] for setup.
         address[] memory setupSigners = new address[](2);
@@ -150,16 +167,195 @@ contract KaliTest is Test {
         );
     }
 
-    function testDetermination() public payable {
-        // Check CREATE2 clones match expected outputs.
-        address computedAddr = kaliFactory.determineKali(
+    function testFailDeploy() public payable {
+        // Create the Signer[].
+        address[] memory setupSigners = new address[](2);
+        setupSigners[0] = alice > bob ? bob : alice;
+        setupSigners[1] = alice > bob ? alice : bob;
+
+        // Prime dummy inputs;
+        bytes[] memory dummyCalls = new bytes[](2);
+        dummyCalls[0] = "";
+        dummyCalls[1] = "";
+
+        uint120[4] memory govSettings;
+        govSettings[0] = 1 days;
+        govSettings[1] = 0;
+        govSettings[2] = 20;
+        govSettings[3] = 52;
+
+        // Check against unbalanced params.
+        vm.expectRevert(LengthMismatch.selector);
+        kaliFactory.deployKali(
             KeepTokenBalances(keep),
             0,
-            name1
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
         );
 
-        assertEq(address(kali), computedAddr);
+        // Check against zero voting period.
+        govSettings[0] = 0;
+
+        vm.expectRevert(PeriodBounds.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        // Check against excessive voting period.
+        govSettings[0] = 366 days;
+
+        vm.expectRevert(PeriodBounds.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        // Check against excessive grace period.
+        govSettings[0] = 1 days;
+        govSettings[1] = 366 days;
+
+        vm.expectRevert(PeriodBounds.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        // Check against excessive quorum.
+        govSettings[0] = 1 days;
+        govSettings[1] = 0;
+        govSettings[2] = 101;
+
+        vm.expectRevert(QuorumMax.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        // Check against zero supermajority.
+        govSettings[0] = 1 days;
+        govSettings[1] = 0;
+        govSettings[2] = 0;
+        govSettings[3] = 0;
+
+        vm.expectRevert(SupermajorityBounds.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        // Check against excessive supermajority.
+        govSettings[0] = 1 days;
+        govSettings[1] = 0;
+        govSettings[2] = 0;
+        govSettings[3] = 101;
+
+        vm.expectRevert(SupermajorityBounds.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        // Check against repeat initialization.
+        govSettings[0] = 1 days;
+        govSettings[1] = 0;
+        govSettings[2] = 20;
+        govSettings[3] = 52;
+
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
+
+        vm.expectRevert(Initialized.selector);
+        kaliFactory.deployKali(
+            KeepTokenBalances(keep),
+            0,
+            name2, // create2 salt.
+            "DAO",
+            setupSigners,
+            dummyCalls,
+            govSettings
+        );
     }
+
+    /// -----------------------------------------------------------------------
+    /// Kali State Tests
+    /// -----------------------------------------------------------------------
+
+    function testName() public payable {
+        assertEq(kali.name(), string(abi.encodePacked(name1)));
+    }
+
+    function testToken() public payable {
+        assertEq(address(kali.token()), address(keep));
+    }
+
+    function testTokenId() public payable {
+        assertEq(kali.tokenId(), 0);
+    }
+
+    function testDaoURI() public payable {
+        assertEq(kali.daoURI(), "DAO");
+    }
+
+    function testVotingPeriod() public payable {
+        assertEq(kali.votingPeriod(), 1 days);
+    }
+
+    function testGracePeriod() public payable {
+        assertEq(kali.gracePeriod(), 0);
+    }
+
+    function testQuorum() public payable {
+        assertEq(kali.quorum(), 20);
+    }
+
+    function testSupermajority() public payable {
+        assertEq(kali.supermajority(), 52);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Kali Proposal Tests
+    /// -----------------------------------------------------------------------
 
     function testProposal() public payable {
         vm.warp(block.timestamp + 1 days);
