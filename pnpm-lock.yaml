@@ -2,14 +2,14 @@ lockfileVersion: 5.4
 
 specifiers:
   husky: ^8.0.3
-  prettier: ^2.8.1
+  prettier: ^2.8.2
   prettier-plugin-solidity: 1.1.1
   solhint: ^3.3.7
 
 devDependencies:
   husky: 8.0.3
-  prettier: 2.8.1
-  prettier-plugin-solidity: 1.1.1_prettier@2.8.1
+  prettier: 2.8.2
+  prettier-plugin-solidity: 1.1.1_prettier@2.8.2
   solhint: 3.3.7
 
 packages:
@@ -667,14 +667,14 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier-plugin-solidity/1.1.1_prettier@2.8.1:
+  /prettier-plugin-solidity/1.1.1_prettier@2.8.2:
     resolution: {integrity: sha512-uD24KO26tAHF+zMN2nt1OUzfknzza5AgxjogQQrMLZc7j8xiQrDoNWNeOlfFC0YLTwo12CLD10b9niLyP6AqXg==}
     engines: {node: '>=12'}
     peerDependencies:
       prettier: '>=2.3.0 || >=3.0.0-alpha.0'
     dependencies:
       '@solidity-parser/parser': 0.14.5
-      prettier: 2.8.1
+      prettier: 2.8.2
       semver: 7.3.8
       solidity-comments-extractor: 0.0.7
     dev: true
@@ -687,8 +687,8 @@ packages:
     dev: true
     optional: true
 
-  /prettier/2.8.1:
-    resolution: {integrity: sha512-lqGoSJBQNJidqCHE80vqZJHWHRFoNYsSpP9AjFhlhi9ODCJA541svILes/+/1GM3VaL/abZi7cpFzOpdR9UPKg==}
+  /prettier/2.8.2:
+    resolution: {integrity: sha512-BtRV9BcncDyI2tsuS19zzhzoxD8Dh8LiCx7j7tHzrkz8GFXAexeWFdi22mjE1d16dftH2qNaytVxqiRTGlMfpw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
@@ -698,8 +698,8 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: true
 
-  /punycode/2.1.1:
-    resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
+  /punycode/2.2.0:
+    resolution: {integrity: sha512-LN6QV1IJ9ZhxWTNdktaPClrNfp8xdSAYS0Zk2ddX7XsXZAxckMHPCBcHRo0cTcEIgYPRiGEkmji3Idkh2yFtYw==}
     engines: {node: '>=6'}
     dev: true
 
@@ -906,7 +906,7 @@ packages:
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.2.0
     dev: true
 
   /which/1.3.1:
