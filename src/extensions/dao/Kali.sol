@@ -819,13 +819,13 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function mint(
-        address token,
+        address origin,
         address to,
         uint256 id,
         uint256 amount,
         bytes calldata data
     ) public payable virtual onlyExtension nonReentrant {
-        (bool success, ) = token.call(
+        (bool success, ) = origin.call(
             abi.encodeWithSelector(
                 0x731133e9, // `mint()`
                 to,
@@ -839,12 +839,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function burn(
-        address token,
+        address origin,
         address from,
         uint256 id,
         uint256 amount
     ) public payable virtual onlyExtension nonReentrant {
-        (bool success, ) = token.call(
+        (bool success, ) = origin.call(
             abi.encodeWithSelector(
                 0xf5298aca, // `burn()`
                 from,

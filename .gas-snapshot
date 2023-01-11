@@ -1,3 +1,5 @@
+KaliTest:testDeploy() (gas: 189896)
+KaliTest:testDetermination() (gas: 12640)
 KeepTest:testBalanceOf() (gas: 116513)
 KeepTest:testBalanceOfBatch() (gas: 125735)
 KeepTest:testBalanceOfSigner() (gas: 49894)
