@@ -259,7 +259,21 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 extensions[_extensions[i]] = true;
 
                 if (_extensionsData[i].length > 9) {
-                    (bool success, ) = _extensions[i].call(_extensionsData[i]);
+                    address extension = _extensions[i];
+                    bytes memory data = _extensionsData[i];
+                    bool success;
+
+                    assembly {
+                        success := call(
+                            gas(),
+                            extension,
+                            0,
+                            add(data, 0x20),
+                            mload(data),
+                            0,
+                            0
+                        )
+                    }
 
                     if (!success) revert CallFail();
                 }
@@ -800,56 +814,79 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function relay(
-        address account,
-        uint256 amount,
-        bytes calldata payload
-    )
-        public
-        payable
-        virtual
-        onlyExtension
-        nonReentrant
-        returns (bool success, bytes memory result)
-    {
-        (success, result) = account.call{value: amount}(payload);
+        address to,
+        uint256 value,
+        bytes memory data
+    ) public payable virtual onlyExtension nonReentrant returns (bool success) {
+        assembly {
+            success := call(
+                gas(),
+                to,
+                value,
+                add(data, 0x20),
+                mload(data),
+                0,
+                0
+            )
+        }
 
         if (!success) revert CallFail();
     }
 
     function mint(
-        address origin,
+        address source,
         address to,
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) public payable virtual onlyExtension nonReentrant {
-        (bool success, ) = origin.call(
-            abi.encodeWithSelector(
-                0x731133e9, // `mint()`
-                to,
-                id,
-                amount,
-                data
-            )
+    ) public payable virtual onlyExtension nonReentrant returns (bool success) {
+        bytes memory payload = abi.encodeWithSelector(
+            0x731133e9, // `mint()`
+            to,
+            id,
+            amount,
+            data
         );
+
+        assembly {
+            success := call(
+                gas(),
+                source,
+                0,
+                add(payload, 0x20),
+                mload(payload),
+                0,
+                0
+            )
+        }
 
         if (!success) revert CallFail();
     }
 
     function burn(
-        address origin,
+        address source,
         address from,
         uint256 id,
         uint256 amount
-    ) public payable virtual onlyExtension nonReentrant {
-        (bool success, ) = origin.call(
-            abi.encodeWithSelector(
-                0xf5298aca, // `burn()`
-                from,
-                id,
-                amount
-            )
+    ) public payable virtual onlyExtension nonReentrant returns (bool success) {
+        bytes memory payload = abi.encodeWithSelector(
+            0xf5298aca, // `burn()`
+            from,
+            id,
+            amount
         );
+
+        assembly {
+            success := call(
+                gas(),
+                source,
+                0,
+                add(payload, 0x20),
+                mload(payload),
+                0,
+                0
+            )
+        }
 
         if (!success) revert CallFail();
     }
