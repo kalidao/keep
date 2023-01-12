@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 import {KaliExtension} from "./utils/KaliExtension.sol";
-import {KeepTokenBalances} from "./utils/KeepTokenBalances.sol";
+import {KeepTokenManager} from "./utils/KeepTokenManager.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 import {ERC1155TokenReceiver, Operation, Call} from "./../../Keep.sol";
@@ -160,7 +160,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     mapping(address => uint256) public lastYesVote;
 
-    function token() public pure virtual returns (KeepTokenBalances tkn) {
+    function token() public pure virtual returns (KeepTokenManager tkn) {
         uint256 placeholder;
 
         assembly {
@@ -562,18 +562,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                         amount = calls[i].value;
                         data = calls[i].data;
 
-                        _execute(
-                            Operation.call,
-                            address(token()),
-                            0,
-                            abi.encodeWithSelector(
-                                0x731133e9, // `mint()`
-                                to,
-                                tokenId(),
-                                amount,
-                                data
-                            )
-                        );
+                        token().mint(to, tokenId(), amount, data);
                     }
                 } else if (proposalType == ProposalType.BURN) {
                     // Set variables.
@@ -585,17 +574,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                         from = calls[i].to;
                         amount = calls[i].value;
 
-                        _execute(
-                            Operation.call,
-                            address(token()),
-                            0,
-                            abi.encodeWithSelector(
-                                0xf5298aca, // `burn()`
-                                from,
-                                tokenId(),
-                                amount
-                            )
-                        );
+                        token().burn(from, tokenId(), amount);
                     }
                 } else if (proposalType == ProposalType.CALL) {
                     // Set variables.
@@ -626,15 +605,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                         calls[1].value
                     );
                 } else if (proposalType == ProposalType.PAUSE) {
-                    _execute(
-                        Operation.call,
-                        address(token()),
-                        0,
-                        abi.encodeWithSelector(
-                            0x7140d960, // `setTransferability()`
-                            tokenId(),
-                            !token().transferable(tokenId())
-                        )
+                    token().setTransferability(
+                        tokenId(),
+                        !token().transferable(tokenId())
                     );
                 } else if (proposalType == ProposalType.EXTENSION) {
                     // Set variables.
@@ -889,59 +862,29 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function mint(
-        address source,
+        KeepTokenManager source,
         address to,
         uint256 id,
         uint256 amount,
         bytes calldata data
     ) public payable virtual onlyExtension nonReentrant {
-        _execute(
-            Operation.call,
-            source,
-            0,
-            abi.encodeWithSelector(
-                0x731133e9, // `mint()`
-                to,
-                id,
-                amount,
-                data
-            )
-        );
+        source.mint(to, id, amount, data);
     }
 
     function burn(
-        address source,
+        KeepTokenManager source,
         address from,
         uint256 id,
         uint256 amount
     ) public payable virtual onlyExtension nonReentrant {
-        _execute(
-            Operation.call,
-            source,
-            0,
-            abi.encodeWithSelector(
-                0xf5298aca, // `burn()`
-                from,
-                id,
-                amount
-            )
-        );
+        source.burn(from, id, amount);
     }
 
     function setTransferability(
-        address source,
+        KeepTokenManager source,
         uint256 id
     ) public payable virtual onlyExtension nonReentrant {
-        _execute(
-            Operation.call,
-            source,
-            0,
-            abi.encodeWithSelector(
-                0x7140d960, // `setTransferability()`
-                id,
-                KeepTokenBalances(source).transferable(id)
-            )
-        );
+        source.setTransferability(id, !source.transferable(id));
     }
 
     function setExtension(address extension, bool on) public payable virtual {

@@ -8,7 +8,7 @@ import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
 import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 /// @dev Kali core.
-import {KeepTokenBalances, Proposal, ProposalType, Kali} from "../src/extensions/dao/Kali.sol";
+import {KeepTokenManager, Proposal, ProposalType, Kali} from "../src/extensions/dao/Kali.sol";
 import {KaliFactory} from "../src/extensions/dao/KaliFactory.sol";
 
 /// @dev Mocks.
@@ -122,12 +122,12 @@ contract KaliTest is Test, Kali {
         govSettings[2] = 20;
         govSettings[3] = 52;
 
-        kaliAddr = kaliFactory.determineKali(KeepTokenBalances(keep), 0, name1);
+        kaliAddr = kaliFactory.determineKali(KeepTokenManager(keep), 0, name1);
 
         kali = Kali(kaliAddr);
 
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name1, // create2 salt.
             dummyCall,
@@ -154,7 +154,7 @@ contract KaliTest is Test, Kali {
     function testDetermination() public payable {
         // Check CREATE2 clones match expected outputs.
         address computedAddr = kaliFactory.determineKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name1
         );
@@ -173,7 +173,7 @@ contract KaliTest is Test, Kali {
         govSettings[3] = 52;
 
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             dummyCall,
@@ -203,7 +203,7 @@ contract KaliTest is Test, Kali {
         // Check against unbalanced params.
         vm.expectRevert(LengthMismatch.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -217,7 +217,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(PeriodBounds.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -231,7 +231,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(PeriodBounds.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -246,7 +246,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(PeriodBounds.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -262,7 +262,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(QuorumMax.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -279,7 +279,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(SupermajorityBounds.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -296,7 +296,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(SupermajorityBounds.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -312,7 +312,7 @@ contract KaliTest is Test, Kali {
         govSettings[3] = 52;
 
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",
@@ -323,7 +323,7 @@ contract KaliTest is Test, Kali {
 
         vm.expectRevert(Initialized.selector);
         kaliFactory.deployKali(
-            KeepTokenBalances(keep),
+            KeepTokenManager(keep),
             0,
             name2, // create2 salt.
             "DAO",

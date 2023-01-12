@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {KeepTokenBalances, Multicallable, Call, Kali} from "./Kali.sol";
+import {KeepTokenManager, Multicallable, Call, Kali} from "./Kali.sol";
 import {LibClone} from "./../../utils/LibClone.sol";
 
 /// @notice Kali Factory.
@@ -18,7 +18,7 @@ contract KaliFactory is Multicallable {
 
     event Deployed(
         Kali kali,
-        KeepTokenBalances token,
+        KeepTokenManager token,
         uint256 tokenId,
         bytes32 name,
         Call[] calls,
@@ -45,7 +45,7 @@ contract KaliFactory is Multicallable {
     /// -----------------------------------------------------------------------
 
     function determineKali(
-        KeepTokenBalances token,
+        KeepTokenManager token,
         uint256 tokenId,
         bytes32 name
     ) public view virtual returns (address) {
@@ -58,7 +58,7 @@ contract KaliFactory is Multicallable {
     }
 
     function deployKali(
-        KeepTokenBalances _token,
+        KeepTokenManager _token,
         uint256 _tokenId,
         bytes32 _name, // create2 salt.
         Call[] calldata _calls,
