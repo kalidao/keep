@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {KeepTokenBalances, Multicallable, Kali} from "./Kali.sol";
+import {KeepTokenBalances, Multicallable, Call, Kali} from "./Kali.sol";
 import {LibClone} from "./../../utils/LibClone.sol";
 
 /// @notice Kali Factory.
@@ -21,9 +21,8 @@ contract KaliFactory is Multicallable {
         KeepTokenBalances token,
         uint256 tokenId,
         bytes32 name,
+        Call[] calls,
         string daoURI,
-        address[] extensions,
-        bytes[] extensionsData,
         uint120[4] govSettings
     );
 
@@ -62,9 +61,8 @@ contract KaliFactory is Multicallable {
         KeepTokenBalances _token,
         uint256 _tokenId,
         bytes32 _name, // create2 salt.
+        Call[] calldata _calls,
         string calldata _daoURI,
-        address[] calldata _extensions,
-        bytes[] calldata _extensionsData,
         uint120[4] calldata _govSettings
     ) public payable virtual {
         Kali kali = Kali(
@@ -74,21 +72,15 @@ contract KaliFactory is Multicallable {
             )
         );
 
-        kali.initialize{value: msg.value}(
-            _daoURI,
-            _extensions,
-            _extensionsData,
-            _govSettings
-        );
+        kali.initialize{value: msg.value}(_calls, _daoURI, _govSettings);
 
         emit Deployed(
             kali,
             _token,
             _tokenId,
             _name,
+            _calls,
             _daoURI,
-            _extensions,
-            _extensionsData,
             _govSettings
         );
     }
