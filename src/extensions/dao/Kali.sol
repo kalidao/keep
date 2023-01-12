@@ -101,31 +101,27 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     error SupermajorityBounds();
 
-    error ExecuteFailed();
-
     error TypeBounds();
 
-    error NotProposer();
+    error Unauthorized();
 
     error Sponsored();
 
-    error InvalidSig();
-
-    error NotMember();
-
-    error NotCurrentProposal();
+    error InvalidProposal();
 
     error AlreadyVoted();
 
-    error NotVoteable();
-
-    error VotingNotEnded();
+    error InvalidHash();
 
     error PrevNotProcessed();
 
-    error Overflow();
+    error VotingNotEnded();
 
-    error NotExtension();
+    error ExecuteFailed();
+
+    error InvalidSig();
+
+    error Overflow();
 
     /// -----------------------------------------------------------------------
     /// DAO Storage/Logic
@@ -382,7 +378,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         Proposal storage prop = proposals[proposal];
 
         if (msg.sender != prop.proposer)
-            if (!extensions[msg.sender]) revert NotProposer();
+            if (!extensions[msg.sender]) revert Unauthorized();
 
         if (prop.creationTime != 0) revert Sponsored();
 
@@ -395,9 +391,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         Proposal storage prop = proposals[proposal];
 
         if (token().balanceOf(msg.sender, tokenId()) == 0)
-            if (!extensions[msg.sender]) revert NotMember();
+            if (!extensions[msg.sender]) revert Unauthorized();
 
-        if (prop.proposer == address(0)) revert NotCurrentProposal();
+        if (prop.proposer == address(0)) revert InvalidProposal();
 
         if (prop.creationTime != 0) revert Sponsored();
 
@@ -471,7 +467,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         // to exceed the max uint256 value.
         unchecked {
             if (block.timestamp > prop.creationTime + votingPeriod)
-                revert NotVoteable();
+                revert InvalidProposal();
         }
 
         uint216 weight = uint216(
@@ -512,13 +508,13 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             // Scope to avoid stack too deep error.
             VoteType voteType = proposalVoteTypes[proposalType];
 
-            if (prop.creationTime == 0) revert NotCurrentProposal();
+            if (prop.creationTime == 0) revert InvalidProposal();
 
             bytes32 proposalHash = keccak256(
                 abi.encode(proposalType, description, calls)
             );
 
-            if (proposalHash != prop.proposalHash) revert NotCurrentProposal();
+            if (proposalHash != prop.proposalHash) revert InvalidHash();
 
             // Skip previous proposal processing requirement
             // in case of escape hatch.
@@ -850,7 +846,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
 
     modifier onlyExtension() {
-        if (!extensions[msg.sender]) revert NotExtension();
+        if (!extensions[msg.sender]) revert Unauthorized();
 
         _;
     }
@@ -889,7 +885,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     function setExtension(address extension, bool on) public payable virtual {
         if (!extensions[msg.sender])
-            if (msg.sender != address(this)) revert NotExtension();
+            if (msg.sender != address(this)) revert Unauthorized();
 
         extensions[extension] = on;
 
@@ -911,7 +907,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         uint8 _supermajority
     ) public payable virtual {
         if (!extensions[msg.sender])
-            if (msg.sender != address(this)) revert NotExtension();
+            if (msg.sender != address(this)) revert Unauthorized();
 
         if (_votingPeriod != 0)
             if (_votingPeriod <= 365 days) votingPeriod = _votingPeriod;
