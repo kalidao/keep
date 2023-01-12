@@ -412,7 +412,7 @@ contract KaliTest is Test, Kali {
     /// -----------------------------------------------------------------------
     /// Kali Proposal Tests
     /// -----------------------------------------------------------------------
-    /*
+
     function testProposal() public payable {
         vm.warp(block.timestamp + 1 days);
 
@@ -421,25 +421,17 @@ contract KaliTest is Test, Kali {
         assertEq(alice.balance, 0 ether);
 
         // Setup proposal.
-        address[] memory accounts = new address[](1);
-        accounts[0] = alice;
+        Call[] memory call = new Call[](1);
 
-        uint256[] memory amounts = new uint256[](1);
-        amounts[0] = 1 ether;
-
-        bytes[] memory payloads = new bytes[](1);
-        payloads[0] = "";
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1 ether;
+        call[0].data = "";
 
         // Propose as alice.
         vm.prank(alice);
         // Make proposal.
-        uint256 proposalId = kali.propose(
-            ProposalType.CALL,
-            name1,
-            accounts,
-            amounts,
-            payloads
-        );
+        uint256 proposalId = kali.propose(ProposalType.CALL, name1, call);
         vm.stopPrank();
 
         // Check proposal Id.
@@ -453,7 +445,7 @@ contract KaliTest is Test, Kali {
         // Check proposal hash.
         (, bytes32 digest, , , , ) = kali.proposals(proposalId);
         bytes32 proposalHash = keccak256(
-            abi.encode(ProposalType.CALL, name1, accounts, amounts, payloads)
+            abi.encode(ProposalType.CALL, name1, call)
         );
         assertEq(digest, proposalHash);
 
@@ -473,20 +465,17 @@ contract KaliTest is Test, Kali {
         // Check proposal votes.
         (, , , , uint216 yesVotes, ) = kali.proposals(proposalId);
         assertEq(yesVotes, 2);
-
+        /*
         // Process proposal.
-        (bool passed, ) = kali.processProposal(
+        assert(kali.processProposal(
             proposalId,
             ProposalType.CALL,
             name1,
-            accounts, 
-            amounts, 
-            payloads
-        );
-        assert(passed);
-        
+            calls
+        ));
+        */
         // Check ETH was sent.
         assertEq(address(kali).balance, 10 ether);
         assertEq(alice.balance, 0 ether);
-    }*/
+    }
 }
