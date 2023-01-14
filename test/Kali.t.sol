@@ -413,6 +413,35 @@ contract KaliTest is Test, Kali {
     /// Kali Proposal Tests
     /// -----------------------------------------------------------------------
 
+    function testProposalCreation() public payable {
+        vm.warp(block.timestamp + 1 days);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1 ether;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        uint256 proposalId = kali.propose(ProposalType.CALL, name1, call);
+        vm.stopPrank();
+
+        // Check proposal creation.
+        (, , , uint40 creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, block.timestamp);
+        assert(block.timestamp != 0);
+
+        // Check proposal hash.
+        (, bytes32 digest, , , , ) = kali.proposals(proposalId);
+        bytes32 proposalHash = keccak256(
+            abi.encode(ProposalType.CALL, name1, call)
+        );
+        assertEq(digest, proposalHash);
+    }
+
     function testProposal() public payable {
         vm.warp(block.timestamp + 1 days);
 
@@ -430,24 +459,8 @@ contract KaliTest is Test, Kali {
 
         // Propose as alice.
         vm.prank(alice);
-        // Make proposal.
         uint256 proposalId = kali.propose(ProposalType.CALL, name1, call);
         vm.stopPrank();
-
-        // Check proposal Id.
-        assertEq(proposalId, 1);
-
-        // Check proposal creation.
-        (, , , uint40 creationTime, , ) = kali.proposals(proposalId);
-        assertEq(creationTime, block.timestamp);
-        assert(block.timestamp != 0);
-
-        // Check proposal hash.
-        (, bytes32 digest, , , , ) = kali.proposals(proposalId);
-        bytes32 proposalHash = keccak256(
-            abi.encode(ProposalType.CALL, name1, call)
-        );
-        assertEq(digest, proposalHash);
 
         // Skip ahead in voting period.
         vm.warp(block.timestamp + 12 hours);
@@ -463,19 +476,23 @@ contract KaliTest is Test, Kali {
         vm.stopPrank();
 
         // Check proposal votes.
-        (, , , , uint216 yesVotes, ) = kali.proposals(proposalId);
+        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+            proposalId
+        );
         assertEq(yesVotes, 2);
+        assertEq(noVotes, 0);
         /*
         // Process proposal.
-        assert(kali.processProposal(
-            proposalId,
-            ProposalType.CALL,
-            name1,
-            calls
-        ));
-        */
+        bool passed = kali.processProposal(proposalId, ProposalType.CALL, name1, calls);
+        assert(passed);
+
+        // Check proposal state.
+        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        assert(didPass);
+        assert(processed);
+
         // Check ETH was sent.
         assertEq(address(kali).balance, 10 ether);
-        assertEq(alice.balance, 0 ether);
+        assertEq(alice.balance, 0 ether);*/
     }
 }

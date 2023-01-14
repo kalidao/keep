@@ -244,21 +244,17 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
         if (_govSettings[3] > 100) revert SupermajorityBounds();
 
-        Operation op;
-        address to;
-        uint256 value;
-        bytes calldata data;
-
         if (_calls.length != 0) {
             for (uint256 i; i < _calls.length; ) {
-                op = _calls[i].op;
-                to = _calls[i].to;
-                value = _calls[i].value;
-                data = _calls[i].data;
+                extensions[_calls[i].to] = true;
 
-                extensions[to] = true;
-
-                if (data.length > 9) _execute(op, to, value, data);
+                if (_calls[i].data.length > 9)
+                    _execute(
+                        _calls[i].op,
+                        _calls[i].to,
+                        _calls[i].value,
+                        _calls[i].data
+                    );
 
                 // An array can't have a total length
                 // larger than the max uint256 value.
@@ -349,7 +345,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
         uint40 creationTime = selfSponsor ? _safeCastTo40(block.timestamp) : 0;
 
-        // Cannot realistically overflow on human timescales.
+        // Proposal count cannot realistically overflow on human timescales.
         unchecked {
             proposals[proposal = ++proposalCount] = Proposal({
                 prevProposal: selfSponsor ? currentSponsoredProposal : 0,
@@ -502,8 +498,6 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     ) public payable virtual nonReentrant returns (bool passed) {
         Proposal storage prop = proposals[proposal];
 
-        delete proposals[proposal];
-
         {
             // Scope to avoid stack too deep error.
             VoteType voteType = proposalVoteTypes[proposalType];
@@ -547,46 +541,26 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             // larger than the max uint256 value.
             unchecked {
                 if (proposalType == ProposalType.MINT) {
-                    // Set variables.
-                    address to;
-                    uint256 amount;
-                    bytes calldata data;
-
                     for (uint256 i; i < calls.length; ++i) {
-                        // Load variables.
-                        to = calls[i].to;
-                        amount = calls[i].value;
-                        data = calls[i].data;
-
-                        token().mint(to, tokenId(), amount, data);
+                        token().mint(
+                            calls[i].to,
+                            tokenId(),
+                            calls[i].value,
+                            calls[i].data
+                        );
                     }
                 } else if (proposalType == ProposalType.BURN) {
-                    // Set variables.
-                    address from;
-                    uint256 amount;
-
                     for (uint256 i; i < calls.length; ++i) {
-                        // Load variables.
-                        from = calls[i].to;
-                        amount = calls[i].value;
-
-                        token().burn(from, tokenId(), amount);
+                        token().burn(calls[i].to, tokenId(), calls[i].value);
                     }
                 } else if (proposalType == ProposalType.CALL) {
-                    // Set variables.
-                    Operation op;
-                    address to;
-                    uint256 value;
-                    bytes calldata data;
-
                     for (uint256 i; i < calls.length; ++i) {
-                        // Load variables.
-                        op = calls[i].op;
-                        to = calls[i].to;
-                        value = calls[i].value;
-                        data = calls[i].data;
-
-                        _execute(op, to, value, data);
+                        _execute(
+                            calls[i].op,
+                            calls[i].to,
+                            calls[i].value,
+                            calls[i].data
+                        );
                     }
                 } else if (proposalType == ProposalType.VPERIOD) {
                     votingPeriod = uint120(calls[0].value);
@@ -606,22 +580,14 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                         !token().transferable(tokenId())
                     );
                 } else if (proposalType == ProposalType.EXTENSION) {
-                    // Set variables.
-                    address extension;
-                    uint256 setting;
-                    bytes calldata data;
-
                     for (uint256 i; i < calls.length; ++i) {
-                        // Load variables.
-                        extension = calls[i].to;
-                        setting = calls[i].value;
-                        data = calls[i].data;
+                        if (calls[i].value != 0)
+                            extensions[calls[i].to] = !extensions[calls[i].to];
 
-                        if (setting != 0)
-                            extensions[extension] = !extensions[extension];
-
-                        if (data.length > 9)
-                            KaliExtension(extension).setExtension(data);
+                        if (calls[i].data.length > 9)
+                            KaliExtension(calls[i].to).setExtension(
+                                calls[i].data
+                            );
                     }
                 } else if (proposalType == ProposalType.ESCAPE) {
                     delete proposals[calls[0].value];
@@ -632,6 +598,8 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 proposalStates[proposal].passed = true;
             }
         }
+
+        delete proposals[proposal];
 
         proposalStates[proposal].processed = true;
 
