@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+// TO DO: Expose type setting and prop deletion.
+
 import {KaliExtension} from "./utils/KaliExtension.sol";
 import {KeepTokenManager} from "./utils/KeepTokenManager.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";

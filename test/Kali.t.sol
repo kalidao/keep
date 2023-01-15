@@ -20,12 +20,17 @@ import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver
 
 import "@std/Test.sol";
 
-contract KaliTest is Test, Kali {
+error Initialized();
+
+error PeriodBounds();
+
+error QuorumMax();
+
+error SupermajorityBounds();
+
+contract KaliTest is Test, Keep(Keep(address(0))) {
     address keepAddr;
     address kaliAddr;
-
-    URIFetcher uriFetcher;
-    URIRemoteFetcher uriRemote;
 
     address keep;
     KeepFactory keepFactory;
@@ -78,9 +83,7 @@ contract KaliTest is Test, Kali {
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the Keep templates.
-        uriRemote = new URIRemoteFetcher(alice);
-        uriFetcher = new URIFetcher(alice, uriRemote);
-        keep = address(new Keep(Keep(address(uriFetcher))));
+        keep = address(new Keep(Keep(address(address(0)))));
         // Create the Keep factory.
         keepFactory = new KeepFactory(Keep(keep));
         // Create the Signer[] for setup.
@@ -95,7 +98,7 @@ contract KaliTest is Test, Kali {
         keep = keepAddr;
         keepFactory.deployKeep(name1, calls, setupSigners, 2);
 
-        // Mint alice, bob and charlie Kali DAO ID key (0).
+        // Mint alice, bob and charlie Kali Keep DAO ID key (0).
         vm.prank(keep);
         Keep(keep).mint(alice, 0, 1, "");
         vm.prank(keep);
@@ -104,6 +107,7 @@ contract KaliTest is Test, Kali {
         Keep(keep).mint(charlie, 0, 1, "");
         vm.stopPrank();
 
+        // Check balances.
         assertEq(Keep(keep).balanceOf(alice, 0), 1);
         assertEq(Keep(keep).balanceOf(bob, 0), 1);
         assertEq(Keep(keep).balanceOf(charlie, 0), 1);
@@ -134,6 +138,13 @@ contract KaliTest is Test, Kali {
             "DAO",
             govSettings
         );
+
+        // Mint Core Key ID uber permission to DAO.
+        vm.prank(keep);
+        Keep(keep).mint(address(kali), CORE_KEY, 1, "");
+        vm.stopPrank();
+
+        assertEq(Keep(keep).balanceOf(address(kali), CORE_KEY), 1);
 
         bool sent;
 
@@ -182,7 +193,6 @@ contract KaliTest is Test, Kali {
         );
     }
 
-    /*
     function testFailDeploy() public payable {
         // Create the Signer[].
         address[] memory setupSigners = new address[](2);
@@ -190,39 +200,22 @@ contract KaliTest is Test, Kali {
         setupSigners[1] = alice > bob ? alice : bob;
 
         // Prime dummy inputs;
-        bytes[] memory dummyCalls = new bytes[](2);
-        dummyCalls[0] = "";
-        dummyCalls[1] = "";
+        Call[] memory dummyCall = new Call[](1);
 
+        // Check against zero voting period.
         uint120[4] memory govSettings;
-        govSettings[0] = 1 days;
+        govSettings[0] = 0;
         govSettings[1] = 0;
         govSettings[2] = 20;
         govSettings[3] = 52;
-
-        // Check against unbalanced params.
-        vm.expectRevert(LengthMismatch.selector);
-        kaliFactory.deployKali(
-            KeepTokenManager(keep),
-            0,
-            name2, // create2 salt.
-            "DAO",
-            setupSigners,
-            dummyCalls,
-            govSettings
-        );
-
-        // Check against zero voting period.
-        govSettings[0] = 0;
 
         vm.expectRevert(PeriodBounds.selector);
         kaliFactory.deployKali(
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -234,9 +227,8 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -249,9 +241,8 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -265,9 +256,8 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -282,9 +272,8 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -299,9 +288,8 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -315,9 +303,8 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
 
@@ -326,12 +313,11 @@ contract KaliTest is Test, Kali {
             KeepTokenManager(keep),
             0,
             name2, // create2 salt.
+            dummyCall,
             "DAO",
-            setupSigners,
-            dummyCalls,
             govSettings
         );
-    }*/
+    }
 
     /// -----------------------------------------------------------------------
     /// Kali State Tests
@@ -479,13 +465,13 @@ contract KaliTest is Test, Kali {
         );
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
-        /*
+
         // Process proposal.
         bool passed = kali.processProposal(
             proposalId,
             ProposalType.CALL,
             name1,
-            calls
+            call
         );
         assert(passed);
 
@@ -495,7 +481,62 @@ contract KaliTest is Test, Kali {
         assert(processed);
 
         // Check ETH was sent.
-        assertEq(address(kali).balance, 10 ether);
-        assertEq(alice.balance, 0 ether);*/
+        assertEq(address(kali).balance, 9 ether);
+        assertEq(alice.balance, 1 ether);
+    }
+
+    function testMintProposal() public payable {
+        // Check initial alice DAO (0) balance.
+        assertEq(Keep(keep).balanceOf(alice, 0), 1);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        uint256 proposalId = kali.propose(ProposalType.MINT, name1, call);
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        kali.vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        kali.vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Check proposal votes.
+        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+            proposalId
+        );
+        assertEq(yesVotes, 2);
+        assertEq(noVotes, 0);
+
+        // Process proposal.
+        bool passed = kali.processProposal(
+            proposalId,
+            ProposalType.MINT,
+            name1,
+            call
+        );
+        assert(passed);
+
+        // Check proposal state.
+        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        assert(didPass);
+        assert(processed);
+
+        // Check processed alice DAO (0) balance.
+        assertEq(Keep(keep).balanceOf(alice, 0), 2);
     }
 }
