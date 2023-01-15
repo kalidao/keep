@@ -479,13 +479,13 @@ contract KaliTest is Test, Kali {
         );
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
-        /*
+       
         // Process proposal.
         bool passed = kali.processProposal(
             proposalId,
             ProposalType.CALL,
             name1,
-            calls
+            call
         );
         assert(passed);
 
@@ -496,6 +496,6 @@ contract KaliTest is Test, Kali {
 
         // Check ETH was sent.
         assertEq(address(kali).balance, 10 ether);
-        assertEq(alice.balance, 0 ether);*/
+        assertEq(alice.balance, 0 ether);
     }
 }
