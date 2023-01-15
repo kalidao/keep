@@ -330,7 +330,6 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                                             calls[1].value > 3 ||
                                             calls.length != 2
                                         ) revert TypeBounds();
-
         bool selfSponsor;
 
         // If member or extension is making proposal, include sponsorship.
@@ -498,26 +497,24 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     ) public payable virtual nonReentrant returns (bool passed) {
         Proposal storage prop = proposals[proposal];
 
-        {
-            // Scope to avoid stack too deep error.
-            VoteType voteType = proposalVoteTypes[proposalType];
+        // Scope to avoid stack too deep error.
+        VoteType voteType = proposalVoteTypes[proposalType];
 
-            if (prop.creationTime == 0) revert InvalidProposal();
+        if (prop.creationTime == 0) revert InvalidProposal();
 
-            bytes32 proposalHash = keccak256(
-                abi.encode(proposalType, description, calls)
-            );
+        bytes32 proposalHash = keccak256(
+            abi.encode(proposalType, description, calls)
+        );
 
-            if (proposalHash != prop.proposalHash) revert InvalidHash();
+        if (proposalHash != prop.proposalHash) revert InvalidHash();
 
-            // Skip previous proposal processing requirement
-            // in case of escape hatch.
-            if (proposalType != ProposalType.ESCAPE)
-                if (proposals[prop.prevProposal].creationTime != 0)
-                    revert PrevNotProcessed();
+        // Skip previous proposal processing requirement
+        // in case of escape hatch.
+        if (proposalType != ProposalType.ESCAPE)
+            if (proposals[prop.prevProposal].creationTime != 0)
+                revert PrevNotProcessed();
 
-            passed = _countVotes(voteType, prop.yesVotes, prop.noVotes);
-        } // End scope.
+        passed = _countVotes(voteType, prop.yesVotes, prop.noVotes);
 
         // If quorum and approval threshold are met,
         // skip voting period for fast processing.

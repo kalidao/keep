@@ -443,8 +443,6 @@ contract KaliTest is Test, Kali {
     }
 
     function testProposal() public payable {
-        vm.warp(block.timestamp + 1 days);
-
         // Check initial ETH.
         assertEq(address(kali).balance, 10 ether);
         assertEq(alice.balance, 0 ether);
@@ -483,7 +481,12 @@ contract KaliTest is Test, Kali {
         assertEq(noVotes, 0);
         /*
         // Process proposal.
-        bool passed = kali.processProposal(proposalId, ProposalType.CALL, name1, calls);
+        bool passed = kali.processProposal(
+            proposalId,
+            ProposalType.CALL,
+            name1,
+            calls
+        );
         assert(passed);
 
         // Check proposal state.
