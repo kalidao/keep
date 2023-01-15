@@ -466,11 +466,13 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
 
+       
         // Process proposal.
         bool passed = kali.processProposal(
             proposalId,
             ProposalType.CALL,
             name1,
+            call
             call
         );
         assert(passed);
