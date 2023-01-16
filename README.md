@@ -44,6 +44,10 @@ Sources:
 * [Gnosis Safe deployment](https://help.gnosis-safe.io/en/articles/4290276-costs-of-creating-a-safe).
 * [Gnosis Safe transactions](https://help.gnosis-safe.io/en/articles/4933491-gas-estimation).
 
+### Name Space Reservation
+
+Each Keep has its name stored on-chain. These names are unique and reserved by the Keep [create2](https://docs.openzeppelin.com/cli/2.8/deploying-with-create2) factory — names are the "salt" that generates each Keep address location.
+
 ### Tests
 
 All contracts and [tests](https://github.com/kalidao/keep/tree/main/test) are written in [Solidity](https://github.com/ethereum/solidity) and can be run using [forge](https://github.com/foundry-rs/forge-std) commands.
