@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-// TO DO: Expose type setting and prop deletion.
-
 import {KaliExtension} from "./utils/KaliExtension.sol";
 import {KeepTokenManager} from "./utils/KeepTokenManager.sol";
 import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
@@ -58,9 +56,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         address indexed proposer,
         uint256 indexed proposal,
         ProposalType proposalType,
-        bytes32 description,
+        string description,
         Call[] calls,
-        uint40 creationTime,
+        uint256 creationTime,
         bool selfSponsor
     );
 
@@ -83,10 +81,11 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     event URIset(string daoURI);
 
     event GovSettingsUpdated(
-        uint120 votingPeriod,
-        uint120 gracePeriod,
-        uint8 quorum,
-        uint8 supermajority
+        uint256 votingPeriod,
+        uint256 gracePeriod,
+        uint256 quorum,
+        uint256 supermajority,
+        uint256[2] typeSetting
     );
 
     event Executed(Operation op, address to, uint256 value, bytes data);
@@ -305,7 +304,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     function propose(
         ProposalType proposalType,
-        bytes32 description,
+        string calldata description,
         Call[] calldata calls
     ) public payable virtual returns (uint256 proposal) {
         if (proposalType != ProposalType.MINT)
@@ -494,7 +493,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     function processProposal(
         uint256 proposal,
         ProposalType proposalType,
-        bytes32 description,
+        string calldata description,
         Call[] calldata calls
     ) public payable virtual nonReentrant returns (bool passed) {
         Proposal storage prop = proposals[proposal];
@@ -867,30 +866,49 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         emit URIset(_daoURI);
     }
 
+    function deleteProposal(uint256 proposal) public payable virtual {
+        if (!extensions[msg.sender])
+            if (msg.sender != address(this)) revert Unauthorized();
+        
+        if (proposals[proposal].creationTime == 0) revert InvalidProposal();
+
+        proposalStates[proposal].processed = true;
+        
+        delete proposals[proposal];
+    }
+
     function updateGovSettings(
-        uint120 _votingPeriod,
-        uint120 _gracePeriod,
-        uint8 _quorum,
-        uint8 _supermajority
+        uint256 _votingPeriod,
+        uint256 _gracePeriod,
+        uint256 _quorum,
+        uint256 _supermajority,
+        uint256[2] calldata _typeSetting
     ) public payable virtual {
         if (!extensions[msg.sender])
             if (msg.sender != address(this)) revert Unauthorized();
 
         if (_votingPeriod != 0)
-            if (_votingPeriod <= 365 days) votingPeriod = _votingPeriod;
+            if (_votingPeriod <= 365 days)
+                votingPeriod = uint120(_votingPeriod);
 
-        if (_gracePeriod <= 365 days) gracePeriod = _gracePeriod;
+        if (_gracePeriod <= 365 days) gracePeriod = uint120(_gracePeriod);
 
-        if (_quorum <= 100) quorum = _quorum;
+        if (_quorum <= 100) quorum = uint8(_quorum);
 
         if (_supermajority > 51)
-            if (_supermajority <= 100) supermajority = _supermajority;
+            if (_supermajority <= 100) supermajority = uint8(_supermajority);
+
+        if (_typeSetting[0] <= 11)
+            proposalVoteTypes[ProposalType(_typeSetting[0])] = VoteType(
+                _typeSetting[1]
+            );
 
         emit GovSettingsUpdated(
             _votingPeriod,
             _gracePeriod,
             _quorum,
-            _supermajority
+            _supermajority,
+            _typeSetting
         );
     }
 }
