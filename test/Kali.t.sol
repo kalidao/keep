@@ -8,7 +8,7 @@ import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
 import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 /// @dev Kali core.
-import {KeepTokenManager, Proposal, ProposalType, Kali} from "../src/extensions/dao/Kali.sol";
+import {KeepTokenManager, Proposal, ProposalType, VoteType, Kali} from "../src/extensions/dao/Kali.sol";
 import {KaliFactory} from "../src/extensions/dao/KaliFactory.sol";
 
 /// @dev Mocks.
@@ -27,6 +27,8 @@ error PeriodBounds();
 error QuorumMax();
 
 error SupermajorityBounds();
+
+error InvalidProposal();
 
 contract KaliTest is Test, Keep(Keep(address(0))) {
     address keepAddr;
@@ -843,7 +845,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         kali.relay(call);
         vm.stopPrank();
 
-        assertEq(alice.balance, 0 ether);
+        assertEq(alice.balance, 0);
     }
 
     function testExtensionRelay() public payable {
@@ -867,5 +869,197 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         vm.stopPrank();
 
         assertEq(alice.balance, 1 ether);
+    }
+
+    function testExtensionMint() public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        assertEq(Keep(keep).balanceOf(alice, 0), 1);
+
+        vm.prank(alice);
+        kali.mint(KeepTokenManager(keep), alice, 0, 1, "");
+        vm.stopPrank();
+
+        assertEq(Keep(keep).balanceOf(alice, 0), 2);
+    }
+
+    function testExtensionBurn() public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        assertEq(Keep(keep).balanceOf(alice, 0), 1);
+
+        vm.prank(alice);
+        kali.burn(KeepTokenManager(keep), alice, 0, 1);
+        vm.stopPrank();
+
+        assertEq(Keep(keep).balanceOf(alice, 0), 0);
+    }
+
+    function testExtensionSetTransferability(bool on) public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        assert(!Keep(keep).transferable(0));
+
+        vm.prank(alice);
+        kali.setTransferability(KeepTokenManager(keep), 0, on);
+        vm.stopPrank();
+
+        assertEq(Keep(keep).transferable(0), on);
+    }
+
+    function testExtensionSetExtension(
+        address extension,
+        bool on
+    ) public payable {
+        vm.assume(extension != address(0));
+
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        assert(!kali.extensions(extension));
+
+        vm.prank(alice);
+        kali.setExtension(extension, on);
+        vm.stopPrank();
+
+        assertEq(kali.extensions(extension), on);
+    }
+
+    function testExtensionSetURI(string calldata uri) public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        vm.prank(alice);
+        kali.setURI(uri);
+        vm.stopPrank();
+
+        assertEq(kali.daoURI(), uri);
+    }
+
+    function testExtensionDeleteProposal() public payable {
+        vm.warp(block.timestamp + 1 days);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1 ether;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        uint256 proposalId = kali.propose(ProposalType.CALL, description, call);
+        vm.stopPrank();
+
+        // Check proposal creation.
+        (, , , uint40 creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, block.timestamp);
+
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        // Delete.
+        vm.prank(alice);
+        kali.deleteProposal(1);
+        vm.stopPrank();
+
+        // Check proposal deletion.
+        (, , , creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, 0);
+
+        // Check proposal processed state.
+        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        assert(!didPass);
+        assert(processed);
+
+        // Propose as alice.
+        vm.prank(alice);
+        proposalId = kali.propose(ProposalType.CALL, description, call);
+        vm.stopPrank();
+
+        // Check proposal creation.
+        (, , , creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, block.timestamp);
+
+        // Delete.
+        vm.prank(address(kali));
+        kali.deleteProposal(2);
+        vm.stopPrank();
+
+        // Check proposal deletion.
+        (, , , creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, 0);
+
+        // Attempt repeat delete.
+        vm.prank(address(kali));
+        vm.expectRevert(InvalidProposal.selector);
+        kali.deleteProposal(2);
+        vm.stopPrank();
+
+        // Propose as alice.
+        vm.prank(alice);
+        proposalId = kali.propose(ProposalType.CALL, description, call);
+        vm.stopPrank();
+
+        // Check proposal creation.
+        (, , , creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, block.timestamp);
+
+        // Delete.
+        vm.prank(bob);
+        vm.expectRevert(Unauthorized.selector);
+        kali.deleteProposal(3);
+        vm.stopPrank();
+
+        // Check proposal maintenance.
+        (, , , creationTime, , ) = kali.proposals(proposalId);
+        assertEq(creationTime, block.timestamp);
+    }
+
+    function testExtensionUpdateGovSettings() public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        uint256[2] memory setting;
+        setting[0] = 1;
+        setting[1] = 1;
+
+        vm.prank(alice);
+        kali.updateGovSettings(2 days, 1 days, 42, 69, setting);
+        vm.stopPrank();
+
+        assertEq(kali.votingPeriod(), 2 days);
+        assertEq(kali.gracePeriod(), 1 days);
+        assertEq(kali.quorum(), 42);
+        assertEq(kali.supermajority(), 69);
+        assert(
+            kali.proposalVoteTypes(ProposalType.BURN) ==
+                VoteType.SIMPLE_MAJORITY_QUORUM_REQUIRED
+        );
     }
 }

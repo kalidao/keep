@@ -844,9 +844,10 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     function setTransferability(
         KeepTokenManager source,
-        uint256 id
+        uint256 id,
+        bool on
     ) public payable virtual onlyExtension nonReentrant {
-        source.setTransferability(id, !source.transferable(id));
+        source.setTransferability(id, on);
     }
 
     function setExtension(address extension, bool on) public payable virtual {
