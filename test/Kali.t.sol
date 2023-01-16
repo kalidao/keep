@@ -823,4 +823,49 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(mockDai.balanceOf(bob), 500_000_000 ether);
         assertEq(mockDai.balanceOf(address(kali)), 0);
     }
+
+    /// -----------------------------------------------------------------------
+    /// Kali Extension Tests
+    /// -----------------------------------------------------------------------
+
+    function testFailNotAuthorizedExtension() public payable {
+        assert(!kali.extensions(alice));
+        assertEq(alice.balance, 0);
+
+        Call memory call;
+
+        call.op = Operation.call;
+        call.to = alice;
+        call.value = 1 ether;
+        call.data = "";
+
+        vm.prank(alice);
+        kali.relay(call);
+        vm.stopPrank();
+
+        assertEq(alice.balance, 0 ether);
+    }
+
+    function testExtensionRelay() public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        assertEq(alice.balance, 0);
+
+        Call memory call;
+
+        call.op = Operation.call;
+        call.to = alice;
+        call.value = 1 ether;
+        call.data = "";
+
+        vm.prank(alice);
+        kali.relay(call);
+        vm.stopPrank();
+
+        assertEq(alice.balance, 1 ether);
+    }
 }
