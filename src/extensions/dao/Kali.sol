@@ -869,11 +869,11 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     function deleteProposal(uint256 proposal) public payable virtual {
         if (!extensions[msg.sender])
             if (msg.sender != address(this)) revert Unauthorized();
-        
+
         if (proposals[proposal].creationTime == 0) revert InvalidProposal();
 
         proposalStates[proposal].processed = true;
-        
+
         delete proposals[proposal];
     }
 
