@@ -50,10 +50,10 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
     /// @dev Users.
 
-    address public immutable alice = address(0xa);
-    address public immutable bob = address(0xb);
-    address public immutable charlie = address(0xc);
-    address public immutable dave = address(0xd);
+    address public immutable alice = makeAddr("alice");
+    address public immutable bob = makeAddr("bob");
+    address public immutable charlie = makeAddr("charlie");
+    address public immutable dave = makeAddr("dave");
 
     /// @dev Helpers.
 

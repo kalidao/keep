@@ -1,5 +1,5 @@
 # KeepTokenManager
-[Git Source](https://github.com/kalidao/keep/blob/1979341a5a2118c8b67dae50ac448106c85bacac/src/extensions/dao/utils/KeepTokenManager.sol)
+[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/extensions/dao/utils/KeepTokenManager.sol)
 
 Contract helper for Keep token management.
 
