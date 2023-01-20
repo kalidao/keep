@@ -178,9 +178,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         return string(abi.encodePacked(_fetchImmutable(54)));
     }
 
-    function _fetchImmutable(
-        uint256 place
-    ) internal pure virtual returns (uint256 ref) {
+    function _fetchImmutable(uint256 place)
+        internal
+        pure
+        virtual
+        returns (uint256 ref)
+    {
         uint256 placeholder;
 
         assembly {
@@ -197,9 +200,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return
             // ERC165 interface ID for ERC165.
             interfaceId == this.supportsInterface.selector ||
@@ -817,9 +823,13 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         _;
     }
 
-    function relay(
-        Call calldata call
-    ) public payable virtual onlyExtension nonReentrant {
+    function relay(Call calldata call)
+        public
+        payable
+        virtual
+        onlyExtension
+        nonReentrant
+    {
         _execute(call.op, call.to, call.value, call.data);
     }
 
@@ -859,9 +869,12 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         emit ExtensionSet(extension, on);
     }
 
-    function setURI(
-        string calldata _daoURI
-    ) public payable virtual onlyExtension {
+    function setURI(string calldata _daoURI)
+        public
+        payable
+        virtual
+        onlyExtension
+    {
         daoURI = _daoURI;
 
         emit URIset(_daoURI);

@@ -101,9 +101,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev ID metadata fetcher.
     /// @param id ID to fetch from.
     /// @return tokenURI Metadata.
-    function uri(
-        uint256 id
-    ) public view virtual override returns (string memory) {
+    function uri(uint256 id)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
         string memory tokenURI = _uris[id];
 
         if (bytes(tokenURI).length > 0) return tokenURI;
@@ -131,9 +135,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev ERC165 interface detection.
     /// @param interfaceId ID to check.
     /// @return Fetch detection success.
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
         return
             // ERC165 Interface ID for ERC721TokenReceiver.
             interfaceId == this.onERC721Received.selector ||
@@ -568,10 +576,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice ID metadata setting.
     /// @param id ID to set metadata for.
     /// @param tokenURI Metadata setting.
-    function setURI(
-        uint256 id,
-        string calldata tokenURI
-    ) public payable virtual {
+    function setURI(uint256 id, string calldata tokenURI)
+        public
+        payable
+        virtual
+    {
         _authorized();
 
         _uris[id] = tokenURI;

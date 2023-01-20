@@ -197,9 +197,12 @@ abstract contract KeepToken {
     /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return
             // ERC165 interface ID for ERC165.
             interfaceId == this.supportsInterface.selector ||
@@ -213,10 +216,12 @@ abstract contract KeepToken {
     /// ERC1155 Logic
     /// -----------------------------------------------------------------------
 
-    function balanceOfBatch(
-        address[] calldata owners,
-        uint256[] calldata ids
-    ) public view virtual returns (uint256[] memory balances) {
+    function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
+        public
+        view
+        virtual
+        returns (uint256[] memory balances)
+    {
         if (owners.length != ids.length) revert LengthMismatch();
 
         balances = new uint256[](owners.length);
@@ -232,10 +237,11 @@ abstract contract KeepToken {
         }
     }
 
-    function setApprovalForAll(
-        address operator,
-        bool approved
-    ) public payable virtual {
+    function setApprovalForAll(address operator, bool approved)
+        public
+        payable
+        virtual
+    {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -409,17 +415,21 @@ abstract contract KeepToken {
     /// Checkpoint Logic
     /// -----------------------------------------------------------------------
 
-    function getVotes(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256) {
+    function getVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         return getCurrentVotes(account, id);
     }
 
-    function getCurrentVotes(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256) {
+    function getCurrentVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
@@ -489,10 +499,12 @@ abstract contract KeepToken {
     /// Delegation Logic
     /// -----------------------------------------------------------------------
 
-    function delegates(
-        address account,
-        uint256 id
-    ) public view virtual returns (address) {
+    function delegates(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (address)
+    {
         address current = _delegates[account][id];
 
         if (current == address(0)) current = account;
@@ -709,7 +721,11 @@ abstract contract KeepToken {
         } else if (to == address(0)) revert InvalidRecipient();
     }
 
-    function _burn(address from, uint256 id, uint256 amount) internal virtual {
+    function _burn(
+        address from,
+        uint256 id,
+        uint256 amount
+    ) internal virtual {
         balanceOf[from][id] -= amount;
 
         // Cannot underflow because a user's balance

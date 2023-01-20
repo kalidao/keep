@@ -3,10 +3,11 @@ pragma solidity ^0.8.4;
 
 /// @notice Contract helper for Keep token management.
 abstract contract KeepTokenManager {
-    function balanceOf(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256);
+    function balanceOf(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256);
 
     function totalSupply(uint256 id) public view virtual returns (uint256);
 

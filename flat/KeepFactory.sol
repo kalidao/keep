@@ -197,9 +197,12 @@ abstract contract KeepToken {
     /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return
             // ERC165 interface ID for ERC165.
             interfaceId == this.supportsInterface.selector ||
@@ -213,10 +216,12 @@ abstract contract KeepToken {
     /// ERC1155 Logic
     /// -----------------------------------------------------------------------
 
-    function balanceOfBatch(
-        address[] calldata owners,
-        uint256[] calldata ids
-    ) public view virtual returns (uint256[] memory balances) {
+    function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
+        public
+        view
+        virtual
+        returns (uint256[] memory balances)
+    {
         if (owners.length != ids.length) revert LengthMismatch();
 
         balances = new uint256[](owners.length);
@@ -232,10 +237,11 @@ abstract contract KeepToken {
         }
     }
 
-    function setApprovalForAll(
-        address operator,
-        bool approved
-    ) public payable virtual {
+    function setApprovalForAll(address operator, bool approved)
+        public
+        payable
+        virtual
+    {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -409,17 +415,21 @@ abstract contract KeepToken {
     /// Checkpoint Logic
     /// -----------------------------------------------------------------------
 
-    function getVotes(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256) {
+    function getVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         return getCurrentVotes(account, id);
     }
 
-    function getCurrentVotes(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256) {
+    function getCurrentVotes(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
         // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
@@ -489,10 +499,12 @@ abstract contract KeepToken {
     /// Delegation Logic
     /// -----------------------------------------------------------------------
 
-    function delegates(
-        address account,
-        uint256 id
-    ) public view virtual returns (address) {
+    function delegates(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (address)
+    {
         address current = _delegates[account][id];
 
         if (current == address(0)) current = account;
@@ -709,7 +721,11 @@ abstract contract KeepToken {
         } else if (to == address(0)) revert InvalidRecipient();
     }
 
-    function _burn(address from, uint256 id, uint256 amount) internal virtual {
+    function _burn(
+        address from,
+        uint256 id,
+        uint256 amount
+    ) internal virtual {
         balanceOf[from][id] -= amount;
 
         // Cannot underflow because a user's balance
@@ -765,9 +781,11 @@ abstract contract Multicallable {
     /// and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`.
     /// If any of the `DELEGATECALL`s reverts, the entire transaction is reverted,
     /// and the error is bubbled up.
-    function multicall(
-        bytes[] calldata data
-    ) public payable returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data)
+        public
+        payable
+        returns (bytes[] memory results)
+    {
         assembly {
             if data.length {
                 results := mload(0x40) // Point `results` to start of free memory.
@@ -914,9 +932,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev ID metadata fetcher.
     /// @param id ID to fetch from.
     /// @return tokenURI Metadata.
-    function uri(
-        uint256 id
-    ) public view virtual override returns (string memory) {
+    function uri(uint256 id)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
         string memory tokenURI = _uris[id];
 
         if (bytes(tokenURI).length > 0) return tokenURI;
@@ -944,9 +966,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev ERC165 interface detection.
     /// @param interfaceId ID to check.
     /// @return Fetch detection success.
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
         return
             // ERC165 Interface ID for ERC721TokenReceiver.
             interfaceId == this.onERC721Received.selector ||
@@ -1381,10 +1407,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice ID metadata setting.
     /// @param id ID to set metadata for.
     /// @param tokenURI Metadata setting.
-    function setURI(
-        uint256 id,
-        string calldata tokenURI
-    ) public payable virtual {
+    function setURI(uint256 id, string calldata tokenURI)
+        public
+        payable
+        virtual
+    {
         _authorized();
 
         _uris[id] = tokenURI;

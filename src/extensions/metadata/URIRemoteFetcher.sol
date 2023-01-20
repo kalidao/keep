@@ -49,10 +49,12 @@ contract URIRemoteFetcher is Owned {
     /// URI Logic
     /// -----------------------------------------------------------------------
 
-    function fetchURI(
-        address origin,
-        uint256 id
-    ) public view virtual returns (string memory) {
+    function fetchURI(address origin, uint256 id)
+        public
+        view
+        virtual
+        returns (string memory)
+    {
         string memory alpha = alphaURI;
         string memory beta = betaURI[origin];
         string memory uri = uris[origin][id];
@@ -62,18 +64,23 @@ contract URIRemoteFetcher is Owned {
         else return bytes(alpha).length != 0 ? alpha : "";
     }
 
-    function setAlphaURI(
-        string calldata _alphaURI
-    ) public payable virtual onlyOwner {
+    function setAlphaURI(string calldata _alphaURI)
+        public
+        payable
+        virtual
+        onlyOwner
+    {
         alphaURI = _alphaURI;
 
         emit AlphaURISet(_alphaURI);
     }
 
-    function setBetaURI(
-        address origin,
-        string calldata beta
-    ) public payable virtual onlyOwner {
+    function setBetaURI(address origin, string calldata beta)
+        public
+        payable
+        virtual
+        onlyOwner
+    {
         betaURI[origin] = beta;
 
         emit BetaURISet(origin, beta);

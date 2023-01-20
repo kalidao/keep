@@ -14,10 +14,11 @@ abstract contract ERC1155STF {
 
 /// @notice Contract helper for Keep token minting.
 abstract contract KeepTokenMint {
-    function balanceOf(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256);
+    function balanceOf(address account, uint256 id)
+        public
+        view
+        virtual
+        returns (uint256);
 
     function mint(
         address to,
@@ -278,9 +279,11 @@ abstract contract SafeMulticallable {
     /// and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`.
     /// If any of the `DELEGATECALL`s reverts, the entire transaction is reverted,
     /// and the error is bubbled up.
-    function multicall(
-        bytes[] calldata data
-    ) public virtual returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data)
+        public
+        virtual
+        returns (bytes[] memory results)
+    {
         assembly {
             if data.length {
                 results := mload(0x40) // Point `results` to start of free memory.
@@ -356,7 +359,11 @@ error TransferFailed();
 
 /// @dev Sends `amount` of ERC20 `token` from the current contract to `to`.
 /// Reverts upon failure.
-function safeTransfer(address token, address to, uint256 amount) {
+function safeTransfer(
+    address token,
+    address to,
+    uint256 amount
+) {
     assembly {
         // We'll write our calldata to this slot below, but restore it later.
         let memPointer := mload(0x40)
@@ -597,10 +604,12 @@ contract TributeRouter is
     /// @param approve If `true`, escrow will release to Keep for mint.
     /// If `false`, tribute will be returned back to the tribute proposer.
     /// @dev Calls are permissioned to the Keep itself or mint ID key holder.
-    function releaseTribute(
-        uint256 id,
-        bool approve
-    ) public payable virtual nonReentrant {
+    function releaseTribute(uint256 id, bool approve)
+        public
+        payable
+        virtual
+        nonReentrant
+    {
         // Fetch tribute details from storage.
         Tribute storage trib = tributes[id];
 
