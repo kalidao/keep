@@ -491,6 +491,47 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(alice.balance, 1 ether);
     }
 
+    function testProposalVoteStored() public payable {
+        // Check initial alice DAO (0) balance.
+        assertEq(Keep(keep).balanceOf(alice, 0), 1);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        uint256 proposalId = kali.propose(ProposalType.BURN, description, call);
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        kali.vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        kali.vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Check proposal votes.
+        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+            proposalId
+        );
+        assertEq(yesVotes, 2);
+        assertEq(noVotes, 0);
+
+        assert(kali.voted(1, alice));
+        assert(kali.voted(1, bob));
+    }
+
     function testMintProposal() public payable {
         // Check initial alice DAO (0) balance.
         assertEq(Keep(keep).balanceOf(alice, 0), 1);
@@ -1061,5 +1102,73 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
             kali.proposalVoteTypes(ProposalType.BURN) ==
                 VoteType.SIMPLE_MAJORITY_QUORUM_REQUIRED
         );
+    }
+
+    function testExtensionUpdateGovSettingsInvalid() public payable {
+        assert(!kali.extensions(alice));
+        vm.prank(address(kali));
+        kali.setExtension(alice, true);
+        vm.stopPrank();
+        assert(kali.extensions(alice));
+
+        uint256[2] memory setting;
+        setting[0] = 1;
+        setting[1] = 1;
+
+        vm.prank(alice);
+        kali.updateGovSettings(0, 1 days, 42, 69, setting);
+
+        assertEq(kali.votingPeriod(), 1 days);
+
+        vm.prank(alice);
+        kali.updateGovSettings(366 days, 1 days, 42, 69, setting);
+
+        assertEq(kali.votingPeriod(), 1 days);
+        /*
+        vm.prank(alice);
+        kali.updateGovSettings(1 days, 366 days, 42, 69, setting);
+
+        assertEq(kali.gracePeriod(), 0);
+        */
+        /*
+        vm.prank(alice);
+        kali.updateGovSettings(366 days, 366 days, 101, 69, setting);
+
+        assertEq(kali.quorum(), 20);
+
+        vm.prank(alice);
+        kali.updateGovSettings(366 days, 366 days, 101, 50, setting);
+
+        assertEq(kali.supermajority(), 69);
+
+        vm.prank(alice);
+        kali.updateGovSettings(366 days, 366 days, 101, 101, setting);
+
+        assertEq(kali.supermajority(), 69);
+
+        setting[1] = 3;
+
+        vm.prank(alice);
+        //vm.expectRevert();
+        kali.updateGovSettings(366 days, 366 days, 101, 101, setting);
+
+        assert(
+            kali.proposalVoteTypes(ProposalType.BURN) ==
+                VoteType.SIMPLE_MAJORITY
+        );
+
+        setting[0] = 100;
+        setting[1] = 1;
+
+        vm.prank(alice);
+        //vm.expectRevert();
+        kali.updateGovSettings(366 days, 366 days, 101, 101, setting);
+
+        setting[0] = 1;
+        setting[1] = 100;
+
+        vm.prank(alice);
+        //vm.expectRevert();
+        kali.updateGovSettings(366 days, 366 days, 101, 101, setting);*/
     }
 }

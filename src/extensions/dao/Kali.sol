@@ -2,8 +2,8 @@
 pragma solidity ^0.8.4;
 
 import {KaliExtension} from "./utils/KaliExtension.sol";
+import {Multicallable} from "../../utils/Multicallable.sol";
 import {KeepTokenManager} from "./utils/KeepTokenManager.sol";
-import {Multicallable} from "@solbase/src/utils/Multicallable.sol";
 import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 import {ERC1155TokenReceiver, Operation, Call} from "./../../Keep.sol";
 
@@ -900,9 +900,10 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             if (_supermajority <= 100) supermajority = uint8(_supermajority);
 
         if (_typeSetting[0] <= 11)
-            proposalVoteTypes[ProposalType(_typeSetting[0])] = VoteType(
-                _typeSetting[1]
-            );
+            if (_typeSetting[1] <= 3)
+                proposalVoteTypes[ProposalType(_typeSetting[0])] = VoteType(
+                    _typeSetting[1]
+                );
 
         emit GovSettingsUpdated(
             _votingPeriod,

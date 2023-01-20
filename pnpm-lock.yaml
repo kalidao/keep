@@ -4,13 +4,13 @@ specifiers:
   husky: ^8.0.3
   prettier: ^2.8.3
   prettier-plugin-solidity: 1.1.1
-  solhint: ^3.3.7
+  solhint: ^3.3.8
 
 devDependencies:
   husky: 8.0.3
   prettier: 2.8.3
   prettier-plugin-solidity: 1.1.1_prettier@2.8.3
-  solhint: 3.3.7
+  solhint: 3.3.8
 
 packages:
 
@@ -698,8 +698,8 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: true
 
-  /punycode/2.2.0:
-    resolution: {integrity: sha512-LN6QV1IJ9ZhxWTNdktaPClrNfp8xdSAYS0Zk2ddX7XsXZAxckMHPCBcHRo0cTcEIgYPRiGEkmji3Idkh2yFtYw==}
+  /punycode/2.3.0:
+    resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
     engines: {node: '>=6'}
     dev: true
 
@@ -792,8 +792,8 @@ packages:
       is-fullwidth-code-point: 2.0.0
     dev: true
 
-  /solhint/3.3.7:
-    resolution: {integrity: sha512-NjjjVmXI3ehKkb3aNtRJWw55SUVJ8HMKKodwe0HnejA+k0d2kmhw7jvpa+MCTbcEgt8IWSwx0Hu6aCo/iYOZzQ==}
+  /solhint/3.3.8:
+    resolution: {integrity: sha512-TkYyJ6uUJCaiqRKuhHhFuoAoyco9Ia+RDKhl3usjG/rkaNk8/LdLRla2Xln7MVdBTaPKNAU8ezTRSit50Yy4qw==}
     hasBin: true
     dependencies:
       '@solidity-parser/parser': 0.14.5
@@ -906,7 +906,7 @@ packages:
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
-      punycode: 2.2.0
+      punycode: 2.3.0
     dev: true
 
   /which/1.3.1:
