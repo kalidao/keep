@@ -84,11 +84,9 @@ contract KeepTest is Keep(this), Test {
 
     /// @dev Helpers.
 
-    function computeDomainSeparator(address addr)
-        internal
-        view
-        returns (bytes32)
-    {
+    function computeDomainSeparator(
+        address addr
+    ) internal view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -157,7 +155,9 @@ contract KeepTest is Keep(this), Test {
         );
 
         // Set 'wrong v' to return null signer for tests.
-        if (pk == nullPk) v = 17;
+        if (pk == nullPk) {
+            v = 17;
+        }
 
         sig = Signature({user: user, v: v, r: r, s: s});
     }
@@ -1108,10 +1108,10 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
     }
 
-    function testCannotSetTransferability(address user, uint256 id)
-        public
-        payable
-    {
+    function testCannotSetTransferability(
+        address user,
+        uint256 id
+    ) public payable {
         vm.assume(user != address(keep));
 
         vm.prank(user);
@@ -1462,10 +1462,9 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
     }
 
-    function testCannotTransferKeepTokenNonTransferable(uint256 id)
-        public
-        payable
-    {
+    function testCannotTransferKeepTokenNonTransferable(
+        uint256 id
+    ) public payable {
         vm.assume(id != SIGNER_KEY);
 
         vm.prank(address(keep));
@@ -1525,10 +1524,9 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(bob, 1) == 0);
     }
 
-    function testCannotTransferKeepTokenWithUnderflow(uint256 id)
-        public
-        payable
-    {
+    function testCannotTransferKeepTokenWithUnderflow(
+        uint256 id
+    ) public payable {
         vm.assume(id != 1816876358);
         vm.assume(id != SIGNER_KEY);
 
@@ -1799,6 +1797,7 @@ contract KeepTest is Keep(this), Test {
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
         vm.assume(id != SIGNER_KEY);
+        vm.assume(id != CORE_KEY);
 
         vm.warp(1665378008);
 
