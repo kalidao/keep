@@ -3,8 +3,8 @@ pragma solidity ^0.8.4;
 
 import {KaliExtension} from "./utils/KaliExtension.sol";
 import {Multicallable} from "../../utils/Multicallable.sol";
+import {ReentrancyGuard} from "../utils/ReentrancyGuard.sol";
 import {KeepTokenManager} from "./utils/KeepTokenManager.sol";
-import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
 import {ERC1155TokenReceiver, Operation, Call} from "./../../Keep.sol";
 
 /// @title Kali

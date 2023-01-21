@@ -1,10 +1,5 @@
-@ds/=lib/rage-router/lib/ds-test/src/
-@kali/=lib/rage-router/src/
-@solbase/=lib/rage-router/lib/solbase/
 @solbase/=lib/solbase/
 @std/=lib/forge-std/src/
-@std/=lib/rage-router/lib/forge-std/src/
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
-rage-router/=lib/rage-router/src/
 solbase/=lib/solbase/src/

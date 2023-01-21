@@ -61,7 +61,6 @@ Several rounds of audits and security consultations were engaged in the developm
 ```ml
 lib
 ├─ forge-std — https://github.com/brockelmore/forge-std
-├─ kali — https://github.com/kalidao/rage-router
 ├─ solbase — https://github.com/Sol-DAO/solbase
 src
 │  └─ extensions

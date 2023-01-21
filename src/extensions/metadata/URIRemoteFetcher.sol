@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Owned} from "@solbase/src/auth/Owned.sol";
+import {Owned} from "../utils/Owned.sol";
 
 /// @notice Remote metadata fetcher for ERC1155.
 contract URIRemoteFetcher is Owned {
@@ -57,9 +57,13 @@ contract URIRemoteFetcher is Owned {
         string memory beta = betaURI[origin];
         string memory uri = uris[origin][id];
 
-        if (bytes(uri).length != 0) return uri;
-        else if (bytes(beta).length != 0) return beta;
-        else return bytes(alpha).length != 0 ? alpha : "";
+        if (bytes(uri).length != 0) {
+            return uri;
+        } else if (bytes(beta).length != 0) {
+            return beta;
+        } else {
+            return bytes(alpha).length != 0 ? alpha : "";
+        }
     }
 
     function setAlphaURI(

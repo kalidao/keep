@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../../src/utils/Multicallable.sol";
+import {Multicallable} from "../../../src/utils/Multicallable.sol";
 
 contract MockMulticallable is Multicallable {
     error CustomError();
@@ -41,18 +41,16 @@ contract MockMulticallable is Multicallable {
         return msg.sender;
     }
 
-    function multicallOriginal(bytes[] calldata data)
-        public
-        payable
-        returns (bytes[] memory results)
-    {
+    function multicallOriginal(bytes[] calldata data) public payable returns (bytes[] memory results) {
         unchecked {
             results = new bytes[](data.length);
             for (uint256 i = 0; i < data.length; i++) {
                 (bool success, bytes memory result) = address(this).delegatecall(data[i]);
                 if (!success) {
                     // Next 5 lines from https://ethereum.stackexchange.com/a/83577
-                    if (result.length < 68) revert();
+                    if (result.length < 68) {
+                        revert();
+                    }
                     /// @solidity memory-safe-assembly
                     assembly {
                         result := add(result, 0x04)
