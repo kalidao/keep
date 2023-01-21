@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {DSTestPlus} from "@solbase/test/utils/DSTestPlus.sol";
+import {ReentrancyGuard} from "../src/extensions/utils/ReentrancyGuard.sol";
 
-import {ReentrancyGuard} from "@solbase/src/utils/ReentrancyGuard.sol";
+import "@std/Test.sol";
 
 contract RiskyContract is ReentrancyGuard {
     uint256 public enterTimes;
@@ -11,7 +11,9 @@ contract RiskyContract is ReentrancyGuard {
     function unprotectedCall() public {
         enterTimes++;
 
-        if (enterTimes > 1) return;
+        if (enterTimes > 1) {
+            return;
+        }
 
         this.protectedCall();
     }
@@ -19,7 +21,9 @@ contract RiskyContract is ReentrancyGuard {
     function protectedCall() public nonReentrant {
         enterTimes++;
 
-        if (enterTimes > 1) return;
+        if (enterTimes > 1) {
+            return;
+        }
 
         this.protectedCall();
     }
@@ -27,7 +31,7 @@ contract RiskyContract is ReentrancyGuard {
     function overprotectedCall() public nonReentrant {}
 }
 
-contract ReentrancyGuardTest is DSTestPlus {
+contract ReentrancyGuardTest is Test {
     RiskyContract riskyContract;
 
     function setUp() public {
@@ -35,7 +39,7 @@ contract ReentrancyGuardTest is DSTestPlus {
     }
 
     function invariantReentrancyStatusAlways1() public {
-        assertEq(uint256(hevm.load(address(riskyContract), 0)), 1);
+        assertEq(uint256(vm.load(address(riskyContract), 0)), 1);
     }
 
     function testFailUnprotectedCall() public {
