@@ -30,13 +30,13 @@ contract KaliFactory is Multicallable {
     /// Immutables
     /// -----------------------------------------------------------------------
 
-    Kali internal immutable kaliTemplate;
+    address internal immutable kaliTemplate;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(Kali _kaliTemplate) payable {
+    constructor(address _kaliTemplate) payable {
         kaliTemplate = _kaliTemplate;
     }
 
@@ -50,7 +50,7 @@ contract KaliFactory is Multicallable {
         bytes32 name
     ) public view virtual returns (address) {
         return
-            address(kaliTemplate).predictDeterministicAddress(
+            kaliTemplate.predictDeterministicAddress(
                 abi.encodePacked(token, tokenId, name),
                 name,
                 address(this)
@@ -66,7 +66,7 @@ contract KaliFactory is Multicallable {
         uint120[4] calldata _govSettings
     ) public payable virtual {
         Kali kali = Kali(
-            address(kaliTemplate).cloneDeterministic(
+            kaliTemplate.cloneDeterministic(
                 abi.encodePacked(_token, _tokenId, _name),
                 _name
             )
