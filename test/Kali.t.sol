@@ -37,7 +37,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
     address keep;
     KeepFactory keepFactory;
 
-    Kali kali;
+    address kali;
     KaliFactory kaliFactory;
 
     MockERC20 internal mockDai;
@@ -111,7 +111,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(Keep(keep).balanceOf(charlie, 0), 1);
 
         // Create the Kali template.
-        kali = new Kali();
+        kali = address(new Kali());
         // Create the Kali factory.
         kaliFactory = new KaliFactory(kali);
 
@@ -124,9 +124,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         govSettings[2] = 20;
         govSettings[3] = 52;
 
-        kaliAddr = kaliFactory.determineKali(KeepTokenManager(keep), 0, name1);
-
-        kali = Kali(kaliAddr);
+        kali = kaliFactory.determineKali(KeepTokenManager(keep), 0, name1);
 
         kaliFactory.deployKali(
             KeepTokenManager(keep),
@@ -139,10 +137,10 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Mint Core Key ID uber permission to DAO.
         vm.prank(keep);
-        Keep(keep).mint(address(kali), CORE_KEY, 1, "");
+        Keep(keep).mint(kali, CORE_KEY, 1, "");
         vm.stopPrank();
 
-        assertEq(Keep(keep).balanceOf(address(kali), CORE_KEY), 1);
+        assertEq(Keep(keep).balanceOf(kali, CORE_KEY), 1);
 
         bool sent;
 
@@ -151,7 +149,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assert(sent);
 
         // Deposit 10 ETH to Kali.
-        (sent, ) = address(kali).call{value: 10 ether}("");
+        (sent, ) = kali.call{value: 10 ether}("");
         assert(sent);
 
         // Bump time.
@@ -159,7 +157,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Mint mock ERC20.
         mockDai.mint(address(this), 1_000_000_000 ether);
-        mockDai.mint(address(kali), 1_000_000_000 ether);
+        mockDai.mint(kali, 1_000_000_000 ether);
         // Mint mock 721.
         mockNFT.mint(address(this), 1);
         // Mint mock 1155.
@@ -176,7 +174,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
             name1
         );
 
-        assertEq(address(kali), computedAddr);
+        assertEq(kali, computedAddr);
     }
 
     function testDeploy() public payable {
@@ -330,41 +328,41 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
     /// -----------------------------------------------------------------------
 
     function testName() public payable {
-        assertEq(kali.name(), string(abi.encodePacked(name1)));
+        assertEq(Kali(kali).name(), string(abi.encodePacked(name1)));
     }
 
     function testToken() public payable {
-        assertEq(address(kali.token()), address(keep));
+        assert(Kali(kali).token() == KeepTokenManager(keep));
     }
 
     function testTokenId() public payable {
-        assertEq(kali.tokenId(), 0);
+        assertEq(Kali(kali).tokenId(), 0);
     }
 
     function testDaoURI() public payable {
-        assertEq(kali.daoURI(), "DAO");
+        assertEq(Kali(kali).daoURI(), "DAO");
     }
 
     function testVotingPeriod() public payable {
-        assertEq(kali.votingPeriod(), 1 days);
+        assertEq(Kali(kali).votingPeriod(), 1 days);
     }
 
     function testGracePeriod() public payable {
-        assertEq(kali.gracePeriod(), 0);
+        assertEq(Kali(kali).gracePeriod(), 0);
     }
 
     function testQuorum() public payable {
-        assertEq(kali.quorum(), 20);
+        assertEq(Kali(kali).quorum(), 20);
     }
 
     function testSupermajority() public payable {
-        assertEq(kali.supermajority(), 52);
+        assertEq(Kali(kali).supermajority(), 52);
     }
 
     function testSupportsInterface() public payable {
-        assert(kali.supportsInterface(0x01ffc9a7));
-        assert(kali.supportsInterface(0x150b7a02));
-        assert(kali.supportsInterface(0x4e2312e0));
+        assert(Kali(kali).supportsInterface(0x01ffc9a7));
+        assert(Kali(kali).supportsInterface(0x150b7a02));
+        assert(Kali(kali).supportsInterface(0x4e2312e0));
     }
 
     /// -----------------------------------------------------------------------
@@ -372,15 +370,15 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
     /// -----------------------------------------------------------------------
 
     function testERC20Receiver() public payable {
-        mockDai.transfer(address(kali), 1 ether);
+        mockDai.transfer(kali, 1 ether);
     }
 
     function testERC721Receiver() public payable {
-        mockNFT.transferFrom(address(this), address(kali), 1);
+        mockNFT.transferFrom(address(this), kali, 1);
     }
 
     function testERC1155Receiver() public payable {
-        mock1155.safeTransferFrom(address(this), address(kali), 1, 1, "");
+        mock1155.safeTransferFrom(address(this), kali, 1, 1, "");
     }
 
     function testERC1155BatchReceiver() public payable {
@@ -392,13 +390,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         amounts[0] = 1;
         amounts[1] = 0;
 
-        mock1155.safeBatchTransferFrom(
-            address(this),
-            address(kali),
-            ids,
-            amounts,
-            ""
-        );
+        mock1155.safeBatchTransferFrom(address(this), kali, ids, amounts, "");
     }
 
     /// -----------------------------------------------------------------------
@@ -418,16 +410,20 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.CALL, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.CALL,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Check proposal creation.
-        (, , , uint40 creationTime, , ) = kali.proposals(proposalId);
+        (, , , uint40 creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, block.timestamp);
         assert(block.timestamp != 0);
 
         // Check proposal hash.
-        (, bytes32 digest, , , , ) = kali.proposals(proposalId);
+        (, bytes32 digest, , , , ) = Kali(kali).proposals(proposalId);
         bytes32 proposalHash = keccak256(
             abi.encode(ProposalType.CALL, description, call)
         );
@@ -436,7 +432,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
     function testProposal() public payable {
         // Check initial ETH.
-        assertEq(address(kali).balance, 10 ether);
+        assertEq(kali.balance, 10 ether);
         assertEq(alice.balance, 0 ether);
 
         // Setup proposal.
@@ -449,7 +445,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.CALL, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.CALL,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -457,23 +457,23 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Check proposal votes.
-        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+        (, , , , uint216 yesVotes, uint216 noVotes) = Kali(kali).proposals(
             proposalId
         );
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.CALL,
             description,
@@ -482,12 +482,12 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assert(passed);
 
         // Check proposal state.
-        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        (bool didPass, bool processed) = Kali(kali).proposalStates(proposalId);
         assert(didPass);
         assert(processed);
 
         // Check ETH was sent.
-        assertEq(address(kali).balance, 9 ether);
+        assertEq(kali.balance, 9 ether);
         assertEq(alice.balance, 1 ether);
     }
 
@@ -505,7 +505,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.BURN, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.BURN,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -513,23 +517,23 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Check proposal votes.
-        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+        (, , , , uint216 yesVotes, uint216 noVotes) = Kali(kali).proposals(
             proposalId
         );
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
 
-        assert(kali.voted(1, alice));
-        assert(kali.voted(1, bob));
+        assert(Kali(kali).voted(1, alice));
+        assert(Kali(kali).voted(1, bob));
     }
 
     function testMintProposal() public payable {
@@ -546,7 +550,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.MINT, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.MINT,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -554,23 +562,23 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Check proposal votes.
-        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+        (, , , , uint216 yesVotes, uint216 noVotes) = Kali(kali).proposals(
             proposalId
         );
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.MINT,
             description,
@@ -579,7 +587,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assert(passed);
 
         // Check proposal state.
-        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        (bool didPass, bool processed) = Kali(kali).proposalStates(proposalId);
         assert(didPass);
         assert(processed);
 
@@ -619,7 +627,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.MINT, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.MINT,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -627,23 +639,23 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Check proposal votes.
-        (, , , , uint216 yesVotes, uint216 noVotes) = kali.proposals(
+        (, , , , uint216 yesVotes, uint216 noVotes) = Kali(kali).proposals(
             proposalId
         );
         assertEq(yesVotes, 2);
         assertEq(noVotes, 0);
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.MINT,
             description,
@@ -652,7 +664,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assert(passed);
 
         // Check proposal state.
-        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        (bool didPass, bool processed) = Kali(kali).proposalStates(proposalId);
         assert(didPass);
         assert(processed);
 
@@ -677,7 +689,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.BURN, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.BURN,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -685,16 +701,16 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.BURN,
             description,
@@ -726,7 +742,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.BURN, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.BURN,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -734,16 +754,16 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.BURN,
             description,
@@ -759,7 +779,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
     function testCallProposal() public payable {
         // Check initial alice Dai balance.
         assertEq(mockDai.balanceOf(alice), 0);
-        assertEq(mockDai.balanceOf(address(kali)), 1_000_000_000 ether);
+        assertEq(mockDai.balanceOf(kali), 1_000_000_000 ether);
 
         // Setup proposal.
         Call[] memory call = new Call[](1);
@@ -776,7 +796,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.CALL, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.CALL,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -784,16 +808,16 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.CALL,
             description,
@@ -803,14 +827,14 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Check processed alice Dai balance.
         assertEq(mockDai.balanceOf(alice), 1_000_000_000 ether);
-        assertEq(mockDai.balanceOf(address(kali)), 0);
+        assertEq(mockDai.balanceOf(kali), 0);
     }
 
     function testMultiCallProposal() public payable {
         // Check initial Dai balances.
         assertEq(mockDai.balanceOf(alice), 0);
         assertEq(mockDai.balanceOf(bob), 0);
-        assertEq(mockDai.balanceOf(address(kali)), 1_000_000_000 ether);
+        assertEq(mockDai.balanceOf(kali), 1_000_000_000 ether);
 
         // Setup proposal.
         Call[] memory call = new Call[](2);
@@ -836,7 +860,11 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.CALL, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.CALL,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Skip ahead in voting period.
@@ -844,16 +872,16 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Vote as alice.
         vm.prank(alice);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Vote as bob.
         vm.prank(bob);
-        kali.vote(proposalId, true, "");
+        Kali(kali).vote(proposalId, true, "");
         vm.stopPrank();
 
         // Process proposal.
-        bool passed = kali.processProposal(
+        bool passed = Kali(kali).processProposal(
             proposalId,
             ProposalType.CALL,
             description,
@@ -864,7 +892,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         // Check processed Dai balances.
         assertEq(mockDai.balanceOf(alice), 500_000_000 ether);
         assertEq(mockDai.balanceOf(bob), 500_000_000 ether);
-        assertEq(mockDai.balanceOf(address(kali)), 0);
+        assertEq(mockDai.balanceOf(kali), 0);
     }
 
     /// -----------------------------------------------------------------------
@@ -872,7 +900,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
     /// -----------------------------------------------------------------------
 
     function testFailNotAuthorizedExtension() public payable {
-        assert(!kali.extensions(alice));
+        assert(!Kali(kali).extensions(alice));
         assertEq(alice.balance, 0);
 
         Call memory call;
@@ -883,18 +911,18 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         call.data = "";
 
         vm.prank(alice);
-        kali.relay(call);
+        Kali(kali).relay(call);
         vm.stopPrank();
 
         assertEq(alice.balance, 0);
     }
 
     function testExtensionRelay() public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         assertEq(alice.balance, 0);
 
@@ -906,55 +934,55 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         call.data = "";
 
         vm.prank(alice);
-        kali.relay(call);
+        Kali(kali).relay(call);
         vm.stopPrank();
 
         assertEq(alice.balance, 1 ether);
     }
 
     function testExtensionMint() public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         assertEq(Keep(keep).balanceOf(alice, 0), 1);
 
         vm.prank(alice);
-        kali.mint(KeepTokenManager(keep), alice, 0, 1, "");
+        Kali(kali).mint(KeepTokenManager(keep), alice, 0, 1, "");
         vm.stopPrank();
 
         assertEq(Keep(keep).balanceOf(alice, 0), 2);
     }
 
     function testExtensionBurn() public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         assertEq(Keep(keep).balanceOf(alice, 0), 1);
 
         vm.prank(alice);
-        kali.burn(KeepTokenManager(keep), alice, 0, 1);
+        Kali(kali).burn(KeepTokenManager(keep), alice, 0, 1);
         vm.stopPrank();
 
         assertEq(Keep(keep).balanceOf(alice, 0), 0);
     }
 
     function testExtensionSetTransferability(bool on) public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         assert(!Keep(keep).transferable(0));
 
         vm.prank(alice);
-        kali.setTransferability(KeepTokenManager(keep), 0, on);
+        Kali(kali).setTransferability(KeepTokenManager(keep), 0, on);
         vm.stopPrank();
 
         assertEq(Keep(keep).transferable(0), on);
@@ -966,33 +994,33 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
     ) public payable {
         vm.assume(extension != address(0));
 
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
-        assert(!kali.extensions(extension));
+        assert(!Kali(kali).extensions(extension));
 
         vm.prank(alice);
-        kali.setExtension(extension, on);
+        Kali(kali).setExtension(extension, on);
         vm.stopPrank();
 
-        assertEq(kali.extensions(extension), on);
+        assertEq(Kali(kali).extensions(extension), on);
     }
 
     function testExtensionSetURI(string calldata uri) public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         vm.prank(alice);
-        kali.setURI(uri);
+        Kali(kali).setURI(uri);
         vm.stopPrank();
 
-        assertEq(kali.daoURI(), uri);
+        assertEq(Kali(kali).daoURI(), uri);
     }
 
     function testExtensionDeleteProposal() public payable {
@@ -1008,122 +1036,126 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         // Propose as alice.
         vm.prank(alice);
-        uint256 proposalId = kali.propose(ProposalType.CALL, description, call);
+        uint256 proposalId = Kali(kali).propose(
+            ProposalType.CALL,
+            description,
+            call
+        );
         vm.stopPrank();
 
         // Check proposal creation.
-        (, , , uint40 creationTime, , ) = kali.proposals(proposalId);
+        (, , , uint40 creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, block.timestamp);
 
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         // Delete.
         vm.prank(alice);
-        kali.deleteProposal(1);
+        Kali(kali).deleteProposal(1);
         vm.stopPrank();
 
         // Check proposal deletion.
-        (, , , creationTime, , ) = kali.proposals(proposalId);
+        (, , , creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, 0);
 
         // Check proposal processed state.
-        (bool didPass, bool processed) = kali.proposalStates(proposalId);
+        (bool didPass, bool processed) = Kali(kali).proposalStates(proposalId);
         assert(!didPass);
         assert(processed);
 
         // Propose as alice.
         vm.prank(alice);
-        proposalId = kali.propose(ProposalType.CALL, description, call);
+        proposalId = Kali(kali).propose(ProposalType.CALL, description, call);
         vm.stopPrank();
 
         // Check proposal creation.
-        (, , , creationTime, , ) = kali.proposals(proposalId);
+        (, , , creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, block.timestamp);
 
         // Delete.
-        vm.prank(address(kali));
-        kali.deleteProposal(2);
+        vm.prank(kali);
+        Kali(kali).deleteProposal(2);
         vm.stopPrank();
 
         // Check proposal deletion.
-        (, , , creationTime, , ) = kali.proposals(proposalId);
+        (, , , creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, 0);
 
         // Attempt repeat delete.
-        vm.prank(address(kali));
+        vm.prank(kali);
         vm.expectRevert(InvalidProposal.selector);
-        kali.deleteProposal(2);
+        Kali(kali).deleteProposal(2);
         vm.stopPrank();
 
         // Propose as alice.
         vm.prank(alice);
-        proposalId = kali.propose(ProposalType.CALL, description, call);
+        proposalId = Kali(kali).propose(ProposalType.CALL, description, call);
         vm.stopPrank();
 
         // Check proposal creation.
-        (, , , creationTime, , ) = kali.proposals(proposalId);
+        (, , , creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, block.timestamp);
 
         // Delete.
         vm.prank(bob);
         vm.expectRevert(Unauthorized.selector);
-        kali.deleteProposal(3);
+        Kali(kali).deleteProposal(3);
         vm.stopPrank();
 
         // Check proposal maintenance.
-        (, , , creationTime, , ) = kali.proposals(proposalId);
+        (, , , creationTime, , ) = Kali(kali).proposals(proposalId);
         assertEq(creationTime, block.timestamp);
     }
 
     function testExtensionUpdateGovSettings() public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         uint256[2] memory setting;
         setting[0] = 1;
         setting[1] = 1;
 
         vm.prank(alice);
-        kali.updateGovSettings(2 days, 1 days, 42, 69, setting);
+        Kali(kali).updateGovSettings(2 days, 1 days, 42, 69, setting);
         vm.stopPrank();
 
-        assertEq(kali.votingPeriod(), 2 days);
-        assertEq(kali.gracePeriod(), 1 days);
-        assertEq(kali.quorum(), 42);
-        assertEq(kali.supermajority(), 69);
+        assertEq(Kali(kali).votingPeriod(), 2 days);
+        assertEq(Kali(kali).gracePeriod(), 1 days);
+        assertEq(Kali(kali).quorum(), 42);
+        assertEq(Kali(kali).supermajority(), 69);
         assert(
-            kali.proposalVoteTypes(ProposalType.BURN) ==
+            Kali(kali).proposalVoteTypes(ProposalType.BURN) ==
                 VoteType.SIMPLE_MAJORITY_QUORUM_REQUIRED
         );
     }
 
     function testExtensionUpdateGovSettingsInvalid() public payable {
-        assert(!kali.extensions(alice));
-        vm.prank(address(kali));
-        kali.setExtension(alice, true);
+        assert(!Kali(kali).extensions(alice));
+        vm.prank(kali);
+        Kali(kali).setExtension(alice, true);
         vm.stopPrank();
-        assert(kali.extensions(alice));
+        assert(Kali(kali).extensions(alice));
 
         uint256[2] memory setting;
         setting[0] = 1;
         setting[1] = 1;
 
         vm.prank(alice);
-        kali.updateGovSettings(0, 1 days, 42, 69, setting);
+        Kali(kali).updateGovSettings(0, 1 days, 42, 69, setting);
 
-        assertEq(kali.votingPeriod(), 1 days);
+        assertEq(Kali(kali).votingPeriod(), 1 days);
 
         vm.prank(alice);
-        kali.updateGovSettings(366 days, 1 days, 42, 69, setting);
+        Kali(kali).updateGovSettings(366 days, 1 days, 42, 69, setting);
 
-        assertEq(kali.votingPeriod(), 1 days);
+        assertEq(Kali(kali).votingPeriod(), 1 days);
         /*
         vm.prank(alice);
         kali.updateGovSettings(1 days, 366 days, 42, 69, setting);
