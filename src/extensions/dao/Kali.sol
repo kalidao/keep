@@ -55,11 +55,11 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     event NewProposal(
         address indexed proposer,
         uint256 indexed proposal,
-        ProposalType proposalType,
-        string description,
         Call[] calls,
+        ProposalType setting,
+        string details,
         uint256 creationTime,
-        bool selfSponsor
+        bool sponsored
     );
 
     event ProposalCancelled(address indexed proposer, uint256 indexed proposal);
@@ -71,7 +71,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         uint256 indexed proposal,
         bool approve,
         uint256 weight,
-        bytes32 details
+        string details
     );
 
     event ProposalProcessed(uint256 indexed proposal, bool passed);
@@ -88,7 +88,13 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         uint256[2] typeSetting
     );
 
-    event Executed(Operation op, address to, uint256 value, bytes data);
+    event Executed(
+        Operation op,
+        address to,
+        uint256 value,
+        bytes data,
+        bool success
+    );
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -118,8 +124,6 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     error VotingNotEnded();
 
-    error ExecuteFailed();
-
     error InvalidSig();
 
     error Overflow();
@@ -141,9 +145,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     uint120 public gracePeriod;
 
-    uint8 public quorum; // 1-100
+    uint8 public quorum; // 1-100.
 
-    uint8 public supermajority; // 1-100
+    uint8 public supermajority; // 1-100.
 
     mapping(address => bool) public extensions;
 
@@ -249,7 +253,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             for (uint256 i; i < _calls.length; ) {
                 extensions[_calls[i].to] = true;
 
-                if (_calls[i].data.length > 9)
+                if (_calls[i].data.length > 3)
                     _execute(
                         _calls[i].op,
                         _calls[i].to,
@@ -303,70 +307,63 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// -----------------------------------------------------------------------
 
     function propose(
-        ProposalType proposalType,
-        string calldata description,
-        Call[] calldata calls
-    ) public payable virtual returns (uint256 proposal) {
-        if (proposalType != ProposalType.MINT)
-            if (proposalType != ProposalType.BURN)
-                if (proposalType != ProposalType.CALL)
-                    if (proposalType == ProposalType.VPERIOD)
+        Call[] calldata calls,
+        ProposalType setting,
+        string calldata details
+    ) public payable virtual returns (uint256 proposal, uint40 creationTime) {
+        if (setting != ProposalType.MINT)
+            if (setting != ProposalType.BURN)
+                if (setting != ProposalType.CALL)
+                    if (setting == ProposalType.VPERIOD)
                         if (calls[0].value == 0 || calls[0].value > 365 days)
                             revert PeriodBounds();
-                        else if (proposalType == ProposalType.GPERIOD)
+                        else if (setting == ProposalType.GPERIOD)
                             if (calls[0].value > 365 days)
                                 revert PeriodBounds();
-                            else if (proposalType == ProposalType.QUORUM)
+                            else if (setting == ProposalType.QUORUM)
                                 if (calls[0].value > 100) revert QuorumMax();
-                                else if (
-                                    proposalType == ProposalType.SUPERMAJORITY
-                                )
+                                else if (setting == ProposalType.SUPERMAJORITY)
                                     if (
                                         calls[0].value <= 51 ||
                                         calls[0].value > 100
                                     ) revert SupermajorityBounds();
-                                    else if (proposalType == ProposalType.TYPE)
+                                    else if (setting == ProposalType.TYPE)
                                         if (
                                             calls[0].value > 11 ||
-                                            calls[1].value > 3 ||
-                                            calls.length != 2
+                                            calls[1].value > 3
                                         ) revert TypeBounds();
-        bool selfSponsor;
+        bool sponsored;
 
         // If member or extension is making proposal, include sponsorship.
         if (
             token().balanceOf(msg.sender, tokenId()) != 0 ||
             extensions[msg.sender]
-        ) selfSponsor = true;
-
-        bytes32 proposalHash = keccak256(
-            abi.encode(proposalType, description, calls)
-        );
-
-        uint40 creationTime = selfSponsor ? _safeCastTo40(block.timestamp) : 0;
+        ) sponsored = true;
 
         // Proposal count cannot realistically overflow on human timescales.
         unchecked {
             proposals[proposal = ++proposalCount] = Proposal({
-                prevProposal: selfSponsor ? currentSponsoredProposal : 0,
-                proposalHash: proposalHash,
+                prevProposal: sponsored ? currentSponsoredProposal : 0,
+                proposalHash: keccak256(abi.encode(calls, setting, details)),
                 proposer: msg.sender,
-                creationTime: creationTime,
+                creationTime: creationTime = sponsored
+                    ? _safeCastTo40(block.timestamp)
+                    : 0,
                 yesVotes: 0,
                 noVotes: 0
             });
         }
 
-        if (selfSponsor) currentSponsoredProposal = proposal;
+        if (sponsored) currentSponsoredProposal = proposal;
 
         emit NewProposal(
             msg.sender,
             proposal,
-            proposalType,
-            description,
             calls,
+            setting,
+            details,
             creationTime,
-            selfSponsor
+            sponsored
         );
     }
 
@@ -409,7 +406,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     function vote(
         uint256 proposal,
         bool approve,
-        bytes32 details
+        string calldata details
     ) public payable virtual {
         _vote(msg.sender, proposal, approve, details);
     }
@@ -418,7 +415,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         address user,
         uint256 proposal,
         bool approve,
-        bytes32 details,
+        string calldata details,
         uint8 v,
         bytes32 r,
         bytes32 s
@@ -430,7 +427,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 keccak256(
                     abi.encode(
                         keccak256(
-                            "SignVote(uint256 proposal,bool approve,bytes32 details)"
+                            "SignVote(uint256 proposal,bool approve,string details)"
                         ),
                         proposal,
                         approve,
@@ -450,7 +447,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         address user,
         uint256 proposal,
         bool approve,
-        bytes32 details
+        string calldata details
     ) internal virtual {
         Proposal storage prop = proposals[proposal];
 
@@ -492,30 +489,28 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     function processProposal(
         uint256 proposal,
-        ProposalType proposalType,
-        string calldata description,
-        Call[] calldata calls
+        Call[] calldata calls,
+        ProposalType setting,
+        string calldata details
     ) public payable virtual nonReentrant returns (bool passed) {
         Proposal storage prop = proposals[proposal];
 
-        // Scope to avoid stack too deep error.
-        VoteType voteType = proposalVoteTypes[proposalType];
-
         if (prop.creationTime == 0) revert InvalidProposal();
 
-        bytes32 proposalHash = keccak256(
-            abi.encode(proposalType, description, calls)
-        );
-
-        if (proposalHash != prop.proposalHash) revert InvalidHash();
+        if (keccak256(abi.encode(calls, setting, details)) != prop.proposalHash)
+            revert InvalidHash();
 
         // Skip previous proposal processing requirement
         // in case of escape hatch.
-        if (proposalType != ProposalType.ESCAPE)
+        if (setting != ProposalType.ESCAPE)
             if (proposals[prop.prevProposal].creationTime != 0)
                 revert PrevNotProcessed();
 
-        passed = _countVotes(voteType, prop.yesVotes, prop.noVotes);
+        passed = _countVotes(
+            proposalVoteTypes[setting],
+            prop.yesVotes,
+            prop.noVotes
+        );
 
         // If quorum and approval threshold are met,
         // skip voting period for fast processing.
@@ -538,7 +533,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             // An array can't have a total length
             // larger than the max uint256 value.
             unchecked {
-                if (proposalType == ProposalType.MINT) {
+                if (setting == ProposalType.MINT) {
                     for (uint256 i; i < calls.length; ++i) {
                         token().mint(
                             calls[i].to,
@@ -547,11 +542,11 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                             calls[i].data
                         );
                     }
-                } else if (proposalType == ProposalType.BURN) {
+                } else if (setting == ProposalType.BURN) {
                     for (uint256 i; i < calls.length; ++i) {
                         token().burn(calls[i].to, tokenId(), calls[i].value);
                     }
-                } else if (proposalType == ProposalType.CALL) {
+                } else if (setting == ProposalType.CALL) {
                     for (uint256 i; i < calls.length; ++i) {
                         _execute(
                             calls[i].op,
@@ -560,37 +555,37 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                             calls[i].data
                         );
                     }
-                } else if (proposalType == ProposalType.VPERIOD) {
+                } else if (setting == ProposalType.VPERIOD) {
                     votingPeriod = uint120(calls[0].value);
-                } else if (proposalType == ProposalType.GPERIOD) {
+                } else if (setting == ProposalType.GPERIOD) {
                     gracePeriod = uint120(calls[0].value);
-                } else if (proposalType == ProposalType.QUORUM) {
+                } else if (setting == ProposalType.QUORUM) {
                     quorum = uint8(calls[0].value);
-                } else if (proposalType == ProposalType.SUPERMAJORITY) {
+                } else if (setting == ProposalType.SUPERMAJORITY) {
                     supermajority = uint8(calls[0].value);
-                } else if (proposalType == ProposalType.TYPE) {
+                } else if (setting == ProposalType.TYPE) {
                     proposalVoteTypes[ProposalType(calls[0].value)] = VoteType(
                         calls[1].value
                     );
-                } else if (proposalType == ProposalType.PAUSE) {
+                } else if (setting == ProposalType.PAUSE) {
                     token().setTransferability(
                         tokenId(),
                         !token().transferable(tokenId())
                     );
-                } else if (proposalType == ProposalType.EXTENSION) {
+                } else if (setting == ProposalType.EXTENSION) {
                     for (uint256 i; i < calls.length; ++i) {
                         if (calls[i].value != 0)
                             extensions[calls[i].to] = !extensions[calls[i].to];
 
-                        if (calls[i].data.length > 9)
+                        if (calls[i].data.length > 3)
                             KaliExtension(calls[i].to).setExtension(
                                 calls[i].data
                             );
                     }
-                } else if (proposalType == ProposalType.ESCAPE) {
+                } else if (setting == ProposalType.ESCAPE) {
                     delete proposals[calls[0].value];
-                } else if (proposalType == ProposalType.URI) {
-                    daoURI = string(abi.encodePacked(description));
+                } else if (setting == ProposalType.URI) {
+                    daoURI = string(abi.encodePacked(details));
                 }
 
                 proposalStates[proposal].passed = true;
@@ -659,9 +654,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         uint256 value,
         bytes memory data
     ) internal virtual {
-        if (op == Operation.call) {
-            bool success;
+        bool success;
 
+        if (op == Operation.call) {
             assembly {
                 success := call(
                     gas(),
@@ -674,14 +669,10 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 )
             }
 
-            if (!success) revert ExecuteFailed();
-
-            emit Executed(op, to, value, data);
+            emit Executed(op, to, value, data, success);
         } else if (op == Operation.delegatecall) {
-            bool success;
-
             assembly {
-                success := delegatecall(
+                data := delegatecall(
                     gas(),
                     to,
                     add(data, 0x20),
@@ -691,22 +682,18 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 )
             }
 
-            if (!success) revert ExecuteFailed();
-
-            emit Executed(op, to, value, data);
+            emit Executed(op, to, value, data, success);
         } else {
             assembly {
-                to := create(value, add(data, 0x20), mload(data))
+                success := create(value, add(data, 0x20), mload(data))
             }
 
-            if (to == address(0)) revert ExecuteFailed();
-
-            emit Executed(op, to, value, data);
+            emit Executed(op, to, value, data, success);
         }
     }
 
     /// -----------------------------------------------------------------------
-    /// Signature Verification Logic
+    /// Signature Recovery Logic
     /// -----------------------------------------------------------------------
 
     function _recoverSig(
@@ -873,9 +860,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
         if (proposals[proposal].creationTime == 0) revert InvalidProposal();
 
-        proposalStates[proposal].processed = true;
-
         delete proposals[proposal];
+
+        proposalStates[proposal].processed = true;
     }
 
     function updateGovSettings(

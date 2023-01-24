@@ -1352,14 +1352,10 @@ contract KeepTest is Keep(this), Test {
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
         vm.assume(userC.code.length == 0);
+        vm.assume(id != SIGNER_KEY);
+        vm.assume(id != CORE_KEY);
 
         amount = bound(amount, 0, type(uint216).max);
-        if (
-            id == SIGNER_KEY &&
-            (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
-        ) {
-            amount = amount - 1;
-        }
 
         uint256 preBalanceA = keep.balanceOf(userA, id);
         uint256 preBalanceB = keep.balanceOf(userB, id);
@@ -1703,11 +1699,9 @@ contract KeepTest is Keep(this), Test {
     ) public payable {
         vm.assume(user != address(0));
         vm.assume(user.code.length == 0);
+        vm.assume(id != SIGNER_KEY);
 
         amount = bound(amount, 0, type(uint216).max);
-        if (id == SIGNER_KEY && (keep.balanceOf(user, id) != 0)) {
-            amount = amount - 1;
-        }
 
         vm.warp(1665378008);
 
