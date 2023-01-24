@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {KeepTokenManager, Multicallable, Call, Kali} from "./Kali.sol";
+import {Multicallable, Call, KeepTokenManager, Kali} from "./Kali.sol";
 import {LibClone} from "./../../utils/LibClone.sol";
 
 /// @notice Kali Factory.
