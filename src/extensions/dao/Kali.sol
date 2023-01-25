@@ -230,6 +230,11 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     /// Initialization Logic
     /// -----------------------------------------------------------------------
 
+    constructor() payable {
+        // Deploy as singleton.
+        votingPeriod = 1;
+    }
+
     function initialize(
         Call[] calldata _calls,
         string calldata _daoURI,
