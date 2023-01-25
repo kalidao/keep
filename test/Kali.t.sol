@@ -546,6 +546,10 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         );
         assert(passed);
 
+        // Check repeat processing fails.
+        vm.expectRevert(InvalidProposal.selector);
+        Kali(kali).processProposal(proposalId, call, ProposalType.CALL, "test");
+
         // Check proposal state.
         (bool didPass, bool processed) = Kali(kali).proposalStates(proposalId);
         assert(didPass);
@@ -1082,6 +1086,419 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(mockDai.balanceOf(alice), 500_000_000 ether);
         assertEq(mockDai.balanceOf(bob), 500_000_000 ether);
         assertEq(mockDai.balanceOf(kali), 0);
+    }
+
+    function testVotingPeriodProposal() public payable {
+        // Check initial voting period.
+        assertEq(Kali(kali).votingPeriod(), 1 days);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 2 days;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.VPERIOD,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.VPERIOD,
+            "test"
+        );
+        assert(passed);
+
+        // Check processed voting period.
+        assertEq(Kali(kali).votingPeriod(), 2 days);
+    }
+
+    function testGracePeriodProposal() public payable {
+        // Check initial grace period.
+        assertEq(Kali(kali).gracePeriod(), 0);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 1 days;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.GPERIOD,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.GPERIOD,
+            "test"
+        );
+        assert(passed);
+
+        // Check processed grace period.
+        assertEq(Kali(kali).gracePeriod(), 1 days);
+    }
+
+    function testQuorumProposal() public payable {
+        // Check initial quorum.
+        assertEq(Kali(kali).quorum(), 20);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 69;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.QUORUM,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.QUORUM,
+            "test"
+        );
+        assert(passed);
+
+        // Check processed quorum.
+        assertEq(Kali(kali).quorum(), 69);
+    }
+
+    function testSupermajorityProposal() public payable {
+        // Check initial supermajority.
+        assertEq(Kali(kali).supermajority(), 52);
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 88;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.SUPERMAJORITY,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.SUPERMAJORITY,
+            "test"
+        );
+        assert(passed);
+
+        // Check processed supermajority.
+        assertEq(Kali(kali).supermajority(), 88);
+    }
+
+    function testTypeProposal() public payable {
+        // Check initial type settings.
+        assert(
+            Kali(kali).proposalVoteTypes(ProposalType.CALL) ==
+                VoteType.SIMPLE_MAJORITY
+        );
+
+        // Setup proposal.
+        Call[] memory call = new Call[](2);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 2;
+        call[0].data = "";
+
+        call[1].op = Operation.call;
+        call[1].to = address(0);
+        call[1].value = 2;
+        call[1].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.TYPE,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.TYPE,
+            "test"
+        );
+        assert(passed);
+
+        // Check processed type settings.
+        assert(
+            Kali(kali).proposalVoteTypes(ProposalType.CALL) ==
+                VoteType.SUPERMAJORITY
+        );
+    }
+
+    function testPauseProposal() public payable {
+        // Check initial pause settings.
+        assert(!Keep(keep).transferable(0));
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 2;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.PAUSE,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.PAUSE,
+            "test"
+        );
+        assert(passed);
+
+        // Check initial pause settings.
+        assert(Keep(keep).transferable(0));
+    }
+
+    function testDeleteProposal() public payable {
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 0;
+        call[0].data = "";
+
+        // -- 1 -- //
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.URI,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // -- 2 -- //
+
+        call[0].value = proposalId;
+
+        // Propose as alice.
+        vm.prank(alice);
+        (proposalId, ) = Kali(kali).propose(call, ProposalType.ESCAPE, "test");
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Check proposal status before deletion.
+        (, , , uint40 creationTime, , ) = Kali(kali).proposals(proposalId - 1);
+        assertEq(creationTime, block.timestamp - 1 days);
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.ESCAPE,
+            "test"
+        );
+        assert(passed);
+
+        // Check proposal deletion.
+        (, , , creationTime, , ) = Kali(kali).proposals(proposalId - 1);
+        assertEq(creationTime, 0);
+    }
+
+    function testURIProposal() public payable {
+        // Check initial uri settings.
+        assertEq(Kali(kali).daoURI(), "DAO");
+
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = address(0);
+        call[0].value = 0;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.URI,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.URI,
+            "test"
+        );
+        assert(passed);
+
+        // Check processed uri settings.
+        assertEq(Kali(kali).daoURI(), "test");
     }
 
     /// -----------------------------------------------------------------------

@@ -5,7 +5,7 @@ import {KaliExtension} from "./utils/KaliExtension.sol";
 import {Multicallable} from "../../utils/Multicallable.sol";
 import {ReentrancyGuard} from "../utils/ReentrancyGuard.sol";
 import {KeepTokenManager} from "./utils/KeepTokenManager.sol";
-import {ERC1155TokenReceiver, Operation, Call} from "./../../Keep.sol";
+import {ERC1155TokenReceiver, Operation, Call, Signature} from "./../../Keep.sol";
 
 /// @title Kali
 /// @notice Kali DAO core for on-chain governance.
@@ -412,13 +412,10 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     }
 
     function voteBySig(
-        address user,
         uint256 proposal,
         bool approve,
         string calldata details,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        Signature calldata sig
     ) public payable virtual {
         bytes32 hash = keccak256(
             abi.encodePacked(
@@ -438,9 +435,9 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
         );
 
         // Check signature recovery.
-        _recoverSig(hash, user, v, r, s);
+        _recoverSig(hash, sig.user, sig.v, sig.r, sig.s);
 
-        _vote(user, proposal, approve, details);
+        _vote(sig.user, proposal, approve, details);
     }
 
     function _vote(
@@ -585,7 +582,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 } else if (setting == ProposalType.ESCAPE) {
                     delete proposals[calls[0].value];
                 } else if (setting == ProposalType.URI) {
-                    daoURI = string(abi.encodePacked(details));
+                    daoURI = details;
                 }
 
                 proposalStates[proposal].passed = true;
