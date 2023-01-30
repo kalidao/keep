@@ -34,6 +34,8 @@ error InvalidProposal();
 
 error Sponsored();
 
+error AlreadyVoted();
+
 contract KaliTest is Test, Keep(Keep(address(0))) {
     address keepAddr;
     address kaliAddr;
@@ -546,10 +548,6 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         );
         assert(passed);
 
-        // Check repeat processing fails.
-        vm.expectRevert(InvalidProposal.selector);
-        Kali(kali).processProposal(proposalId, call, ProposalType.CALL, "test");
-
         // Check proposal state.
         (bool didPass, bool processed) = Kali(kali).proposalStates(proposalId);
         assert(didPass);
@@ -558,6 +556,99 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         // Check ETH was sent.
         assertEq(kali.balance, 9 ether);
         assertEq(alice.balance, 1 ether);
+    }
+
+    function testProposalRepeatProcessingFail() public payable {
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1 ether;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.CALL,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Check proposal votes.
+        (, , , , uint216 yesVotes, uint216 noVotes) = Kali(kali).proposals(
+            proposalId
+        );
+        assertEq(yesVotes, 2);
+        assertEq(noVotes, 0);
+
+        // Process proposal.
+        bool passed = Kali(kali).processProposal(
+            proposalId,
+            call,
+            ProposalType.CALL,
+            "test"
+        );
+        assert(passed);
+
+        // Process proposal.
+        vm.expectRevert(InvalidProposal.selector);
+        Kali(kali).processProposal(proposalId, call, ProposalType.CALL, "test");
+    }
+
+    function testFailProposalRepeatVoting() public payable {
+        // Setup proposal.
+        Call[] memory call = new Call[](1);
+
+        call[0].op = Operation.call;
+        call[0].to = alice;
+        call[0].value = 1 ether;
+        call[0].data = "";
+
+        // Propose as alice.
+        vm.prank(alice);
+        (uint256 proposalId, ) = Kali(kali).propose(
+            call,
+            ProposalType.CALL,
+            "test"
+        );
+        vm.stopPrank();
+
+        // Skip ahead in voting period.
+        vm.warp(block.timestamp + 12 hours);
+
+        // Vote as alice.
+        vm.prank(alice);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Vote as bob.
+        vm.prank(bob);
+        Kali(kali).vote(proposalId, false, "");
+        vm.expectRevert(AlreadyVoted.selector);
+        Kali(kali).vote(proposalId, true, "");
+        vm.stopPrank();
+
+        // Check proposal votes.
+        (, , , , uint216 yesVotes, uint216 noVotes) = Kali(kali).proposals(
+            proposalId
+        );
+        assertEq(yesVotes, 1);
+        assertEq(noVotes, 1);
     }
 
     function testProposalSponsorship() public payable {
@@ -1594,10 +1685,10 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(Keep(keep).transferable(0), on);
     }
 
-    function testExtensionSetExtension(
-        address extension,
-        bool on
-    ) public payable {
+    function testExtensionSetExtension(address extension, bool on)
+        public
+        payable
+    {
         vm.prank(kali);
         Kali(kali).setExtension(alice, true);
         vm.stopPrank();
