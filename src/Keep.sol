@@ -130,13 +130,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev ERC165 interface detection.
     /// @param interfaceId ID to check.
     /// @return Fetch detection success.
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
         return
             // ERC165 Interface ID for ERC721TokenReceiver.
             interfaceId == this.onERC721Received.selector ||
@@ -328,7 +324,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     }
 
     /// @notice Relay operations from Keep via `execute()` or as ID key holder.
-    /// @param calls Keep operations as arrays of `op, to, value, data`.
+    /// @param calls Keep operations as struct arrays of `op, to, value, data`.
     function multirelay(Call[] calldata calls) public payable virtual {
         _authorized();
 
@@ -489,11 +485,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice ID metadata setting.
     /// @param id ID to set metadata for.
     /// @param tokenURI Metadata setting.
-    function setURI(uint256 id, string calldata tokenURI)
-        public
-        payable
-        virtual
-    {
+    function setURI(
+        uint256 id,
+        string calldata tokenURI
+    ) public payable virtual {
         _authorized();
 
         _uris[id] = tokenURI;

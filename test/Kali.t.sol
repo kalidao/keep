@@ -1684,10 +1684,10 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(Keep(keep).transferable(0), on);
     }
 
-    function testExtensionSetExtension(address extension, bool on)
-        public
-        payable
-    {
+    function testExtensionSetExtension(
+        address extension,
+        bool on
+    ) public payable {
         vm.prank(kali);
         Kali(kali).setExtension(alice, true);
         vm.stopPrank();

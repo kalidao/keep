@@ -83,11 +83,9 @@ contract KeepTest is Keep(this), Test {
 
     /// @dev Helpers.
 
-    function computeDomainSeparator(address addr)
-        internal
-        view
-        returns (bytes32)
-    {
+    function computeDomainSeparator(
+        address addr
+    ) internal view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -1100,10 +1098,10 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
     }
 
-    function testCannotSetTransferability(address user, uint256 id)
-        public
-        payable
-    {
+    function testCannotSetTransferability(
+        address user,
+        uint256 id
+    ) public payable {
         vm.assume(user != address(keep));
 
         vm.prank(user);
@@ -1450,10 +1448,9 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
     }
 
-    function testCannotTransferKeepTokenNonTransferable(uint256 id)
-        public
-        payable
-    {
+    function testCannotTransferKeepTokenNonTransferable(
+        uint256 id
+    ) public payable {
         vm.assume(id != SIGNER_KEY);
 
         vm.prank(address(keep));
@@ -1513,10 +1510,9 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(bob, 1) == 0);
     }
 
-    function testCannotTransferKeepTokenWithUnderflow(uint256 id)
-        public
-        payable
-    {
+    function testCannotTransferKeepTokenWithUnderflow(
+        uint256 id
+    ) public payable {
         vm.assume(id != 1816876358);
         vm.assume(id != SIGNER_KEY);
 
