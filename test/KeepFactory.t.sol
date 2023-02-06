@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import {Call, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
-import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 import "@std/Test.sol";
 
@@ -13,7 +12,6 @@ contract KeepFactoryTest is Test {
     Keep keep;
     KeepFactory factory;
     URIFetcher uriFetcher;
-    URIRemoteFetcher uriRemote;
 
     address[] signers;
 
@@ -36,11 +34,10 @@ contract KeepFactoryTest is Test {
 
     function setUp() public payable {
         // Create the templates.
-        uriRemote = new URIRemoteFetcher(alice);
-        uriFetcher = new URIFetcher(alice, uriRemote);
+        uriFetcher = new URIFetcher();
         keep = new Keep(Keep(address(uriFetcher)));
         // Create the factory.
-        factory = new KeepFactory(keep);
+        factory = new KeepFactory(address(keep));
         // Create the signers.
         signers.push(alice);
         signers.push(bob);

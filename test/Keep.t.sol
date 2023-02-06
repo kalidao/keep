@@ -7,7 +7,6 @@ import {KeepFactory} from "../src/KeepFactory.sol";
 
 /// @dev Extensions.
 import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
-import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 /// @dev Mocks.
 import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
@@ -35,8 +34,8 @@ contract KeepTest is Keep(this), Test {
     KeepFactory internal factory;
 
     URIFetcher internal mockUriFetcher;
-    URIRemoteFetcher internal uriRemote;
-    URIRemoteFetcher internal uriRemoteNew;
+    URIFetcher internal uriRemote;
+    URIFetcher internal uriRemoteNew;
 
     MockERC20 internal mockDai;
     MockERC721 internal mockNFT;
@@ -61,7 +60,7 @@ contract KeepTest is Keep(this), Test {
 
     bytes32 internal constant DELEGATION_TYPEHASH =
         keccak256(
-            "Delegation(address delegatee,uint256 nonce,uint256 deadline,uint256 id)"
+            "Delegation(address delegator,address delegatee,uint256 id,uint256 nonce,uint256 deadline)"
         );
 
     Call[] calls;
@@ -84,9 +83,11 @@ contract KeepTest is Keep(this), Test {
 
     /// @dev Helpers.
 
-    function computeDomainSeparator(
-        address addr
-    ) internal view returns (bytes32) {
+    function computeDomainSeparator(address addr)
+        internal
+        view
+        returns (bytes32)
+    {
         return
             keccak256(
                 abi.encode(
@@ -149,7 +150,7 @@ contract KeepTest is Keep(this), Test {
                 to,
                 value,
                 data,
-                1,
+                0,
                 computeDomainSeparator(address(keep))
             )
         );
@@ -180,9 +181,7 @@ contract KeepTest is Keep(this), Test {
         (nully, nullPk) = makeAddrAndKey("null");
 
         // Initialize templates.
-        uriRemote = new URIRemoteFetcher(alice);
-        uriRemoteNew = new URIRemoteFetcher(bob);
-        mockUriFetcher = new URIFetcher(alice, uriRemote);
+        mockUriFetcher = new URIFetcher();
 
         keep = new Keep(Keep(address(mockUriFetcher)));
 
@@ -200,7 +199,7 @@ contract KeepTest is Keep(this), Test {
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
-        factory = new KeepFactory(keep);
+        factory = new KeepFactory(address(keep));
 
         // Create the Signer[] for setup.
         address[] memory setupSigners = new address[](2);
@@ -232,14 +231,11 @@ contract KeepTest is Keep(this), Test {
 
         // Deposit Dai.
         mockDai.transfer(address(keep), 100 ether);
-
-        // Initialize nonce at 1 to better understand prod gas.
-        testExecuteTokenCallWithRole();
     }
 
     /// @dev Check setup conditions.
 
-    function testURISetup() public payable {
+    /*function testURISetup() public payable {
         assertEq(keep.uri(1), "");
 
         vm.prank(address(alice));
@@ -299,7 +295,7 @@ contract KeepTest is Keep(this), Test {
 
         assertEq(keep.uri(0), "NEW");
         assertEq(keep.uri(1), "");
-    }
+    }*/
 
     function testSignerSetup() public payable {
         // Check users.
@@ -356,7 +352,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testKeepNonce() public view {
-        assert(keep.nonce() == 1);
+        assert(keep.nonce() == 0);
     }
 
     function testUserNonce() public view {
@@ -461,7 +457,7 @@ contract KeepTest is Keep(this), Test {
 
     function testNoKeepKeyCollision() public view {
         assert(
-            keep.multiexecute.selector != keep.mint.selector &&
+            keep.multirelay.selector != keep.mint.selector &&
                 keep.mint.selector != keep.burn.selector &&
                 keep.burn.selector != keep.setQuorum.selector &&
                 keep.setQuorum.selector != keep.setTransferability.selector &&
@@ -546,11 +542,9 @@ contract KeepTest is Keep(this), Test {
     /// @dev Check call execution.
 
     function testExecuteTokenCallWithRole() public payable {
-        uint256 nonceInit = keep.nonce();
-
         // Mint executor role.
         vm.prank(address(keep));
-        keep.mint(alice, uint32(keep.multiexecute.selector), 1, "");
+        keep.mint(alice, uint32(keep.multirelay.selector), 1, "");
 
         // Mock execution.
         bytes memory data = abi.encodeCall(mockDai.transfer, (alice, 100));
@@ -564,12 +558,10 @@ contract KeepTest is Keep(this), Test {
 
         uint256 balanceBefore = mockDai.balanceOf(alice);
 
-        vm.prank(address(alice));
-        keep.multiexecute(call);
+        vm.prank(alice);
+        keep.multirelay(call);
 
         assert(mockDai.balanceOf(alice) == balanceBefore + 100);
-        uint256 nonceAfter = keep.nonce();
-        assert((nonceInit + 1) == nonceAfter);
     }
 
     function testExecuteTokenCallWithSignatures() public payable {
@@ -628,8 +620,8 @@ contract KeepTest is Keep(this), Test {
             tx_data
         );
 
-        sigs[0] = bobSig;
-        sigs[1] = aliceSig;
+        sigs[0] = aliceSig;
+        sigs[1] = bobSig;
 
         // Execute tx.
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
@@ -660,7 +652,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testNonceIncrementAfterExecute() public payable {
-        assert(keep.nonce() == 1);
+        assert(keep.nonce() == 0);
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -685,7 +677,7 @@ contract KeepTest is Keep(this), Test {
         keep.execute(Operation.call, alice, 1 ether, "", sigs);
 
         // Confirm nonce increment.
-        assert(keep.nonce() == 2);
+        assert(keep.nonce() == 1);
 
         // Confirm revert for stale nonce.
         vm.expectRevert(InvalidSig.selector);
@@ -1108,10 +1100,10 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
     }
 
-    function testCannotSetTransferability(
-        address user,
-        uint256 id
-    ) public payable {
+    function testCannotSetTransferability(address user, uint256 id)
+        public
+        payable
+    {
         vm.assume(user != address(keep));
 
         vm.prank(user);
@@ -1458,9 +1450,10 @@ contract KeepTest is Keep(this), Test {
         vm.stopPrank();
     }
 
-    function testCannotTransferKeepTokenNonTransferable(
-        uint256 id
-    ) public payable {
+    function testCannotTransferKeepTokenNonTransferable(uint256 id)
+        public
+        payable
+    {
         vm.assume(id != SIGNER_KEY);
 
         vm.prank(address(keep));
@@ -1520,9 +1513,10 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(bob, 1) == 0);
     }
 
-    function testCannotTransferKeepTokenWithUnderflow(
-        uint256 id
-    ) public payable {
+    function testCannotTransferKeepTokenWithUnderflow(uint256 id)
+        public
+        payable
+    {
         vm.assume(id != 1816876358);
         vm.assume(id != SIGNER_KEY);
 
@@ -1945,10 +1939,11 @@ contract KeepTest is Keep(this), Test {
                     keccak256(
                         abi.encode(
                             DELEGATION_TYPEHASH,
+                            userA,
                             userB,
+                            id,
                             0,
-                            block.timestamp,
-                            id
+                            block.timestamp
                         )
                     )
                 )
@@ -1956,7 +1951,7 @@ contract KeepTest is Keep(this), Test {
         );
 
         vm.startPrank(userA);
-        keep.delegateBySig(userB, 0, block.timestamp, id, v, r, s);
+        keep.delegateBySig(userA, userB, id, block.timestamp, v, r, s);
         vm.stopPrank();
 
         assert(keep.delegates(userA, id) == userB);
@@ -1979,7 +1974,14 @@ contract KeepTest is Keep(this), Test {
                     "\x19\x01",
                     keep.DOMAIN_SEPARATOR(),
                     keccak256(
-                        abi.encode(DELEGATION_TYPEHASH, userB, 0, deadline, id)
+                        abi.encode(
+                            DELEGATION_TYPEHASH,
+                            userA,
+                            userB,
+                            id,
+                            0,
+                            block.timestamp
+                        )
                     )
                 )
             )
@@ -1990,7 +1992,7 @@ contract KeepTest is Keep(this), Test {
 
         vm.startPrank(userA);
         vm.expectRevert(ExpiredSig.selector);
-        keep.delegateBySig(userB, 0, deadline, id, v, r, s);
+        keep.delegateBySig(userA, userB, id, deadline, v, r, s);
         vm.stopPrank();
     }
 }

@@ -6,7 +6,7 @@ import {URIRemoteFetcher} from "./URIRemoteFetcher.sol";
 
 /// @notice Open-ended metadata fetcher for ERC1155.
 /// @author z0r0z.eth
-contract URIFetcher is Owned {
+contract URIFetcher is Owned(tx.origin) {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -23,11 +23,8 @@ contract URIFetcher is Owned {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        address _owner,
-        URIRemoteFetcher _uriRemoteFetcher
-    ) payable Owned(_owner) {
-        uriRemoteFetcher = _uriRemoteFetcher;
+    constructor() payable {
+        emit URIRemoteFetcherSet(uriRemoteFetcher = new URIRemoteFetcher());
     }
 
     /// -----------------------------------------------------------------------
@@ -38,9 +35,12 @@ contract URIFetcher is Owned {
         return uriRemoteFetcher.fetchURI(msg.sender, id);
     }
 
-    function setURIRemoteFetcher(
-        URIRemoteFetcher _uriRemoteFetcher
-    ) public payable virtual onlyOwner {
+    function setURIRemoteFetcher(URIRemoteFetcher _uriRemoteFetcher)
+        public
+        payable
+        virtual
+        onlyOwner
+    {
         uriRemoteFetcher = _uriRemoteFetcher;
 
         emit URIRemoteFetcherSet(_uriRemoteFetcher);

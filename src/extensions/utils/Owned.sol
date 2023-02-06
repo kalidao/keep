@@ -42,7 +42,12 @@ abstract contract Owned {
     /// Ownership Logic
     /// -----------------------------------------------------------------------
 
-    function transferOwnership(address newOwner) public payable virtual onlyOwner {
+    function transferOwnership(address newOwner)
+        public
+        payable
+        virtual
+        onlyOwner
+    {
         owner = newOwner;
 
         emit OwnershipTransferred(msg.sender, newOwner);
@@ -52,7 +57,12 @@ abstract contract Owned {
     /// ERC165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         // ERC165 Interface ID for ERC173.
         return interfaceId == 0x7f5828d0;
     }

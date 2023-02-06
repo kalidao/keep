@@ -16,24 +16,19 @@ contract KeepFactory is Multicallable {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Deployed(
-        Keep indexed keep,
-        bytes32 name,
-        address[] signers,
-        uint256 threshold
-    );
+    event Deployed(address indexed keep, address[] signers, uint256 threshold);
 
     /// -----------------------------------------------------------------------
     /// Immutables
     /// -----------------------------------------------------------------------
 
-    Keep internal immutable keepTemplate;
+    address internal immutable keepTemplate;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(Keep _keepTemplate) payable {
+    constructor(address _keepTemplate) payable {
         keepTemplate = _keepTemplate;
     }
 
@@ -43,7 +38,7 @@ contract KeepFactory is Multicallable {
 
     function determineKeep(bytes32 name) public view virtual returns (address) {
         return
-            address(keepTemplate).predictDeterministicAddress(
+            keepTemplate.predictDeterministicAddress(
                 abi.encodePacked(name),
                 name,
                 address(this)
@@ -56,15 +51,13 @@ contract KeepFactory is Multicallable {
         address[] calldata signers,
         uint256 threshold
     ) public payable virtual {
-        Keep keep = Keep(
-            address(keepTemplate).cloneDeterministic(
-                abi.encodePacked(name),
-                name
-            )
+        address keep = keepTemplate.cloneDeterministic(
+            abi.encodePacked(name),
+            name
         );
 
-        keep.initialize{value: msg.value}(calls, signers, threshold);
+        Keep(keep).initialize{value: msg.value}(calls, signers, threshold);
 
-        emit Deployed(keep, name, signers, threshold);
+        emit Deployed(keep, signers, threshold);
     }
 }

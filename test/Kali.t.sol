@@ -5,7 +5,6 @@ pragma solidity ^0.8.4;
 import {KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
-import {URIRemoteFetcher} from "../src/extensions/metadata/URIRemoteFetcher.sol";
 
 /// @dev Kali core.
 import {KeepTokenManager, Proposal, ProposalType, VoteType, Kali} from "../src/extensions/dao/Kali.sol";
@@ -89,7 +88,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         // Create the Keep templates.
         keep = address(new Keep(Keep(address(address(0)))));
         // Create the Keep factory.
-        keepFactory = new KeepFactory(Keep(keep));
+        keepFactory = new KeepFactory(keep);
         // Create the Signer[] for setup.
         address[] memory setupSigners = new address[](2);
         setupSigners[0] = alice > bob ? bob : alice;
