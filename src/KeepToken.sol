@@ -90,6 +90,8 @@ abstract contract KeepToken {
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
+    error InvalidSig();
+
     error LengthMismatch();
 
     error Unauthorized();
@@ -103,8 +105,6 @@ abstract contract KeepToken {
     error InvalidRecipient();
 
     error ExpiredSig();
-
-    error InvalidSig();
 
     error Undetermined();
 
@@ -448,9 +448,9 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) public payable virtual {
-        if (block.timestamp > deadline) revert ExpiredSig();
-
         if (owner == address(0)) revert InvalidSig();
+
+        if (block.timestamp > deadline) revert ExpiredSig();
 
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
@@ -590,9 +590,9 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) public payable virtual {
-        if (block.timestamp > deadline) revert ExpiredSig();
-
         if (delegator == address(0)) revert InvalidSig();
+
+        if (block.timestamp > deadline) revert ExpiredSig();
 
         // Unchecked because the only math done is incrementing
         // the delegator's nonce which cannot realistically overflow.
