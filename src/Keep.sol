@@ -227,6 +227,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         totalSupply[SIGN_KEY] = supply;
         quorum = uint120(threshold);
+        nonce = 1;
     }
 
     /// -----------------------------------------------------------------------

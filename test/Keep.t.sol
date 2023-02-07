@@ -148,7 +148,7 @@ contract KeepTest is Keep(this), Test {
                 to,
                 value,
                 data,
-                0,
+                1,
                 computeDomainSeparator(address(keep))
             )
         );
@@ -350,7 +350,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testKeepNonce() public view {
-        assert(keep.nonce() == 0);
+        assert(keep.nonce() == 1);
     }
 
     function testUserNonce() public view {
@@ -655,7 +655,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testNonceIncrementAfterExecute() public payable {
-        assert(keep.nonce() == 0);
+        assert(keep.nonce() == 1);
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -680,7 +680,7 @@ contract KeepTest is Keep(this), Test {
         keep.execute(Operation.call, alice, 1 ether, "", sigs);
 
         // Confirm nonce increment.
-        assert(keep.nonce() == 1);
+        assert(keep.nonce() == 2);
 
         // Confirm revert for stale nonce.
         vm.expectRevert(InvalidSig.selector);
