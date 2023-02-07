@@ -2,7 +2,7 @@
 	{
 		"inputs": [
 			{
-				"internalType": "contract Keep",
+				"internalType": "address",
 				"name": "_keepTemplate",
 				"type": "address"
 			}
@@ -15,15 +15,9 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "contract Keep",
+				"internalType": "address",
 				"name": "keep",
 				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "bytes32",
-				"name": "name",
-				"type": "bytes32"
 			},
 			{
 				"indexed": false,
@@ -122,7 +116,7 @@
 		"outputs": [
 			{
 				"internalType": "bytes[]",
-				"name": "results",
+				"name": "",
 				"type": "bytes[]"
 			}
 		],
