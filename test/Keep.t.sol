@@ -69,17 +69,23 @@ contract KeepTest is Keep(this), Test {
 
     /// @dev Mock Users.
 
-    address internal alice;
-    uint256 internal alicesPk;
+    uint256 internal constant alicesPk =
+        0x60b919c82f0b4791a5b7c6a7275970ace1748759ebdaa4076d7eeed9dbcff3c3;
+    address internal constant alice =
+        0x503408564C50b43208529faEf9bdf9794c015d52;
 
-    address internal bob;
-    uint256 internal bobsPk;
+    uint256 internal constant bobsPk =
+        0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315;
+    address internal constant bob = 0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9;
 
-    address internal charlie;
-    uint256 internal charliesPk;
+    uint256 internal constant charliesPk =
+        0xb9dee2522aae4d21136ba441f976950520adf9479a3c0bda0a88ffc81495ded3;
+    address internal constant charlie =
+        0xccc4A5CeAe4D88Caf822B355C02F9769Fb6fd4fd;
 
-    address internal nully;
-    uint256 internal nullPk;
+    uint256 internal constant nullPk =
+        0x8b2ed20f3cc3dd482830910365cfa157e7568b9c3fa53d9edd3febd61086b9be;
+    address internal constant nully = address(0);
 
     /// @dev Helpers.
 
@@ -200,16 +206,6 @@ contract KeepTest is Keep(this), Test {
     /// @dev Set up the testing suite.
 
     function setUp() public payable {
-        /// @dev Mock Users.
-
-        (alice, alicesPk) = makeAddrAndKey("alice");
-
-        (bob, bobsPk) = makeAddrAndKey("bob");
-
-        (charlie, charliesPk) = makeAddrAndKey("charlie");
-
-        (nully, nullPk) = makeAddrAndKey("null");
-
         // Initialize templates.
         mockUriFetcher = new URIFetcher();
 
