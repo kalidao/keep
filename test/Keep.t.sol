@@ -129,7 +129,7 @@ contract KeepTest is Keep(this), Test {
             );
     }
 
-    function signExecution(
+    function signExecutionSetup(
         address user,
         uint256 pk,
         Operation op,
@@ -149,6 +149,38 @@ contract KeepTest is Keep(this), Test {
                 value,
                 data,
                 0,
+                computeDomainSeparator(address(keep))
+            )
+        );
+
+        // Set 'wrong v' to return null signer for tests.
+        if (pk == nullPk) {
+            v = 17;
+        }
+
+        sig = Signature({user: user, v: v, r: r, s: s});
+    }
+
+    function signExecution(
+        address user,
+        uint256 pk,
+        Operation op,
+        address to,
+        uint256 value,
+        bytes memory data
+    ) internal view returns (Signature memory sig) {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+        (v, r, s) = vm.sign(
+            pk,
+            getDigest(
+                op,
+                to,
+                value,
+                data,
+                1,
                 computeDomainSeparator(address(keep))
             )
         );
@@ -229,6 +261,37 @@ contract KeepTest is Keep(this), Test {
 
         // Deposit Dai.
         mockDai.transfer(address(keep), 100 ether);
+
+        // -------------------------------------------------------
+        // Simulate first TX to set nonce and determine gas savings.
+
+        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+
+        Signature[] memory sigs = new Signature[](2);
+
+        Signature memory aliceSig = signExecutionSetup(
+            alice,
+            alicesPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        Signature memory bobSig = signExecutionSetup(
+            bob,
+            bobsPk,
+            Operation.call,
+            address(mockDai),
+            0,
+            tx_data
+        );
+
+        sigs[0] = bobSig;
+        sigs[1] = aliceSig;
+
+        // Execute tx.
+        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
     /// @dev Check setup conditions.
@@ -350,7 +413,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testKeepNonce() public view {
-        assert(keep.nonce() == 0);
+        assert(keep.nonce() == 1);
     }
 
     function testUserNonce() public view {
@@ -655,7 +718,7 @@ contract KeepTest is Keep(this), Test {
     }
 
     function testNonceIncrementAfterExecute() public payable {
-        assert(keep.nonce() == 0);
+        assert(keep.nonce() == 1);
 
         Signature[] memory sigs = new Signature[](2);
 
@@ -680,7 +743,7 @@ contract KeepTest is Keep(this), Test {
         keep.execute(Operation.call, alice, 1 ether, "", sigs);
 
         // Confirm nonce increment.
-        assert(keep.nonce() == 1);
+        assert(keep.nonce() == 2);
 
         // Confirm revert for stale nonce.
         vm.expectRevert(InvalidSig.selector);
