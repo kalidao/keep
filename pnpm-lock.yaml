@@ -2,14 +2,14 @@ lockfileVersion: 5.4
 
 specifiers:
   husky: ^8.0.3
-  prettier: ^2.8.3
+  prettier: ^2.8.4
   prettier-plugin-solidity: 1.1.1
   solhint: ^3.3.8
 
 devDependencies:
   husky: 8.0.3
-  prettier: 2.8.3
-  prettier-plugin-solidity: 1.1.1_prettier@2.8.3
+  prettier: 2.8.4
+  prettier-plugin-solidity: 1.1.1_prettier@2.8.4
   solhint: 3.3.8
 
 packages:
@@ -667,14 +667,14 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier-plugin-solidity/1.1.1_prettier@2.8.3:
+  /prettier-plugin-solidity/1.1.1_prettier@2.8.4:
     resolution: {integrity: sha512-uD24KO26tAHF+zMN2nt1OUzfknzza5AgxjogQQrMLZc7j8xiQrDoNWNeOlfFC0YLTwo12CLD10b9niLyP6AqXg==}
     engines: {node: '>=12'}
     peerDependencies:
       prettier: '>=2.3.0 || >=3.0.0-alpha.0'
     dependencies:
       '@solidity-parser/parser': 0.14.5
-      prettier: 2.8.3
+      prettier: 2.8.4
       semver: 7.3.8
       solidity-comments-extractor: 0.0.7
     dev: true
@@ -687,8 +687,8 @@ packages:
     dev: true
     optional: true
 
-  /prettier/2.8.3:
-    resolution: {integrity: sha512-tJ/oJ4amDihPoufT5sM0Z1SKEuKay8LfVAMlbbhnnkvt6BUserZylqo2PN+p9KeljLr0OHa2rXHU1T8reeoTrw==}
+  /prettier/2.8.4:
+    resolution: {integrity: sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true

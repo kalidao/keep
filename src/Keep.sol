@@ -227,7 +227,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         totalSupply[SIGN_KEY] = supply;
         quorum = uint120(threshold);
-        nonce = 1;
     }
 
     /// -----------------------------------------------------------------------
@@ -252,7 +251,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Unchecked because the only math done is incrementing
         // Keep nonce which cannot realistically overflow.
         unchecked {
-            txNonce = nonce++;
+            emit Executed(txNonce = nonce++, op, to, value, data);
         }
 
         // Begin signature validation with hashed inputs.
@@ -310,8 +309,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         _execute(op, to, value, data);
-
-        emit Executed(txNonce, op, to, value, data);
     }
 
     /// @notice Relay operation from Keep via `execute()` or as ID key holder.
