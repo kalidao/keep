@@ -76,15 +76,15 @@ src
 
 ## Deployments
 
-Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon` and `Gnosis` blockchains at the following verified addresses:
+Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon`, `Gnosis` and `Canto` blockchains at the following verified addresses:
 
-`KeepFactory`: [`0x00000000001cd071bd24a7561e642b3e121c9761`](https://etherscan.io/address/0x00000000001cd071bd24a7561e642b3e121c9761#code)
+`KeepFactory`: [`0x00000000008dd7888459CaeB062eF9eCc1E27301`](https://etherscan.io/address/0x00000000008dd7888459CaeB062eF9eCc1E27301#code)
 
-`Keep`: [`0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4`](https://etherscan.io/address/0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4#code)
+`Keep`: [`0x00000000000058018B54c271615d94645b9aAb81`](https://etherscan.io/address/0x00000000000058018B54c271615d94645b9aAb81#code)
 
-`URIfetcher`: [`0xcCfC4897C01e3E0885AEe45643868276894c40eb`](https://etherscan.io/address/0xccfc4897c01e3e0885aee45643868276894c40eb#code)
+`URIfetcher`: [`0x72aa21a1b5a4719bf4c6ebb2fbad2db761d59a60`](https://etherscan.io/address/0x72aa21a1b5a4719bf4c6ebb2fbad2db761d59a60#code)
 
-`URIRemoteFetcher`: [`0xcA0202398bf78E873f46C77ec6D7236f997c2Df5`](https://etherscan.io/address/0xca0202398bf78e873f46c77ec6d7236f997c2df5#code)
+`URIRemoteFetcher`: [`0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7`](https://etherscan.io/address/0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7#code)
 
 ## Development
 

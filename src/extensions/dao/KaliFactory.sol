@@ -17,7 +17,7 @@ contract KaliFactory is Multicallable {
     /// -----------------------------------------------------------------------
 
     event Deployed(
-        Kali kali,
+        Kali indexed kali,
         KeepTokenManager token,
         uint256 tokenId,
         bytes32 name,

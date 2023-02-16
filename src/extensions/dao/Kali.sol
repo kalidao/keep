@@ -78,7 +78,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     event ExtensionSet(address indexed extension, bool on);
 
-    event URIset(string daoURI);
+    event URISet(string daoURI);
 
     event GovSettingsUpdated(
         uint256 votingPeriod,
@@ -626,14 +626,14 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             }
         }
 
-        // Simple majority check.
         if (
+            // Simple majority check.
             voteType == VoteType.SIMPLE_MAJORITY ||
             voteType == VoteType.SIMPLE_MAJORITY_QUORUM_REQUIRED
         ) {
             if (yesVotes > noVotes) return true;
-            // Supermajority check.
         } else {
+            // Supermajority check.
             // Example: 7 yes, 2 no, supermajority = 66
             // ((7+2) * 66) / 100 = 5.94; 7 yes will pass.
             // This is safe from overflow because `yesVotes`
@@ -674,7 +674,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             emit Executed(op, to, value, data, success);
         } else if (op == Operation.delegatecall) {
             assembly {
-                data := delegatecall(
+                success := delegatecall(
                     gas(),
                     to,
                     add(data, 0x20),
@@ -700,55 +700,51 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
 
     function _recoverSig(
         bytes32 hash,
-        address user,
+        address signer,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) internal view virtual {
-        if (user == address(0)) revert InvalidSig();
+        if (signer == address(0)) revert InvalidSig();
 
-        address signer;
+        bool isValid;
 
-        // Perform signature recovery via ecrecover.
         /// @solidity memory-safe-assembly
         assembly {
-            // Copy the free memory pointer so that we can restore it later.
-            let m := mload(0x40)
+            // Clean the upper 96 bits of `signer` in case they are dirty.
+            for {
+                signer := shr(96, shl(96, signer))
+            } signer {
 
-            // If `s` in lower half order, such that the signature is not malleable.
-            if iszero(gt(s, MALLEABILITY_THRESHOLD)) {
-                mstore(0x00, hash)
-                mstore(0x20, v)
-                mstore(0x40, r)
-                mstore(0x60, s)
-                pop(
-                    staticcall(
-                        gas(), // Amount of gas left for the transaction.
-                        0x01, // Address of `ecrecover`.
-                        0x00, // Start of input.
-                        0x80, // Size of input.
-                        0x40, // Start of output.
-                        0x20 // Size of output.
-                    )
-                )
-                // Restore the zero slot.
-                mstore(0x60, 0)
-                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
-                signer := mload(sub(0x60, returndatasize()))
-            }
-            // Restore the free memory pointer.
-            mstore(0x40, m)
-        }
-
-        // If recovery doesn't match `user`, verify contract signature with ERC1271.
-        if (user != signer) {
-            bool valid;
-
-            /// @solidity memory-safe-assembly
-            assembly {
+            } {
                 // Load the free memory pointer.
                 // Simply using the free memory usually costs less if many slots are needed.
                 let m := mload(0x40)
+
+                // Clean the excess bits of `v` in case they are dirty.
+                v := and(v, 0xff)
+                // If `s` in lower half order, such that the signature is not malleable.
+                if iszero(gt(s, MALLEABILITY_THRESHOLD)) {
+                    mstore(m, hash)
+                    mstore(add(m, 0x20), v)
+                    mstore(add(m, 0x40), r)
+                    mstore(add(m, 0x60), s)
+                    pop(
+                        staticcall(
+                            gas(), // Amount of gas left for the transaction.
+                            0x01, // Address of `ecrecover`.
+                            m, // Start of input.
+                            0x80, // Size of input.
+                            m, // Start of output.
+                            0x20 // Size of output.
+                        )
+                    )
+                    // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                    if mul(eq(mload(m), signer), returndatasize()) {
+                        isValid := 1
+                        break
+                    }
+                }
 
                 // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
                 let f := shl(224, 0x1626ba7e)
@@ -761,7 +757,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                 mstore(add(m, 0x84), s) // Store `s` of the signature.
                 mstore8(add(m, 0xa4), v) // Store `v` of the signature.
 
-                valid := and(
+                isValid := and(
                     and(
                         // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
                         eq(mload(0x00), f),
@@ -773,17 +769,18 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
                     // as the arguments are evaluated from right to left.
                     staticcall(
                         gas(), // Remaining gas.
-                        user, // The `user` address.
+                        signer, // The `signer` address.
                         m, // Offset of calldata in memory.
                         0xa5, // Length of calldata in memory.
                         0x00, // Offset of returndata.
                         0x20 // Length of returndata to write.
                     )
                 )
+                break
             }
-
-            if (!valid) revert InvalidSig();
         }
+
+        if (!isValid) revert InvalidSig();
     }
 
     /// -----------------------------------------------------------------------
@@ -853,7 +850,7 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
     ) public payable virtual onlyExtension {
         daoURI = _daoURI;
 
-        emit URIset(_daoURI);
+        emit URISet(_daoURI);
     }
 
     function deleteProposal(uint256 proposal) public payable virtual {
