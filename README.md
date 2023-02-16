@@ -4,7 +4,7 @@
 
 ## Model
 
-`Keep` is a flexible governance system represented as an [ERC1155](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/) collection of NFTs. All stakeholders are tokenized, and group decisionmaking includes multi-sig and DAO voting features. Keep NFTs are semi-fungible. This means in some cases, they represent 1:1 rights, such as multi-sig and minting roles. Otherwise, they might be DAO voting balances or assets, such as [Moloch-style](https://github.com/MolochVentures/moloch) loot shares.
+`Keep` is a flexible governance system represented as an [ERC1155](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/) collection of NFTs. All stakeholders are tokenized, and group decisionmaking includes multi-sig and DAO voting features. Keep NFTs are semi-fungible. This means in some cases, they represent 1:1 rights, such as multi-sig and minting roles. Otherwise, they might be DAO voting balances or assets, such as [Moloch-style](https://github.com/MolochVentures/moloch) loot shares. Ultimately Keep anticipates and maximixes a token-and-balance-centric approach to DAO interfaces, roles and permissions using the ERC1155 standard.
 
 ### Empowering Collectives
 
