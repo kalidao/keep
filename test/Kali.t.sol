@@ -1370,7 +1370,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         // Check initial type settings.
         assert(
             Kali(kali).proposalVoteTypes(ProposalType.CALL) ==
-                VoteType.SIMPLE_MAJORITY
+                VoteType.SIMPLE_MAJORITY_QUORUM_REQUIRED
         );
 
         // Setup proposal.
@@ -1420,7 +1420,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         // Check processed type settings.
         assert(
             Kali(kali).proposalVoteTypes(ProposalType.CALL) ==
-                VoteType.SUPERMAJORITY
+                VoteType.SUPERMAJORITY_QUORUM_REQUIRED
         );
     }
 
@@ -1823,7 +1823,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         assertEq(Kali(kali).supermajority(), 69);
         assert(
             Kali(kali).proposalVoteTypes(ProposalType.BURN) ==
-                VoteType.SIMPLE_MAJORITY_QUORUM_REQUIRED
+                VoteType.SIMPLE_MAJORITY
         );
     }
 
@@ -1875,7 +1875,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         assert(
             Kali(kali).proposalVoteTypes(ProposalType.BURN) ==
-                VoteType.SUPERMAJORITY_QUORUM_REQUIRED
+                VoteType.SUPERMAJORITY
         );
 
         setting[0] = 100;
@@ -1886,7 +1886,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         assert(
             Kali(kali).proposalVoteTypes(ProposalType.BURN) ==
-                VoteType.SUPERMAJORITY_QUORUM_REQUIRED
+                VoteType.SUPERMAJORITY
         );
 
         setting[0] = 1;
@@ -1897,7 +1897,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
         assert(
             Kali(kali).proposalVoteTypes(ProposalType.BURN) ==
-                VoteType.SUPERMAJORITY_QUORUM_REQUIRED
+                VoteType.SUPERMAJORITY
         );
     }
 }

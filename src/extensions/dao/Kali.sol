@@ -27,10 +27,10 @@ enum ProposalType {
 }
 
 enum VoteType {
-    SIMPLE_MAJORITY,
     SIMPLE_MAJORITY_QUORUM_REQUIRED,
-    SUPERMAJORITY,
-    SUPERMAJORITY_QUORUM_REQUIRED
+    SIMPLE_MAJORITY,
+    SUPERMAJORITY_QUORUM_REQUIRED,
+    SUPERMAJORITY
 }
 
 struct Proposal {
@@ -508,18 +508,22 @@ contract Kali is ERC1155TokenReceiver, Multicallable, ReentrancyGuard {
             if (proposals[prop.prevProposal].creationTime != 0)
                 revert PrevNotProcessed();
 
-        passed = _countVotes(
-            proposalVoteTypes[setting],
-            prop.yesVotes,
-            prop.noVotes
-        );
+        VoteType voteType = proposalVoteTypes[setting];
+
+        passed = _countVotes(voteType, prop.yesVotes, prop.noVotes);
 
         // If quorum and approval threshold are met,
         // skip voting period for fast processing.
         // If a grace period has been set,
         // or if quorum is set to nothing,
         // maintain voting period check.
-        if (!passed || gracePeriod != 0 || quorum == 0) {
+        if (
+            !passed ||
+            gracePeriod != 0 ||
+            quorum == 0 ||
+            voteType == VoteType.SIMPLE_MAJORITY ||
+            voteType == VoteType.SUPERMAJORITY
+        ) {
             // This is safe from overflow because `votingPeriod`
             // and `gracePeriod` are capped so they will not combine
             // with unix time to exceed the max uint256 value.
