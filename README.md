@@ -86,6 +86,12 @@ Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon`, `Gnosis` 
 
 `URIRemoteFetcher`: [`0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7`](https://etherscan.io/address/0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7#code)
 
+### DAO
+
+`KaliFactory`: [`0xd353fB1c33202441373524d3Cc5d94cd74113e25`](https://etherscan.io/address/0xd353fB1c33202441373524d3Cc5d94cd74113e25#code)
+
+`Kali`: [`0x000000000000b6a5Ca118D41a571041f329C4c64`](https://etherscan.io/address/0x000000000000b6a5Ca118D41a571041f329C4c64#code)
+
 ## Development
 
 [Keep](https://github.com/kalidao/keep) is built with [Foundry](https://github.com/gakonst/foundry).
