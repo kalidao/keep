@@ -3,16 +3,15 @@ pragma solidity ^0.8.4;
 
 /// @notice Contract that enables a single call to call multiple methods on itself.
 /// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/utils/Multicallable.sol)
-/// @dev WARNING!
-/// Multicallable is NOT SAFE for use in contracts with checks / requires on `msg.value`
-/// (e.g. in NFT minting / auction contracts) without a suitable nonce mechanism.
-/// It WILL open up your contract to double-spend vulnerabilities / exploits.
-/// See: (https://www.paradigm.xyz/2021/08/two-rights-might-make-a-wrong/)
 abstract contract Multicallable {
     /// @dev Apply `DELEGATECALL` with the current contract to each calldata in `data`,
     /// and store the `abi.encode` formatted results of each `DELEGATECALL` into `results`.
-    /// If any of the `DELEGATECALL`s reverts, the entire transaction is reverted,
+    /// If any of the `DELEGATECALL`s reverts, the entire context is reverted,
     /// and the error is bubbled up.
+    ///
+    /// For efficiency, this function will directly return the results, terminating the context.
+    /// If called internally, it must be called at the end of a function
+    /// that returns `(bytes[] memory)`.
     function multicall(
         bytes[] calldata data
     ) public payable virtual returns (bytes[] memory) {
@@ -29,11 +28,13 @@ abstract contract Multicallable {
             let end := shl(5, data.length)
             // Copy the offsets from calldata into memory.
             calldatacopy(0x40, data.offset, end)
-            // Pointer to the top of the memory (i.e. start of the free memory).
+            // Offset into `results`.
             let resultsOffset := end
+            // Pointer to the end of `results`.
+            end := add(results, end)
 
             for {
-                end := add(results, end)
+
             } 1 {
 
             } {
