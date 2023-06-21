@@ -110,7 +110,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     }
 
     /// @dev Access control check for ID key balance holders.
-    /// Initalizes with `address(this)` having implicit permission
+    /// Initializes with `address(this)` having implicit permission
     /// without writing to storage by checking `totalSupply()` is zero.
     /// Otherwise, this permission can be set to additional accounts,
     /// including retaining `address(this)`, via `mint()`.
