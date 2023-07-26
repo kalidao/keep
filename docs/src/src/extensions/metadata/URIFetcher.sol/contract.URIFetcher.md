@@ -1,8 +1,8 @@
 # URIFetcher
-[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/extensions/metadata/URIFetcher.sol)
+[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/extensions/metadata/URIFetcher.sol)
 
 **Inherits:**
-Owned
+[Owned](/src/extensions/utils/Owned.sol/abstract.Owned.md)
 
 **Author:**
 z0r0z.eth
@@ -31,7 +31,7 @@ Constructor
 
 
 ```solidity
-constructor(address _owner, URIRemoteFetcher _uriRemoteFetcher) payable Owned(_owner);
+constructor() payable;
 ```
 
 ### uri

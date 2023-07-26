@@ -1,5 +1,4 @@
 
 
 # Contents
-- [KaliExtension](KaliExtension.sol/contract.KaliExtension.md)
-- [KeepTokenManager](KeepTokenManager.sol/contract.KeepTokenManager.md)
+- [KaliExtension](KaliExtension.sol/abstract.KaliExtension.md)

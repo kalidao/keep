@@ -1,5 +1,5 @@
 
 
 # Contents
-- [LibClone](LibClone.sol/contract.LibClone.md)
-- [Multicallable](Multicallable.sol/contract.Multicallable.md)
+- [LibClone](LibClone.sol/library.LibClone.md)
+- [Multicallable](Multicallable.sol/abstract.Multicallable.md)

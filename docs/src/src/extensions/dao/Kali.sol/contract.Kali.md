@@ -1,8 +1,8 @@
 # Kali
-[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/extensions/dao/Kali.sol)
+[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/extensions/dao/Kali.sol)
 
 **Inherits:**
-[ERC1155TokenReceiver](/src/KeepToken.sol/contract.ERC1155TokenReceiver.md), [Multicallable](/src/utils/Multicallable.sol/contract.Multicallable.md), ReentrancyGuard
+[ERC1155TokenReceiver](/src/KeepToken.sol/abstract.ERC1155TokenReceiver.md), [Multicallable](/src/utils/Multicallable.sol/abstract.Multicallable.md), [ReentrancyGuard](/src/extensions/utils/ReentrancyGuard.sol/abstract.ReentrancyGuard.md)
 
 
 ## State Variables
@@ -159,11 +159,18 @@ ERC721 Receiver Logic
 function onERC721Received(address, address, uint256, bytes calldata) public payable virtual returns (bytes4);
 ```
 
-### initialize
+### constructor
 
 -----------------------------------------------------------------------
 Initialization Logic
 -----------------------------------------------------------------------
+
+
+```solidity
+constructor() payable;
+```
+
+### initialize
 
 
 ```solidity
@@ -192,11 +199,11 @@ Proposal Logic
 
 
 ```solidity
-function propose(ProposalType proposalType, string calldata description, Call[] calldata calls)
+function propose(Call[] calldata calls, ProposalType setting, string calldata details)
     public
     payable
     virtual
-    returns (uint256 proposal);
+    returns (uint256 proposal, uint40 creationTime);
 ```
 
 ### cancelProposal
@@ -221,14 +228,14 @@ Voting Logic
 
 
 ```solidity
-function vote(uint256 proposal, bool approve, bytes32 details) public payable virtual;
+function vote(uint256 proposal, bool approve, string calldata details) public payable virtual;
 ```
 
 ### voteBySig
 
 
 ```solidity
-function voteBySig(address user, uint256 proposal, bool approve, bytes32 details, uint8 v, bytes32 r, bytes32 s)
+function voteBySig(uint256 proposal, bool approve, string calldata details, Signature calldata sig)
     public
     payable
     virtual;
@@ -238,7 +245,7 @@ function voteBySig(address user, uint256 proposal, bool approve, bytes32 details
 
 
 ```solidity
-function _vote(address user, uint256 proposal, bool approve, bytes32 details) internal virtual;
+function _vote(address user, uint256 proposal, bool approve, string calldata details) internal virtual;
 ```
 
 ### processProposal
@@ -249,12 +256,12 @@ Processing Logic
 
 
 ```solidity
-function processProposal(
-    uint256 proposal,
-    ProposalType proposalType,
-    string calldata description,
-    Call[] calldata calls
-) public payable virtual nonReentrant returns (bool passed);
+function processProposal(uint256 proposal, Call[] calldata calls, ProposalType setting, string calldata details)
+    public
+    payable
+    virtual
+    nonReentrant
+    returns (bool passed);
 ```
 
 ### _countVotes
@@ -282,12 +289,12 @@ function _execute(Operation op, address to, uint256 value, bytes memory data) in
 ### _recoverSig
 
 -----------------------------------------------------------------------
-Signature Verification Logic
+Signature Recovery Logic
 -----------------------------------------------------------------------
 
 
 ```solidity
-function _recoverSig(bytes32 hash, address user, uint8 v, bytes32 r, bytes32 s) internal view virtual;
+function _recoverSig(bytes32 hash, address signer, uint8 v, bytes32 r, bytes32 s) internal view virtual;
 ```
 
 ### _safeCastTo40
@@ -396,11 +403,11 @@ Events
 event NewProposal(
     address indexed proposer,
     uint256 indexed proposal,
-    ProposalType proposalType,
-    string description,
     Call[] calls,
+    ProposalType setting,
+    string details,
     uint256 creationTime,
-    bool selfSponsor
+    bool sponsored
 );
 ```
 
@@ -419,7 +426,7 @@ event ProposalSponsored(address indexed sponsor, uint256 indexed proposal);
 ### VoteCast
 
 ```solidity
-event VoteCast(address indexed voter, uint256 indexed proposal, bool approve, uint256 weight, bytes32 details);
+event VoteCast(address indexed voter, uint256 indexed proposal, bool approve, uint256 weight, string details);
 ```
 
 ### ProposalProcessed
@@ -434,10 +441,10 @@ event ProposalProcessed(uint256 indexed proposal, bool passed);
 event ExtensionSet(address indexed extension, bool on);
 ```
 
-### URIset
+### URISet
 
 ```solidity
-event URIset(string daoURI);
+event URISet(string daoURI);
 ```
 
 ### GovSettingsUpdated
@@ -451,7 +458,7 @@ event GovSettingsUpdated(
 ### Executed
 
 ```solidity
-event Executed(Operation op, address to, uint256 value, bytes data);
+event Executed(Operation op, address to, uint256 value, bytes data, bool success);
 ```
 
 ## Errors
@@ -529,12 +536,6 @@ error PrevNotProcessed();
 
 ```solidity
 error VotingNotEnded();
-```
-
-### ExecuteFailed
-
-```solidity
-error ExecuteFailed();
 ```
 
 ### InvalidSig

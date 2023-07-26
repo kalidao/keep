@@ -1,8 +1,8 @@
 # KeepFactory
-[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/KeepFactory.sol)
+[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/KeepFactory.sol)
 
 **Inherits:**
-[Multicallable](/src/utils/Multicallable.sol/contract.Multicallable.md)
+[Multicallable](/src/utils/Multicallable.sol/abstract.Multicallable.md)
 
 Keep Factory.
 
@@ -15,7 +15,7 @@ Immutables
 
 
 ```solidity
-Keep internal immutable keepTemplate;
+address internal immutable keepTemplate;
 ```
 
 
@@ -28,7 +28,7 @@ Constructor
 
 
 ```solidity
-constructor(Keep _keepTemplate) payable;
+constructor(address _keepTemplate) payable;
 ```
 
 ### determineKeep
@@ -63,6 +63,6 @@ Events
 
 
 ```solidity
-event Deployed(Keep indexed keep, bytes32 name, address[] signers, uint256 threshold);
+event Deployed(address indexed keep, address[] signers, uint256 threshold);
 ```
 

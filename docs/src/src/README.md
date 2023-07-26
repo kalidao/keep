@@ -8,5 +8,5 @@
 - [Signature](Keep.sol/struct.Signature.md)
 - [Keep](Keep.sol/contract.Keep.md)
 - [KeepFactory](KeepFactory.sol/contract.KeepFactory.md)
-- [ERC1155TokenReceiver](KeepToken.sol/contract.ERC1155TokenReceiver.md)
-- [KeepToken](KeepToken.sol/contract.KeepToken.md)
+- [ERC1155TokenReceiver](KeepToken.sol/abstract.ERC1155TokenReceiver.md)
+- [KeepToken](KeepToken.sol/abstract.KeepToken.md)

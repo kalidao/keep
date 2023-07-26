@@ -1,8 +1,8 @@
 # KaliFactory
-[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/extensions/dao/KaliFactory.sol)
+[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/extensions/dao/KaliFactory.sol)
 
 **Inherits:**
-[Multicallable](/src/utils/Multicallable.sol/contract.Multicallable.md)
+[Multicallable](/src/utils/Multicallable.sol/abstract.Multicallable.md)
 
 Kali Factory.
 
@@ -15,7 +15,7 @@ Immutables
 
 
 ```solidity
-Kali internal immutable kaliTemplate;
+address internal immutable kaliTemplate;
 ```
 
 
@@ -28,7 +28,7 @@ Constructor
 
 
 ```solidity
-constructor(Kali _kaliTemplate) payable;
+constructor(address _kaliTemplate) payable;
 ```
 
 ### determineKali
@@ -68,7 +68,7 @@ Events
 
 ```solidity
 event Deployed(
-    Kali kali,
+    Kali indexed kali,
     KeepTokenManager token,
     uint256 tokenId,
     bytes32 name,

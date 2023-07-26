@@ -1,8 +1,8 @@
 # URIRemoteFetcher
-[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/extensions/metadata/URIRemoteFetcher.sol)
+[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/extensions/metadata/URIRemoteFetcher.sol)
 
 **Inherits:**
-Owned
+[Owned](/src/extensions/utils/Owned.sol/abstract.Owned.md)
 
 Remote metadata fetcher for ERC1155.
 
@@ -56,7 +56,7 @@ Constructor
 
 
 ```solidity
-constructor(address _owner) payable Owned(_owner);
+constructor() payable;
 ```
 
 ### fetchURI

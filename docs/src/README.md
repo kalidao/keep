@@ -4,7 +4,7 @@
 
 ## Model
 
-`Keep` is a flexible governance system represented as an [ERC1155](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/) collection of NFTs. All stakeholders are tokenized, and group decisionmaking includes multi-sig and DAO voting features. Keep NFTs are semi-fungible. This means in some cases, they represent 1:1 rights, such as multi-sig and minting roles. Otherwise, they might be DAO voting balances or assets, such as [Moloch-style](https://github.com/MolochVentures/moloch) loot shares.
+`Keep` is a flexible governance system represented as an [ERC1155](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/) collection of NFTs. All stakeholders are tokenized, and group decisionmaking includes multi-sig and DAO voting features. Keep NFTs are semi-fungible. This means in some cases, they represent 1:1 rights, such as multi-sig and minting roles. Otherwise, they might be DAO voting balances or assets, such as [Moloch-style](https://github.com/MolochVentures/moloch) loot shares. Ultimately Keep anticipates and maximixes a token-and-balance-centric approach to DAO interfaces, roles and permissions using the ERC1155 standard.
 
 ### Empowering Collectives
 
@@ -61,7 +61,6 @@ Several rounds of audits and security consultations were engaged in the developm
 ```ml
 lib
 ├─ forge-std — https://github.com/brockelmore/forge-std
-├─ kali — https://github.com/kalidao/rage-router
 ├─ solbase — https://github.com/Sol-DAO/solbase
 src
 │  └─ extensions
@@ -77,15 +76,21 @@ src
 
 ## Deployments
 
-Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon` and `Gnosis` blockchains at the following verified addresses:
+Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon`, `Gnosis` and `Canto` blockchains at the following verified addresses:
 
-`KeepFactory`: [`0x00000000001cd071bd24a7561e642b3e121c9761`](https://etherscan.io/address/0x00000000001cd071bd24a7561e642b3e121c9761#code)
+`KeepFactory`: [`0x00000000008dd7888459CaeB062eF9eCc1E27301`](https://etherscan.io/address/0x00000000008dd7888459CaeB062eF9eCc1E27301#code)
 
-`Keep`: [`0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4`](https://etherscan.io/address/0x00000000058b15c4250af3e8a10a6cf2a0e0f1c4#code)
+`Keep`: [`0x00000000000058018B54c271615d94645b9aAb81`](https://etherscan.io/address/0x00000000000058018B54c271615d94645b9aAb81#code)
 
-`URIfetcher`: [`0xcCfC4897C01e3E0885AEe45643868276894c40eb`](https://etherscan.io/address/0xccfc4897c01e3e0885aee45643868276894c40eb#code)
+`URIfetcher`: [`0x72aa21a1b5a4719bf4c6ebb2fbad2db761d59a60`](https://etherscan.io/address/0x72aa21a1b5a4719bf4c6ebb2fbad2db761d59a60#code)
 
-`URIRemoteFetcher`: [`0xcA0202398bf78E873f46C77ec6D7236f997c2Df5`](https://etherscan.io/address/0xca0202398bf78e873f46c77ec6d7236f997c2df5#code)
+`URIRemoteFetcher`: [`0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7`](https://etherscan.io/address/0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7#code)
+
+### DAO
+
+`KaliFactory`: [`0xd353fB1c33202441373524d3Cc5d94cd74113e25`](https://etherscan.io/address/0xd353fB1c33202441373524d3Cc5d94cd74113e25#code)
+
+`Kali`: [`0x000000000000b6a5Ca118D41a571041f329C4c64`](https://etherscan.io/address/0x000000000000b6a5Ca118D41a571041f329C4c64#code)
 
 ## Development
 

@@ -1,26 +1,16 @@
 # Keep
-[Git Source](https://github.com/kalidao/keep/blob/bf21b4d1d146ef800f17003b87f2cf6914c6539e/src/Keep.sol)
+[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/Keep.sol)
 
 **Inherits:**
-[ERC1155TokenReceiver](/src/KeepToken.sol/contract.ERC1155TokenReceiver.md), [KeepToken](/src/KeepToken.sol/contract.KeepToken.md), [Multicallable](/src/utils/Multicallable.sol/contract.Multicallable.md)
+[ERC1155TokenReceiver](/src/KeepToken.sol/abstract.ERC1155TokenReceiver.md), [KeepToken](/src/KeepToken.sol/abstract.KeepToken.md), [Multicallable](/src/utils/Multicallable.sol/abstract.Multicallable.md)
 
 
 ## State Variables
-### MALLEABILITY_THRESHOLD
+### CORE_KEY
 -----------------------------------------------------------------------
 Keep Storage/Logic
 -----------------------------------------------------------------------
 
-*The number which `s` must not exceed in order for
-the signature to be non-malleable.*
-
-
-```solidity
-bytes32 internal constant MALLEABILITY_THRESHOLD = 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
-```
-
-
-### CORE_KEY
 *Core ID key permission.*
 
 
@@ -72,7 +62,7 @@ mapping(uint256 => string) internal _uris;
 
 
 ```solidity
-function uri(uint256 id) public view virtual override returns (string memory);
+function uri(uint256 id) public view virtual returns (string memory);
 ```
 **Parameters**
 
@@ -90,7 +80,7 @@ function uri(uint256 id) public view virtual override returns (string memory);
 ### _authorized
 
 *Access control check for ID key balance holders.
-Initalizes with `address(this)` having implicit permission
+Initializes with `address(this)` having implicit permission
 without writing to storage by checking `totalSupply()` is zero.
 Otherwise, this permission can be set to additional accounts,
 including retaining `address(this)`, via `mint()`.*
@@ -198,26 +188,34 @@ function execute(Operation op, address to, uint256 value, bytes calldata data, S
 |`sigs`|`Signature[]`|Array of Keep signatures in ascending order by addresses.|
 
 
-### _recoverSig
+### relay
+
+Relay operation from Keep via `execute()` or as ID key holder.
 
 
 ```solidity
-function _recoverSig(bytes32 hash, address user, uint8 v, bytes32 r, bytes32 s) internal view virtual;
-```
-
-### multiexecute
-
-Execute operations from Keep via `execute()` or as ID key holder.
-
-
-```solidity
-function multiexecute(Call[] calldata calls) public payable virtual;
+function relay(Call calldata call) public payable virtual;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`calls`|`Call[]`|Keep operations as arrays of `op, to, value, data`.|
+|`call`|`Call`|Keep operation as struct of `op, to, value, data`.|
+
+
+### multirelay
+
+Relay operations from Keep via `execute()` or as ID key holder.
+
+
+```solidity
+function multirelay(Call[] calldata calls) public payable virtual;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`calls`|`Call[]`|Keep operations as struct arrays of `op, to, value, data`.|
 
 
 ### _execute
@@ -369,6 +367,22 @@ Events
 
 ```solidity
 event Executed(uint256 indexed nonce, Operation op, address to, uint256 value, bytes data);
+```
+
+### Relayed
+*Emitted when Keep relays call.*
+
+
+```solidity
+event Relayed(Call call);
+```
+
+### Multirelayed
+*Emitted when Keep relays calls.*
+
+
+```solidity
+event Multirelayed(Call[] calls);
 ```
 
 ### QuorumSet
