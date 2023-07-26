@@ -1,14 +1,17 @@
 {
   "name": "keep",
   "version": "1.0.0",
-  "description": "Tokenized multisig wallet",
+  "description": "Tokenized multisig wallet.",
   "main": "index.js",
-  "repository": "https://github.com/kalidao/keep",
-  "author": "KaliCo LLC <kalidao@protonmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kalidao/keep.git"
+  },
+  "author": "KaliCo LLC <contact@kali.gg>",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "format": "prettier --write src/**.sol src/utils/**.sol src/extensions/metadata/**.sol src/extensions/dao/**.sol src/extensions/dao/utils/**.sol test/**.sol flat/**.sol --plugin-search-dir=.",
+    "format": "prettier --write src/**.sol src/utils/**.sol src/utils/interfaces/**.sol src/extensions/dao/**.sol src/extensions/dao/utils/**.sol src/extensions/metadata/**.sol src/extensions/mint/**.sol src/extensions/storage/**.sol src/extensions/utils/**.sol test/**.sol test/utils/mocks/**.sol flat/**.sol --plugin-search-dir=.",
     "format:list": "prettier --list-different 'src/**/*.sol' --plugin-search-dir=.",
     "format:check": "prettier --check 'src/**/*.sol' --plugin-search-dir=.",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix --ignore-path .solhintignore",

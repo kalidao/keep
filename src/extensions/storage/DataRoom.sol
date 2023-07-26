@@ -15,12 +15,8 @@ contract DataRoom {
         bool permissioned
     );
 
-    event RecordSet (
-        address indexed dao,
-        string data,
-        address indexed caller
-    );  
-   
+    event RecordSet(address indexed dao, string data, address indexed caller);
+
     /// -----------------------------------------------------------------------
     /// Custom Errors
     /// -----------------------------------------------------------------------
@@ -54,25 +50,21 @@ contract DataRoom {
     /// @param data The data to record.
     /// @dev Calls are permissioned to those authorized to access a Room.
     function setRecord(
-        address account, 
+        address account,
         string[] calldata data
-    ) 
-        public 
-        payable
-        virtual
-    {
+    ) public payable virtual {
         // Initialize Room.
         if (account == msg.sender && !authorized[account][msg.sender]) {
             authorized[account][msg.sender] = true;
         }
-        
+
         _authorized(account, msg.sender);
 
         for (uint256 i; i < data.length; ) {
             room[account].push(data[i]);
-            
+
             emit RecordSet(account, data[i], msg.sender);
-            
+
             // Unchecked because the only math done is incrementing
             // the array index counter which cannot possibly overflow.
             unchecked {
@@ -84,12 +76,9 @@ contract DataRoom {
     /// @notice Retrieve data from a Room.
     /// @param account Identifier of a Room.
     /// @return The array of data associated with a Room.
-    function getRoom(address account) 
-        public 
-        view
-        virtual
-        returns (string[] memory) 
-    {
+    function getRoom(
+        address account
+    ) public view virtual returns (string[] memory) {
         return room[account];
     }
 
@@ -102,18 +91,14 @@ contract DataRoom {
         address account,
         address[] calldata users,
         bool[] calldata authorize
-    ) 
-        public 
-        payable
-        virtual
-    {  
+    ) public payable virtual {
         if (account == address(0)) revert InvalidRoom();
 
         // Initialize Room.
         if (account == msg.sender && !authorized[account][msg.sender]) {
             authorized[account][msg.sender] = true;
         }
-        
+
         _authorized(account, msg.sender);
 
         uint256 numUsers = users.length;
@@ -123,9 +108,9 @@ contract DataRoom {
         if (numUsers != 0) {
             for (uint i; i < numUsers; ) {
                 authorized[account][users[i]] = authorize[i];
-                
+
                 emit PermissionSet(account, users[i], authorize[i]);
-                
+
                 // Unchecked because the only math done is incrementing
                 // the array index counter which cannot possibly overflow.
                 unchecked {
@@ -142,7 +127,10 @@ contract DataRoom {
     /// @notice Helper function to check access to a Room.
     /// @param account Identifier of a Room.
     /// @param user The user in question.
-    function _authorized(address account, address user) internal view virtual returns (bool) {
+    function _authorized(
+        address account,
+        address user
+    ) internal view virtual returns (bool) {
         if (authorized[account][user]) return true;
         else revert Unauthorized();
     }

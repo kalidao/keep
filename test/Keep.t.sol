@@ -9,10 +9,10 @@ import {KeepFactory} from "../src/KeepFactory.sol";
 import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
 
 /// @dev Mocks.
-import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
-import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
-import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
-import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+import {MockERC20} from "@solady/test/utils/mocks/MockERC20.sol";
+import {MockERC721} from "@solady/test/utils/mocks/MockERC721.sol";
+import {MockERC1155} from "@solady/test/utils/mocks/MockERC1155.sol";
+import {MockContractWallet} from "./utils/mocks/MockContractWallet.sol";
 import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
 
 /// @dev Test framework.
@@ -40,7 +40,7 @@ contract KeepTest is Keep(this), Test {
     MockERC20 internal mockDai;
     MockERC721 internal mockNFT;
     MockERC1155 internal mock1155;
-    MockERC1271Wallet internal mockERC1271Wallet;
+    MockContractWallet internal mockContractWallet;
     MockUnsafeERC1155Receiver internal mockUnsafeERC1155Receiver;
 
     uint256 internal chainId;
@@ -212,9 +212,9 @@ contract KeepTest is Keep(this), Test {
         keep = new Keep(Keep(address(mockUriFetcher)));
 
         mockDai = new MockERC20("Dai", "DAI", 18);
-        mockNFT = new MockERC721("NFT", "NFT");
+        mockNFT = new MockERC721();
         mock1155 = new MockERC1155();
-        mockERC1271Wallet = new MockERC1271Wallet(alice);
+        mockContractWallet = new MockContractWallet(alice);
         mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();
 
         // Mint mock ERC20.
@@ -245,7 +245,7 @@ contract KeepTest is Keep(this), Test {
 
         // Mint mock smart wallet a signer ID key.
         vm.prank(address(keep));
-        keep.mint(address(mockERC1271Wallet), SIGNER_KEY, 1, "");
+        keep.mint(address(mockContractWallet), SIGNER_KEY, 1, "");
 
         // Store chainId.
         chainId = block.chainid;
@@ -360,7 +360,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
 
         // Also check smart wallet.
-        assert(keep.balanceOf(address(mockERC1271Wallet), SIGNER_KEY) == 1);
+        assert(keep.balanceOf(address(mockContractWallet), SIGNER_KEY) == 1);
 
         // Check supply.
         assert(keep.totalSupply(SIGNER_KEY) == 3);
@@ -655,7 +655,7 @@ contract KeepTest is Keep(this), Test {
         Signature memory bobSig;
 
         aliceSig = signExecution(
-            address(mockERC1271Wallet),
+            address(mockContractWallet),
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -672,7 +672,7 @@ contract KeepTest is Keep(this), Test {
             tx_data
         );
 
-        if (address(mockERC1271Wallet) > bob) {
+        if (address(mockContractWallet) > bob) {
             sigs[0] = bobSig;
             sigs[1] = aliceSig;
         } else {

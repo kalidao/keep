@@ -11,10 +11,10 @@ import {KeepTokenManager, Proposal, ProposalType, VoteType, Kali} from "../src/e
 import {KaliFactory} from "../src/extensions/dao/KaliFactory.sol";
 
 /// @dev Mocks.
-import {MockERC20} from "@solbase/test/utils/mocks/MockERC20.sol";
-import {MockERC721} from "@solbase/test/utils/mocks/MockERC721.sol";
-import {MockERC1155} from "@solbase/test/utils/mocks/MockERC1155.sol";
-import {MockERC1271Wallet} from "@solbase/test/utils/mocks/MockERC1271Wallet.sol";
+import {MockERC20} from "@solady/test/utils/mocks/MockERC20.sol";
+import {MockERC721} from "@solady/test/utils/mocks/MockERC721.sol";
+import {MockERC1155} from "@solady/test/utils/mocks/MockERC1155.sol";
+import {MockERC1271Wallet} from "@solady/test/utils/mocks/MockERC1271Wallet.sol";
 import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
 
 import "@std/Test.sol";
@@ -80,7 +80,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
 
     function setUp() public payable {
         mockDai = new MockERC20("Dai", "DAI", 18);
-        mockNFT = new MockERC721("NFT", "NFT");
+        mockNFT = new MockERC721();
         mock1155 = new MockERC1155();
         mockERC1271Wallet = new MockERC1271Wallet(alice);
         mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();

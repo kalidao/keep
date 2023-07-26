@@ -1,5 +1,2 @@
-@solbase/=lib/solbase/
 @std/=lib/forge-std/src/
-ds-test/=lib/forge-std/lib/ds-test/src/
-forge-std/=lib/forge-std/src/
-solbase/=lib/solbase/src/
+@solady/=lib/solady/
