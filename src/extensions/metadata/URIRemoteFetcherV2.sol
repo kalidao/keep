@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Owned} from "../utils/Owned.sol";
-
 /// @notice Remote metadata fetcher for ERC1155.
-contract URIRemoteFetcherV2 is Owned(tx.origin) {
+contract URIRemoteFetcherV2 {
     uint256 internal immutable chainId;
 
     /// -----------------------------------------------------------------------
@@ -37,7 +35,9 @@ contract URIRemoteFetcherV2 is Owned(tx.origin) {
     }
 
     /// @dev Returns the base 10 decimal representation of `value`.
-    function toString(uint256 value) internal pure returns (string memory str) {
+    function toString(
+        uint256 value
+    ) internal pure virtual returns (string memory str) {
         /// @solidity memory-safe-assembly
         assembly {
             // The maximum value of a uint256 contains 78 digits (1 byte per digit), but
@@ -86,7 +86,7 @@ contract URIRemoteFetcherV2 is Owned(tx.origin) {
     /// https://eips.ethereum.org/EIPS/eip-55
     function toHexStringChecksummed(
         address value
-    ) internal pure returns (string memory str) {
+    ) internal pure virtual returns (string memory str) {
         str = toHexString(value);
         /// @solidity memory-safe-assembly
         assembly {
@@ -121,7 +121,7 @@ contract URIRemoteFetcherV2 is Owned(tx.origin) {
     /// The output is prefixed with "0x" and encoded using 2 hexadecimal digits per byte.
     function toHexString(
         address value
-    ) internal pure returns (string memory str) {
+    ) internal pure virtual returns (string memory str) {
         str = toHexStringNoPrefix(value);
         /// @solidity memory-safe-assembly
         assembly {
@@ -136,7 +136,7 @@ contract URIRemoteFetcherV2 is Owned(tx.origin) {
     /// The output is encoded using 2 hexadecimal digits per byte.
     function toHexStringNoPrefix(
         address value
-    ) internal pure returns (string memory str) {
+    ) internal pure virtual returns (string memory str) {
         /// @solidity memory-safe-assembly
         assembly {
             str := mload(0x40)
