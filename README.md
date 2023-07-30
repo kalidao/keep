@@ -86,6 +86,8 @@ Keep is deployed to the `Ethereum`, `Arbitrum`, `Optimism`, `Polygon`, `Gnosis` 
 
 `URIRemoteFetcher`: [`0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7`](https://etherscan.io/address/0x1C51Ae918F1487Ac7fb254b170ee4fbC4641faf7#code)
 
+`URIRemoteFetcherV2`: [`0xAb906B8EA37f4291d40039112e3936a522Def250`](https://etherscan.io/address/0xAb906B8EA37f4291d40039112e3936a522Def250#code)
+
 ### DAO
 
 `KaliFactory`: [`0xd353fB1c33202441373524d3Cc5d94cd74113e25`](https://etherscan.io/address/0xd353fB1c33202441373524d3Cc5d94cd74113e25#code)

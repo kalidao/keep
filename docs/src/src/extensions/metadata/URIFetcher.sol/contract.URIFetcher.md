@@ -1,5 +1,5 @@
 # URIFetcher
-[Git Source](https://github.com/kalidao/keep/blob/e52b433e668648f92907034179bd28358496fd0a/src/extensions/metadata/URIFetcher.sol)
+[Git Source](https://github.com/kalidao/keep/blob/4ba354e122c2e294d53e3539ad035bb2950c6c96/src/extensions/metadata/URIFetcher.sol)
 
 **Inherits:**
 [Owned](/src/extensions/utils/Owned.sol/abstract.Owned.md)
