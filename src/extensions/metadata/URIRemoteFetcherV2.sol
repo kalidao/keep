@@ -3,19 +3,9 @@ pragma solidity ^0.8.4;
 
 /// @notice Remote metadata fetcher for ERC1155.
 contract URIRemoteFetcherV2 {
-    uint256 internal immutable chainId;
+    uint256 internal immutable chainId = block.chainid;
 
-    /// -----------------------------------------------------------------------
-    /// Constructor
-    /// -----------------------------------------------------------------------
-
-    constructor() payable {
-        chainId = block.chainid;
-    }
-
-    /// -----------------------------------------------------------------------
-    /// URI Logic
-    /// -----------------------------------------------------------------------
+    constructor() payable {}
 
     function fetchURI(
         address origin,
