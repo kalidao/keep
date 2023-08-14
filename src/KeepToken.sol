@@ -122,9 +122,6 @@ abstract contract KeepToken {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    bytes32 internal constant MALLEABILITY_THRESHOLD =
-        0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
-
     mapping(address => uint256) public nonces;
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
@@ -162,45 +159,34 @@ abstract contract KeepToken {
             } signer {
 
             } {
-                // Load the free memory pointer.
-                // Simply using the free memory usually costs less if many slots are needed.
                 let m := mload(0x40)
-
-                // Clean the excess bits of `v` in case they are dirty.
-                v := and(v, 0xff)
-                // If `s` in lower half order, such that the signature is not malleable.
-                if iszero(gt(s, MALLEABILITY_THRESHOLD)) {
-                    mstore(m, hash)
-                    mstore(add(m, 0x20), v)
-                    mstore(add(m, 0x40), r)
-                    mstore(add(m, 0x60), s)
-                    pop(
-                        staticcall(
-                            gas(), // Amount of gas left for the transaction.
-                            0x01, // Address of `ecrecover`.
-                            m, // Start of input.
-                            0x80, // Size of input.
-                            m, // Start of output.
-                            0x20 // Size of output.
-                        )
+                mstore(m, hash)
+                mstore(add(m, 0x20), and(v, 0xff)) // `v`.
+                mstore(add(m, 0x40), r) // `r`.
+                mstore(add(m, 0x60), s) // `s`.
+                pop(
+                    staticcall(
+                        gas(), // Amount of gas left for the transaction.
+                        1, // Address of `ecrecover`.
+                        m, // Start of input.
+                        0x80, // Size of input.
+                        m, // Start of output.
+                        0x20 // Size of output.
                     )
-                    // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
-                    if mul(eq(mload(m), signer), returndatasize()) {
-                        isValid := 1
-                        break
-                    }
+                )
+                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                if mul(eq(mload(m), signer), returndatasize()) {
+                    isValid := 1
+                    break
                 }
-
-                // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
                 let f := shl(224, 0x1626ba7e)
-                // Write the abi-encoded calldata into memory, beginning with the function selector.
                 mstore(m, f) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
                 mstore(add(m, 0x04), hash)
                 mstore(add(m, 0x24), 0x40) // The offset of the `signature` in the calldata.
-                mstore(add(m, 0x44), 65) // Store the length of the signature.
-                mstore(add(m, 0x64), r) // Store `r` of the signature.
-                mstore(add(m, 0x84), s) // Store `s` of the signature.
-                mstore8(add(m, 0xa4), v) // Store `v` of the signature.
+                mstore(add(m, 0x44), 65) // Length of the signature.
+                mstore(add(m, 0x64), r) // `r`.
+                mstore(add(m, 0x84), s) // `s`.
+                mstore8(add(m, 0xa4), v) // `v`.
 
                 isValid := and(
                     and(
