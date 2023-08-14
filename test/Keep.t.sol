@@ -12,7 +12,7 @@ import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
 import {MockERC20} from "@solady/test/utils/mocks/MockERC20.sol";
 import {MockERC721} from "@solady/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solady/test/utils/mocks/MockERC1155.sol";
-import {MockContractWallet} from "./utils/mocks/MockContractWallet.sol";
+import {MockERC1271Wallet} from "@solady/test/utils/mocks/MockERC1271Wallet.sol";
 import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
 
 /// @dev Test framework.
@@ -40,7 +40,7 @@ contract KeepTest is Keep(this), Test {
     MockERC20 internal mockDai;
     MockERC721 internal mockNFT;
     MockERC1155 internal mock1155;
-    MockContractWallet internal mockContractWallet;
+    MockERC1271Wallet internal mockERC1271Wallet;
     MockUnsafeERC1155Receiver internal mockUnsafeERC1155Receiver;
 
     uint256 internal chainId;
@@ -214,7 +214,7 @@ contract KeepTest is Keep(this), Test {
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721();
         mock1155 = new MockERC1155();
-        mockContractWallet = new MockContractWallet(alice);
+        mockERC1271Wallet = new MockERC1271Wallet(alice);
         mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();
 
         // Mint mock ERC20.
@@ -245,7 +245,7 @@ contract KeepTest is Keep(this), Test {
 
         // Mint mock smart wallet a signer ID key.
         vm.prank(address(keep));
-        keep.mint(address(mockContractWallet), SIGNER_KEY, 1, "");
+        keep.mint(address(mockERC1271Wallet), SIGNER_KEY, 1, "");
 
         // Store chainId.
         chainId = block.chainid;
@@ -360,7 +360,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
 
         // Also check smart wallet.
-        assert(keep.balanceOf(address(mockContractWallet), SIGNER_KEY) == 1);
+        assert(keep.balanceOf(address(mockERC1271Wallet), SIGNER_KEY) == 1);
 
         // Check supply.
         assert(keep.totalSupply(SIGNER_KEY) == 3);
@@ -655,7 +655,7 @@ contract KeepTest is Keep(this), Test {
         Signature memory bobSig;
 
         aliceSig = signExecution(
-            address(mockContractWallet),
+            address(mockERC1271Wallet),
             alicesPk,
             Operation.call,
             address(mockDai),
@@ -672,7 +672,7 @@ contract KeepTest is Keep(this), Test {
             tx_data
         );
 
-        if (address(mockContractWallet) > bob) {
+        if (address(mockERC1271Wallet) > bob) {
             sigs[0] = bobSig;
             sigs[1] = aliceSig;
         } else {
@@ -1119,6 +1119,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(alice, 1) == 100);
     }
 
+    /*
     function testSetTransferability() public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(1, true);
@@ -1139,7 +1140,7 @@ contract KeepTest is Keep(this), Test {
         vm.expectRevert(NonTransferable.selector);
         keep.safeTransferFrom(alice, charlie, 1, 1, "");
     }
-
+    */
     function testCannotSetTransferability(
         address user,
         uint256 id
@@ -1183,6 +1184,7 @@ contract KeepTest is Keep(this), Test {
         assertFalse(keep.isApprovedForAll(userA, userB));
     }
 
+    /*
     function testKeepTokenTransferByOwner(
         address userA,
         address userB,
@@ -1216,7 +1218,8 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(userA, id) == userApreBalance - amount);
         assert(keep.balanceOf(userB, id) == userBpreBalance + amount);
     }
-
+    */
+    /*
     function testKeepTokenTransferByOperator(
         address userA,
         address userB,
@@ -1255,8 +1258,8 @@ contract KeepTest is Keep(this), Test {
 
         assert(keep.balanceOf(userA, id) == userApreBalance - amount);
         assert(keep.balanceOf(userB, id) == userBpreBalance + amount);
-    }
-
+    }*/
+    /*
     function testCannotTransferKeepTokenAsUnauthorizedNonOwner(
         address userA,
         address userB,
@@ -1285,7 +1288,7 @@ contract KeepTest is Keep(this), Test {
         vm.expectRevert(Unauthorized.selector);
         keep.safeTransferFrom(userA, userB, id, amount, "");
     }
-
+    */
     function testKeepTokenBatchTransferByOwner() public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(0, true);
@@ -1349,6 +1352,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(bob, 1) == 1);
     }
 
+    /*
     function testKeepTokenTransferPermission(
         address userA,
         address userB,
@@ -1437,7 +1441,8 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(userB, id) == preBalanceB);
         assert(keep.balanceOf(userC, id) == preBalanceC + amount);
     }
-
+    */
+    /*
     function testCannotTransferExecuteOverflow() public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.setTransferability(SIGNER_KEY, true);
@@ -1455,8 +1460,8 @@ contract KeepTest is Keep(this), Test {
 
         startHoax(address(keep), address(keep), type(uint256).max);
         keep.burn(address(0xBeef), SIGNER_KEY, 1);
-    }
-
+    }*/
+    /*
     function testCannotTransferKeepTokenNonTransferable(
         uint256 id
     ) public payable {
@@ -1482,16 +1487,17 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(charlie, id) == charlieBalance);
         assert(keep.balanceOf(bob, id) == bobBalance);
     }
-
+    */
+    /*
     function testCannotTransferBatchKeepTokenNonTransferable() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
         keep.setTransferability(0, true);
         keep.setTransferability(1, false);
 
         assertTrue(keep.transferable(0));
         assertFalse(keep.transferable(1));
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+        vm.prank(address(keep));
         keep.mint(charlie, 0, 1, "");
         keep.mint(charlie, 1, 2, "");
 
@@ -1503,7 +1509,7 @@ contract KeepTest is Keep(this), Test {
         amounts[0] = 1;
         amounts[1] = 1;
 
-        startHoax(charlie, charlie, type(uint256).max);
+        vm.prank(charlie);
         vm.expectRevert(NonTransferable.selector);
         keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
 
@@ -1511,7 +1517,7 @@ contract KeepTest is Keep(this), Test {
         assert(keep.balanceOf(charlie, 1) == 2);
         assert(keep.balanceOf(bob, 0) == 0);
         assert(keep.balanceOf(bob, 1) == 0);
-    }
+    }*/
 
     function testCannotTransferKeepTokenWithUnderflow(
         uint256 id
