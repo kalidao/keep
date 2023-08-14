@@ -209,9 +209,14 @@ abstract contract KeepToken {
                 )
                 break
             }
-        }
 
-        if (!isValid) revert InvalidSig();
+            if iszero(isValid) {
+                // Store the function selector of `InvalidSig()`.
+                mstore(0x00, 0xc90c66b5)
+                // Revert with (offset, size).
+                revert(0x1c, 0x04)
+            }
+        }
     }
 
     /// -----------------------------------------------------------------------
