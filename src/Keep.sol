@@ -446,20 +446,24 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual returns (uint256 validationData) {
         if (msg.sender != entryPoint) revert Unauthorized();
 
-        bytes memory userOpSignature = userOp.signature;
+        if (quorum == 1) {
+            bytes memory userOpSignature = userOp.signature;
 
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
-        assembly {
-            r := mload(add(userOpSignature, 0x20))
-            s := mload(add(userOpSignature, 0x40))
-            v := byte(0, mload(add(userOpSignature, 0x60)))
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            assembly {
+                r := mload(add(userOpSignature, 0x20))
+                s := mload(add(userOpSignature, 0x40))
+                v := byte(0, mload(add(userOpSignature, 0x60)))
+            }
+
+            balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] != 0
+                ? validationData = 0
+                : validationData = 1;
+        } else {
+            validationData = 9; // we need to add something for multiauth.
         }
-
-        balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] == 0
-            ? validationData = 1
-            : validationData = 0;
 
         if (missingAccountFunds != 0) {
             assembly {
