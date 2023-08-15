@@ -155,8 +155,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             interfaceId == this.onERC721Received.selector ||
             // ERC165 Interface ID for ERC1155TokenReceiver.
             interfaceId == type(ERC1155TokenReceiver).interfaceId ||
-            // ERC165 interface ID for ERC1155MetadataURI.
-            interfaceId == this.uri.selector ||
             // ERC165 Interface IDs for ERC1155.
             super.supportsInterface(interfaceId);
     }
@@ -448,8 +446,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual returns (uint256 validationData) {
         if (msg.sender != entryPoint) revert Unauthorized();
 
-        if (quorum != 1) revert InvalidThreshold();
-
         bytes memory userOpSignature = userOp.signature;
 
         bytes32 r;
@@ -461,16 +457,15 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             v := byte(0, mload(add(userOpSignature, 0x60)))
         }
 
-        if (balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] == 0) return 0;
+        balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] == 0
+            ? validationData = 1
+            : validationData = 0;
 
         if (missingAccountFunds != 0) {
             assembly {
                 pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
             }
         }
-
-        // return Aggregator address instead of 0 or 1 if signature is empty in userop
-        // why? when trying to support multiple signers we use the Aggregator to verify an array of userops
     }
 
     /// -----------------------------------------------------------------------
