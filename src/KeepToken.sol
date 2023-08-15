@@ -124,22 +124,30 @@ abstract contract KeepToken {
 
     mapping(address => uint256) public nonces;
 
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    // `keccak256(
-                    //     "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    // )`
-                    0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f,
-                    // `keccak256(bytes("Keep"))`
-                    0x21d66785fec14e4da3d76f3866cf99a28f4da49ec8782c3cab7cf79c1b6fa66b,
-                    // `keccak256("1")`
-                    0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6,
-                    block.chainid,
-                    address(this)
-                )
-            );
+    function DOMAIN_SEPARATOR()
+        public
+        view
+        virtual
+        returns (bytes32 separator)
+    {
+        assembly {
+            let m := mload(0x40) // Load the free memory pointer.
+            mstore(
+                m,
+                0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f
+            )
+            mstore(
+                add(m, 0x20),
+                0x21d66785fec14e4da3d76f3866cf99a28f4da49ec8782c3cab7cf79c1b6fa66b
+            )
+            mstore(
+                add(m, 0x40),
+                0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6
+            )
+            mstore(add(m, 0x60), chainid())
+            mstore(add(m, 0x80), address())
+            separator := keccak256(m, 0xa0)
+        }
     }
 
     function _recoverSig(
