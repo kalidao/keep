@@ -149,8 +149,6 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) internal view virtual {
-        bool isValid;
-
         /// @solidity memory-safe-assembly
         assembly {
             // Clean the upper 96 bits of `signer` in case they are dirty.
@@ -176,7 +174,6 @@ abstract contract KeepToken {
                 )
                 // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
                 if mul(eq(mload(m), signer), returndatasize()) {
-                    isValid := 1
                     break
                 }
                 let f := shl(224, 0x1626ba7e)
@@ -188,33 +185,32 @@ abstract contract KeepToken {
                 mstore(add(m, 0x84), s) // `s`.
                 mstore8(add(m, 0xa4), v) // `v`.
 
-                isValid := and(
+                if iszero(
                     and(
-                        // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
-                        eq(mload(0x00), f),
-                        // Whether the returndata is exactly 0x20 bytes (1 word) long.
-                        eq(returndatasize(), 0x20)
-                    ),
-                    // Whether the staticcall does not revert.
-                    // This must be placed at the end of the `and` clause,
-                    // as the arguments are evaluated from right to left.
-                    staticcall(
-                        gas(), // Remaining gas.
-                        signer, // The `signer` address.
-                        m, // Offset of calldata in memory.
-                        0xa5, // Length of calldata in memory.
-                        0x00, // Offset of returndata.
-                        0x20 // Length of returndata to write.
+                        and(
+                            // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+                            eq(mload(0x00), f),
+                            // Whether the returndata is exactly 0x20 bytes (1 word) long.
+                            eq(returndatasize(), 0x20)
+                        ),
+                        // Whether the staticcall does not revert.
+                        // This must be placed at the end of the `and` clause,
+                        // as the arguments are evaluated from right to left.
+                        staticcall(
+                            gas(), // Remaining gas.
+                            signer, // The `signer` address.
+                            m, // Offset of calldata in memory.
+                            0xa5, // Length of calldata in memory.
+                            0x00, // Offset of returndata.
+                            0x20 // Length of returndata to write.
+                        )
                     )
-                )
-                break
-            }
-
-            if iszero(isValid) {
-                // Store the function selector of `InvalidSig()`.
-                mstore(0x00, 0xc90c66b5)
-                // Revert with (offset, size).
-                revert(0x1c, 0x04)
+                ) {
+                    // Store the function selector of `InvalidSig()`.
+                    mstore(0x00, 0xc90c66b5)
+                    // Revert with (offset, size).
+                    revert(0x1c, 0x04)
+                }
             }
         }
     }

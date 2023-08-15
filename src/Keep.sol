@@ -41,6 +41,20 @@ struct Signature {
     bytes32 s;
 }
 
+struct UserOperation {
+    address sender;
+    uint256 nonce;
+    bytes initCode;
+    bytes callData;
+    uint256 callGasLimit;
+    uint256 verificationGasLimit;
+    uint256 preVerificationGas;
+    uint256 maxFeePerGas;
+    uint256 maxPriorityFeePerGas;
+    bytes paymasterAndData;
+    bytes signature;
+}
+
 contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
     /// Events
@@ -86,6 +100,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev Core ID key permission.
     uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
+
+    /// @dev Default ERC4337 handler contract.
+    address internal constant entryPoint = address(0);
 
     /// @dev Default metadata fetcher for `uri()`.
     Keep internal immutable uriFetcher;
@@ -346,10 +363,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes memory data
     ) internal virtual {
         if (op == Operation.call) {
-            bool success;
-
             assembly {
-                success := call(
+                let success := call(
                     gas(),
                     to,
                     value,
@@ -358,14 +373,18 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     0,
                     0
                 )
+                returndatacopy(0, 0, returndatasize())
+                switch success
+                case 0 {
+                    revert(0, returndatasize())
+                }
+                default {
+                    return(0, returndatasize())
+                }
             }
-
-            if (!success) revert ExecuteFailed();
         } else if (op == Operation.delegatecall) {
-            bool success;
-
             assembly {
-                success := delegatecall(
+                let success := delegatecall(
                     gas(),
                     to,
                     add(data, 0x20),
@@ -373,15 +392,95 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     0,
                     0
                 )
+                returndatacopy(0, 0, returndatasize())
+                switch success
+                case 0 {
+                    revert(0, returndatasize())
+                }
+                default {
+                    return(0, returndatasize())
+                }
             }
-
-            if (!success) revert ExecuteFailed();
         } else {
             assembly {
-                to := create(value, add(data, 0x20), mload(data))
+                if iszero(create(value, add(data, 0x20), mload(data))) {
+                    revert(0, 0)
+                }
+            }
+        }
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC1271 Logic
+    /// -----------------------------------------------------------------------
+
+    function isValidSignature(
+        bytes32 hash,
+        bytes memory signature
+    ) public view virtual returns (bytes4) {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+        assembly {
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+            v := byte(0, mload(add(signature, 0x60)))
+        }
+
+        // Validate signatures.
+        if (balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0) {
+            return this.isValidSignature.selector;
+        } else {
+            return 0xffffffff;
+        }
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC4337 Logic
+    /// -----------------------------------------------------------------------
+
+    function validateUserOp(
+        UserOperation calldata userOp,
+        bytes32 userOpHash,
+        uint256 missingAccountFunds
+    ) public payable virtual returns (uint256 validationData) {
+        if (msg.sender != entryPoint) revert Unauthorized();
+
+        if (quorum != 1) revert InvalidThreshold();
+
+        if (balanceOf[userOp.sender][SIGN_KEY] == 0) revert InvalidSig();
+
+        bytes memory userOpSignature = userOp.signature;
+
+        if (userOpSignature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            assembly {
+                r := mload(add(userOpSignature, 0x20))
+                s := mload(add(userOpSignature, 0x40))
+                v := byte(0, mload(add(userOpSignature, 0x60)))
             }
 
-            if (to == address(0)) revert ExecuteFailed();
+            if (userOp.sender != ecrecover(userOpHash, v, r, s)) return 1;
+        }
+
+        (bool success, bytes memory result) = userOp.sender.staticcall(
+            abi.encodeWithSignature(
+                "isValidSignature(bytes32,bytes)",
+                userOpHash,
+                userOpSignature
+            )
+        );
+        if (
+            !success ||
+            (result.length == 32 && abi.decode(result, (bytes4)) != 0x1626ba7e)
+        ) return 1;
+
+        if (missingAccountFunds != 0) {
+            assembly {
+                pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
+            }
         }
     }
 

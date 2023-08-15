@@ -46,7 +46,7 @@ library LibClone {
                     0x593da1005b363d3d373d3d3d3d610000806062363936013d73
                 )
             )
-            // `keccak256("ReceiveETH(uint256)")`.
+            // `keccak256("ReceiveETH(uint256)")`
             mstore(
                 sub(data, 0x3a),
                 0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff
