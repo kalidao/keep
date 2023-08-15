@@ -35,7 +35,7 @@ contract KeepFactoryTest is Test {
     function setUp() public payable {
         // Create the templates.
         uriFetcher = new URIFetcher();
-        keep = new Keep(address(0), Keep(address(uriFetcher)));
+        keep = new Keep(address(0), address(uriFetcher));
         // Create the factory.
         factory = new KeepFactory(address(keep));
         // Create the signers.

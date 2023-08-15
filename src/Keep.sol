@@ -104,8 +104,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Default ERC4337 handler contract.
     address internal immutable entryPoint;
 
-    /// @dev Default metadata fetcher for `uri()`.
-    Keep internal immutable uriFetcher;
+    /// @dev Default metadata fetcher for `uri()` and ERC4337 aggregation.
+    address internal immutable fetcher;
 
     /// @dev Record of states verifying `execute()`.
     uint120 public nonce;
@@ -123,7 +123,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         string memory tokenURI = _uris[id];
 
         if (bytes(tokenURI).length > 0) return tokenURI;
-        else return uriFetcher.uri(id);
+        else return Keep(fetcher).uri(id);
     }
 
     /// @dev Access control check for ID key balance holders.
@@ -178,10 +178,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @notice Create Keep template.
     /// @param _entryPoint ERC4337 handler.
-    /// @param _uriFetcher Metadata default.
-    constructor(address _entryPoint, Keep _uriFetcher) payable {
+    /// @param _fetcher Metadata and signature validator.
+    constructor(address _entryPoint, address _fetcher) payable {
         entryPoint = _entryPoint;
-        uriFetcher = _uriFetcher;
+        fetcher = _fetcher;
 
         // Deploy as singleton.
         quorum = 1;
@@ -462,7 +462,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 ? validationData = 0
                 : validationData = 1;
         } else {
-            validationData = 9; // we need to add something for multiauth.
+            validationData = uint256(uint160(fetcher));
         }
 
         if (missingAccountFunds != 0) {

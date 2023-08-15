@@ -18,7 +18,7 @@ import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver
 /// @dev Test framework.
 import "@std/Test.sol";
 
-contract KeepTest is Keep(address(0), this), Test {
+contract KeepTest is Keep(address(0), address(0)), Test {
     /// -----------------------------------------------------------------------
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
@@ -209,7 +209,7 @@ contract KeepTest is Keep(address(0), this), Test {
         // Initialize templates.
         mockUriFetcher = new URIFetcher();
 
-        keep = new Keep(address(0), Keep(address(mockUriFetcher)));
+        keep = new Keep(address(0), address(mockUriFetcher));
 
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721();
@@ -370,7 +370,7 @@ contract KeepTest is Keep(address(0), this), Test {
     /// @notice Check setup errors.
 
     function testCannotRepeatKeepSetup() public payable {
-        keepRepeat = new Keep(address(0), Keep(address(mockUriFetcher)));
+        keepRepeat = new Keep(address(0), address(mockUriFetcher));
 
         keepAddrRepeat = factory.determineKeep(name2);
         keepRepeat = Keep(keepAddrRepeat);
