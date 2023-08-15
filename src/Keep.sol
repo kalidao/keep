@@ -427,7 +427,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             v := byte(0, mload(add(signature, 0x60)))
         }
 
-        // Validate signatures.
+        // Validate signature.
         if (balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0) {
             return this.isValidSignature.selector;
         } else {
@@ -448,40 +448,28 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         if (quorum != 1) revert InvalidThreshold();
 
-        if (balanceOf[userOp.sender][SIGN_KEY] == 0) revert InvalidSig();
-
         bytes memory userOpSignature = userOp.signature;
 
-        if (userOpSignature.length == 65) {
-            bytes32 r;
-            bytes32 s;
-            uint8 v;
-            assembly {
-                r := mload(add(userOpSignature, 0x20))
-                s := mload(add(userOpSignature, 0x40))
-                v := byte(0, mload(add(userOpSignature, 0x60)))
-            }
-
-            if (userOp.sender != ecrecover(userOpHash, v, r, s)) return 1;
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+        assembly {
+            r := mload(add(userOpSignature, 0x20))
+            s := mload(add(userOpSignature, 0x40))
+            v := byte(0, mload(add(userOpSignature, 0x60)))
         }
 
-        (bool success, bytes memory result) = userOp.sender.staticcall(
-            abi.encodeWithSignature(
-                "isValidSignature(bytes32,bytes)",
-                userOpHash,
-                userOpSignature
-            )
-        );
-        if (
-            !success ||
-            (result.length == 32 && abi.decode(result, (bytes4)) != 0x1626ba7e)
-        ) return 1;
+        if (balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] == 0)
+            return 0;
 
         if (missingAccountFunds != 0) {
             assembly {
                 pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
             }
         }
+
+        // return Aggregator address instead of 0 or 1 if signature is empty in userop
+        // why? when trying to support multiple signers we use the Aggregator to verify an array of userops
     }
 
     /// -----------------------------------------------------------------------
