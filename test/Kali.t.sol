@@ -35,7 +35,7 @@ error Sponsored();
 
 error AlreadyVoted();
 
-contract KaliTest is Test, Keep(Keep(address(0))) {
+contract KaliTest is Test, Keep(address(0), Keep(address(0))) {
     address keepAddr;
     address kaliAddr;
 
@@ -86,7 +86,7 @@ contract KaliTest is Test, Keep(Keep(address(0))) {
         mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();
 
         // Create the Keep templates.
-        keep = address(new Keep(Keep(address(address(0)))));
+        keep = address(new Keep(address(0), Keep(address(address(0)))));
         // Create the Keep factory.
         keepFactory = new KeepFactory(keep);
         // Create the Signer[] for setup.

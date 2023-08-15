@@ -102,7 +102,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
 
     /// @dev Default ERC4337 handler contract.
-    address internal constant entryPoint = address(0);
+    address internal immutable entryPoint;
 
     /// @dev Default metadata fetcher for `uri()`.
     Keep internal immutable uriFetcher;
@@ -179,8 +179,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @notice Create Keep template.
+    /// @param _entryPoint ERC4337 handler.
     /// @param _uriFetcher Metadata default.
-    constructor(Keep _uriFetcher) payable {
+    constructor(address _entryPoint, Keep _uriFetcher) payable {
+        entryPoint = _entryPoint;
         uriFetcher = _uriFetcher;
 
         // Deploy as singleton.
@@ -459,8 +461,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             v := byte(0, mload(add(userOpSignature, 0x60)))
         }
 
-        if (balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] == 0)
-            return 0;
+        if (balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] == 0) return 0;
 
         if (missingAccountFunds != 0) {
             assembly {
