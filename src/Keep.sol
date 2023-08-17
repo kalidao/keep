@@ -300,6 +300,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Store outside loop for gas optimization.
         Signature calldata sig;
 
+        // @TODO we don't need to verify signatures here since its validated in the validate function
         for (uint256 i; i < threshold; ) {
             // Load signature items.
             sig = sigs[i];
@@ -331,7 +332,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice Relay operation from Keep via `execute()` or as ID key holder.
     /// @param call Keep operation as struct of `op, to, value, data`.
     function relay(Call calldata call) public payable virtual {
-        _authorized();
+        _authorized(); // @TODO check if from entry point
 
         _execute(call.op, call.to, call.value, call.data);
 
@@ -445,6 +446,30 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// ERC4337 Logic
     /// -----------------------------------------------------------------------
 
+    function splitSignatures(
+        bytes memory signatures
+    ) internal pure returns (bytes[] memory) {
+        require(
+            signatures.length % 65 == 0,
+            "Signatures length must be multiple of 65"
+        );
+
+        uint256 signaturesCount = signatures.length / 65;
+        bytes[] memory splitSignatures = new bytes[](signaturesCount);
+
+        for (uint256 i = 0; i < signaturesCount; i++) {
+            bytes memory signature = new bytes(65);
+
+            for (uint256 j = 0; j < 65; j++) {
+                signature[j] = signatures[(i * 65) + j];
+            }
+
+            splitSignatures[i] = signature;
+        }
+
+        return splitSignatures;
+    }
+
     function validateUserOp(
         UserOperation calldata userOp,
         bytes32 userOpHash,
@@ -452,50 +477,48 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual returns (uint256 validationData) {
         if (msg.sender != entryPoint) revert Unauthorized();
 
-        if (quorum == 1) {
-            bytes memory signature = userOp.signature;
-            address signer;
-            bytes32 hash;
+        // if (quorum == 1) {
+        bytes[] memory sigs = splitSignatures(userOp.signature);
+        address signer;
+        bytes32 hash;
 
-            /// @solidity memory-safe-assembly
-            assembly {
-                mstore(0x20, userOpHash) // Store into scratch space for keccak256.
-                mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
-                hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
+        // @TODO replace /w execute sig check logic
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0x20, userOpHash) // Store into scratch space for keccak256.
+            mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
+            hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
 
-                let m := mload(0x40) // Cache the free memory pointer.
-                let signatureLength := mload(signature)
-                mstore(0x00, hash)
-                mstore(0x20, byte(0, mload(add(signature, 0x60)))) // `v`.
-                mstore(0x40, mload(add(signature, 0x20))) // `r`.
-                mstore(0x60, mload(add(signature, 0x40))) // `s`.
-                signer := mload(
-                    staticcall(
-                        gas(), // Amount of gas left for the transaction.
-                        eq(signatureLength, 65), // Address of `ecrecover`.
-                        0x00, // Start of input.
-                        0x80, // Size of input.
-                        0x01, // Start of output.
-                        0x20 // Size of output.
-                    )
+            let m := mload(0x40) // Cache the free memory pointer.
+            let signatureLength := mload(signature)
+            mstore(0x00, hash)
+            mstore(0x20, byte(0, mload(add(signature, 0x60)))) // `v`.
+            mstore(0x40, mload(add(signature, 0x20))) // `r`.
+            mstore(0x60, mload(add(signature, 0x40))) // `s`.
+            signer := mload(
+                staticcall(
+                    gas(), // Amount of gas left for the transaction.
+                    eq(signatureLength, 65), // Address of `ecrecover`.
+                    0x00, // Start of input.
+                    0x80, // Size of input.
+                    0x01, // Start of output.
+                    0x20 // Size of output.
                 )
-                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
-                if iszero(returndatasize()) {
-                    mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
-                    revert(0x1c, 0x04)
-                }
-                mstore(0x60, 0) // Restore the zero slot.
-                mstore(0x40, m) // Restore the free memory pointer.
+            )
+            // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+            if iszero(returndatasize()) {
+                mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
+                revert(0x1c, 0x04)
             }
-
-            // Check SIGN_KEY balance.
-            // This also confirms non-zero `user`.
-            balanceOf[signer][SIGN_KEY] != 0
-                ? validationData = 0
-                : validationData = 1;
-        } else {
-            validationData = uint256(uint160(fetcher));
+            mstore(0x60, 0) // Restore the zero slot.
+            mstore(0x40, m) // Restore the free memory pointer.
         }
+
+        // Check SIGN_KEY balance.
+        // This also confirms non-zero `user`.
+        balanceOf[signer][SIGN_KEY] != 0
+            ? validationData = 0
+            : validationData = 1;
 
         if (missingAccountFunds != 0) {
             assembly {
