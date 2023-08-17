@@ -227,7 +227,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             signer = signers[i];
 
             // Prevent zero and duplicate signers.
-            if (previous >= signer) revert InvalidSig();
+            if (previous >= signer) revert Unauthorized();
 
             previous = signer;
 
@@ -307,13 +307,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             // Check SIGN_KEY balance.
             // This also confirms non-zero `user`.
-            if (balanceOf[user][SIGN_KEY] == 0) revert InvalidSig();
+            if (balanceOf[user][SIGN_KEY] == 0) revert Unauthorized();
 
             // Check signature recovery.
             _recoverSig(hash, user, sig.v, sig.r, sig.s);
 
             // Check against duplicates.
-            if (previous >= user) revert InvalidSig();
+            if (previous >= user) revert Unauthorized();
 
             // Memo signature for next iteration until quorum.
             previous = user;
@@ -450,26 +450,44 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         if (msg.sender != entryPoint) revert Unauthorized();
 
         if (quorum == 1) {
-            bytes memory userOpSignature = userOp.signature;
+            bytes memory signature = userOp.signature;
+            address signer;
             bytes32 hash;
-            bytes32 r;
-            bytes32 s;
-            uint8 v;
 
             /// @solidity memory-safe-assembly
             assembly {
-                r := mload(add(userOpSignature, 0x20))
-                s := mload(add(userOpSignature, 0x40))
-                v := byte(0, mload(add(userOpSignature, 0x60)))
+                mstore(0x20, userOpHash) // Store into scratch space for keccak256.
+                mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
+                hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
 
-                mstore(0x00, "\x19Ethereum Signed Message:\n32") // 32 is the bytes-length of messageHash.
-                mstore(0x1c, userOpHash) // 0x1c (28) is the length of the prefix.
-                hash := keccak256(0x00, 0x3c) // 0x3c is the length of the prefix (0x1c) + messageHash (0x20).
+                let m := mload(0x40) // Cache the free memory pointer.
+                let signatureLength := mload(signature)
+                mstore(0x00, hash)
+                mstore(0x20, byte(0, mload(add(signature, 0x60)))) // `v`.
+                mstore(0x40, mload(add(signature, 0x20))) // `r`.
+                mstore(0x60, mload(add(signature, 0x40))) // `s`.
+                signer := mload(
+                    staticcall(
+                        gas(), // Amount of gas left for the transaction.
+                        eq(signatureLength, 65), // Address of `ecrecover`.
+                        0x00, // Start of input.
+                        0x80, // Size of input.
+                        0x01, // Start of output.
+                        0x20 // Size of output.
+                    )
+                )
+                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                if iszero(returndatasize()) {
+                    mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
+                    revert(0x1c, 0x04)
+                }
+                mstore(0x60, 0) // Restore the zero slot.
+                mstore(0x40, m) // Restore the free memory pointer.
             }
 
             // Check SIGN_KEY balance.
             // This also confirms non-zero `user`.
-            balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0
+            balanceOf[signer][SIGN_KEY] != 0
                 ? validationData = 0
                 : validationData = 1;
         } else {

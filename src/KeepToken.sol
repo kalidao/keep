@@ -90,7 +90,7 @@ abstract contract KeepToken {
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
-    error InvalidSig();
+    error InvalidSignature();
 
     error LengthMismatch();
 
@@ -214,9 +214,7 @@ abstract contract KeepToken {
                         )
                     )
                 ) {
-                    // Store the function selector of `InvalidSig()`.
-                    mstore(0x00, 0xc90c66b5)
-                    // Revert with (offset, size).
+                    mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
                     revert(0x1c, 0x04)
                 }
             }
@@ -449,7 +447,7 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) public payable virtual {
-        if (owner == address(0)) revert InvalidSig();
+        if (owner == address(0)) revert InvalidSignature();
 
         if (block.timestamp > deadline) revert ExpiredSig();
 
@@ -591,7 +589,7 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) public payable virtual {
-        if (delegator == address(0)) revert InvalidSig();
+        if (delegator == address(0)) revert InvalidSignature();
 
         if (block.timestamp > deadline) revert ExpiredSig();
 

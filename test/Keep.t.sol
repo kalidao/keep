@@ -395,7 +395,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         outOfOrderSigners[0] = alice > bob ? alice : bob;
         outOfOrderSigners[1] = alice > bob ? bob : alice;
 
-        vm.expectRevert(InvalidSig.selector);
+        vm.expectRevert(InvalidSignature.selector);
         factory.deployKeep(name2, calls, outOfOrderSigners, 2);
     }
 
@@ -737,7 +737,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         assert(keep.nonce() == 2);
 
         // Confirm revert for stale nonce.
-        vm.expectRevert(InvalidSig.selector);
+        vm.expectRevert(InvalidSignature.selector);
         keep.execute(Operation.call, alice, 1 ether, "", sigs);
     }
 
@@ -852,7 +852,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
         // Execute tx.
-        vm.expectRevert(InvalidSig.selector);
+        vm.expectRevert(InvalidSignature.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -886,7 +886,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         sigs[1] = alice > bob ? bobSig : aliceSig;
 
         // Execute tx.
-        vm.expectRevert(InvalidSig.selector);
+        vm.expectRevert(InvalidSignature.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -910,7 +910,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         sigs[1] = aliceSig;
 
         // Execute tx.
-        vm.expectRevert(InvalidSig.selector);
+        vm.expectRevert(InvalidSignature.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
@@ -944,7 +944,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         sigs[1] = alice > nully ? aliceSig : nullSig;
 
         // Execute tx.
-        vm.expectRevert(InvalidSig.selector);
+        vm.expectRevert(InvalidSignature.selector);
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
