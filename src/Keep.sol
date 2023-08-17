@@ -363,6 +363,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes memory data
     ) internal virtual {
         if (op == Operation.call) {
+            /// @solidity memory-safe-assembly
             assembly {
                 let success := call(
                     gas(),
@@ -383,6 +384,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 }
             }
         } else if (op == Operation.delegatecall) {
+            /// @solidity memory-safe-assembly
             assembly {
                 let success := delegatecall(
                     gas(),
@@ -402,6 +404,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 }
             }
         } else {
+            /// @solidity memory-safe-assembly
             assembly {
                 if iszero(create(value, add(data, 0x20), mload(data))) {
                     revert(0, 0)
@@ -433,9 +436,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             // This also confirms non-zero `user`.
             if (balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0)
                 return this.isValidSignature.selector;
-        } else {
-            return 0xffffffff;
         }
+
+        return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------

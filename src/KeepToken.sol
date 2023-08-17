@@ -130,6 +130,7 @@ abstract contract KeepToken {
         virtual
         returns (bytes32 separator)
     {
+        /// @solidity memory-safe-assembly
         assembly {
             let m := mload(0x40) // Load the free memory pointer.
             mstore(
@@ -256,18 +257,19 @@ abstract contract KeepToken {
     /// -----------------------------------------------------------------------
 
     function name() public pure virtual returns (string memory) {
-        uint256 placeholder;
+        uint256 n;
 
+        /// @solidity memory-safe-assembly
         assembly {
-            placeholder := sub(
+            n := sub(
                 calldatasize(),
                 add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
             )
 
-            placeholder := calldataload(add(placeholder, 2))
+            n := calldataload(add(n, 2))
         }
 
-        return string(abi.encodePacked(placeholder));
+        return string(abi.encodePacked(n));
     }
 
     string public constant symbol = "KEEP";
