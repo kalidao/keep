@@ -418,18 +418,21 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 hash,
         bytes memory signature
     ) public view virtual returns (bytes4) {
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
-        assembly {
-            r := mload(add(signature, 0x20))
-            s := mload(add(signature, 0x40))
-            v := byte(0, mload(add(signature, 0x60)))
-        }
+        if (signature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            /// @solidity memory-safe-assembly
+            assembly {
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
+            }
 
-        // Validate signature.
-        if (balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0) {
-            return this.isValidSignature.selector;
+            // Check SIGN_KEY balance.
+            // This also confirms non-zero `user`.
+            if (balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0)
+                return this.isValidSignature.selector;
         } else {
             return 0xffffffff;
         }
@@ -448,17 +451,25 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         if (quorum == 1) {
             bytes memory userOpSignature = userOp.signature;
-
+            bytes32 hash;
             bytes32 r;
             bytes32 s;
             uint8 v;
+
+            /// @solidity memory-safe-assembly
             assembly {
                 r := mload(add(userOpSignature, 0x20))
                 s := mload(add(userOpSignature, 0x40))
                 v := byte(0, mload(add(userOpSignature, 0x60)))
+
+                mstore(0x00, "\x19Ethereum Signed Message:\n32") // 32 is the bytes-length of messageHash.
+                mstore(0x1c, userOpHash) // 0x1c (28) is the length of the prefix.
+                hash := keccak256(0x00, 0x3c) // 0x3c is the length of the prefix (0x1c) + messageHash (0x20).
             }
 
-            balanceOf[ecrecover(userOpHash, v, r, s)][SIGN_KEY] != 0
+            // Check SIGN_KEY balance.
+            // This also confirms non-zero `user`.
+            balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0
                 ? validationData = 0
                 : validationData = 1;
         } else {
