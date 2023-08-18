@@ -482,6 +482,21 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address signer;
         bytes32 hash;
 
+        bytes4 funcSig = bytes4(userOp.callData[0:4]);
+
+        uint key = userOp.nonce >> 64;
+
+        if (key == 0) {
+            // basic normal nonce
+            // check quorum as well
+        } else {
+            // core key
+            if (key == CORE_KEY) {
+                // check sigs[0] recovered holds core key
+                //
+            }
+        }
+
         // @TODO replace /w execute sig check logic
         /// @solidity memory-safe-assembly
         assembly {
