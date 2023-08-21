@@ -275,24 +275,6 @@ abstract contract KeepToken {
     string public constant symbol = "KEEP";
 
     /// -----------------------------------------------------------------------
-    /// ERC165 Logic
-    /// -----------------------------------------------------------------------
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual returns (bool result) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            let s := shr(224, interfaceId)
-            // ERC165: 0x01ffc9a7, ERC1155: 0xd9b67a26, ERC1155MetadataURI: 0x0e89341c.
-            result := or(
-                or(eq(s, 0x01ffc9a7), eq(s, 0xd9b67a26)),
-                eq(s, 0x0e89341c)
-            )
-        }
-    }
-
-    /// -----------------------------------------------------------------------
     /// ERC1155 Logic
     /// -----------------------------------------------------------------------
 

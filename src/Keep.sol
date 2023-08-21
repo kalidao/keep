@@ -146,17 +146,26 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev ERC165 interface detection.
     /// @param interfaceId ID to check.
-    /// @return Fetch detection success.
+    /// @return result Fetch detection success.
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override returns (bool) {
-        return
-            // ERC165 Interface ID for ERC721TokenReceiver.
-            interfaceId == this.onERC721Received.selector ||
-            // ERC165 Interface ID for ERC1155TokenReceiver.
-            interfaceId == type(ERC1155TokenReceiver).interfaceId ||
-            // ERC165 Interface IDs for ERC1155.
-            super.supportsInterface(interfaceId);
+    ) public view virtual returns (bool result) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let s := shr(224, interfaceId)
+            // ERC165: 0x01ffc9a7, ERC1155: 0xd9b67a26, ERC1155MetadataURI: 0x0e89341c,
+            // ERC721TokenReceiver: 0x150b7a02, ERC1155TokenReceiver: 0x4e2312e0
+            result := or(
+                or(
+                    or(
+                        or(eq(s, 0x01ffc9a7), eq(s, 0xd9b67a26)),
+                        eq(s, 0x0e89341c)
+                    ),
+                    eq(s, 0x150b7a02)
+                ),
+                eq(s, 0x4e2312e0)
+            )
+        }
     }
 
     /// -----------------------------------------------------------------------
@@ -455,19 +464,19 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         );
 
         uint256 signaturesCount = signatures.length / 65;
-        bytes[] memory splitSignatures = new bytes[](signaturesCount);
+        bytes[] memory split = new bytes[](signaturesCount);
 
-        for (uint256 i = 0; i < signaturesCount; i++) {
+        for (uint256 i; i < signaturesCount; ++i) {
             bytes memory signature = new bytes(65);
 
-            for (uint256 j = 0; j < 65; j++) {
+            for (uint256 j; j < 65; ++j) {
                 signature[j] = signatures[(i * 65) + j];
             }
 
-            splitSignatures[i] = signature;
+            split[i] = signature;
         }
 
-        return splitSignatures;
+        return split;
     }
 
     function validateUserOp(
@@ -496,7 +505,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 //
             }
         }
-
+        /*
         // @TODO replace /w execute sig check logic
         /// @solidity memory-safe-assembly
         assembly {
@@ -539,7 +548,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             assembly {
                 pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
             }
-        }
+        }*/
     }
 
     /// -----------------------------------------------------------------------
