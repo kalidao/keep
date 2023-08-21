@@ -466,14 +466,16 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 signaturesCount = signatures.length / 65;
         bytes[] memory split = new bytes[](signaturesCount);
 
-        for (uint256 i; i < signaturesCount; ++i) {
-            bytes memory signature = new bytes(65);
+        unchecked {
+            for (uint256 i; i < signaturesCount; ++i) {
+                bytes memory signature = new bytes(65);
 
-            for (uint256 j; j < 65; ++j) {
-                signature[j] = signatures[(i * 65) + j];
+                for (uint256 j; j < 65; ++j) {
+                    signature[j] = signatures[(i * 65) + j];
+                }
+
+                split[i] = signature;
             }
-
-            split[i] = signature;
         }
 
         return split;
@@ -486,33 +488,51 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) public payable virtual returns (uint256 validationData) {
         if (msg.sender != entryPoint) revert Unauthorized();
 
-        // if (quorum == 1) {
         bytes[] memory sigs = splitSignatures(userOp.signature);
         address signer;
         bytes32 hash;
 
         bytes4 funcSig = bytes4(userOp.callData[0:4]);
-
         uint key = userOp.nonce >> 64;
 
-        if (key == 0) {
-            // basic normal nonce
-            // check quorum as well
-        } else {
-            // core key
-            if (key == CORE_KEY) {
-                // check sigs[0] recovered holds core key
-                //
-            }
-        }
-        /*
-        // @TODO replace /w execute sig check logic
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x20, userOpHash) // Store into scratch space for keccak256.
             mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
             hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
+        }
 
+        if (key == 0) {
+            if (quorum == 1) {
+                signer = _recoverSigner(hash, sigs[0]);
+
+                balanceOf[signer][SIGN_KEY] != 0
+                    ? validationData = 0
+                    : validationData = 1;
+            } else {}
+        } else {
+            if (key == CORE_KEY) {
+                signer = _recoverSigner(hash, sigs[0]);
+
+                balanceOf[signer][CORE_KEY] != 0
+                    ? validationData = 0
+                    : validationData = 1;
+            }
+        }
+
+        if (missingAccountFunds != 0) {
+            assembly {
+                pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
+            }
+        }
+    }
+
+    function _recoverSigner(
+        bytes32 hash,
+        bytes memory signature
+    ) internal virtual returns (address signer) {
+        /// @solidity memory-safe-assembly
+        assembly {
             let m := mload(0x40) // Cache the free memory pointer.
             let signatureLength := mload(signature)
             mstore(0x00, hash)
@@ -537,18 +557,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             mstore(0x60, 0) // Restore the zero slot.
             mstore(0x40, m) // Restore the free memory pointer.
         }
-
-        // Check SIGN_KEY balance.
-        // This also confirms non-zero `user`.
-        balanceOf[signer][SIGN_KEY] != 0
-            ? validationData = 0
-            : validationData = 1;
-
-        if (missingAccountFunds != 0) {
-            assembly {
-                pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
-            }
-        }*/
     }
 
     /// -----------------------------------------------------------------------
