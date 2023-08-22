@@ -98,6 +98,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
+    /**
+     * Return value in case of signature failure, with no time-range.
+     * Equivalent to _packValidationData(true,0,0).
+     */
+    uint256 internal constant SIG_VALIDATION_FAILED = 1;
+
     /// @dev Core ID key permission.
     uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
 
@@ -455,7 +461,50 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// ERC4337 Logic
     /// -----------------------------------------------------------------------
 
-    function splitSignatures(
+    function validateUserOp(
+        UserOperation calldata userOp,
+        bytes32 userOpHash,
+        uint256 missingAccountFunds
+    ) public payable virtual returns (uint256 validationData) {
+        _requireFromEntryPoint();
+        validationData = _validateSignatures(userOp, userOpHash);
+        // _validateNonce(userOp.nonce);
+        _payPrefund(missingAccountFunds);
+    }
+
+    /**
+     * Ensure the request comes from the known entrypoint.
+     */
+    function _requireFromEntryPoint() internal view virtual {
+        if (msg.sender != entryPoint) revert Unauthorized();
+    }
+
+    /**
+     * @dev Returns the keccak256 digest of an EIP-191 signed data with version
+     * `0x45` (`personal_sign` messages).
+     *
+     * The digest is calculated by prefixing a bytes32 `messageHash` with
+     * `"\x19Ethereum Signed Message:\n32"` and hashing the result. It corresponds with the
+     * hash signed when using the https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`] JSON-RPC method.
+     *
+     * NOTE: The `hash` parameter is intended to be the result of hashing a raw message with
+     * keccak256, although any bytes32 value can be safely used because the final digest will
+     * be re-hashed.
+     *
+     * See {ECDSA-recover}.
+     */
+    function _toEthSignedMessageHash(
+        bytes32 messageHash
+    ) internal pure returns (bytes32 digest) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0x00, "\x19Ethereum Signed Message:\n32") // 32 is the bytes-length of messageHash
+            mstore(0x1c, messageHash) // 0x1c (28) is the length of the prefix
+            digest := keccak256(0x00, 0x3c) // 0x3c is the length of the prefix (0x1c) + messageHash (0x20)
+        }
+    }
+
+    function _splitSigs(
         bytes memory signatures
     ) internal pure returns (bytes[] memory) {
         require(
@@ -481,45 +530,66 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         return split;
     }
 
-    function validateUserOp(
+    /**
+     * Validate the signature is valid for this message.
+     * @param userOp          - Validate the userOp.signature field.
+     * @param userOpHash      - Convenient field: the hash of the request, to check the signature against.
+     *                          (also hashes the entrypoint and chain id)
+     * @return validationData - Signature and time-range of this operation.
+     *                          <20-byte> sigAuthorizer - 0 for valid signature, 1 to mark signature failure,
+     *                              otherwise, an address of an "authorizer" contract.
+     *                          <6-byte> validUntil - last timestamp this operation is valid. 0 for "indefinite"
+     *                          <6-byte> validAfter - first timestamp this operation is valid
+     *                          If the account doesn't use time-range, it is enough to return
+     *                          SIG_VALIDATION_FAILED value (1) for signature failure.
+     *                          Note that the validation code cannot use block.timestamp (or block.number) directly.
+     */
+    function _validateSignatures(
         UserOperation calldata userOp,
-        bytes32 userOpHash,
-        uint256 missingAccountFunds
-    ) public payable virtual returns (uint256 validationData) {
-        if (msg.sender != entryPoint) revert Unauthorized();
+        bytes32 userOpHash
+    ) internal virtual returns (uint256 validationData) {
+        bytes32 hash = _toEthSignedMessageHash(userOpHash);
+        bytes[] memory sigs = _splitSigs(userOp.signature);
 
-        bytes[] memory sigs = splitSignatures(userOp.signature);
-        address signer;
-        bytes32 hash;
-
-        bytes4 funcSig = bytes4(userOp.callData[0:4]);
-        uint key = userOp.nonce >> 64;
-
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x20, userOpHash) // Store into scratch space for keccak256.
-            mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
-            hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
-        }
-
-        if (key == 0) {
-            if (quorum == 1) {
-                signer = _recoverSigner(hash, sigs[0]);
-
-                balanceOf[signer][SIGN_KEY] != 0
-                    ? validationData = 0
-                    : validationData = 1;
-            } else {}
-        } else {
-            if (key == CORE_KEY) {
-                signer = _recoverSigner(hash, sigs[0]);
-
-                balanceOf[signer][CORE_KEY] != 0
-                    ? validationData = 0
-                    : validationData = 1;
+        // check we have enough valid signatures to pass the quorum
+        for (uint256 i = 0; i <= quorum; i++) {
+            address signer = _recoverSigner(hash, sigs[i]);
+            if (balanceOf[signer][SIGN_KEY] != 0) {
+                return SIG_VALIDATION_FAILED;
             }
         }
 
+        return 0;
+    }
+
+    /**
+     * Validate the nonce of the UserOperation.
+     * This method may validate the nonce requirement of this account.
+     * e.g.
+     * To limit the nonce to use sequenced UserOps only (no "out of order" UserOps):
+     *      `require(nonce < type(uint64).max)`
+     * For a hypothetical account that *requires* the nonce to be out-of-order:
+     *      `require(nonce & type(uint64).max == 0)`
+     *
+     * The actual nonce uniqueness is managed by the EntryPoint, and thus no other
+     * action is needed by the account itself.
+     *
+     * @param _nonce to validate
+     */
+    // function _validateNonce(uint256 _nonce) internal view virtual {
+    //     require(_nonce & type(uint64).max == 0);
+    // }
+
+    /**
+     * Sends to the entrypoint (msg.sender) the missing funds for this transaction.
+     * SubClass MAY override this method for better funds management
+     * (e.g. send to the entryPoint more than the minimum required, so that in future transactions
+     * it will not be required to send again).
+     * @param missingAccountFunds - The minimum value this method should send the entrypoint.
+     *                              This value MAY be zero, in case there is enough deposit,
+     *                              or the userOp has a paymaster.
+     */
+    function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds != 0) {
             assembly {
                 pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
