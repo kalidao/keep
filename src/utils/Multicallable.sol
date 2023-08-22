@@ -18,6 +18,10 @@ abstract contract Multicallable {
         assembly {
             mstore(0x00, 0x20)
             mstore(0x20, data.length) // Store `data.length` into `results`.
+            // Early return if no data.
+            if iszero(data.length) {
+                return(0x00, 0x40)
+            }
 
             let results := 0x40
             // `shl` 5 is equivalent to multiplying by 0x20.

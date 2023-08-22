@@ -98,12 +98,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
-    /**
-     * Return value in case of signature failure, with no time-range.
-     * Equivalent to _packValidationData(true,0,0).
-     */
-    uint256 internal constant SIG_VALIDATION_FAILED = 1;
-
     /// @dev Core ID key permission.
     uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
 
@@ -315,7 +309,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Store outside loop for gas optimization.
         Signature calldata sig;
 
-        // @TODO we don't need to verify signatures here since its validated in the validate function
         for (uint256 i; i < threshold; ) {
             // Load signature items.
             sig = sigs[i];
@@ -326,7 +319,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             if (balanceOf[user][SIGN_KEY] == 0) revert Unauthorized();
 
             // Check signature recovery.
-            _recoverSig(hash, user, sig.v, sig.r, sig.s);
+            _checkSig(hash, user, sig.v, sig.r, sig.s);
 
             // Check against duplicates.
             if (previous >= user) revert Unauthorized();
@@ -347,7 +340,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice Relay operation from Keep via `execute()` or as ID key holder.
     /// @param call Keep operation as struct of `op, to, value, data`.
     function relay(Call calldata call) public payable virtual {
-        _authorized(); // @TODO check if from entry point
+        if (msg.sender != entryPoint) _authorized();
 
         _execute(call.op, call.to, call.value, call.data);
 
@@ -357,7 +350,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice Relay operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as struct arrays of `op, to, value, data`.
     function multirelay(Call[] calldata calls) public payable virtual {
-        _authorized();
+        if (msg.sender != entryPoint) _authorized();
 
         for (uint256 i; i < calls.length; ) {
             _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
@@ -437,24 +430,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 hash,
         bytes memory signature
     ) public view virtual returns (bytes4) {
-        if (signature.length == 65) {
-            bytes32 r;
-            bytes32 s;
-            uint8 v;
-            /// @solidity memory-safe-assembly
-            assembly {
-                r := mload(add(signature, 0x20))
-                s := mload(add(signature, 0x40))
-                v := byte(0, mload(add(signature, 0x60)))
-            }
-
-            // Check SIGN_KEY balance.
-            // This also confirms non-zero `user`.
-            if (balanceOf[ecrecover(hash, v, r, s)][SIGN_KEY] != 0)
-                return this.isValidSignature.selector;
-        }
-
-        return 0xffffffff;
+        // Check SIGN_KEY balance.
+        // This also confirms non-zero `user`.
+        if (balanceOf[_recoverSigner(hash, signature)][SIGN_KEY] != 0)
+            return this.isValidSignature.selector;
+        else return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------
@@ -466,47 +446,71 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public payable virtual returns (uint256 validationData) {
-        _requireFromEntryPoint();
-        validationData = _validateSignatures(userOp, userOpHash);
-        // _validateNonce(userOp.nonce);
-        _payPrefund(missingAccountFunds);
-    }
-
-    /**
-     * Ensure the request comes from the known entrypoint.
-     */
-    function _requireFromEntryPoint() internal view virtual {
+        // Ensure request comes from known `entrypoint`.
         if (msg.sender != entryPoint) revert Unauthorized();
-    }
 
-    /**
-     * @dev Returns the keccak256 digest of an EIP-191 signed data with version
-     * `0x45` (`personal_sign` messages).
-     *
-     * The digest is calculated by prefixing a bytes32 `messageHash` with
-     * `"\x19Ethereum Signed Message:\n32"` and hashing the result. It corresponds with the
-     * hash signed when using the https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`] JSON-RPC method.
-     *
-     * NOTE: The `hash` parameter is intended to be the result of hashing a raw message with
-     * keccak256, although any bytes32 value can be safely used because the final digest will
-     * be re-hashed.
-     *
-     * See {ECDSA-recover}.
-     */
-    function _toEthSignedMessageHash(
-        bytes32 messageHash
-    ) internal pure returns (bytes32 digest) {
+        // Return keccak256 hash of ERC191 signed data.
+        bytes32 hash;
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0x00, "\x19Ethereum Signed Message:\n32") // 32 is the bytes-length of messageHash
-            mstore(0x1c, messageHash) // 0x1c (28) is the length of the prefix
-            digest := keccak256(0x00, 0x3c) // 0x3c is the length of the prefix (0x1c) + messageHash (0x20)
+            mstore(0x20, userOpHash) // Store into scratch space for keccak256.
+            mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
+            hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
+
+        validationData = _validateSignatures(hash, userOp.signature);
+
+        // Send any missing funds to `entrypoint` (msg.sender).
+        if (missingAccountFunds != 0) {
+            assembly {
+                pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
+            }
+        }
+    }
+
+    function _validateSignatures(
+        bytes32 hash,
+        bytes calldata signatures
+    ) internal virtual returns (uint256 validationData) {
+        bytes[] memory sigs;
+        // Split signatures if batched.
+        if (signatures.length == 65) {
+            sigs[0] = signatures;
+        } else {
+            sigs = _splitSigs(signatures);
+        }
+
+        // Start zero in loop to ensure ascending addresses.
+        address previous;
+        // Validation is length of quorum threshold.
+        uint256 threshold = quorum;
+
+        // Check enough valid signatures to pass `quorum`.
+        for (uint256 i; i < threshold; ) {
+            address signer = _recoverSigner(hash, sigs[i]);
+
+            // If not keyholding signer, `SIG_VALIDATION_FAILED`.
+            if (balanceOf[signer][SIGN_KEY] == 0) return 1;
+
+            // Check against duplicates.
+            if (previous >= signer) revert Unauthorized();
+
+            // Memo signature for next iteration until quorum.
+            previous = signer;
+
+            // An array can't have a total length
+            // larger than the max uint256 value.
+            unchecked {
+                ++i;
+            }
+        }
+
+        return 0;
     }
 
     function _splitSigs(
         bytes memory signatures
-    ) internal pure returns (bytes[] memory split) {
+    ) internal pure virtual returns (bytes[] memory split) {
         /// @solidity memory-safe-assembly
         assembly {
             // Check if signatures.length % 65 == 0.
@@ -520,7 +524,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             let signaturesCount := div(mload(signatures), 65)
 
             // Allocate memory for the split array.
-            split := msize() // Current free memory pointer.
+            split := mload(0x40) // Current free memory pointer (using mload(0x40) instead of msize).
             mstore(split, signaturesCount) // Store the length of the split array.
 
             let sigPtr := add(signatures, 0x20) // Pointer to start of signatures data.
@@ -551,77 +555,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
     }
 
-    /**
-     * Validate the signature is valid for this message.
-     * @param userOp          - Validate the userOp.signature field.
-     * @param userOpHash      - Convenient field: the hash of the request, to check the signature against.
-     *                          (also hashes the entrypoint and chain id)
-     * @return validationData - Signature and time-range of this operation.
-     *                          <20-byte> sigAuthorizer - 0 for valid signature, 1 to mark signature failure,
-     *                              otherwise, an address of an "authorizer" contract.
-     *                          <6-byte> validUntil - last timestamp this operation is valid. 0 for "indefinite"
-     *                          <6-byte> validAfter - first timestamp this operation is valid
-     *                          If the account doesn't use time-range, it is enough to return
-     *                          SIG_VALIDATION_FAILED value (1) for signature failure.
-     *                          Note that the validation code cannot use block.timestamp (or block.number) directly.
-     */
-    function _validateSignatures(
-        UserOperation calldata userOp,
-        bytes32 userOpHash
-    ) internal virtual returns (uint256 validationData) {
-        bytes32 hash = _toEthSignedMessageHash(userOpHash);
-        bytes[] memory sigs = _splitSigs(userOp.signature);
-
-        // check we have enough valid signatures to pass the quorum
-        for (uint256 i = 0; i <= quorum; i++) {
-            address signer = _recoverSigner(hash, sigs[i]);
-            if (balanceOf[signer][SIGN_KEY] != 0) {
-                return SIG_VALIDATION_FAILED;
-            }
-        }
-
-        return 0;
-    }
-
-    /**
-     * Validate the nonce of the UserOperation.
-     * This method may validate the nonce requirement of this account.
-     * e.g.
-     * To limit the nonce to use sequenced UserOps only (no "out of order" UserOps):
-     *      `require(nonce < type(uint64).max)`
-     * For a hypothetical account that *requires* the nonce to be out-of-order:
-     *      `require(nonce & type(uint64).max == 0)`
-     *
-     * The actual nonce uniqueness is managed by the EntryPoint, and thus no other
-     * action is needed by the account itself.
-     *
-     * @param _nonce to validate
-     */
-    // function _validateNonce(uint256 _nonce) internal view virtual {
-    //     require(_nonce & type(uint64).max == 0);
-    // }
-
-    /**
-     * Sends to the entrypoint (msg.sender) the missing funds for this transaction.
-     * SubClass MAY override this method for better funds management
-     * (e.g. send to the entryPoint more than the minimum required, so that in future transactions
-     * it will not be required to send again).
-     * @param missingAccountFunds - The minimum value this method should send the entrypoint.
-     *                              This value MAY be zero, in case there is enough deposit,
-     *                              or the userOp has a paymaster.
-     */
-    function _payPrefund(uint256 missingAccountFunds) internal virtual {
-        if (missingAccountFunds != 0) {
-            assembly {
-                pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
-            }
-        }
-    }
-
     function _recoverSigner(
         bytes32 hash,
         bytes memory signature
-    ) internal virtual returns (address signer) {
+    ) internal view virtual returns (address signer) {
         /// @solidity memory-safe-assembly
         assembly {
             let m := mload(0x40) // Cache the free memory pointer.

@@ -151,7 +151,7 @@ abstract contract KeepToken {
         }
     }
 
-    function _recoverSig(
+    function _checkSig(
         bytes32 hash,
         address signer,
         uint8 v,
@@ -457,7 +457,7 @@ abstract contract KeepToken {
                 )
             );
 
-            _recoverSig(hash, owner, v, r, s);
+            _checkSig(hash, owner, v, r, s);
         }
 
         isApprovedForAll[owner][operator] = approved;
@@ -599,7 +599,7 @@ abstract contract KeepToken {
                 )
             );
 
-            _recoverSig(hash, delegator, v, r, s);
+            _checkSig(hash, delegator, v, r, s);
         }
 
         _delegate(delegator, delegatee, id);
