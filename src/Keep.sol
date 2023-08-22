@@ -506,28 +506,49 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     function _splitSigs(
         bytes memory signatures
-    ) internal pure returns (bytes[] memory) {
-        require(
-            signatures.length % 65 == 0,
-            "Signatures length must be multiple of 65"
-        );
+    ) internal pure returns (bytes[] memory split) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            // Check if signatures.length % 65 == 0.
+            if iszero(eq(mod(mload(signatures), 65), 0)) {
+                // If not, revert with InvalidSignature.
+                mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
+                revert(0x1c, 0x04)
+            }
 
-        uint256 signaturesCount = signatures.length / 65;
-        bytes[] memory split = new bytes[](signaturesCount);
+            // Calculate signaturesCount in assembly.
+            let signaturesCount := div(mload(signatures), 65)
 
-        unchecked {
-            for (uint256 i; i < signaturesCount; ++i) {
-                bytes memory signature = new bytes(65);
+            // Allocate memory for the split array.
+            split := msize() // Current free memory pointer.
+            mstore(split, signaturesCount) // Store the length of the split array.
 
-                for (uint256 j; j < 65; ++j) {
-                    signature[j] = signatures[(i * 65) + j];
-                }
+            let sigPtr := add(signatures, 0x20) // Pointer to start of signatures data.
+            let splitDataPtr := add(split, 0x20) // Pointer to the data section of the split array.
 
-                split[i] = signature;
+            for {
+                let i := 0
+            } lt(i, signaturesCount) {
+                i := add(i, 1)
+            } {
+                // Fetch the current free memory pointer.
+                let sigMemory := mload(0x40)
+
+                // Store the pointer to the new memory in the split array's data section.
+                mstore(splitDataPtr, sigMemory)
+
+                // Store the length and the data for the signature.
+                mstore(sigMemory, 65)
+                mstore(add(sigMemory, 0x20), mload(sigPtr))
+                mstore(add(sigMemory, 0x40), mload(add(sigPtr, 0x20)))
+                mstore8(add(sigMemory, 0x60), mload(add(sigPtr, 0x40)))
+
+                // Move the pointers for the next iteration.
+                mstore(0x40, add(sigMemory, 0x61)) // Update free memory pointer.
+                sigPtr := add(sigPtr, 65) // Move to the next signature.
+                splitDataPtr := add(splitDataPtr, 0x20) // Move to the next position in the split data section.
             }
         }
-
-        return split;
     }
 
     /**
