@@ -2,36 +2,34 @@
 pragma solidity ^0.8.4;
 
 import {Multicallable, Call, Keep} from "./Keep.sol";
-import {LibClone} from "./utils/LibClone.sol";
+import {Owned} from "./extensions/utils/Owned.sol";
 
 /// @notice Keep Factory.
-contract KeepFactory is Multicallable {
-    /// -----------------------------------------------------------------------
-    /// Library Usage
-    /// -----------------------------------------------------------------------
-
-    using LibClone for address;
-
+contract KeepFactory is Multicallable, Owned(tx.origin) {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Deployed(address indexed keep, uint256 threshold);
+    event Deployed(Keep indexed keep, uint256 threshold);
+
+    /// -----------------------------------------------------------------------
+    /// Custom Errors
+    /// -----------------------------------------------------------------------
+
+    /// @dev Unable to deploy the clone.
+    error DeploymentFailed();
 
     /// -----------------------------------------------------------------------
     /// Immutables
     /// -----------------------------------------------------------------------
 
-    address internal immutable keepTemplate;
-
-    IStakeManager internal constant entryPoint =
-        IStakeManager(0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789);
+    Keep internal immutable keepTemplate;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(address _keepTemplate) payable {
+    constructor(Keep _keepTemplate) payable {
         keepTemplate = _keepTemplate;
     }
 
@@ -40,12 +38,7 @@ contract KeepFactory is Multicallable {
     /// -----------------------------------------------------------------------
 
     function determineKeep(bytes32 name) public view virtual returns (address) {
-        return
-            keepTemplate.predictDeterministicAddress(
-                abi.encodePacked(name),
-                name,
-                address(this)
-            );
+        return predictDeterministicAddress(name);
     }
 
     function deployKeep(
@@ -53,8 +46,8 @@ contract KeepFactory is Multicallable {
         Call[] calldata calls,
         address[] calldata signers,
         uint256 threshold
-    ) public payable virtual returns (address keep) {
-        keep = keepTemplate.cloneDeterministic(abi.encodePacked(name), name);
+    ) public payable virtual returns (Keep keep) {
+        keep = cloneDeterministic(name);
 
         Keep(keep).initialize{value: msg.value}(calls, signers, threshold);
 
@@ -62,127 +55,82 @@ contract KeepFactory is Multicallable {
     }
 
     /// -----------------------------------------------------------------------
+    /// Clone Operations
+    /// -----------------------------------------------------------------------
+
+    /// @dev Deploys a deterministic clone of `keepTemplate`,
+    /// using immutable argument `name` also as `salt`.
+    function cloneDeterministic(bytes32 salt) internal returns (Keep instance) {
+        Keep template = keepTemplate;
+        assembly {
+            // Compute the boundaries of the data and cache the memory slots around it.
+            let data := mload(0x40)
+            let dataLength := 0x60
+            let dataEnd := add(data, dataLength)
+
+            // Write the bytecode before the data.
+            mstore(data, 0x5af43d3d93803e606057fd5bf3)
+            // Write the address of the implementation.
+            mstore(add(data, 0x0d), template)
+
+            // Create the instance.
+            instance := create2(0, data, dataLength, salt)
+
+            // If `instance` is zero, revert.
+            if iszero(instance) {
+                // Store the function selector of `DeploymentFailed()`.
+                mstore(0x00, 0x30116425)
+                // Revert with (offset, size).
+                revert(0x1c, 0x04)
+            }
+        }
+    }
+
+    /// @dev Returns the address of the deterministic clone of
+    /// `keepTemplate` using immutable arguments encoded in `data`, with `salt`.
+    function predictDeterministicAddress(
+        bytes32 salt
+    ) internal view returns (address predicted) {
+        Keep template = keepTemplate;
+        assembly {
+            // Compute the boundaries of the data and cache the memory slots around it.
+            let data := mload(0x40)
+            let dataLength := 0x60
+            let dataEnd := add(data, dataLength)
+
+            // Write the bytecode before the data.
+            mstore(data, 0x5af43d3d93803e606057fd5bf3)
+            // Write the address of the implementation.
+            mstore(add(data, 0x0d), template)
+
+            // Compute and store the bytecode hash.
+            mstore(0x35, keccak256(data, dataLength))
+            mstore8(0x00, 0xff) // Write the prefix.
+            mstore(0x01, shl(96, address()))
+            mstore(0x15, salt)
+            predicted := keccak256(0x00, 0x55)
+        }
+    }
+
+    /// -----------------------------------------------------------------------
     /// ERC4337 Staking Logic
     /// -----------------------------------------------------------------------
 
-    function addStake(uint32 unstakeDelaySec) external payable {
-        entryPoint.addStake{value: msg.value}(unstakeDelaySec);
-    }
-
-    function unlockStake() external {
-        entryPoint.unlockStake();
-    }
-
-    function withdrawStake(address payable withdrawAddress) external {
-        entryPoint.withdrawStake(withdrawAddress);
-    }
-}
-
-/**
- * Manage deposits and stakes.
- * Deposit is just a balance used to pay for UserOperations (either by a paymaster or an account).
- * Stake is value locked for at least "unstakeDelay" by the staked entity.
- */
-interface IStakeManager {
-    event Deposited(address indexed account, uint256 totalDeposit);
-
-    event Withdrawn(
-        address indexed account,
-        address withdrawAddress,
-        uint256 amount
-    );
-
-    // Emitted when stake or unstake delay are modified.
-    event StakeLocked(
-        address indexed account,
-        uint256 totalStaked,
+    function addStake(
         uint256 unstakeDelaySec
-    );
-
-    // Emitted once a stake is scheduled for withdrawal.
-    event StakeUnlocked(address indexed account, uint256 withdrawTime);
-
-    event StakeWithdrawn(
-        address indexed account,
-        address withdrawAddress,
-        uint256 amount
-    );
-
-    /**
-     * @param deposit         - The entity's deposit.
-     * @param staked          - True if this entity is staked.
-     * @param stake           - Actual amount of ether staked for this entity.
-     * @param unstakeDelaySec - Minimum delay to withdraw the stake.
-     * @param withdrawTime    - First block timestamp where 'withdrawStake' will be callable, or zero if already locked.
-     * @dev Sizes were chosen so that (deposit,staked, stake) fit into one cell (used during handleOps)
-     *      and the rest fit into a 2nd cell.
-     *      - 112 bit allows for 10^15 eth
-     *      - 48 bit for full timestamp
-     *      - 32 bit allows 150 years for unstake delay
-     */
-    struct DepositInfo {
-        uint112 deposit;
-        bool staked;
-        uint112 stake;
-        uint32 unstakeDelaySec;
-        uint48 withdrawTime;
+    ) public payable virtual onlyOwner {
+        KeepFactory(keepTemplate.entryPoint()).addStake{value: msg.value}(
+            unstakeDelaySec
+        );
     }
 
-    // API struct used by getStakeInfo and simulateValidation.
-    struct StakeInfo {
-        uint256 stake;
-        uint256 unstakeDelaySec;
+    function unlockStake() public payable virtual onlyOwner {
+        KeepFactory(keepTemplate.entryPoint()).unlockStake();
     }
 
-    /**
-     * Get deposit info.
-     * @param account - The account to query.
-     * @return info   - Full deposit information of given account.
-     */
-    function getDepositInfo(
-        address account
-    ) external view returns (DepositInfo memory info);
-
-    /**
-     * Get account balance.
-     * @param account - The account to query.
-     * @return        - The deposit (for gas payment) of the account.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * Add to the deposit of the given account.
-     * @param account - The account to add to.
-     */
-    function depositTo(address account) external payable;
-
-    /**
-     * Add to the account's stake - amount and delay
-     * any pending unstake is first cancelled.
-     * @param _unstakeDelaySec - The new lock duration before the deposit can be withdrawn.
-     */
-    function addStake(uint32 _unstakeDelaySec) external payable;
-
-    /**
-     * Attempt to unlock the stake.
-     * The value can be withdrawn (using withdrawStake) after the unstake delay.
-     */
-    function unlockStake() external;
-
-    /**
-     * Withdraw from the (unlocked) stake.
-     * Must first call unlockStake and wait for the unstakeDelay to pass.
-     * @param withdrawAddress - The address to send withdrawn value.
-     */
-    function withdrawStake(address payable withdrawAddress) external;
-
-    /**
-     * Withdraw from the deposit.
-     * @param withdrawAddress - The address to send withdrawn value.
-     * @param withdrawAmount  - The amount to withdraw.
-     */
-    function withdrawTo(
-        address payable withdrawAddress,
-        uint256 withdrawAmount
-    ) external;
+    function withdrawStake(
+        address withdrawAddress
+    ) public payable virtual onlyOwner {
+        KeepFactory(keepTemplate.entryPoint()).withdrawStake(withdrawAddress);
+    }
 }

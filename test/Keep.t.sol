@@ -6,7 +6,7 @@ import {KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
 /// @dev Extensions.
-import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
+import {Fetcher} from "../src/extensions/metadata/Fetcher.sol";
 
 /// @dev Mocks.
 import {MockERC20} from "@solady/test/utils/mocks/MockERC20.sol";
@@ -18,7 +18,7 @@ import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver
 /// @dev Test framework.
 import "@std/Test.sol";
 
-contract KeepTest is Keep(address(0), address(0)), Test {
+contract KeepTest is Keep(Keep(address(0))), Test {
     /// -----------------------------------------------------------------------
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
@@ -33,9 +33,9 @@ contract KeepTest is Keep(address(0), address(0)), Test {
 
     KeepFactory internal factory;
 
-    URIFetcher internal mockUriFetcher;
-    URIFetcher internal uriRemote;
-    URIFetcher internal uriRemoteNew;
+    address internal mockUriFetcher;
+    Fetcher internal uriRemote;
+    Fetcher internal uriRemoteNew;
 
     MockERC20 internal mockDai;
     MockERC721 internal mockNFT;
@@ -207,9 +207,9 @@ contract KeepTest is Keep(address(0), address(0)), Test {
 
     function setUp() public payable {
         // Initialize templates.
-        mockUriFetcher = new URIFetcher();
+        mockUriFetcher = address(new Fetcher());
 
-        keep = new Keep(address(0), address(mockUriFetcher));
+        keep = new Keep(Keep(mockUriFetcher));
 
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721();
@@ -225,7 +225,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
-        factory = new KeepFactory(address(keep));
+        factory = new KeepFactory(Keep(keep));
 
         // Create the Signer[] for setup.
         address[] memory setupSigners = new address[](2);
@@ -370,7 +370,7 @@ contract KeepTest is Keep(address(0), address(0)), Test {
     /// @notice Check setup errors.
 
     function testCannotRepeatKeepSetup() public payable {
-        keepRepeat = new Keep(address(0), address(mockUriFetcher));
+        keepRepeat = new Keep(Keep(mockUriFetcher));
 
         keepAddrRepeat = factory.determineKeep(name2);
         keepRepeat = Keep(keepAddrRepeat);
@@ -1975,5 +1975,15 @@ contract KeepTest is Keep(address(0), address(0)), Test {
         vm.startPrank(userA);
         vm.expectRevert(ExpiredSig.selector);
         keep.delegateBySig(userA, userB, id, deadline, v, r, s);
+    }
+
+    function testValidateSignatures(bytes32 hash) public payable {
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicesPk, hash);
+
+        bytes memory sig = abi.encode(v, r, s);
+
+        uint256 validationData = keep.validateSignatures(hash, sig);
+
+        assert(validationData == 0);
     }
 }

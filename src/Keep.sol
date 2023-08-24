@@ -24,7 +24,8 @@ import {Multicallable} from "./utils/Multicallable.sol";
 enum Operation {
     call,
     delegatecall,
-    create
+    create,
+    create2
 }
 
 struct Call {
@@ -101,11 +102,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Core ID key permission.
     uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
 
-    /// @dev Default ERC4337 handler contract.
-    address internal immutable entryPoint;
-
-    /// @dev Default metadata fetcher for `uri()` and ERC4337 aggregation.
-    address internal immutable fetcher;
+    /// @dev External validation for ERC1155 `uri()` and ERC4337 permissioning.
+    Keep internal immutable validator;
 
     /// @dev Record of states verifying `execute()`.
     uint120 public nonce;
@@ -116,6 +114,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Internal ID metadata mapping.
     mapping(uint256 => string) internal _uris;
 
+    /// @dev ERC4337 entrypoint.
+    function entryPoint() public view virtual returns (address) {
+        return validator.entryPoint();
+    }
+
     /// @dev ID metadata fetcher.
     /// @param id ID to fetch from.
     /// @return tokenURI Metadata.
@@ -123,7 +126,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         string memory tokenURI = _uris[id];
 
         if (bytes(tokenURI).length > 0) return tokenURI;
-        else return Keep(fetcher).uri(id);
+        else return validator.uri(id);
     }
 
     /// @dev Access control check for ID key balance holders.
@@ -134,6 +137,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function _authorized() internal view virtual returns (bool) {
         if (
             (totalSupply[CORE_KEY] == 0 && msg.sender == address(this)) ||
+            msg.sender == validator.entryPoint() ||
             balanceOf[msg.sender][CORE_KEY] != 0 ||
             balanceOf[msg.sender][uint32(msg.sig)] != 0
         ) return true;
@@ -186,11 +190,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @notice Create Keep template.
-    /// @param _entryPoint ERC4337 handler.
-    /// @param _fetcher Metadata and signature validator.
-    constructor(address _entryPoint, address _fetcher) payable {
-        entryPoint = _entryPoint;
-        fetcher = _fetcher;
+    /// @param _validator ERC1155/ERC4337 fetcher.
+    constructor(Keep _validator) payable {
+        validator = _validator;
 
         // Deploy as singleton.
         quorum = 1;
@@ -340,7 +342,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice Relay operation from Keep via `execute()` or as ID key holder.
     /// @param call Keep operation as struct of `op, to, value, data`.
     function relay(Call calldata call) public payable virtual {
-        if (msg.sender != entryPoint) _authorized();
+        _authorized();
 
         _execute(call.op, call.to, call.value, call.data);
 
@@ -350,7 +352,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @notice Relay operations from Keep via `execute()` or as ID key holder.
     /// @param calls Keep operations as struct arrays of `op, to, value, data`.
     function multirelay(Call[] calldata calls) public payable virtual {
-        if (msg.sender != entryPoint) _authorized();
+        _authorized();
 
         for (uint256 i; i < calls.length; ) {
             _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
@@ -412,10 +414,19 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     return(0, returndatasize())
                 }
             }
-        } else {
+        } else if (op == Operation.create) {
             /// @solidity memory-safe-assembly
             assembly {
                 if iszero(create(value, add(data, 0x20), mload(data))) {
+                    revert(0, 0)
+                }
+            }
+        } else {
+            bytes32 salt = keccak256(abi.encode(to));
+
+            /// @solidity memory-safe-assembly
+            assembly {
+                if iszero(create2(value, add(data, 0x20), mload(data), salt)) {
                     revert(0, 0)
                 }
             }
@@ -428,10 +439,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     function isValidSignature(
         bytes32 hash,
-        bytes memory signature
+        bytes calldata signature
     ) public view virtual returns (bytes4) {
         // Check SIGN_KEY balance.
-        // This also confirms non-zero `user`.
+        // This also confirms non-zero signer.
         if (balanceOf[_recoverSigner(hash, signature)][SIGN_KEY] != 0)
             return this.isValidSignature.selector;
         else return 0xffffffff;
@@ -447,7 +458,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 missingAccountFunds
     ) public payable virtual returns (uint256 validationData) {
         // Ensure request comes from known `entrypoint`.
-        if (msg.sender != entryPoint) revert Unauthorized();
+        if (msg.sender != validator.entryPoint()) revert Unauthorized();
 
         // Return keccak256 hash of ERC191 signed data.
         bytes32 hash;
@@ -458,7 +469,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
 
-        validationData = _validateSignatures(hash, userOp.signature);
+        uint256 key = userOp.nonce >> 64; // Shift nonce to get key.
+
+        if (key == uint256(uint32(this.validatePermission.selector))) {
+            validationData = validator.validatePermission(userOp, hash);
+        } else {
+            validationData = validateSignatures(hash, userOp.signature);
+        }
 
         // Send any missing funds to `entrypoint` (msg.sender).
         if (missingAccountFunds != 0) {
@@ -468,13 +485,22 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
     }
 
-    function _validateSignatures(
+    function validatePermission(
+        UserOperation calldata userOp,
+        bytes32 hash
+    ) public view virtual returns (uint256) {
+        return validator.validatePermission(userOp, hash);
+    }
+
+    function validateSignatures(
         bytes32 hash,
         bytes calldata signatures
-    ) internal virtual returns (uint256 validationData) {
+    ) public view virtual returns (uint256) {
         bytes[] memory sigs;
+
         // Split signatures if batched.
         if (signatures.length == 65) {
+            sigs = new bytes[](1);
             sigs[0] = signatures;
         } else {
             sigs = _splitSigs(signatures);
@@ -482,6 +508,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         // Start zero in loop to ensure ascending addresses.
         address previous;
+
         // Validation is length of quorum threshold.
         uint256 threshold = quorum;
 

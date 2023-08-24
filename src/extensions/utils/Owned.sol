@@ -8,7 +8,7 @@ abstract contract Owned {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event OwnershipTransferred(address indexed owner, address indexed newOwner);
+    event OwnershipTransferred(address indexed owner, address indexed _owner);
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -43,11 +43,11 @@ abstract contract Owned {
     /// -----------------------------------------------------------------------
 
     function transferOwnership(
-        address newOwner
+        address _owner
     ) public payable virtual onlyOwner {
-        owner = newOwner;
+        owner = _owner;
 
-        emit OwnershipTransferred(msg.sender, newOwner);
+        emit OwnershipTransferred(msg.sender, _owner);
     }
 
     /// -----------------------------------------------------------------------

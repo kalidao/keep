@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 /// @dev Keep core.
 import {KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
-import {URIFetcher} from "../src/extensions/metadata/URIFetcher.sol";
+import {Fetcher} from "../src/extensions/metadata/Fetcher.sol";
 
 /// @dev Kali core.
 import {KeepTokenManager, Proposal, ProposalType, VoteType, Kali} from "../src/extensions/dao/Kali.sol";
@@ -35,7 +35,7 @@ error Sponsored();
 
 error AlreadyVoted();
 
-contract KaliTest is Test, Keep(address(0), address(0)) {
+contract KaliTest is Test, Keep(Keep(address(0))) {
     address keepAddr;
     address kaliAddr;
 
@@ -86,9 +86,9 @@ contract KaliTest is Test, Keep(address(0), address(0)) {
         mockUnsafeERC1155Receiver = new MockUnsafeERC1155Receiver();
 
         // Create the Keep templates.
-        keep = address(new Keep(address(0), address(address(0))));
+        keep = address(new Keep((Keep(address(0)))));
         // Create the Keep factory.
-        keepFactory = new KeepFactory(keep);
+        keepFactory = new KeepFactory(Keep(keep));
         // Create the Signer[] for setup.
         address[] memory setupSigners = new address[](2);
         setupSigners[0] = alice > bob ? bob : alice;
