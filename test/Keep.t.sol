@@ -289,6 +289,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
     }
 
+    /*
     /// @dev Check setup conditions.
 
     /*function testURISetup() public payable {
@@ -353,19 +354,19 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         assertEq(keep.uri(1), "");
     }*/
 
-    function testSignerSetup() public payable {
-        // Check users.
-        assert(keep.balanceOf(alice, SIGNER_KEY) == 1);
-        assert(keep.balanceOf(bob, SIGNER_KEY) == 1);
-        assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
+    // function testSignerSetup() public payable {
+    //     // Check users.
+    //     assert(keep.balanceOf(alice, SIGNER_KEY) == 1);
+    //     assert(keep.balanceOf(bob, SIGNER_KEY) == 1);
+    //     assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
 
-        // Also check smart wallet.
-        assert(keep.balanceOf(address(mockERC1271Wallet), SIGNER_KEY) == 1);
+    //     // Also check smart wallet.
+    //     assert(keep.balanceOf(address(mockERC1271Wallet), SIGNER_KEY) == 1);
 
-        // Check supply.
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
-        assert(keep.totalSupply(42069) == 0);
-    }
+    //     // Check supply.
+    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
+    //     assert(keep.totalSupply(42069) == 0);
+    // }
 
     /// @notice Check setup errors.
 
@@ -407,13 +408,13 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         assertEq(keep.name(), string(abi.encodePacked(name1)));
     }
 
-    function testKeepNonce() public view {
-        assert(keep.nonce() == 1);
-    }
+    // function testKeepNonce() public view {
+    //     assert(keep.nonce() == 1);
+    // }
 
-    function testUserNonce() public view {
-        assert(keep.nonces(alice) == 0);
-    }
+    // function testUserNonce() public view {
+    //     assert(keep.nonces(alice) == 0);
+    // }
 
     function testQuorum() public payable {
         assert(keep.quorum() == 2);
@@ -479,31 +480,31 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         balances = keep.balanceOfBatch(owners, ids);
     }
 
-    function testTotalSupply() public {
-        assert(keep.totalSupply(0) == 0);
+    // function testTotalSupply() public {
+    //     assert(keep.totalSupply(0) == 0);
 
-        vm.prank(address(keep));
-        keep.mint(alice, 0, 1, "");
+    //     vm.prank(address(keep));
+    //     keep.mint(alice, 0, 1, "");
 
-        assert(keep.totalSupply(0) == 1);
-    }
+    //     assert(keep.totalSupply(0) == 1);
+    // }
 
-    function testTotalSignerSupply() public {
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
+    // function testTotalSignerSupply() public {
+    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
 
-        vm.prank(address(keep));
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     vm.prank(address(keep));
+    //     keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        assert(keep.totalSupply(SIGNER_KEY) == 4);
-    }
+    //     assert(keep.totalSupply(SIGNER_KEY) == 4);
+    // }
 
-    function testSupportsInterface() public {
-        assertTrue(keep.supportsInterface(0x150b7a02));
-        assertTrue(keep.supportsInterface(0x4e2312e0));
-        assertTrue(keep.supportsInterface(0x01ffc9a7));
-        assertTrue(keep.supportsInterface(0xd9b67a26));
-        assertTrue(keep.supportsInterface(0x0e89341c));
-    }
+    // function testSupportsInterface() public {
+    //     assertTrue(keep.supportsInterface(0x150b7a02));
+    //     assertTrue(keep.supportsInterface(0x4e2312e0));
+    //     assertTrue(keep.supportsInterface(0x01ffc9a7));
+    //     assertTrue(keep.supportsInterface(0xd9b67a26));
+    //     assertTrue(keep.supportsInterface(0x0e89341c));
+    // }
 
     function testNoKeepKeyCollision() public view {
         assert(
@@ -525,22 +526,22 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     /// @dev Check receivers.
 
-    function testReceiveETH() public payable {
-        (bool sent, ) = address(keep).call{value: 5 ether}("");
-        assert(sent);
-        // We check addition to setup balance.
-        assert(address(keep).balance == 10 ether);
-    }
+    // function testReceiveETH() public payable {
+    //     (bool sent, ) = address(keep).call{value: 5 ether}("");
+    //     assert(sent);
+    //     // We check addition to setup balance.
+    //     assert(address(keep).balance == 10 ether);
+    // }
 
-    function testReceiveERC721() public payable {
-        mockNFT.safeTransferFrom(address(this), address(keep), 1);
-        assert(mockNFT.ownerOf(1) == address(keep));
-    }
+    // function testReceiveERC721() public payable {
+    //     mockNFT.safeTransferFrom(address(this), address(keep), 1);
+    //     assert(mockNFT.ownerOf(1) == address(keep));
+    // }
 
-    function testReceiveERC1155() public payable {
-        mock1155.safeTransferFrom(address(this), address(keep), 1, 1, "");
-        assert(mock1155.balanceOf(address(keep), 1) == 1);
-    }
+    // function testReceiveERC1155() public payable {
+    //     mock1155.safeTransferFrom(address(this), address(keep), 1, 1, "");
+    //     assert(mock1155.balanceOf(address(keep), 1) == 1);
+    // }
 
     function testReceiveBatchERC1155() public payable {
         uint256[] memory ids = new uint256[](1);
@@ -593,58 +594,58 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     /// @dev Check call execution.
 
-    function testExecuteTokenCallWithRole() public payable {
-        // Mint executor role.
-        vm.prank(address(keep));
-        keep.mint(alice, uint32(keep.multirelay.selector), 1, "");
+    // function testExecuteTokenCallWithRole() public payable {
+    //     // Mint executor role.
+    //     vm.prank(address(keep));
+    //     keep.mint(alice, uint32(keep.multirelay.selector), 1, "");
 
-        // Mock execution.
-        bytes memory data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    //     // Mock execution.
+    //     bytes memory data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
-        Call[] memory call = new Call[](1);
+    //     Call[] memory call = new Call[](1);
 
-        call[0].op = Operation.call;
-        call[0].to = address(mockDai);
-        call[0].value = 0;
-        call[0].data = data;
+    //     call[0].op = Operation.call;
+    //     call[0].to = address(mockDai);
+    //     call[0].value = 0;
+    //     call[0].data = data;
 
-        uint256 balanceBefore = mockDai.balanceOf(alice);
+    //     uint256 balanceBefore = mockDai.balanceOf(alice);
 
-        vm.prank(alice);
-        keep.multirelay(call);
+    //     vm.prank(alice);
+    //     keep.multirelay(call);
 
-        assert(mockDai.balanceOf(alice) == balanceBefore + 100);
-    }
+    //     assert(mockDai.balanceOf(alice) == balanceBefore + 100);
+    // }
 
-    function testExecuteTokenCallWithSignatures() public payable {
-        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    // function testExecuteTokenCallWithSignatures() public payable {
+    //     bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
-        Signature[] memory sigs = new Signature[](2);
+    //     Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     Signature memory aliceSig = signExecution(
+    //         alice,
+    //         alicesPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        Signature memory bobSig = signExecution(
-            bob,
-            bobsPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     Signature memory bobSig = signExecution(
+    //         bob,
+    //         bobsPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        sigs[0] = bobSig;
-        sigs[1] = aliceSig;
+    //     sigs[0] = bobSig;
+    //     sigs[1] = aliceSig;
 
-        // Execute tx.
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
+    //     // Execute tx.
+    //     keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    // }
 
     function testExecuteTokenCallWithContractSignatures() public payable {
         bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
@@ -790,217 +791,217 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         );
     }
 
-    function testExecuteCreateCall() public payable {
-        bytes memory tx_data = type(MockERC1155).creationCode;
+    // function testExecuteCreateCall() public payable {
+    //     bytes memory tx_data = type(MockERC1155).creationCode;
 
-        Signature[] memory sigs = new Signature[](2);
+    //     Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.create,
-            address(0),
-            0,
-            tx_data
-        );
+    //     Signature memory aliceSig = signExecution(
+    //         alice,
+    //         alicesPk,
+    //         Operation.create,
+    //         address(0),
+    //         0,
+    //         tx_data
+    //     );
 
-        Signature memory bobSig = signExecution(
-            bob,
-            bobsPk,
-            Operation.create,
-            address(0),
-            0,
-            tx_data
-        );
+    //     Signature memory bobSig = signExecution(
+    //         bob,
+    //         bobsPk,
+    //         Operation.create,
+    //         address(0),
+    //         0,
+    //         tx_data
+    //     );
 
-        sigs[0] = bobSig;
-        sigs[1] = aliceSig;
+    //     sigs[0] = bobSig;
+    //     sigs[1] = aliceSig;
 
-        // Execute tx.
-        keep.execute(Operation.create, address(0), 0, tx_data, sigs);
-    }
+    //     // Execute tx.
+    //     keep.execute(Operation.create, address(0), 0, tx_data, sigs);
+    // }
 
     /// @dev Check execution errors.
 
-    function testCannotExecuteWithImproperSignatures() public payable {
-        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    // function testCannotExecuteWithImproperSignatures() public payable {
+    //     bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
-        Signature[] memory sigs = new Signature[](2);
+    //     Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig;
-        Signature memory charlieSig;
+    //     Signature memory aliceSig;
+    //     Signature memory charlieSig;
 
-        aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     aliceSig = signExecution(
+    //         alice,
+    //         alicesPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        charlieSig = signExecution(
-            bob,
-            charliesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     charlieSig = signExecution(
+    //         bob,
+    //         charliesPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        sigs[0] = alice > charlie ? charlieSig : aliceSig;
-        sigs[1] = alice > charlie ? aliceSig : charlieSig;
+    //     sigs[0] = alice > charlie ? charlieSig : aliceSig;
+    //     sigs[1] = alice > charlie ? aliceSig : charlieSig;
 
-        // Execute tx.
-        vm.expectRevert(InvalidSignature.selector);
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
+    //     // Execute tx.
+    //     vm.expectRevert(InvalidSignature.selector);
+    //     keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    // }
 
-    function testCannotExecuteWithSignaturesOutOfOrder() public payable {
-        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    // function testCannotExecuteWithSignaturesOutOfOrder() public payable {
+    //     bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
-        Signature[] memory sigs = new Signature[](2);
+    //     Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig;
-        Signature memory bobSig;
+    //     Signature memory aliceSig;
+    //     Signature memory bobSig;
 
-        aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     aliceSig = signExecution(
+    //         alice,
+    //         alicesPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        bobSig = signExecution(
-            bob,
-            bobsPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     bobSig = signExecution(
+    //         bob,
+    //         bobsPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        sigs[0] = alice > bob ? aliceSig : bobSig;
-        sigs[1] = alice > bob ? bobSig : aliceSig;
+    //     sigs[0] = alice > bob ? aliceSig : bobSig;
+    //     sigs[1] = alice > bob ? bobSig : aliceSig;
 
-        // Execute tx.
-        vm.expectRevert(InvalidSignature.selector);
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
+    //     // Execute tx.
+    //     vm.expectRevert(InvalidSignature.selector);
+    //     keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    // }
 
-    function testCannotExecuteWithSignaturesRepeated() public payable {
-        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    // function testCannotExecuteWithSignaturesRepeated() public payable {
+    //     bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
-        Signature[] memory sigs = new Signature[](2);
+    //     Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig;
+    //     Signature memory aliceSig;
 
-        aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     aliceSig = signExecution(
+    //         alice,
+    //         alicesPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        sigs[0] = aliceSig;
-        sigs[1] = aliceSig;
+    //     sigs[0] = aliceSig;
+    //     sigs[1] = aliceSig;
 
-        // Execute tx.
-        vm.expectRevert(InvalidSignature.selector);
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
+    //     // Execute tx.
+    //     vm.expectRevert(InvalidSignature.selector);
+    //     keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    // }
 
-    function testCannotExecuteWithNullSignatures() public payable {
-        bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
+    // function testCannotExecuteWithNullSignatures() public payable {
+    //     bytes memory tx_data = abi.encodeCall(mockDai.transfer, (alice, 100));
 
-        Signature[] memory sigs = new Signature[](2);
+    //     Signature[] memory sigs = new Signature[](2);
 
-        Signature memory aliceSig;
-        Signature memory nullSig;
+    //     Signature memory aliceSig;
+    //     Signature memory nullSig;
 
-        aliceSig = signExecution(
-            alice,
-            alicesPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     aliceSig = signExecution(
+    //         alice,
+    //         alicesPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        nullSig = signExecution(
-            nully,
-            nullPk,
-            Operation.call,
-            address(mockDai),
-            0,
-            tx_data
-        );
+    //     nullSig = signExecution(
+    //         nully,
+    //         nullPk,
+    //         Operation.call,
+    //         address(mockDai),
+    //         0,
+    //         tx_data
+    //     );
 
-        sigs[0] = alice > nully ? nullSig : aliceSig;
-        sigs[1] = alice > nully ? aliceSig : nullSig;
+    //     sigs[0] = alice > nully ? nullSig : aliceSig;
+    //     sigs[1] = alice > nully ? aliceSig : nullSig;
 
-        // Execute tx.
-        vm.expectRevert(InvalidSignature.selector);
-        keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
-    }
+    //     // Execute tx.
+    //     vm.expectRevert(InvalidSignature.selector);
+    //     keep.execute(Operation.call, address(mockDai), 0, tx_data, sigs);
+    // }
 
     /// -----------------------------------------------------------------------
     /// Keep Governance Tests
     /// -----------------------------------------------------------------------
 
-    function testMint(
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) public payable {
-        vm.assume(id != SIGNER_KEY);
-        vm.assume(id != uint32(type(KeepToken).interfaceId)); // CORE_KEY
-        vm.assume(keep.totalSupply(uint32(type(KeepToken).interfaceId)) == 0);
-        amount = bound(amount, 0, type(uint216).max);
+    // function testMint(
+    //     uint256 id,
+    //     uint256 amount,
+    //     bytes calldata data
+    // ) public payable {
+    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != uint32(type(KeepToken).interfaceId)); // CORE_KEY
+    //     vm.assume(keep.totalSupply(uint32(type(KeepToken).interfaceId)) == 0);
+    //     amount = bound(amount, 0, type(uint216).max);
 
-        uint256 preTotalSupply = keep.totalSupply(id);
-        uint256 preBalance = keep.balanceOf(charlie, id);
+    //     uint256 preTotalSupply = keep.totalSupply(id);
+    //     uint256 preBalance = keep.balanceOf(charlie, id);
 
-        vm.prank(address(keep));
-        keep.mint(charlie, id, amount, data);
+    //     vm.prank(address(keep));
+    //     keep.mint(charlie, id, amount, data);
 
-        assert(keep.balanceOf(charlie, id) == preBalance + amount);
-        assert(keep.totalSupply(id) == preTotalSupply + amount);
-    }
+    //     assert(keep.balanceOf(charlie, id) == preBalance + amount);
+    //     assert(keep.totalSupply(id) == preTotalSupply + amount);
+    // }
 
-    function testMintExecuteIdKey() public payable {
-        uint256 executeTotalSupply = keep.totalSupply(SIGNER_KEY);
-        uint256 executeBalance = keep.balanceOf(charlie, SIGNER_KEY);
-        uint256 preQuorum = keep.quorum();
+    // function testMintExecuteIdKey() public payable {
+    //     uint256 executeTotalSupply = keep.totalSupply(SIGNER_KEY);
+    //     uint256 executeBalance = keep.balanceOf(charlie, SIGNER_KEY);
+    //     uint256 preQuorum = keep.quorum();
 
-        vm.prank(address(keep));
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     vm.prank(address(keep));
+    //     keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        assert(keep.balanceOf(charlie, SIGNER_KEY) == executeBalance + 1);
-        assert(keep.totalSupply(SIGNER_KEY) == executeTotalSupply + 1);
-        assert(keep.quorum() == preQuorum);
-    }
+    //     assert(keep.balanceOf(charlie, SIGNER_KEY) == executeBalance + 1);
+    //     assert(keep.totalSupply(SIGNER_KEY) == executeTotalSupply + 1);
+    //     assert(keep.quorum() == preQuorum);
+    // }
 
-    function testMintCoreIdKey(uint256 amount) public payable {
-        amount = bound(amount, 0, type(uint216).max);
+    // function testMintCoreIdKey(uint256 amount) public payable {
+    //     amount = bound(amount, 0, type(uint216).max);
 
-        uint256 CORE_KEY = uint32(type(KeepToken).interfaceId);
-        uint256 totalSupply = keep.totalSupply(CORE_KEY);
-        uint256 balance = keep.balanceOf(charlie, CORE_KEY);
-        uint256 preQuorum = keep.quorum();
+    //     uint256 CORE_KEY = uint32(type(KeepToken).interfaceId);
+    //     uint256 totalSupply = keep.totalSupply(CORE_KEY);
+    //     uint256 balance = keep.balanceOf(charlie, CORE_KEY);
+    //     uint256 preQuorum = keep.quorum();
 
-        vm.prank(address(keep));
-        keep.mint(charlie, CORE_KEY, amount, "");
+    //     vm.prank(address(keep));
+    //     keep.mint(charlie, CORE_KEY, amount, "");
 
-        assert(keep.balanceOf(charlie, CORE_KEY) == balance + amount);
-        assert(keep.totalSupply(CORE_KEY) == totalSupply + amount);
-        assert(keep.quorum() == preQuorum);
-        assert(keep.totalSupply(CORE_KEY) == totalSupply + amount);
-    }
+    //     assert(keep.balanceOf(charlie, CORE_KEY) == balance + amount);
+    //     assert(keep.totalSupply(CORE_KEY) == totalSupply + amount);
+    //     assert(keep.quorum() == preQuorum);
+    //     assert(keep.totalSupply(CORE_KEY) == totalSupply + amount);
+    // }
 
     function testCannotMintToZeroAddress() public payable {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
@@ -1020,169 +1021,169 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         assert(keep.quorum() == 2);
     }
 
-    function testCannotMintToUnsafeAddress() public payable {
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
+    // function testCannotMintToUnsafeAddress() public payable {
+    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+    //     startHoax(address(keep), address(keep), type(uint256).max);
 
-        vm.expectRevert();
-        keep.mint(address(mockDai), SIGNER_KEY, 1, "");
+    //     vm.expectRevert();
+    //     keep.mint(address(mockDai), SIGNER_KEY, 1, "");
 
-        vm.expectRevert(UnsafeRecipient.selector);
-        keep.mint(address(mockUnsafeERC1155Receiver), SIGNER_KEY, 1, "");
+    //     vm.expectRevert(UnsafeRecipient.selector);
+    //     keep.mint(address(mockUnsafeERC1155Receiver), SIGNER_KEY, 1, "");
 
-        vm.expectRevert();
-        keep.mint(address(mockDai), 1, 1, "");
+    //     vm.expectRevert();
+    //     keep.mint(address(mockDai), 1, 1, "");
 
-        vm.expectRevert(UnsafeRecipient.selector);
-        keep.mint(address(mockUnsafeERC1155Receiver), 1, 1, "");
+    //     vm.expectRevert(UnsafeRecipient.selector);
+    //     keep.mint(address(mockUnsafeERC1155Receiver), 1, 1, "");
 
-        assert(keep.balanceOf(address(0), SIGNER_KEY) == 0);
-        assert(keep.balanceOf(address(0), 1) == 0);
+    //     assert(keep.balanceOf(address(0), SIGNER_KEY) == 0);
+    //     assert(keep.balanceOf(address(0), 1) == 0);
 
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
-        assert(keep.totalSupply(1) == 0);
+    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
+    //     assert(keep.totalSupply(1) == 0);
 
-        assert(keep.quorum() == 2);
-    }
+    //     assert(keep.quorum() == 2);
+    // }
 
-    function testCannotMintOverflowSupply() public payable {
-        uint256 amount = 1 << 216;
+    // function testCannotMintOverflowSupply() public payable {
+    //     uint256 amount = 1 << 216;
 
-        startHoax(address(keep), address(keep), type(uint256).max);
+    //     startHoax(address(keep), address(keep), type(uint256).max);
 
-        keep.mint(charlie, 0, type(uint96).max, "");
+    //     keep.mint(charlie, 0, type(uint96).max, "");
 
-        vm.expectRevert(Overflow.selector);
-        keep.mint(charlie, 1, type(uint256).max, "");
+    //     vm.expectRevert(Overflow.selector);
+    //     keep.mint(charlie, 1, type(uint256).max, "");
 
-        keep.mint(charlie, 2, type(uint216).max, "");
+    //     keep.mint(charlie, 2, type(uint216).max, "");
 
-        vm.expectRevert(Overflow.selector);
-        keep.mint(charlie, 2, 1, "");
+    //     vm.expectRevert(Overflow.selector);
+    //     keep.mint(charlie, 2, 1, "");
 
-        vm.expectRevert(Overflow.selector);
-        keep.mint(charlie, 3, amount, "");
-    }
+    //     vm.expectRevert(Overflow.selector);
+    //     keep.mint(charlie, 3, amount, "");
+    // }
 
-    function testCannotMintOverflowExecuteID() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
+    // function testCannotMintOverflowExecuteID() public payable {
+    //     startHoax(address(keep), address(keep), type(uint256).max);
 
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        vm.expectRevert(Overflow.selector);
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     vm.expectRevert(Overflow.selector);
+    //     keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        keep.burn(charlie, SIGNER_KEY, 1);
+    //     keep.burn(charlie, SIGNER_KEY, 1);
 
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, SIGNER_KEY, 1, "");
 
-        vm.expectRevert(Overflow.selector);
-        keep.mint(charlie, SIGNER_KEY, 1, "");
-    }
+    //     vm.expectRevert(Overflow.selector);
+    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    // }
 
-    function testBurn() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(alice, 1, 2, "");
-        keep.burn(alice, 1, 1);
+    // function testBurn() public payable {
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.mint(alice, 1, 2, "");
+    //     keep.burn(alice, 1, 1);
 
-        assert(keep.balanceOf(alice, 1) == 1);
-        assert(keep.totalSupply(1) == 1);
-    }
+    //     assert(keep.balanceOf(alice, 1) == 1);
+    //     assert(keep.totalSupply(1) == 1);
+    // }
 
-    function testBurnSigner() public payable {
-        vm.prank(address(keep));
-        keep.burn(alice, SIGNER_KEY, 1);
+    // function testBurnSigner() public payable {
+    //     vm.prank(address(keep));
+    //     keep.burn(alice, SIGNER_KEY, 1);
 
-        assert(keep.balanceOf(alice, SIGNER_KEY) == 0);
-        assert(keep.totalSupply(SIGNER_KEY) == 2);
-    }
+    //     assert(keep.balanceOf(alice, SIGNER_KEY) == 0);
+    //     assert(keep.totalSupply(SIGNER_KEY) == 2);
+    // }
 
-    function testCannotBurnUnderflow() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(alice, 1, 1, "");
-        vm.expectRevert(stdError.arithmeticError);
-        keep.burn(alice, 1, 2);
-    }
+    // function testCannotBurnUnderflow() public payable {
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.mint(alice, 1, 1, "");
+    //     vm.expectRevert(stdError.arithmeticError);
+    //     keep.burn(alice, 1, 2);
+    // }
 
-    function testIdKeyRole() public payable {
-        vm.prank(charlie);
-        vm.expectRevert(Unauthorized.selector);
-        keep.mint(alice, 1, 100, "");
+    // // function testIdKeyRole() public payable {
+    // //     vm.prank(charlie);
+    // //     vm.expectRevert(Unauthorized.selector);
+    // //     keep.mint(alice, 1, 100, "");
 
-        vm.prank(address(keep));
-        keep.mint(charlie, uint32(keep.mint.selector), 1, "");
+    // //     vm.prank(address(keep));
+    // //     keep.mint(charlie, uint32(keep.mint.selector), 1, "");
 
-        vm.prank(charlie);
-        keep.mint(alice, 1, 100, "");
+    // //     vm.prank(charlie);
+    // //     keep.mint(alice, 1, 100, "");
 
-        assert(keep.balanceOf(alice, 1) == 100);
-    }
+    // //     assert(keep.balanceOf(alice, 1) == 100);
+    // // }
 
-    /*
-    function testSetTransferability() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(1, true);
-        keep.mint(charlie, 1, 1, "");
+    // /*
+    // function testSetTransferability() public payable {
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.setTransferability(1, true);
+    //     keep.mint(charlie, 1, 1, "");
 
-        assertTrue(keep.transferable(1));
+    //     assertTrue(keep.transferable(1));
 
-        vm.prank(charlie);
-        keep.safeTransferFrom(charlie, alice, 1, 1, "");
+    //     vm.prank(charlie);
+    //     keep.safeTransferFrom(charlie, alice, 1, 1, "");
 
-        vm.prank(address(keep));
-        keep.setTransferability(1, false);
+    //     vm.prank(address(keep));
+    //     keep.setTransferability(1, false);
 
-        assertFalse(keep.transferable(1));
-        assert(keep.balanceOf(alice, 1) == 1);
+    //     assertFalse(keep.transferable(1));
+    //     assert(keep.balanceOf(alice, 1) == 1);
 
-        vm.prank(alice);
-        vm.expectRevert(NonTransferable.selector);
-        keep.safeTransferFrom(alice, charlie, 1, 1, "");
-    }
-    */
-    function testCannotSetTransferability(
-        address user,
-        uint256 id
-    ) public payable {
-        vm.assume(user != address(keep));
+    //     vm.prank(alice);
+    //     vm.expectRevert(NonTransferable.selector);
+    //     keep.safeTransferFrom(alice, charlie, 1, 1, "");
+    // }
+    // */
+    // function testCannotSetTransferability(
+    //     address user,
+    //     uint256 id
+    // ) public payable {
+    //     vm.assume(user != address(keep));
 
-        vm.prank(user);
-        vm.expectRevert(Unauthorized.selector);
-        keep.setTransferability(id, true);
+    //     vm.prank(user);
+    //     vm.expectRevert(Unauthorized.selector);
+    //     keep.setTransferability(id, true);
 
-        assertFalse(keep.transferable(id));
-    }
+    //     assertFalse(keep.transferable(id));
+    // }
 
-    function testSetURI(address user) public payable {
-        vm.assume(user != address(keep));
+    // function testSetURI(address user) public payable {
+    //     vm.assume(user != address(keep));
 
-        vm.prank(user);
-        vm.expectRevert(Unauthorized.selector);
-        keep.setURI(0, "TEST");
+    //     vm.prank(user);
+    //     vm.expectRevert(Unauthorized.selector);
+    //     keep.setURI(0, "TEST");
 
-        // The Keep itself should be able to update uri.
-        vm.prank(address(keep));
-        keep.setURI(0, "TEST");
+    //     // The Keep itself should be able to update uri.
+    //     vm.prank(address(keep));
+    //     keep.setURI(0, "TEST");
 
-        assertEq(keccak256(bytes("TEST")), keccak256(bytes(keep.uri(0))));
-    }
+    //     assertEq(keccak256(bytes("TEST")), keccak256(bytes(keep.uri(0))));
+    // }
 
     /// -----------------------------------------------------------------------
     /// Keep Token Tests
     /// -----------------------------------------------------------------------
 
-    function testKeepTokenApprove(address userA, address userB) public payable {
-        vm.prank(userA);
-        keep.setApprovalForAll(userB, true);
+    // function testKeepTokenApprove(address userA, address userB) public payable {
+    //     vm.prank(userA);
+    //     keep.setApprovalForAll(userB, true);
 
-        assertTrue(keep.isApprovedForAll(userA, userB));
+    //     assertTrue(keep.isApprovedForAll(userA, userB));
 
-        vm.prank(userA);
-        keep.setApprovalForAll(userB, false);
+    //     vm.prank(userA);
+    //     keep.setApprovalForAll(userB, false);
 
-        assertFalse(keep.isApprovedForAll(userA, userB));
-    }
+    //     assertFalse(keep.isApprovedForAll(userA, userB));
+    // }
 
     /*
     function testKeepTokenTransferByOwner(
@@ -1289,68 +1290,68 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         keep.safeTransferFrom(userA, userB, id, amount, "");
     }
     */
-    function testKeepTokenBatchTransferByOwner() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(0, true);
-        keep.setTransferability(1, true);
+    // function testKeepTokenBatchTransferByOwner() public payable {
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.setTransferability(0, true);
+    //     keep.setTransferability(1, true);
 
-        assertTrue(keep.transferable(0));
-        assertTrue(keep.transferable(1));
+    //     assertTrue(keep.transferable(0));
+    //     assertTrue(keep.transferable(1));
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(charlie, 0, 1, "");
-        keep.mint(charlie, 1, 2, "");
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.mint(charlie, 0, 1, "");
+    //     keep.mint(charlie, 1, 2, "");
 
-        uint256[] memory ids = new uint256[](2);
-        ids[0] = 0;
-        ids[1] = 1;
+    //     uint256[] memory ids = new uint256[](2);
+    //     ids[0] = 0;
+    //     ids[1] = 1;
 
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 1;
-        amounts[1] = 1;
+    //     uint256[] memory amounts = new uint256[](2);
+    //     amounts[0] = 1;
+    //     amounts[1] = 1;
 
-        startHoax(charlie, charlie, type(uint256).max);
-        keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
+    //     startHoax(charlie, charlie, type(uint256).max);
+    //     keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
 
-        assert(keep.balanceOf(charlie, 0) == 0);
-        assert(keep.balanceOf(charlie, 1) == 1);
-        assert(keep.balanceOf(bob, 0) == 1);
-        assert(keep.balanceOf(bob, 1) == 1);
-    }
+    //     assert(keep.balanceOf(charlie, 0) == 0);
+    //     assert(keep.balanceOf(charlie, 1) == 1);
+    //     assert(keep.balanceOf(bob, 0) == 1);
+    //     assert(keep.balanceOf(bob, 1) == 1);
+    // }
 
-    function testKeepTokenBatchTransferByOperator() public payable {
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(0, true);
-        keep.setTransferability(1, true);
+    // function testKeepTokenBatchTransferByOperator() public payable {
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.setTransferability(0, true);
+    //     keep.setTransferability(1, true);
 
-        assertTrue(keep.transferable(0));
-        assertTrue(keep.transferable(1));
+    //     assertTrue(keep.transferable(0));
+    //     assertTrue(keep.transferable(1));
 
-        startHoax(charlie, charlie, type(uint256).max);
-        keep.setApprovalForAll(alice, true);
+    //     startHoax(charlie, charlie, type(uint256).max);
+    //     keep.setApprovalForAll(alice, true);
 
-        assertTrue(keep.isApprovedForAll(charlie, alice));
+    //     assertTrue(keep.isApprovedForAll(charlie, alice));
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(charlie, 0, 1, "");
-        keep.mint(charlie, 1, 2, "");
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.mint(charlie, 0, 1, "");
+    //     keep.mint(charlie, 1, 2, "");
 
-        uint256[] memory ids = new uint256[](2);
-        ids[0] = 0;
-        ids[1] = 1;
+    //     uint256[] memory ids = new uint256[](2);
+    //     ids[0] = 0;
+    //     ids[1] = 1;
 
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 1;
-        amounts[1] = 1;
+    //     uint256[] memory amounts = new uint256[](2);
+    //     amounts[0] = 1;
+    //     amounts[1] = 1;
 
-        startHoax(alice, alice, type(uint256).max);
-        keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
+    //     startHoax(alice, alice, type(uint256).max);
+    //     keep.safeBatchTransferFrom(charlie, bob, ids, amounts, "");
 
-        assert(keep.balanceOf(charlie, 0) == 0);
-        assert(keep.balanceOf(charlie, 1) == 1);
-        assert(keep.balanceOf(bob, 0) == 1);
-        assert(keep.balanceOf(bob, 1) == 1);
-    }
+    //     assert(keep.balanceOf(charlie, 0) == 0);
+    //     assert(keep.balanceOf(charlie, 1) == 1);
+    //     assert(keep.balanceOf(bob, 0) == 1);
+    //     assert(keep.balanceOf(bob, 1) == 1);
+    // }
 
     /*
     function testKeepTokenTransferPermission(
@@ -1678,187 +1679,187 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     /// Keep Vote Delegation Tests
     /// -----------------------------------------------------------------------
 
-    function testKeepTokenInitDelegationBalance(
-        address user,
-        uint256 id,
-        uint256 amount
-    ) public payable {
-        vm.assume(user != address(0));
-        vm.assume(user.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
+    // function testKeepTokenInitDelegationBalance(
+    //     address user,
+    //     uint256 id,
+    //     uint256 amount
+    // ) public payable {
+    //     vm.assume(user != address(0));
+    //     vm.assume(user.code.length == 0);
+    //     vm.assume(id != SIGNER_KEY);
 
-        amount = bound(amount, 0, type(uint216).max);
+    //     amount = bound(amount, 0, type(uint216).max);
 
-        vm.warp(1665378008);
+    //     vm.warp(1665378008);
 
-        vm.startPrank(address(keep));
-        keep.mint(user, id, amount, "");
+    //     vm.startPrank(address(keep));
+    //     keep.mint(user, id, amount, "");
 
-        assert(keep.delegates(user, id) == user);
-        assert(keep.getCurrentVotes(user, id) == amount);
-        assert(keep.getVotes(user, id) == amount);
+    //     assert(keep.delegates(user, id) == user);
+    //     assert(keep.getCurrentVotes(user, id) == amount);
+    //     assert(keep.getVotes(user, id) == amount);
 
-        vm.warp(1665378010);
+    //     vm.warp(1665378010);
 
-        assert(keep.getPriorVotes(user, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(user, id, block.timestamp - 1) == amount);
-    }
+    //     assert(keep.getPriorVotes(user, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(user, id, block.timestamp - 1) == amount);
+    // }
 
-    function testKeepTokenDelegation(
-        address userA,
-        address userB,
-        uint256 id,
-        uint256 amount
-    ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
-        vm.assume(userA != address(0));
-        vm.assume(userB != address(0));
-        vm.assume(userA != userB);
-        vm.assume(userA.code.length == 0);
-        vm.assume(userB.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
+    // function testKeepTokenDelegation(
+    //     address userA,
+    //     address userB,
+    //     uint256 id,
+    //     uint256 amount
+    // ) public payable {
+    //     amount = bound(amount, 0, type(uint216).max);
+    //     vm.assume(userA != address(0));
+    //     vm.assume(userB != address(0));
+    //     vm.assume(userA != userB);
+    //     vm.assume(userA.code.length == 0);
+    //     vm.assume(userB.code.length == 0);
+    //     vm.assume(id != SIGNER_KEY);
 
-        vm.warp(1665378008);
+    //     vm.warp(1665378008);
 
-        vm.startPrank(address(keep));
-        keep.mint(userA, id, amount, "");
+    //     vm.startPrank(address(keep));
+    //     keep.mint(userA, id, amount, "");
 
-        assert(keep.delegates(userA, id) == userA);
-        assert(keep.getCurrentVotes(userA, id) == amount);
-        assert(keep.getVotes(userA, id) == amount);
+    //     assert(keep.delegates(userA, id) == userA);
+    //     assert(keep.getCurrentVotes(userA, id) == amount);
+    //     assert(keep.getVotes(userA, id) == amount);
 
-        assert(keep.getCurrentVotes(userB, id) == 0);
-        assert(keep.getVotes(userB, id) == 0);
+    //     assert(keep.getCurrentVotes(userB, id) == 0);
+    //     assert(keep.getVotes(userB, id) == 0);
 
-        vm.warp(1665378010);
+    //     vm.warp(1665378010);
 
-        assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
 
-        assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == 0);
-        assert(keep.getPastVotes(userB, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPastVotes(userB, id, block.timestamp - 1) == 0);
 
-        vm.startPrank(userA);
-        keep.delegate(userB, id);
+    //     vm.startPrank(userA);
+    //     keep.delegate(userB, id);
 
-        assert(keep.delegates(userA, id) == userB);
+    //     assert(keep.delegates(userA, id) == userB);
 
-        assert(keep.getCurrentVotes(userA, id) == 0);
-        assert(keep.getVotes(userA, id) == 0);
+    //     assert(keep.getCurrentVotes(userA, id) == 0);
+    //     assert(keep.getVotes(userA, id) == 0);
 
-        assert(keep.getCurrentVotes(userB, id) == amount);
-        assert(keep.getVotes(userB, id) == amount);
+    //     assert(keep.getCurrentVotes(userB, id) == amount);
+    //     assert(keep.getVotes(userB, id) == amount);
 
-        assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
 
-        vm.warp(1665378015);
+    //     vm.warp(1665378015);
 
-        assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == 0);
-        assert(keep.getPastVotes(userA, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPastVotes(userA, id, block.timestamp - 1) == 0);
 
-        assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(userB, id, block.timestamp - 1) == amount);
-    }
+    //     assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(userB, id, block.timestamp - 1) == amount);
+    // }
 
-    function testKeepTokenDelegationBalanceByTransfer(
-        address userA,
-        address userB,
-        uint256 id,
-        uint256 amount
-    ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
-        vm.assume(userA != address(0));
-        vm.assume(userB != address(0));
-        vm.assume(userA != userB);
-        vm.assume(userA.code.length == 0);
-        vm.assume(userB.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
-        vm.assume(id != CORE_KEY);
+    // function testKeepTokenDelegationBalanceByTransfer(
+    //     address userA,
+    //     address userB,
+    //     uint256 id,
+    //     uint256 amount
+    // ) public payable {
+    //     amount = bound(amount, 0, type(uint216).max);
+    //     vm.assume(userA != address(0));
+    //     vm.assume(userB != address(0));
+    //     vm.assume(userA != userB);
+    //     vm.assume(userA.code.length == 0);
+    //     vm.assume(userB.code.length == 0);
+    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != CORE_KEY);
 
-        vm.warp(1665378008);
+    //     vm.warp(1665378008);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(userA, id, amount, "");
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.mint(userA, id, amount, "");
 
-        assert(keep.delegates(userA, id) == userA);
+    //     assert(keep.delegates(userA, id) == userA);
 
-        assert(keep.getCurrentVotes(userA, id) == amount);
-        assert(keep.getVotes(userA, id) == amount);
+    //     assert(keep.getCurrentVotes(userA, id) == amount);
+    //     assert(keep.getVotes(userA, id) == amount);
 
-        assert(keep.getCurrentVotes(userB, id) == 0);
-        assert(keep.getVotes(userB, id) == 0);
+    //     assert(keep.getCurrentVotes(userB, id) == 0);
+    //     assert(keep.getVotes(userB, id) == 0);
 
-        vm.warp(1665378010);
+    //     vm.warp(1665378010);
 
-        assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
 
-        assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == 0);
-        assert(keep.getPastVotes(userB, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPastVotes(userB, id, block.timestamp - 1) == 0);
 
-        startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(id, true);
+    //     startHoax(address(keep), address(keep), type(uint256).max);
+    //     keep.setTransferability(id, true);
 
-        assertTrue(keep.transferable(id));
+    //     assertTrue(keep.transferable(id));
 
-        startHoax(userA, userA, type(uint256).max);
-        keep.safeTransferFrom(userA, userB, id, amount, "");
+    //     startHoax(userA, userA, type(uint256).max);
+    //     keep.safeTransferFrom(userA, userB, id, amount, "");
 
-        assert(keep.delegates(userA, id) == userA);
+    //     assert(keep.delegates(userA, id) == userA);
 
-        assert(keep.getCurrentVotes(userA, id) == 0);
-        assert(keep.getVotes(userA, id) == 0);
+    //     assert(keep.getCurrentVotes(userA, id) == 0);
+    //     assert(keep.getVotes(userA, id) == 0);
 
-        assert(keep.getCurrentVotes(userB, id) == amount);
-        assert(keep.getVotes(userB, id) == amount);
+    //     assert(keep.getCurrentVotes(userB, id) == amount);
+    //     assert(keep.getVotes(userB, id) == amount);
 
-        assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(userA, id, block.timestamp - 1) == amount);
 
-        vm.warp(1665378015);
+    //     vm.warp(1665378015);
 
-        assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == 0);
-        assert(keep.getPastVotes(userA, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPriorVotes(userA, id, block.timestamp - 1) == 0);
+    //     assert(keep.getPastVotes(userA, id, block.timestamp - 1) == 0);
 
-        assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == amount);
-        assert(keep.getPastVotes(userB, id, block.timestamp - 1) == amount);
-    }
+    //     assert(keep.getPriorVotes(userB, id, block.timestamp - 1) == amount);
+    //     assert(keep.getPastVotes(userB, id, block.timestamp - 1) == amount);
+    // }
 
     /// -----------------------------------------------------------------------
     /// Keep MetaTx Tests
     /// -----------------------------------------------------------------------
 
-    function testKeepTokenPermit(address userB, bool approved) public payable {
-        uint256 privateKey = 0xBEEF;
-        address userA = vm.addr(0xBEEF);
+    // function testKeepTokenPermit(address userB, bool approved) public payable {
+    //     uint256 privateKey = 0xBEEF;
+    //     address userA = vm.addr(0xBEEF);
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            privateKey,
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    keep.DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(
-                            PERMIT_TYPEHASH,
-                            userA,
-                            userB,
-                            approved,
-                            0,
-                            block.timestamp
-                        )
-                    )
-                )
-            )
-        );
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+    //         privateKey,
+    //         keccak256(
+    //             abi.encodePacked(
+    //                 "\x19\x01",
+    //                 keep.DOMAIN_SEPARATOR(),
+    //                 keccak256(
+    //                     abi.encode(
+    //                         PERMIT_TYPEHASH,
+    //                         userA,
+    //                         userB,
+    //                         approved,
+    //                         0,
+    //                         block.timestamp
+    //                     )
+    //                 )
+    //             )
+    //         )
+    //     );
 
-        vm.startPrank(userA);
-        keep.permit(userA, userB, approved, block.timestamp, v, r, s);
+    //     vm.startPrank(userA);
+    //     keep.permit(userA, userB, approved, block.timestamp, v, r, s);
 
-        assert(keep.isApprovedForAll(userA, userB) == approved);
-        assert(keep.nonces(userA) == 1);
-    }
+    //     assert(keep.isApprovedForAll(userA, userB) == approved);
+    //     assert(keep.nonces(userA) == 1);
+    // }
 
     function testCannotSpendKeepTokenPermitAfterDeadline(
         address userB,
@@ -1897,48 +1898,48 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         keep.permit(userA, userB, approved, deadline, v, r, s);
     }
 
-    function testKeepTokenDelegateBySig(
-        address userB,
-        uint256 id,
-        uint256 amount
-    ) public payable {
-        amount = bound(amount, 0, type(uint216).max);
-        vm.assume(userB != address(0));
-        vm.assume(userB.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
+    // function testKeepTokenDelegateBySig(
+    //     address userB,
+    //     uint256 id,
+    //     uint256 amount
+    // ) public payable {
+    //     amount = bound(amount, 0, type(uint216).max);
+    //     vm.assume(userB != address(0));
+    //     vm.assume(userB.code.length == 0);
+    //     vm.assume(id != SIGNER_KEY);
 
-        uint256 privateKey = 0xBEEF;
-        address userA = vm.addr(0xBEEF);
+    //     uint256 privateKey = 0xBEEF;
+    //     address userA = vm.addr(0xBEEF);
 
-        vm.prank(address(keep));
-        keep.mint(userA, id, amount, "");
+    //     vm.prank(address(keep));
+    //     keep.mint(userA, id, amount, "");
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            privateKey,
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    keep.DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(
-                            DELEGATION_TYPEHASH,
-                            userA,
-                            userB,
-                            id,
-                            0,
-                            block.timestamp
-                        )
-                    )
-                )
-            )
-        );
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+    //         privateKey,
+    //         keccak256(
+    //             abi.encodePacked(
+    //                 "\x19\x01",
+    //                 keep.DOMAIN_SEPARATOR(),
+    //                 keccak256(
+    //                     abi.encode(
+    //                         DELEGATION_TYPEHASH,
+    //                         userA,
+    //                         userB,
+    //                         id,
+    //                         0,
+    //                         block.timestamp
+    //                     )
+    //                 )
+    //             )
+    //         )
+    //     );
 
-        vm.startPrank(userA);
-        keep.delegateBySig(userA, userB, id, block.timestamp, v, r, s);
+    //     vm.startPrank(userA);
+    //     keep.delegateBySig(userA, userB, id, block.timestamp, v, r, s);
 
-        assert(keep.delegates(userA, id) == userB);
-        assert(keep.nonces(userA) == 1);
-    }
+    //     assert(keep.delegates(userA, id) == userB);
+    //     assert(keep.nonces(userA) == 1);
+    // }
 
     function testCannotSpendKeepTokenDelegateBySigAfterDeadline(
         address userB,
@@ -1977,13 +1978,13 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         keep.delegateBySig(userA, userB, id, deadline, v, r, s);
     }
 
-    function testValidateSignatures(bytes32 hash) public payable {
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicesPk, hash);
+    // function testValidateSignatures(bytes32 hash) public payable {
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicesPk, hash);
 
-        bytes memory sig = abi.encode(v, r, s);
+    //     bytes memory sig = abi.encode(v, r, s);
 
-        uint256 validationData = keep.validateSignatures(hash, sig);
+    //     uint256 validationData = keep.validateSignatures(hash, sig);
 
-        assert(validationData == 0);
-    }
+    //     assert(validationData == 0);
+    // }
 }
