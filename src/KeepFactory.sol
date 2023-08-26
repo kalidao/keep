@@ -25,10 +25,6 @@ contract KeepFactory is Multicallable, Owned(tx.origin) {
 
     Keep public immutable keepTemplate;
 
-    /// @dev The ERC-1967 storage slot for the implementation in the proxy.
-    /// `uint256(keccak256("eip1967.proxy.implementation")) - 1`.
-    uint256 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
-
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
@@ -113,13 +109,6 @@ contract KeepFactory is Multicallable, Owned(tx.origin) {
                 // Revert with (offset, size).
                 revert(0x1c, 0x04)
             }
-
-            // Set the implementation on the new proxy.
-            mstore(0x00, sload(_IMPLEMENTATION_SLOT))  // Load the current value in case of collision (very unlikely).
-            mstore(0x20, implementation)               // New implementation address.
-            // Set the implementation on the new proxy.
-            mstore(0x20, _IMPLEMENTATION_SLOT)
-            sstore(keep, 0x20)
 
             // Restore the overwritten memory surrounding `data`.
             mstore(dataEnd, mAfter1)
