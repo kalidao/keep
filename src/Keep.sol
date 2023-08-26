@@ -422,8 +422,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 }
             }
         } else {
-            bytes32 salt = keccak256(abi.encode(to));
-
+            bytes32 salt = keccak256(abi.encodePacked(to));
+            
             /// @solidity memory-safe-assembly
             assembly {
                 if iszero(create2(value, add(data, 0x20), mload(data), salt)) {
@@ -469,10 +469,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
 
-        uint256 key = userOp.nonce >> 64; // Shift nonce to get key.
-
-        if (key == uint256(uint32(this.validatePermission.selector))) {
-            validationData = validator.validatePermission(userOp, hash);
+        // Shift nonce to get branch between `validator` or signer verification.
+        if (userOp.nonce >> 64 == uint256(uint32(this.validatePermission.selector))) {
+            validationData = validator.validateUserOp(userOp, hash, missingAccountFunds);
         } else {
             validationData = validateSignatures(hash, userOp.signature);
         }
@@ -480,16 +479,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Send any missing funds to `entrypoint` (msg.sender).
         if (missingAccountFunds != 0) {
             assembly {
-                pop(call(gas(), caller(), missingAccountFunds, 0, 0, 0, 0))
+                pop(call(gas(), caller(), missingAccountFunds, gas(), 0x00, gas(), 0x00))
             }
         }
-    }
-
-    function validatePermission(
-        UserOperation calldata userOp,
-        bytes32 hash
-    ) public view virtual returns (uint256) {
-        return validator.validatePermission(userOp, hash);
     }
 
     function validateSignatures(
