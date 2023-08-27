@@ -166,9 +166,9 @@ abstract contract KeepToken {
             } signer {
 
             } {
-                let m := mload(0x40)
+                let m := mload(0x40) // Load the free memory pointer.
                 mstore(0x00, hash)
-                mstore(0x20, and(v, 0xff)) // `v`.
+                mstore(0x20, and(v, 0xff)) // `v`. Must be the lower 8 bits.
                 mstore(0x40, r) // `r`.
                 mstore(0x60, s) // `s`.
                 let t := staticcall(

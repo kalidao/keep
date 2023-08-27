@@ -6,7 +6,7 @@ import {KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
 /// @dev Extensions.
-import {Fetcher} from "../src/extensions/metadata/Fetcher.sol";
+import {Validator} from "../src/extensions/metadata/Validator.sol";
 
 /// @dev Mocks.
 import {MockERC20} from "@solady/test/utils/mocks/MockERC20.sol";
@@ -14,11 +14,12 @@ import {MockERC721} from "@solady/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solady/test/utils/mocks/MockERC1155.sol";
 import {MockERC1271Wallet} from "@solady/test/utils/mocks/MockERC1271Wallet.sol";
 import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
+import {TestHelpers} from "./utils/helpers.sol";
 
 /// @dev Test framework.
 import "@std/Test.sol";
 
-contract KeepTest is Keep(Keep(address(0))), Test {
+contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     /// -----------------------------------------------------------------------
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
@@ -33,9 +34,9 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     KeepFactory internal factory;
 
-    address internal mockUriFetcher;
-    Fetcher internal uriRemote;
-    Fetcher internal uriRemoteNew;
+    address internal mockUriValidator;
+    Validator internal uriRemote;
+    Validator internal uriRemoteNew;
 
     MockERC20 internal mockDai;
     MockERC721 internal mockNFT;
@@ -46,12 +47,6 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     uint256 internal chainId;
 
     uint256 internal immutable SIGNER_KEY = uint32(keep.execute.selector);
-
-    bytes32 internal constant name1 =
-        0x5445535400000000000000000000000000000000000000000000000000000000;
-
-    bytes32 internal constant name2 =
-        0x5445535432000000000000000000000000000000000000000000000000000000;
 
     bytes32 internal constant PERMIT_TYPEHASH =
         keccak256(
@@ -207,9 +202,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     function setUp() public payable {
         // Initialize templates.
-        mockUriFetcher = address(new Fetcher());
-
-        keep = new Keep(Keep(mockUriFetcher));
+        mockUriValidator = address(new Validator());
 
         mockDai = new MockERC20("Dai", "DAI", 18);
         mockNFT = new MockERC721();
@@ -225,7 +218,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         mock1155.mint(address(this), 1, 1, "");
 
         // Create the factory.
-        factory = new KeepFactory(Keep(keep));
+        factory = new KeepFactory();
 
         // Create the Signer[] for setup.
         address[] memory setupSigners = new address[](2);
@@ -238,10 +231,10 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         // Initialize Keep from factory.
         // The factory is fully tested in KeepFactory.t.sol.
-        keepAddr = factory.determineKeep(name1);
+        (keepAddr, ) = factory.determineKeep(getName());
         keep = Keep(keepAddr);
 
-        factory.deployKeep(name1, calls, setupSigners, 2);
+        factory.deployKeep(getName(), calls, setupSigners, 2);
 
         // Mint mock smart wallet a signer ID key.
         vm.prank(address(keep));
@@ -338,7 +331,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         assertEq(keep.uri(1), "");
 
         vm.prank(address(alice));
-        mockUriFetcher.setURIRemoteFetcher(uriRemoteNew);
+        mockUriValidator.setURIRemoteValidator(uriRemoteNew);
         
 
         vm.prank(address(alice));
@@ -371,11 +364,11 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     /// @notice Check setup errors.
 
     function testCannotRepeatKeepSetup() public payable {
-        keepRepeat = new Keep(Keep(mockUriFetcher));
+        keepRepeat = new Keep(Keep(mockUriValidator));
 
-        keepAddrRepeat = factory.determineKeep(name2);
+        (keepAddrRepeat, ) = factory.determineKeep(getName());
         keepRepeat = Keep(keepAddrRepeat);
-        factory.deployKeep(name2, calls, signers, 2);
+        factory.deployKeep(getName(), calls, signers, 2);
 
         vm.expectRevert(AlreadyInit.selector);
         keepRepeat.initialize(calls, signers, 2);
@@ -383,12 +376,12 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     function testCannotSetupWithZeroQuorum() public payable {
         vm.expectRevert(InvalidThreshold.selector);
-        factory.deployKeep(name2, calls, signers, 0);
+        factory.deployKeep(getName(), calls, signers, 0);
     }
 
     function testCannotSetupWithExcessiveQuorum() public payable {
         vm.expectRevert(QuorumOverSupply.selector);
-        factory.deployKeep(name2, calls, signers, 3);
+        factory.deployKeep(getName(), calls, signers, 3);
     }
 
     function testCannotSetupWithOutOfOrderSigners() public payable {
@@ -396,8 +389,8 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         outOfOrderSigners[0] = alice > bob ? alice : bob;
         outOfOrderSigners[1] = alice > bob ? bob : alice;
 
-        vm.expectRevert(InvalidSignature.selector);
-        factory.deployKeep(name2, calls, outOfOrderSigners, 2);
+        vm.expectRevert(Unauthorized.selector);
+        factory.deployKeep(getName(), calls, outOfOrderSigners, 2);
     }
 
     /// -----------------------------------------------------------------------
@@ -405,7 +398,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     /// -----------------------------------------------------------------------
 
     function testName() public {
-        assertEq(keep.name(), string(abi.encodePacked(name1)));
+        assertEq(keep.name(), string(getName()));
     }
 
     // function testKeepNonce() public view {
@@ -489,7 +482,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     //     assert(keep.totalSupply(0) == 1);
     // }
 
-    // function testTotalSignerSupply() public {
+    // function testTotalSignerSupply() public {f
     //     assert(keep.totalSupply(SIGNER_KEY) == 3);
 
     //     vm.prank(address(keep));

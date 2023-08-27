@@ -423,7 +423,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             }
         } else {
             bytes32 salt = keccak256(abi.encodePacked(to));
-            
+
             /// @solidity memory-safe-assembly
             assembly {
                 if iszero(create2(value, add(data, 0x20), mload(data), salt)) {
@@ -470,8 +470,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         // Shift nonce to get branch between `validator` or signer verification.
-        if (userOp.nonce >> 64 == uint256(uint32(this.validatePermission.selector))) {
-            validationData = validator.validateUserOp(userOp, hash, missingAccountFunds);
+        if (
+            userOp.nonce >> 64 == uint256(uint32(this.validateUserOp.selector))
+        ) {
+            validationData = validator.validateUserOp(
+                userOp,
+                hash,
+                missingAccountFunds
+            );
         } else {
             validationData = validateSignatures(hash, userOp.signature);
         }
@@ -479,7 +485,17 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Send any missing funds to `entrypoint` (msg.sender).
         if (missingAccountFunds != 0) {
             assembly {
-                pop(call(gas(), caller(), missingAccountFunds, gas(), 0x00, gas(), 0x00))
+                pop(
+                    call(
+                        gas(),
+                        caller(),
+                        missingAccountFunds,
+                        gas(),
+                        0x00,
+                        gas(),
+                        0x00
+                    )
+                )
             }
         }
     }

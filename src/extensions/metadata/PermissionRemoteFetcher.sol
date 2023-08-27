@@ -14,9 +14,10 @@ struct Permission {
 
 /// @notice Remote permission fetcher for ERC4337.
 contract PermissionRemoteFetcher {
-    function validatePermission(
+    function validateUserOp(
         UserOperation calldata userOp,
-        bytes32 hash
+        bytes32 hash,
+        uint256 missingAccountFunds
     ) public view virtual returns (uint256) {
         /*Permission memory permission = abi.decode(userOp.data, (Permission));
 

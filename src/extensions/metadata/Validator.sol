@@ -5,14 +5,16 @@ import {UserOperation} from "../../Keep.sol";
 import {Owned} from "../utils/Owned.sol";
 
 /// @notice Open-ended metadata for ERC1155 and ERC4337 permission fetching.
-contract Fetcher is Owned(tx.origin) {
+contract Validator is Owned(tx.origin) {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event PermissionRemoteFetcherSet(Fetcher indexed permissionRemoteFetcher);
+    event PermissionRemoteValidatorSet(
+        Validator indexed permissionRemoteValidator
+    );
 
-    event URIRemoteFetcherSet(Fetcher indexed uriRemoteFetcher);
+    event URIRemoteValidatorSet(Validator indexed uriRemoteValidator);
 
     event EntryPointSet(address indexed entryPoint);
 
@@ -20,11 +22,11 @@ contract Fetcher is Owned(tx.origin) {
     /// Remote Storage
     /// -----------------------------------------------------------------------
 
-    Fetcher public permissionRemoteFetcher;
+    Validator internal permissionRemoteValidator;
 
-    Fetcher public uriRemoteFetcher;
+    Validator internal uriRemoteValidator;
 
-    address public entryPoint;
+    address internal entryPoint;
 
     /// -----------------------------------------------------------------------
     /// Constructor
@@ -40,19 +42,25 @@ contract Fetcher is Owned(tx.origin) {
     /// Permission Remote Logic
     /// -----------------------------------------------------------------------
 
-    function validatePermission(
+    function validateUserOp(
         UserOperation calldata userOp,
-        bytes32 hash
+        bytes32 hash,
+        uint256 missingAccountFunds
     ) public view virtual returns (uint256) {
-        return permissionRemoteFetcher.validatePermission(userOp, hash);
+        return
+            permissionRemoteValidator.validateUserOp(
+                userOp,
+                hash,
+                missingAccountFunds
+            );
     }
 
-    function setPermissionRemoteFetcher(
-        Fetcher _permissionRemoteFetcher
+    function setPermissionRemoteValidator(
+        Validator _permissionRemoteValidator
     ) public payable virtual onlyOwner {
-        permissionRemoteFetcher = _permissionRemoteFetcher;
+        permissionRemoteValidator = _permissionRemoteValidator;
 
-        emit PermissionRemoteFetcherSet(_permissionRemoteFetcher);
+        emit PermissionRemoteValidatorSet(_permissionRemoteValidator);
     }
 
     /// -----------------------------------------------------------------------
@@ -60,15 +68,15 @@ contract Fetcher is Owned(tx.origin) {
     /// -----------------------------------------------------------------------
 
     function uri(uint256 id) public view virtual returns (string memory) {
-        return uriRemoteFetcher.uri(id);
+        return uriRemoteValidator.uri(id);
     }
 
-    function setURIRemoteFetcher(
-        Fetcher _uriRemoteFetcher
+    function setURIRemoteValidator(
+        Validator _uriRemoteValidator
     ) public payable virtual onlyOwner {
-        uriRemoteFetcher = _uriRemoteFetcher;
+        uriRemoteValidator = _uriRemoteValidator;
 
-        emit URIRemoteFetcherSet(_uriRemoteFetcher);
+        emit URIRemoteValidatorSet(_uriRemoteValidator);
     }
 
     /// -----------------------------------------------------------------------
