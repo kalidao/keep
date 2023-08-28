@@ -445,7 +445,25 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // This also confirms non-zero signer.
         if (balanceOf[_recoverSigner(hash, signature)][SIGN_KEY] != 0)
             return this.isValidSignature.selector;
-        else return 0xffffffff;
+
+        // Fallback to nested contract signatures.
+        address user;
+        assembly {
+            // Extract first 20 bytes into address.
+            let word := mload(add(signature, 0x20))
+            user := shr(96, word)
+            // Update `signature` to remaining bytes.
+            mstore(signature, sub(mload(signature), 20))
+            mstore(add(signature, 0x20), add(add(signature, 0x20), 20))
+        }
+
+        if (balanceOf[user][SIGN_KEY] != 0)
+            if (Keep(user).
+                isValidSignature(hash, signature) == this.isValidSignature.selector)
+                    return this.isValidSignature.selector;
+
+        // Otherwise, return error.
+        return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------
