@@ -524,14 +524,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         for (uint256 i; i < threshold; ) {
             address signer = _recoverSigner(hash, sigs[i]);
 
-            // If not keyholding signer, `SIG_VALIDATION_FAILED`.
-            if (balanceOf[signer][SIGN_KEY] == 0) return 1;
-
             // Check against duplicates.
             if (previous >= signer) revert Unauthorized();
 
             // Memo signature for next iteration until quorum.
             previous = signer;
+
+            // If not keyholding signer, `SIG_VALIDATION_FAILED`.
+            if (balanceOf[signer][SIGN_KEY] == 0) return 1;
 
             // An array can't have a total length
             // larger than the max uint256 value.
