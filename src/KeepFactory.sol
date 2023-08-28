@@ -121,7 +121,6 @@ contract KeepFactory is Multicallable, Owned(tx.origin) {
         bytes memory name
     ) public view virtual returns (address keep, bool deployed) {
         address implementation = address(keepTemplate);
-        address deployer = address(this);
 
         assembly {
             // Compute the boundaries of the data and cache the memory slots around it.
@@ -164,7 +163,7 @@ contract KeepFactory is Multicallable, Owned(tx.origin) {
             // Compute and store the bytecode hash.
             mstore(0x35, keccak256(sub(name, 0x4c), add(extraLength, 0x6c)))
             mstore8(0x00, 0xff) // Write the prefix.
-            mstore(0x01, shl(96, deployer))
+            mstore(0x01, shl(96, address()))
             mstore(0x15, name)
             keep := keccak256(0x00, 0x55)
             deployed := extcodesize(keep)
