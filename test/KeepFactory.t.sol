@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {Call, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
-import {TestHelpers} from "./utils/helpers.sol";
+import {mockName, TestHelpers} from "./utils/helpers.sol";
 import "@std/Test.sol";
 
 contract KeepFactoryTest is Test, TestHelpers {
@@ -18,9 +18,6 @@ contract KeepFactoryTest is Test, TestHelpers {
 
     Call[] calls;
 
-    // bytes name =
-    //     0x5445535400000000000000000000000000000000000000000000000000000000;
-
     /// @notice Set up the testing suite.
 
     function setUp() public payable {}
@@ -30,19 +27,19 @@ contract KeepFactoryTest is Test, TestHelpers {
         signers[0] = alice;
         signers[1] = bob;
 
-        factory.deployKeep(getName(), calls, signers, 2);
+        factory.deployKeep(mockName, calls, signers, 2);
     }
 
     function testDetermination() public payable {
         // Check CREATE2 clones match expected outputs.
-        (address predicted, ) = factory.determineKeep(getName());
+        (address predicted, ) = factory.determineKeep(mockName);
 
         address[] memory signers = new address[](2);
         signers[0] = alice;
         signers[1] = bob;
 
         address deployed = address(
-            factory.deployKeep(getName(), calls, signers, 2)
+            factory.deployKeep(mockName, calls, signers, 2)
         );
         assertEq(predicted, deployed);
     }

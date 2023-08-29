@@ -14,7 +14,7 @@ import {MockERC721} from "@solady/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solady/test/utils/mocks/MockERC1155.sol";
 import {MockERC1271Wallet} from "@solady/test/utils/mocks/MockERC1271Wallet.sol";
 import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
-import {TestHelpers} from "./utils/helpers.sol";
+import {mockName, TestHelpers} from "./utils/helpers.sol";
 
 /// @dev Test framework.
 import "@std/Test.sol";
@@ -366,9 +366,9 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     function testCannotRepeatKeepSetup() public payable {
         keepRepeat = new Keep(Keep(mockUriValidator));
 
-        (keepAddrRepeat, ) = factory.determineKeep(getName());
+        (keepAddrRepeat, ) = factory.determineKeep(mockName);
         keepRepeat = Keep(keepAddrRepeat);
-        factory.deployKeep(getName(), calls, signers, 2);
+        factory.deployKeep(mockName, calls, signers, 2);
 
         vm.expectRevert(AlreadyInit.selector);
         keepRepeat.initialize(calls, signers, 2);
@@ -376,12 +376,12 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
 
     function testCannotSetupWithZeroQuorum() public payable {
         vm.expectRevert(InvalidThreshold.selector);
-        factory.deployKeep(getName(), calls, signers, 0);
+        factory.deployKeep(mockName, calls, signers, 0);
     }
 
     function testCannotSetupWithExcessiveQuorum() public payable {
         vm.expectRevert(QuorumOverSupply.selector);
-        factory.deployKeep(getName(), calls, signers, 3);
+        factory.deployKeep(mockName, calls, signers, 3);
     }
 
     function testCannotSetupWithOutOfOrderSigners() public payable {
@@ -390,7 +390,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         outOfOrderSigners[1] = alice > bob ? bob : alice;
 
         vm.expectRevert(Unauthorized.selector);
-        factory.deployKeep(getName(), calls, outOfOrderSigners, 2);
+        factory.deployKeep(mockName, calls, outOfOrderSigners, 2);
     }
 
     /// -----------------------------------------------------------------------
@@ -398,7 +398,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     /// -----------------------------------------------------------------------
 
     function testName() public {
-        assertEq(keep.name(), string(getName()));
+        assertEq(keep.name(), string(abi.encodePacked(getName())));
     }
 
     // function testKeepNonce() public view {

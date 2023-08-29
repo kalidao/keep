@@ -439,7 +439,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     function isValidSignature(
         bytes32 hash,
-        bytes calldata signature
+        bytes memory signature
     ) public view virtual returns (bytes4) {
         // Check SIGN_KEY balance.
         // This also confirms non-zero signer.
@@ -458,9 +458,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         if (balanceOf[user][SIGN_KEY] != 0)
-            if (Keep(user).
-                isValidSignature(hash, signature) == this.isValidSignature.selector)
-                    return this.isValidSignature.selector;
+            if (
+                Keep(user).isValidSignature(hash, signature) ==
+                this.isValidSignature.selector
+            ) return this.isValidSignature.selector;
 
         // Otherwise, return error.
         return 0xffffffff;
