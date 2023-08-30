@@ -404,22 +404,18 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 )
                 returndatacopy(0, 0, returndatasize())
                 if iszero(success) {
-                    revert(0, 0)
+                    revert(0, returndatasize())
                 }
                 return(0, returndatasize())
             }
         } else if (op == Operation.create) {
             /// @solidity memory-safe-assembly
             assembly {
-                let createdAddress := create(
-                    value,
-                    add(data, 0x20),
-                    mload(data)
-                )
-                if iszero(createdAddress) {
+                let created := create(value, add(data, 0x20), mload(data))
+                if iszero(created) {
                     revert(0, 0)
                 }
-                mstore(0, createdAddress)
+                mstore(0, created)
                 return(0, 0x20)
             }
         } else {
@@ -494,16 +490,15 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public payable virtual returns (uint256 validationData) {
-        // Ensure request comes from known `entrypoint`.
+        // Check request comes from `entrypoint`.
         if (msg.sender != validator.entryPoint()) revert Unauthorized();
 
         // Return keccak256 hash of ERC191 signed data.
-        bytes32 hash;
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x20, userOpHash) // Store into scratch space for keccak256.
             mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
-            hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
+            userOpHash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
 
         // Shift nonce to get branch between `validator` or signer verification.
@@ -512,11 +507,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         ) {
             validationData = validator.validateUserOp(
                 userOp,
-                hash,
+                userOpHash,
                 missingAccountFunds
             );
         } else {
-            validationData = _validateSignatures(hash, userOp.signature);
+            validationData = _validateSignatures(userOpHash, userOp.signature);
         }
 
         // Send any missing funds to `entrypoint` (msg.sender).
@@ -578,48 +573,47 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     }
 
     function _splitSigs(
-        bytes memory signatures
+        bytes memory sigs
     ) internal pure virtual returns (bytes[] memory split) {
         /// @solidity memory-safe-assembly
         assembly {
-            // Check if signatures.length % 65 == 0.
-            if iszero(eq(mod(mload(signatures), 65), 0)) {
+            // Check if sigs.length % 65 == 0.
+            if iszero(eq(mod(mload(sigs), 65), 0)) {
                 // If not, revert with InvalidSignature.
                 mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
                 revert(0x1c, 0x04)
             }
 
-            // Calculate signaturesCount in assembly.
-            let signaturesCount := div(mload(signatures), 65)
+            // Calculate count in assembly.
+            let count := div(mload(sigs), 65)
 
             // Allocate memory for the split array.
             split := mload(0x40) // Current free memory pointer (using mload(0x40) instead of msize).
-            mstore(split, signaturesCount) // Store the length of the split array.
+            mstore(split, count) // Store the length of the split array.
 
-            let sigPtr := add(signatures, 0x20) // Pointer to start of signatures data.
+            let sigPtr := add(sigs, 0x20) // Pointer to start of sigs data.
             let splitDataPtr := add(split, 0x20) // Pointer to the data section of the split array.
 
             for {
                 let i := 0
-            } lt(i, signaturesCount) {
+            } lt(i, count) {
                 i := add(i, 1)
             } {
-                // Fetch the current free memory pointer.
-                let sigMemory := mload(0x40)
+                let m := mload(0x40) // Cache the free memory pointer.
 
                 // Store the pointer to the new memory in the split array's data section.
-                mstore(splitDataPtr, sigMemory)
+                mstore(splitDataPtr, m)
 
-                // Store the length and the data for the signature.
-                mstore(sigMemory, 65)
-                mstore(add(sigMemory, 0x20), mload(sigPtr))
-                mstore(add(sigMemory, 0x40), mload(add(sigPtr, 0x20)))
-                mstore8(add(sigMemory, 0x60), mload(add(sigPtr, 0x40)))
+                // Store the length and the data for the sig.
+                mstore(m, 65)
+                mstore(add(m, 0x20), mload(sigPtr))
+                mstore(add(m, 0x40), mload(add(sigPtr, 0x20)))
+                mstore8(add(m, 0x60), mload(add(sigPtr, 0x40)))
 
                 // Move the pointers for the next iteration.
-                mstore(0x40, add(sigMemory, 0x61)) // Update free memory pointer.
-                sigPtr := add(sigPtr, 65) // Move to the next signature.
-                splitDataPtr := add(splitDataPtr, 0x20) // Move to the next position in the split data section.
+                mstore(0x40, add(m, 0x61)) // Update free memory pointer.
+                sigPtr := add(sigPtr, 65) // Move to the next sig.
+                splitDataPtr := add(splitDataPtr, 0x20) // Move to the next position.
             }
         }
     }

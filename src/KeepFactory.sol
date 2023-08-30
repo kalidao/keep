@@ -55,13 +55,6 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
             let dataEnd := add(add(data, 0x20), dataLength)
             let mAfter1 := mload(dataEnd)
 
-            // Do a out-of-gas revert if `extraLength` is more than 2 bytes (super unlikely).
-            returndatacopy(
-                returndatasize(),
-                returndatasize(),
-                gt(dataLength, 0xfffd)
-            )
-
             // +2 bytes for telling how much data there is appended to the call.
             let extraLength := add(dataLength, 2)
 
@@ -83,18 +76,25 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
                 0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff
             )
             mstore(
-                sub(data, 0x5a),
+                // Do a out-of-gas revert if `extraLength` is too big. 0xffff - 0x62 + 0x01 = 0xff9e.
+                // The actual EVM limit may be smaller and may change over time.
+                sub(data, add(0x59, lt(extraLength, 0xff9e))),
                 or(
                     shl(0x78, add(extraLength, 0x62)),
-                    0x6100003d81600a3d39f336602c57343d527f
+                    0xfd6100003d81600a3d39f336602c57343d527f
                 )
             )
             mstore(dataEnd, shl(0xf0, extraLength))
 
             // Create the instance.
-            keep := create2(0, sub(data, 0x4c), add(extraLength, 0x6c), name)
+            keep := create2(
+                callvalue(),
+                sub(data, 0x4c),
+                add(extraLength, 0x6c),
+                name
+            )
 
-            // If `instance` is zero, revert.
+            // If `keep` is zero, revert.
             if iszero(keep) {
                 // Store the function selector of `DeploymentFailed()`.
                 mstore(0x00, 0x30116425)
@@ -110,7 +110,7 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
             mstore(sub(data, 0x60), mBefore3)
         }
 
-        keep.initialize{value: msg.value}(calls, signers, threshold);
+        keep.initialize(calls, signers, threshold);
 
         emit Deployed(keep, threshold);
     }
@@ -130,13 +130,6 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
             let dataEnd := add(add(data, 0x20), dataLength)
             let mAfter1 := mload(dataEnd)
 
-            // Do a out-of-gas revert if `extraLength` is more than 2 bytes (super unlikely).
-            returndatacopy(
-                returndatasize(),
-                returndatasize(),
-                gt(dataLength, 0xfffd)
-            )
-
             // +2 bytes for telling how much data there is appended to the call.
             let extraLength := add(dataLength, 2)
 
@@ -158,10 +151,12 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
                 0x9e4ac34f21c619cefc926c8bd93b54bf5a39c7ab2127a895af1cc0691d7e3dff
             )
             mstore(
-                sub(data, 0x5a),
+                // Do a out-of-gas revert if `extraLength` is too big. 0xffff - 0x62 + 0x01 = 0xff9e.
+                // The actual EVM limit may be smaller and may change over time.
+                sub(data, add(0x59, lt(extraLength, 0xff9e))),
                 or(
                     shl(0x78, add(extraLength, 0x62)),
-                    0x6100003d81600a3d39f336602c57343d527f
+                    0xfd6100003d81600a3d39f336602c57343d527f
                 )
             )
             mstore(dataEnd, shl(0xf0, extraLength))
