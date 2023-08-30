@@ -12,7 +12,7 @@ abstract contract KeepTokenManager {
 
     function transferable(uint256 id) public view virtual returns (bool);
 
-    function getPriorVotes(
+    function getPastVotes(
         address account,
         uint256 id,
         uint256 timestamp

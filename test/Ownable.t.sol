@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {MockOwned} from "./utils/mocks/MockOwned.sol";
+import {MockOwnable} from "./utils/mocks/MockOwnable.sol";
 
 import "@std/Test.sol";
 
-contract OwnedTest is Test, MockOwned {
-    MockOwned mockOwned;
+contract OwnableTest is Test, MockOwnable {
+    MockOwnable immutable mockOwnable = new MockOwnable();
 
-    function setUp() public payable {
-        mockOwned = new MockOwned();
-    }
+    function setUp() public payable {}
 
     function testTransferOwnership() public payable {
         testTransferOwnership(address(0xBEEF));
@@ -21,26 +19,26 @@ contract OwnedTest is Test, MockOwned {
     }
 
     function testCallFunctionAsOwner() public payable {
-        mockOwned.updateFlag();
+        mockOwnable.updateFlag();
     }
 
     function testTransferOwnership(address newOwner) public payable {
-        mockOwned.transferOwnership(newOwner);
+        mockOwnable.transferOwnership(newOwner);
 
-        assertEq(mockOwned.owner(), newOwner);
+        assertEq(mockOwnable.owner(), newOwner);
     }
 
     function testCallFunctionAsNonOwner(address owner) public payable {
         vm.assume(owner != address(this));
 
-        mockOwned.transferOwnership(owner);
+        mockOwnable.transferOwnership(owner);
 
         vm.expectRevert(Unauthorized.selector);
-        mockOwned.updateFlag();
+        mockOwnable.updateFlag();
     }
 
     function testERC165Support() public payable {
         // ERC173 selector.
-        assert(mockOwned.supportsInterface(0x7f5828d0));
+        assert(mockOwnable.supportsInterface(0x7f5828d0));
     }
 }

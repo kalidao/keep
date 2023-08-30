@@ -477,13 +477,6 @@ abstract contract KeepToken {
         address account,
         uint256 id
     ) public view virtual returns (uint256) {
-        return getCurrentVotes(account, id);
-    }
-
-    function getCurrentVotes(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256) {
         // Unchecked because subtraction only occurs if positive `nCheckpoints`.
         unchecked {
             uint256 nCheckpoints = numCheckpoints[account][id];
@@ -498,14 +491,6 @@ abstract contract KeepToken {
     }
 
     function getPastVotes(
-        address account,
-        uint256 id,
-        uint256 timestamp
-    ) public view virtual returns (uint256) {
-        return getPriorVotes(account, id, timestamp);
-    }
-
-    function getPriorVotes(
         address account,
         uint256 id,
         uint256 timestamp

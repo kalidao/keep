@@ -2,11 +2,11 @@
 pragma solidity ^0.8.4;
 
 import {Multicallable, Call, Keep} from "./Keep.sol";
-import {Owned} from "./extensions/utils/Owned.sol";
-import {Validator} from "./extensions/metadata/Validator.sol";
+import {Ownable} from "./utils/Ownable.sol";
+import {Validator} from "./extensions/validate/Validator.sol";
 
 /// @notice Keep Factory.
-contract KeepFactory is Multicallable, Owned(tx.origin) {
+contract KeepFactory is Multicallable, Ownable(tx.origin) {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------

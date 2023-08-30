@@ -73,7 +73,7 @@ contract URIRemoteFetcher {
     /// https://eips.ethereum.org/EIPS/eip-55
     function toHexStringChecksummed(
         address value
-    ) internal pure virtual returns (string memory str) {
+    ) internal pure returns (string memory str) {
         str = toHexString(value);
         /// @solidity memory-safe-assembly
         assembly {
@@ -108,7 +108,7 @@ contract URIRemoteFetcher {
     /// The output is prefixed with "0x" and encoded using 2 hexadecimal digits per byte.
     function toHexString(
         address value
-    ) internal pure virtual returns (string memory str) {
+    ) internal pure returns (string memory str) {
         str = toHexStringNoPrefix(value);
         /// @solidity memory-safe-assembly
         assembly {
@@ -123,7 +123,7 @@ contract URIRemoteFetcher {
     /// The output is encoded using 2 hexadecimal digits per byte.
     function toHexStringNoPrefix(
         address value
-    ) internal pure virtual returns (string memory str) {
+    ) internal pure returns (string memory str) {
         /// @solidity memory-safe-assembly
         assembly {
             str := mload(0x40)

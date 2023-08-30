@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Owned} from "../../../src/extensions/utils/Owned.sol";
+import {Ownable} from "../../../src/utils/Ownable.sol";
 
-contract MockOwned is Owned(msg.sender) {
+contract MockOwnable is Ownable(msg.sender) {
     bool public flag;
 
     function updateFlag() public payable virtual onlyOwner {

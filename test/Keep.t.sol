@@ -6,7 +6,7 @@ import {KeepToken, Operation, Call, Signature, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
 
 /// @dev Extensions.
-import {Validator} from "../src/extensions/metadata/Validator.sol";
+import {Validator} from "../src/extensions/validate/Validator.sol";
 
 /// @dev Mocks.
 import {MockERC20} from "@solady/test/utils/mocks/MockERC20.sol";

@@ -2,8 +2,7 @@
 pragma solidity ^0.8.4;
 
 /// @notice Simple single owner authorization mixin that implements ERC173.
-/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/auth/Owned.sol)
-abstract contract Owned {
+abstract contract Ownable {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------

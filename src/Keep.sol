@@ -100,7 +100,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @dev Core ID key permission.
-    uint256 internal immutable CORE_KEY = uint32(type(KeepToken).interfaceId);
+    uint256 internal constant CORE_KEY = uint32(type(KeepToken).interfaceId);
 
     /// @dev External validation for ERC1155 `uri()` and ERC4337 permissioning.
     Keep internal immutable validator;
@@ -305,7 +305,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Start zero in loop to ensure ascending addresses.
         address previous;
 
-        // Validation is length of quorum threshold.
+        // Validation runs up to quorum threshold.
         uint256 threshold = quorum;
 
         // Store outside loop for gas optimization.
@@ -386,13 +386,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     0
                 )
                 returndatacopy(0, 0, returndatasize())
-                switch success
-                case 0 {
+                if iszero(success) {
                     revert(0, returndatasize())
                 }
-                default {
-                    return(0, returndatasize())
-                }
+                return(0, returndatasize())
             }
         } else if (op == Operation.delegatecall) {
             /// @solidity memory-safe-assembly
@@ -406,29 +403,44 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     0
                 )
                 returndatacopy(0, 0, returndatasize())
-                switch success
-                case 0 {
-                    revert(0, returndatasize())
+                if iszero(success) {
+                    revert(0, 0)
                 }
-                default {
-                    return(0, returndatasize())
-                }
+                return(0, returndatasize())
             }
         } else if (op == Operation.create) {
             /// @solidity memory-safe-assembly
             assembly {
-                if iszero(create(value, add(data, 0x20), mload(data))) {
+                let createdAddress := create(
+                    value,
+                    add(data, 0x20),
+                    mload(data)
+                )
+                if iszero(createdAddress) {
                     revert(0, 0)
                 }
+                mstore(0, createdAddress)
+                return(0, 0x20)
             }
         } else {
-            bytes32 salt = keccak256(abi.encodePacked(to));
-
             /// @solidity memory-safe-assembly
             assembly {
-                if iszero(create2(value, add(data, 0x20), mload(data), salt)) {
+                if lt(mload(data), 0x20) {
                     revert(0, 0)
                 }
+                let salt := mload(add(data, 0x20))
+                let len := sub(mload(data), 0x20)
+                let created := create2(
+                    value,
+                    add(add(data, 0x20), 0x20),
+                    len,
+                    salt
+                )
+                if iszero(created) {
+                    revert(0, 0)
+                }
+                mstore(0, created)
+                return(0, 0x20)
             }
         }
     }
@@ -446,13 +458,19 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         if (balanceOf[_recoverSigner(hash, signature)][SIGN_KEY] != 0)
             return this.isValidSignature.selector;
 
-        // Fallback to nested contract signatures.
+        // Fallback to check nested contract signatures.
         address user;
         assembly {
-            // Extract first 20 bytes into address.
+            // Ensure signature has at least 20 bytes for an address.
+            if lt(mload(signature), 20) {
+                revert(0, 0)
+            }
+
+            // Extract the first 20 bytes into the address.
             let word := mload(add(signature, 0x20))
             user := shr(96, word)
-            // Update `signature` to remaining bytes.
+
+            // Update `signature` to the remaining bytes.
             mstore(signature, sub(mload(signature), 20))
             mstore(add(signature, 0x20), add(add(signature, 0x20), 20))
         }
@@ -498,7 +516,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 missingAccountFunds
             );
         } else {
-            validationData = validateSignatures(hash, userOp.signature);
+            validationData = _validateSignatures(hash, userOp.signature);
         }
 
         // Send any missing funds to `entrypoint` (msg.sender).
@@ -519,29 +537,26 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
     }
 
-    function validateSignatures(
+    function _validateSignatures(
         bytes32 hash,
-        bytes calldata signatures
-    ) public view virtual returns (uint256) {
-        bytes[] memory sigs;
+        bytes calldata sigs
+    ) internal view virtual returns (uint256) {
+        // Validation runs up to quorum threshold.
+        uint256 threshold = quorum;
+
+        // Early check for single signer.
+        if (threshold == 1)
+            return balanceOf[_recoverSigner(hash, sigs)][SIGN_KEY] != 0 ? 0 : 1;
 
         // Split signatures if batched.
-        if (signatures.length == 65) {
-            sigs = new bytes[](1);
-            sigs[0] = signatures;
-        } else {
-            sigs = _splitSigs(signatures);
-        }
+        bytes[] memory split = _splitSigs(sigs);
 
         // Start zero in loop to ensure ascending addresses.
         address previous;
 
-        // Validation is length of quorum threshold.
-        uint256 threshold = quorum;
-
         // Check enough valid signatures to pass `quorum`.
         for (uint256 i; i < threshold; ) {
-            address signer = _recoverSigner(hash, sigs[i]);
+            address signer = _recoverSigner(hash, split[i]);
 
             // Check against duplicates.
             if (previous >= signer) revert Unauthorized();

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import {Ownable} from "../../utils/Ownable.sol";
 import {UserOperation} from "../../Keep.sol";
-import {Owned} from "../utils/Owned.sol";
 
 /// @notice Open-ended metadata for ERC1155 and ERC4337 permission fetching.
-contract Validator is Owned(tx.origin) {
+contract Validator is Ownable(tx.origin) {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
