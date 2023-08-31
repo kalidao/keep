@@ -23,8 +23,8 @@
     "snapshot": "forge clean && forge snapshot --optimize --optimizer-runs 9999999"
   },
   "devDependencies": {
-    "prettier": "^3.0.1",
+    "prettier": "^3.0.3",
     "prettier-plugin-solidity": "1.1.3",
-    "solhint": "^3.6.1"
+    "solhint": "^3.6.2"
   }
 }

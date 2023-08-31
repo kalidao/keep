@@ -117,7 +117,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @param id ID to fetch from.
     /// @return tokenURI Metadata.
     function uri(uint256 id) public view virtual returns (string memory) {
-        string memory tokenURI = _uris[id];
+        string memory tokenURI = _uri[id];
 
         if (bytes(tokenURI).length > 0) return tokenURI;
         else return validator.uri(id);

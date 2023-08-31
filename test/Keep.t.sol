@@ -380,7 +380,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     }
 
     function testCannotSetupWithExcessiveQuorum() public payable {
-        vm.expectRevert(QuorumOverSupply.selector);
+        vm.expectRevert(InvalidThreshold.selector);
         factory.deployKeep(mockName, calls, signers, 3);
     }
 
