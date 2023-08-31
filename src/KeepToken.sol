@@ -2,7 +2,6 @@
 pragma solidity ^0.8.4;
 
 /// @notice ERC1155 interface to receive tokens.
-/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
 abstract contract ERC1155TokenReceiver {
     function onERC1155Received(
         address,
@@ -25,9 +24,8 @@ abstract contract ERC1155TokenReceiver {
     }
 }
 
-/// @notice Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and flexible permissioning scheme.
+/// @notice ERC1155 token with Governor-style checkpointing, delegation and transfer restriction scheme.
 /// @author Modified from ERC1155V (https://github.com/kalidao/ERC1155V/blob/main/src/ERC1155V.sol)
-/// @author Modified from Compound (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
 abstract contract KeepToken {
     /// -----------------------------------------------------------------------
     /// Events
@@ -258,15 +256,17 @@ abstract contract KeepToken {
 
     function name() public pure virtual returns (string memory) {
         uint256 n;
-
         /// @solidity memory-safe-assembly
         assembly {
-            n := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+            n := calldataload(
+                add(
+                    sub(
+                        calldatasize(),
+                        add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+                    ),
+                    2
+                )
             )
-
-            n := calldataload(add(n, 2))
         }
 
         return string(abi.encodePacked(n));
