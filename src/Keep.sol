@@ -76,8 +76,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Emitted when Keep relays calls.
     event Multirelayed(Call[] calls);
 
-    /// @dev Emitted when signature `quorum` threshold is updated.
+    /// @dev Emitted when `quorum` updates.
     event QuorumSet(uint256 threshold);
+
+    /// @dev Emitted when signature revoked.
+    event SignatureRevoked(address indexed user, bytes32 hash);
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -107,6 +110,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     /// @dev Internal ID metadata mapping.
     mapping(uint256 id => string meta) internal _uri;
+
+    /// @dev Contract signature hash revocation status.
+    mapping(address user => mapping(bytes32 hash => bool)) public revoked;
 
     /// @dev ERC4337 entrypoint.
     function entryPoint() public view virtual returns (address) {
@@ -436,36 +442,69 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
     function isValidSignature(
         bytes32 hash,
-        bytes memory signature
+        bytes memory sig
     ) public view virtual returns (bytes4) {
+        // Recover EOA signer for initial checks.
+        address user = _recoverSigner(hash, sig);
+
+        // Check if `sig` for `hash` was revoked.
+        if (revoked[user][hash]) return 0xffffffff;
+
         // Check SIGN_KEY balance.
         // This also confirms non-zero signer.
-        if (balanceOf[_recoverSigner(hash, signature)][SIGN_KEY] != 0)
-            return this.isValidSignature.selector;
+        if (balanceOf[user][SIGN_KEY] != 0)
+            // `bytes4(keccak256("isValidSignature(bytes32,bytes)")`.
+            return 0x1626ba7e;
 
         // Fallback to check nested contract signatures.
-        address user;
+        // Overwrite `user` with first 20 bytes and `sig`
+        // with remaining data.
         assembly {
-            // Check signature has 20 bytes for address.
-            if lt(mload(signature), 20) {
-                revert(0, 0)
-            }
             // Extract the first 20 bytes into address.
-            let word := mload(add(signature, 0x20))
+            let word := mload(add(sig, 0x20))
             user := shr(96, word)
-            // Update `signature` to the remaining bytes.
-            mstore(signature, sub(mload(signature), 20))
-            mstore(add(signature, 0x20), add(add(signature, 0x20), 20))
+            // Update `sig` to the remaining bytes.
+            mstore(sig, sub(mload(sig), 20))
+            mstore(add(sig, 0x20), add(add(sig, 0x20), 20))
         }
 
+        // Check SIGN_KEY balance of contract account.
         if (balanceOf[user][SIGN_KEY] != 0)
-            if (
-                Keep(user).isValidSignature(hash, signature) ==
-                this.isValidSignature.selector
-            ) return this.isValidSignature.selector;
+            if (Keep(user).isValidSignature(hash, sig) == 0x1626ba7e)
+                return 0x1626ba7e;
 
         // Otherwise, return error.
         return 0xffffffff;
+    }
+
+    function revokeSignature(
+        bytes32 hash,
+        Signature calldata sig
+    ) public payable virtual {
+        _checkSig(hash, sig.user, sig.v, sig.r, sig.s);
+
+        revoked[sig.user][hash] = true;
+
+        emit SignatureRevoked(sig.user, hash);
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC6066 Logic
+    /// -----------------------------------------------------------------------
+
+    /// @param id ID of signing NFT.
+    /// @param hash Hash of data signed.
+    /// @param data OPTIONAL arbitrary data.
+    function isValidSignature(
+        uint256 id,
+        bytes32 hash,
+        bytes calldata data
+    ) public view virtual returns (bytes4) {
+        // Check `id` balance.
+        // This also confirms non-zero signer.
+        if (balanceOf[_recoverSigner(hash, data)][id] != 0) return 0x12edb34f;
+        // Otherwise, return error.
+        else return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------
