@@ -158,16 +158,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         assembly {
             let s := shr(224, interfaceId)
             // ERC165: 0x01ffc9a7, ERC1155: 0xd9b67a26, ERC1155MetadataURI: 0x0e89341c,
-            // ERC721TokenReceiver: 0x150b7a02, ERC1155TokenReceiver: 0x4e2312e0
+            // ERC721TokenReceiver: 0x150b7a02, ERC1155TokenReceiver: 0x4e2312e0,
+            // ERC1271: 0x1626ba7e, ERC6066: 0x12edb34f
             supported := or(
+                or(or(eq(s, 0x01ffc9a7), eq(s, 0xd9b67a26)), eq(s, 0x0e89341c)),
                 or(
-                    or(
-                        or(eq(s, 0x01ffc9a7), eq(s, 0xd9b67a26)),
-                        eq(s, 0x0e89341c)
-                    ),
-                    eq(s, 0x150b7a02)
-                ),
-                eq(s, 0x4e2312e0)
+                    or(eq(s, 0x150b7a02), eq(s, 0x4e2312e0)),
+                    or(eq(s, 0x1626ba7e), eq(s, 0x12edb34f))
+                )
             )
         }
     }
@@ -477,6 +475,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         return 0xffffffff;
     }
 
+    /// -----------------------------------------------------------------------
+    /// @notice Signature revocation.
+    /// @param hash Signed data Hash.
+    /// @param sig Signature payload.
     function revokeSignature(
         bytes32 hash,
         Signature calldata sig
@@ -493,16 +495,46 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
 
     /// @param id ID of signing NFT.
-    /// @param hash Hash of data signed.
-    /// @param data OPTIONAL arbitrary data.
+    /// @param hash Signed data Hash.
+    /// @param sig Signature payload.
     function isValidSignature(
         uint256 id,
         bytes32 hash,
-        bytes calldata data
+        bytes calldata sig
     ) public view virtual returns (bytes4) {
+        // Recover EOA signer for initial checks.
+        address user = _recoverSigner(hash, sig);
+        // Check if `sig` for `hash` was revoked.
+        if (revoked[user][hash]) return 0xffffffff;
         // Check `id` balance.
         // This also confirms non-zero signer.
-        if (balanceOf[_recoverSigner(hash, data)][id] != 0) return 0x12edb34f;
+        if (balanceOf[user][id] != 0) return 0x12edb34f;
+        // Otherwise, return error.
+        return 0xffffffff;
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Temporal Signature Logic
+    /// -----------------------------------------------------------------------
+
+    /// @param id ID of signing NFT.
+    /// @param hash Signed data Hash.
+    /// @param sig Signature payload.
+    /// @param timestamp Timeliness.
+    function wasValidSignature(
+        uint256 id,
+        bytes32 hash,
+        bytes calldata sig,
+        uint256 timestamp
+    ) public view virtual returns (bytes4) {
+        // Recover EOA signer for initial checks.
+        address user = _recoverSigner(hash, sig);
+        // Check if `sig` for `hash` was revoked.
+        if (revoked[user][hash]) return 0xffffffff;
+        // Check `id` balance against `timestamp`.
+        // This also confirms non-zero signer.
+        if (getPastVotes(user, id, timestamp) != 0)
+            return this.wasValidSignature.selector;
         // Otherwise, return error.
         else return 0xffffffff;
     }
