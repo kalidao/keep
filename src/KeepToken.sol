@@ -255,7 +255,8 @@ abstract contract KeepToken {
 
         balances = new uint256[](owners.length);
 
-        for (uint256 i; i < owners.length; ) {
+        uint256 i;
+        for (i; i < owners.length; ) {
             balances[i] = balanceOf[owners[i]][ids[i]];
 
             // Unchecked because the only math done is incrementing
@@ -335,8 +336,9 @@ abstract contract KeepToken {
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
         uint256 amount;
+        uint256 i;
 
-        for (uint256 i; i < ids.length; ) {
+        for (i; i < ids.length; ) {
             id = ids[i];
             amount = amounts[i];
 

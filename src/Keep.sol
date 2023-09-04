@@ -210,8 +210,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         if (threshold > signers.length) revert InvalidThreshold();
 
+        uint256 i;
         if (calls.length != 0) {
-            for (uint256 i; i < calls.length; ) {
+            for (i; i < calls.length; ) {
                 // An array can't have a total length
                 // larger than the max uint256 value.
                 unchecked {
@@ -225,13 +226,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     calls[i].data
                 );
             }
+            delete i;
         }
 
         address previous;
         address signer;
         uint256 supply;
 
-        for (uint256 i; i < signers.length; ) {
+        for (i; i < signers.length; ) {
             signer = signers[i];
 
             // Prevent zero and duplicate signers.
@@ -306,7 +308,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         Signature calldata sig;
 
         // Check enough valid `sig` to pass `quorum`.
-        for (uint256 i; i < threshold; ) {
+        uint256 i;
+        for (i; i < threshold; ) {
             // Load `user` details.
             sig = sigs[i];
             address user = sig.user;
@@ -349,7 +352,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function multirelay(Call[] calldata calls) public payable virtual {
         _authorized();
 
-        for (uint256 i; i < calls.length; ) {
+        uint256 i;
+        for (i; i < calls.length; ) {
             // An array can't have a total length
             // larger than the max uint256 value.
             unchecked {
@@ -605,7 +609,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address previous;
 
         // Check enough valid `sigs` to pass `quorum`.
-        for (uint256 i; i < threshold; ) {
+        uint256 i;
+        for (i; i < threshold; ) {
             address user = _recoverSigner(hash, sigs[i]);
 
             // Check against duplicates.
