@@ -506,15 +506,15 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         // Shift `userOp.nonce` to branch between `validator` & signature check.
         if (
-            userOp.nonce >> 64 == uint256(uint32(this.validateUserOp.selector))
+            userOp.nonce >> 64 != uint256(uint32(this.validateUserOp.selector))
         ) {
+            validationData = _validate(userOpHash, userOp.signature, SIGN_KEY);
+        } else {
             validationData = validator.validateUserOp(
                 userOp,
                 userOpHash,
                 missingAccountFunds
             );
-        } else {
-            validationData = _validate(userOpHash, userOp.signature, SIGN_KEY);
         }
 
         // Send any missing funds to `entrypoint()` (msg.sender).
