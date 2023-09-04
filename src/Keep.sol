@@ -301,12 +301,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         // Memo zero `user` in loop for ascending order.
         address previous;
-        // Memo `quorum` threshold for loop length.
+        // Memo `quorum` `threshold` for loop length.
         uint256 threshold = quorum;
         // Memo `sig` outside loop for gas optimization.
         Signature calldata sig;
 
-        // Check enough valid `sig` to pass `quorum`.
+        // Check enough valid `sigs` to pass `threshold`.
         uint256 i;
         for (i; i < threshold; ) {
             // Load `user` details.
@@ -554,15 +554,15 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             return balanceOf[user][id] != 0 ? 0 : 1;
         }
 
-        // Memo split `sig` if batched.
+        // Memo split `sig` into `sigs`.
         bytes[] memory sigs = _splitSigs(sig);
         // Memo zero `user` in loop for ascending order.
         address previous;
 
-        // Check enough valid `sigs` to pass `quorum`.
+        // Check enough valid `sigs` to pass `threshold`.
         uint256 i;
         for (i; i < threshold; ) {
-            (user, validationData) = _validateSig(hash, sig);
+            (user, validationData) = _validateSig(hash, sigs[i]);
 
             if (validationData == 1) return 1;
 
