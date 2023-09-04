@@ -38,7 +38,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dev dependencies
-        run: pnpm i
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run formatter
         run: pnpm run format
