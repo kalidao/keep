@@ -464,8 +464,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes calldata sig
     ) public view virtual returns (bytes4) {
         // Check `SIGN_KEY` as this denotes ownership.
-        if (_validate(hash, sig, SIGN_KEY) == 0) 
-            return 0x1626ba7e; else return 0xffffffff;
+        if (_validate(hash, sig, SIGN_KEY) == 0) return 0x1626ba7e;
+        else return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------
@@ -480,8 +480,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 hash,
         bytes calldata sig
     ) public view virtual returns (bytes4) {
-        if (_validate(hash, sig, id) == 0) 
-            return 0x12edb34f; else return 0xffffffff;
+        if (_validate(hash, sig, id) == 0) return 0x12edb34f;
+        else return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------
@@ -514,11 +514,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 missingAccountFunds
             );
         } else {
-            validationData = _validate(
-                userOpHash,
-                userOp.signature,
-                SIGN_KEY
-            );
+            validationData = _validate(userOpHash, userOp.signature, SIGN_KEY);
         }
 
         // Send any missing funds to `entrypoint()` (msg.sender).

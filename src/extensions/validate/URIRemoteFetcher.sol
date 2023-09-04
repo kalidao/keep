@@ -7,7 +7,10 @@ contract URIRemoteFetcher {
 
     constructor() payable {}
 
-    function uri(address origin, uint256 id) public view virtual returns (string memory) {
+    function uri(
+        address origin,
+        uint256 id
+    ) public view virtual returns (string memory) {
         return
             string(
                 abi.encodePacked(
