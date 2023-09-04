@@ -316,7 +316,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             if (balanceOf[user][SIGN_KEY] == 0) revert Unauthorized();
 
             // Check `user` `sig` recovery.
-            _checkSig(hash, user, sig.v, sig.r, sig.s);
+            _checkSig(user, hash, sig.v, sig.r, sig.s);
 
             // Check against `user` duplicates.
             if (previous >= user) revert Unauthorized();
@@ -483,7 +483,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 hash,
         Signature calldata sig
     ) public payable virtual {
-        _checkSig(hash, sig.user, sig.v, sig.r, sig.s);
+        _checkSig(sig.user, hash, sig.v, sig.r, sig.s);
 
         revoked[sig.user][hash] = true;
 
@@ -551,7 +551,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Check request comes from `entrypoint()`.
         if (msg.sender != validator.entryPoint()) revert Unauthorized();
 
-        // Return keccak256 hash of ERC191 signed data.
+        // Return keccak256 hash of ERC191-signed data for `userOpHash`.
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x20, userOpHash) // Store into scratch space for keccak256.
@@ -560,9 +560,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         // Shift `userOp.nonce` to branch between `validator` & signature check.
-        if (
-            userOp.nonce >> 64 == uint256(uint32(this.validateUserOp.selector))
-        ) {
+        if (userOp.nonce >> 64 == uint32(this.validateUserOp.selector)) {
             validationData = validator.validateUserOp(
                 userOp,
                 userOpHash,
@@ -681,16 +679,16 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     ) internal view virtual returns (address signer) {
         /// @solidity memory-safe-assembly
         assembly {
-            let m := mload(0x40) // Cache free memory pointer.
-            let signatureLength := mload(sig)
+            let m := mload(0x40) // Cache the free memory pointer.
+            let sigLength := mload(sig)
             mstore(0x00, hash)
             mstore(0x20, byte(0, mload(add(sig, 0x60)))) // `v`.
             mstore(0x40, mload(add(sig, 0x20))) // `r`.
             mstore(0x60, mload(add(sig, 0x40))) // `s`.
             signer := mload(
                 staticcall(
-                    gas(), // Amount of gas left for transaction.
-                    eq(signatureLength, 65), // Address of `ecrecover`.
+                    gas(), // Amount of gas left for the transaction.
+                    eq(sigLength, 65), // Address of `ecrecover`.
                     0x00, // Start of input.
                     0x80, // Size of input.
                     0x01, // Start of output.

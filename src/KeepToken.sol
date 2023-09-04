@@ -1,29 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @notice ERC1155 interface to receive tokens.
-abstract contract ERC1155TokenReceiver {
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes calldata
-    ) public payable virtual returns (bytes4) {
-        return this.onERC1155Received.selector;
-    }
-
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] calldata,
-        uint256[] calldata,
-        bytes calldata
-    ) public payable virtual returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
-    }
-}
-
 /// @notice ERC1155 token with Governor-style checkpointing, delegation and transfer restriction scheme.
 /// @author Modified from ERC1155V (https://github.com/kalidao/ERC1155V/blob/main/src/ERC1155V.sol)
 abstract contract KeepToken {
@@ -89,23 +66,14 @@ abstract contract KeepToken {
     /// -----------------------------------------------------------------------
 
     error InvalidSignature();
-
     error LengthMismatch();
-
     error Unauthorized();
-
     error NonTransferable();
-
     error NotPermitted();
-
     error UnsafeRecipient();
-
     error InvalidRecipient();
-
     error ExpiredSig();
-
     error Undetermined();
-
     error Overflow();
 
     /// -----------------------------------------------------------------------
@@ -150,18 +118,18 @@ abstract contract KeepToken {
     }
 
     function _checkSig(
+        address user,
         bytes32 hash,
-        address signer,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) internal view virtual {
         /// @solidity memory-safe-assembly
         assembly {
-            // Clean the upper 96 bits of `signer` in case they are dirty.
+            // Clean the upper 96 bits of `user` in case they are dirty.
             for {
-                signer := shr(96, shl(96, signer))
-            } signer {
+                user := shr(96, shl(96, user))
+            } user {
 
             } {
                 let m := mload(0x40)
@@ -178,7 +146,7 @@ abstract contract KeepToken {
                     0x20 // Size of output.
                 )
                 // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
-                if iszero(or(iszero(returndatasize()), xor(signer, mload(t)))) {
+                if iszero(or(iszero(returndatasize()), xor(user, mload(t)))) {
                     mstore(0x60, 0) // Restore the zero slot.
                     mstore(0x40, m) // Restore the free memory pointer.
                     break
@@ -189,10 +157,11 @@ abstract contract KeepToken {
                 mstore(add(m, 0x04), hash)
                 let d := add(m, 0x24)
                 mstore(d, 0x40) // The offset of the `signature` in the calldata.
-                mstore(add(m, 0x44), 65) // Length of the signature.
+                mstore(add(m, 0x44), 65) // Length of the `signature`.
                 mstore(add(m, 0x64), r) // `r`.
                 mstore(add(m, 0x84), s) // `s`.
                 mstore8(add(m, 0xa4), v) // `v`.
+
                 if iszero(
                     and(
                         // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
@@ -202,7 +171,7 @@ abstract contract KeepToken {
                         // as the arguments are evaluated from right to left.
                         staticcall(
                             gas(), // Remaining gas.
-                            signer, // The `signer` address.
+                            user, // The `user` address.
                             m, // Offset of calldata in memory.
                             0xa5, // Length of calldata in memory.
                             d, // Offset of returndata.
@@ -457,7 +426,7 @@ abstract contract KeepToken {
                 )
             );
 
-            _checkSig(hash, owner, v, r, s);
+            _checkSig(owner, hash, v, r, s);
         }
 
         isApprovedForAll[owner][operator] = approved;
@@ -584,7 +553,7 @@ abstract contract KeepToken {
                 )
             );
 
-            _checkSig(hash, delegator, v, r, s);
+            _checkSig(delegator, hash, v, r, s);
         }
 
         _delegate(delegator, delegatee, id);
@@ -790,5 +759,28 @@ abstract contract KeepToken {
         userPermissioned[to][id] = on;
 
         emit UserPermissionSet(msg.sender, to, id, on);
+    }
+}
+
+/// @notice ERC1155 interface to receive tokens.
+abstract contract ERC1155TokenReceiver {
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }
