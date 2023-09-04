@@ -212,18 +212,18 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         if (calls.length != 0) {
             for (uint256 i; i < calls.length; ) {
+                // An array can't have a total length
+                // larger than the max uint256 value.
+                unchecked {
+                    ++i;
+                }
+
                 _execute(
                     calls[i].op,
                     calls[i].to,
                     calls[i].value,
                     calls[i].data
                 );
-
-                // An array can't have a total length
-                // larger than the max uint256 value.
-                unchecked {
-                    ++i;
-                }
             }
         }
 
@@ -339,9 +339,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     function relay(Call calldata call) public payable virtual {
         _authorized();
 
-        _execute(call.op, call.to, call.value, call.data);
-
         emit Relayed(call);
+
+        _execute(call.op, call.to, call.value, call.data);
     }
 
     /// @notice Relay operations from Keep `execute()` or as `authorized()`.
@@ -350,13 +350,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         _authorized();
 
         for (uint256 i; i < calls.length; ) {
-            _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
-
             // An array can't have a total length
             // larger than the max uint256 value.
             unchecked {
                 ++i;
             }
+
+            _execute(calls[i].op, calls[i].to, calls[i].value, calls[i].data);
         }
 
         emit Multirelayed(calls);
