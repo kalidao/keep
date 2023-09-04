@@ -7,14 +7,14 @@ contract URIRemoteFetcher {
 
     constructor() payable {}
 
-    function uri(uint256 id) public view virtual returns (string memory) {
+    function uri(address origin, uint256 id) public view virtual returns (string memory) {
         return
             string(
                 abi.encodePacked(
                     "https://api.kali.gg/v1/keeps/",
                     toString(chainId),
                     "/",
-                    toHexStringChecksummed(tx.origin),
+                    toHexStringChecksummed(origin),
                     "/",
                     toString(id)
                 )

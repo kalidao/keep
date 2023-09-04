@@ -226,7 +226,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     calls[i].data
                 );
             }
-            delete i;
         }
 
         address previous;
@@ -439,47 +438,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC1271 Logic
+    /// Revocation Logic
     /// -----------------------------------------------------------------------
 
-    function isValidSignature(
-        bytes32 hash,
-        bytes memory sig
-    ) public view virtual returns (bytes4) {
-        // Recover EOA signer for initial checks.
-        address user = _recoverSigner(hash, sig);
-
-        // Check if `sig` for `hash` was revoked.
-        if (revoked[user][hash]) return 0xffffffff;
-
-        // Check SIGN_KEY balance.
-        // This also confirms non-zero signer.
-        if (balanceOf[user][SIGN_KEY] != 0)
-            // `bytes4(keccak256("isValidSignature(bytes32,bytes)")`.
-            return 0x1626ba7e;
-
-        // Fallback to check nested contract signatures.
-        // Overwrite `user` with first 20 bytes and `sig`
-        // with remaining data.
-        assembly {
-            // Extract the first 20 bytes into address.
-            let word := mload(add(sig, 0x20))
-            user := shr(96, word)
-            // Update `sig` to the remaining bytes.
-            mstore(sig, sub(mload(sig), 20))
-            mstore(add(sig, 0x20), add(add(sig, 0x20), 20))
-        }
-
-        // Check SIGN_KEY balance of contract account.
-        if (balanceOf[user][SIGN_KEY] != 0)
-            if (Keep(user).isValidSignature(hash, sig) == 0x1626ba7e)
-                return 0x1626ba7e;
-
-        // Otherwise, return error.
-        return 0xffffffff;
-    }
-
-    /// -----------------------------------------------------------------------
     /// @notice Signature revocation.
     /// @param hash Signed data Hash.
     /// @param sig Signature payload.
@@ -495,6 +456,19 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     }
 
     /// -----------------------------------------------------------------------
+    /// ERC1271 Logic
+    /// -----------------------------------------------------------------------
+
+    function isValidSignature(
+        bytes32 hash,
+        bytes calldata sig
+    ) public view virtual returns (bytes4) {
+        // Check `SIGN_KEY` as this denotes ownership.
+        if (_validate(hash, sig, SIGN_KEY) == 0) 
+            return 0x1626ba7e; else return 0xffffffff;
+    }
+
+    /// -----------------------------------------------------------------------
     /// ERC6066 Logic
     /// -----------------------------------------------------------------------
 
@@ -506,41 +480,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 hash,
         bytes calldata sig
     ) public view virtual returns (bytes4) {
-        // Recover EOA signer for initial checks.
-        address user = _recoverSigner(hash, sig);
-        // Check if `sig` for `hash` was revoked.
-        if (revoked[user][hash]) return 0xffffffff;
-        // Check `id` balance.
-        // This also confirms non-zero signer.
-        if (balanceOf[user][id] != 0) return 0x12edb34f;
-        // Otherwise, return error.
-        return 0xffffffff;
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Temporal Signature Logic
-    /// -----------------------------------------------------------------------
-
-    /// @param id ID of signing NFT.
-    /// @param hash Signed data Hash.
-    /// @param sig Signature payload.
-    /// @param timestamp Timeliness.
-    function wasValidSignature(
-        uint256 id,
-        bytes32 hash,
-        bytes calldata sig,
-        uint256 timestamp
-    ) public view virtual returns (bytes4) {
-        // Recover EOA signer for initial checks.
-        address user = _recoverSigner(hash, sig);
-        // Check if `sig` for `hash` was revoked.
-        if (revoked[user][hash]) return 0xffffffff;
-        // Check `id` balance against `timestamp`.
-        // This also confirms non-zero signer.
-        if (getPastVotes(user, id, timestamp) != 0)
-            return this.wasValidSignature.selector;
-        // Otherwise, return error.
-        else return 0xffffffff;
+        if (_validate(hash, sig, id) == 0) 
+            return 0x12edb34f; else return 0xffffffff;
     }
 
     /// -----------------------------------------------------------------------
@@ -564,14 +505,20 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         // Shift `userOp.nonce` to branch between `validator` & signature check.
-        if (userOp.nonce >> 64 == uint32(this.validateUserOp.selector)) {
+        if (
+            userOp.nonce >> 64 == uint256(uint32(this.validateUserOp.selector))
+        ) {
             validationData = validator.validateUserOp(
                 userOp,
                 userOpHash,
                 missingAccountFunds
             );
         } else {
-            validationData = _validateSignatures(userOpHash, userOp.signature);
+            validationData = _validate(
+                userOpHash,
+                userOp.signature,
+                SIGN_KEY
+            );
         }
 
         // Send any missing funds to `entrypoint()` (msg.sender).
@@ -592,16 +539,24 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
     }
 
-    function _validateSignatures(
+    function _validate(
         bytes32 hash,
-        bytes calldata sig
-    ) internal view virtual returns (uint256) {
-        // Memo `quorum` threshold for loop length.
+        bytes calldata sig,
+        uint256 id
+    ) internal view virtual returns (uint256 validationData) {
+        address user;
         uint256 threshold = quorum;
 
         // Early check for single `sig`.
-        if (threshold == 1)
-            return balanceOf[_recoverSigner(hash, sig)][SIGN_KEY] != 0 ? 0 : 1;
+        if (threshold == 1) {
+            (user, validationData) = _validateSig(hash, sig);
+
+            if (validationData == 1) return 1;
+
+            if (revoked[user][hash]) return 1;
+
+            return balanceOf[user][id] != 0 ? 0 : 1;
+        }
 
         // Memo split `sig` if batched.
         bytes[] memory sigs = _splitSigs(sig);
@@ -611,16 +566,20 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Check enough valid `sigs` to pass `quorum`.
         uint256 i;
         for (i; i < threshold; ) {
-            address user = _recoverSigner(hash, sigs[i]);
+            (user, validationData) = _validateSig(hash, sig);
+
+            if (validationData == 1) return 1;
+
+            if (revoked[user][hash]) return 1;
 
             // Check against duplicates.
-            if (previous >= user) revert Unauthorized();
+            if (previous >= user) return 1;
 
             // Memo signature for next iteration until quorum.
             previous = user;
 
             // If not keyholding `user`, `SIG_VALIDATION_FAILED`.
-            if (balanceOf[user][SIGN_KEY] == 0) return 1;
+            if (balanceOf[user][id] == 0) return 1;
 
             // An array can't have a total length
             // larger than the max uint256 value.
@@ -630,6 +589,80 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         return 0;
+    }
+
+    function _validateSig(
+        bytes32 hash,
+        bytes memory sig
+    ) internal view virtual returns (address user, uint256 validationData) {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        assembly {
+            r := mload(add(sig, 0x20))
+            s := mload(add(sig, 0x40))
+            v := byte(0, mload(add(sig, 0x60)))
+        }
+
+        if (v != 0) {
+            /// @solidity memory-safe-assembly
+            assembly {
+                let m := mload(0x40) // Cache the free memory pointer.
+                mstore(0x00, hash)
+                mstore(0x20, and(v, 0xff))
+                mstore(0x40, r)
+                mstore(0x60, s)
+                user := mload(
+                    staticcall(
+                        gas(), // Amount of gas left for the transaction.
+                        1, // Address of `ecrecover`.
+                        0x00, // Start of input.
+                        0x80, // Size of input.
+                        0x01, // Start of output.
+                        0x20 // Size of output.
+                    )
+                )
+                mstore(0x60, 0) // Restore the zero slot.
+                mstore(0x40, m) // Restore the free memory pointer.
+            }
+        } else {
+            user = address(uint160(uint256(r)));
+
+            /// @solidity memory-safe-assembly
+            assembly {
+                let m := mload(0x40)
+                let f := shl(224, 0x1626ba7e)
+                mstore(m, f) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
+                mstore(add(m, 0x04), hash)
+                let d := add(m, 0x24)
+                mstore(d, 0x40) // The offset of the `signature` in the calldata.
+                mstore(add(m, 0x44), 65) // Length of the signature.
+                mstore(add(m, 0x64), r) // `r`.
+                mstore(add(m, 0x84), s) // `s`.
+                mstore8(add(m, 0xa4), v) // `v`.
+
+                if iszero(
+                    and(
+                        // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
+                        eq(mload(d), f),
+                        // Whether the staticcall does not revert.
+                        // This must be placed at the end of the `and` clause,
+                        // as the arguments are evaluated from right to left.
+                        staticcall(
+                            gas(), // Remaining gas.
+                            user, // The `user` address.
+                            m, // Offset of calldata in memory.
+                            0xa5, // Length of calldata in memory.
+                            d, // Offset of returndata.
+                            0x20 // Length of returndata to write.
+                        )
+                    )
+                ) {
+                    validationData := 1
+                }
+            }
+        }
     }
 
     function _splitSigs(
@@ -675,38 +708,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 sigPtr := add(sigPtr, 65) // Move to next `sig`.
                 splitDataPtr := add(splitDataPtr, 0x20) // Move to next position.
             }
-        }
-    }
-
-    function _recoverSigner(
-        bytes32 hash,
-        bytes memory sig
-    ) internal view virtual returns (address signer) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            let m := mload(0x40) // Cache the free memory pointer.
-            let sigLength := mload(sig)
-            mstore(0x00, hash)
-            mstore(0x20, byte(0, mload(add(sig, 0x60)))) // `v`.
-            mstore(0x40, mload(add(sig, 0x20))) // `r`.
-            mstore(0x60, mload(add(sig, 0x40))) // `s`.
-            signer := mload(
-                staticcall(
-                    gas(), // Amount of gas left for the transaction.
-                    eq(sigLength, 65), // Address of `ecrecover`.
-                    0x00, // Start of input.
-                    0x80, // Size of input.
-                    0x01, // Start of output.
-                    0x20 // Size of output.
-                )
-            )
-            // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
-            if iszero(returndatasize()) {
-                mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
-                revert(0x1c, 0x04)
-            }
-            mstore(0x60, 0) // Restore the zero slot.
-            mstore(0x40, m) // Restore the free memory pointer.
         }
     }
 

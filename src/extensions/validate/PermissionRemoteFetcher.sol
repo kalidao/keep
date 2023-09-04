@@ -16,7 +16,7 @@ struct Permission {
 contract PermissionRemoteFetcher {
     function validateUserOp(
         UserOperation calldata userOp,
-        bytes32 hash,
+        bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public view virtual returns (uint256) {
         /*Permission memory permission = abi.decode(userOp.data, (Permission));

@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import {Ownable} from "../../utils/Ownable.sol";
 import {UserOperation} from "../../Keep.sol";
+function getURI(address,uint256) returns (string memory) {}
 
 /// @notice Open-ended metadata for ERC1155 and ERC4337 permission fetching.
 contract Validator is Ownable(tx.origin) {
@@ -26,7 +27,7 @@ contract Validator is Ownable(tx.origin) {
 
     Validator internal uriRemoteValidator;
 
-    address internal entryPoint;
+    address public entryPoint;
 
     /// -----------------------------------------------------------------------
     /// Constructor
@@ -44,13 +45,13 @@ contract Validator is Ownable(tx.origin) {
 
     function validateUserOp(
         UserOperation calldata userOp,
-        bytes32 hash,
+        bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public view virtual returns (uint256) {
         return
             permissionRemoteValidator.validateUserOp(
                 userOp,
-                hash,
+                userOpHash,
                 missingAccountFunds
             );
     }
@@ -66,9 +67,10 @@ contract Validator is Ownable(tx.origin) {
     /// -----------------------------------------------------------------------
     /// URI Remote Logic
     /// -----------------------------------------------------------------------
+    function uri(address, uint256) public view virtual returns (string memory) {}
 
     function uri(uint256 id) public view virtual returns (string memory) {
-        return uriRemoteValidator.uri(id);
+        return uriRemoteValidator.uri(msg.sender, id);
     }
 
     function setURIRemoteValidator(
