@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity ^0.8.19;
 
 import {Multicallable, Call, Keep} from "./Keep.sol";
 import {Ownable} from "./utils/Ownable.sol";

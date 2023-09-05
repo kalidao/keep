@@ -8,10 +8,10 @@
     "url": "git+https://github.com/kalidao/keep.git"
   },
   "author": "KaliCo LLC <contact@kali.gg>",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "private": false,
   "scripts": {
-    "format": "prettier --write --plugin=prettier-plugin-solidity 'src/**/*.sol' 'test/**/*.sol' 'flat/**/*.sol'",
+    "format": "prettier --write --plugin=prettier-plugin-solidity 'src/**/*.sol' 'src/extensions/validate/*.sol' 'src/extensions/mint/*.sol' 'test/**/*.sol' 'flat/**/*.sol'",
     "format:list": "prettier --list-different 'src/**/*.sol'",
     "format:check": "prettier --check 'src/**/*.sol'",
     "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix --ignore-path .solhintignore",
