@@ -11,7 +11,7 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event Deployed(Keep indexed keep, uint256 threshold);
+    event Deployed(Keep indexed keep, uint256 quorum);
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -41,7 +41,7 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
         bytes32 name, // create2 salt.
         Call[] calldata calls,
         address[] calldata signers,
-        uint256 threshold
+        uint256 quorum
     ) public payable virtual returns (Keep keep) {
         bytes memory data = abi.encodePacked(name);
         address implementation = address(keepTemplate);
@@ -110,9 +110,9 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
             mstore(sub(data, 0x60), mBefore3)
         }
 
-        keep.initialize(calls, signers, threshold);
+        keep.initialize(calls, signers, quorum);
 
-        emit Deployed(keep, threshold);
+        emit Deployed(keep, quorum);
     }
 
     function determineKeep(

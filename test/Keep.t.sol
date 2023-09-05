@@ -410,12 +410,12 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     // }
 
     function testQuorum() public payable {
-        assert(keep.quorum() == 2);
+        assert(keep.threshold(SIGN_KEY) == 2);
 
         vm.prank(address(keep));
-        keep.setQuorum(3);
+        keep.setThreshold(SIGN_KEY, 3);
 
-        assert(keep.quorum() == 3);
+        assert(keep.threshold(SIGN_KEY) == 3);
     }
 
     function testBalanceOf() public {
@@ -503,8 +503,9 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         assert(
             keep.multirelay.selector != keep.mint.selector &&
                 keep.mint.selector != keep.burn.selector &&
-                keep.burn.selector != keep.setQuorum.selector &&
-                keep.setQuorum.selector != keep.setTransferability.selector &&
+                keep.burn.selector != keep.setThreshold.selector &&
+                keep.setThreshold.selector !=
+                keep.setTransferability.selector &&
                 keep.setTransferability.selector !=
                 keep.setPermission.selector &&
                 keep.setPermission.selector !=
@@ -1011,7 +1012,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
         assert(keep.totalSupply(1) == 0);
 
-        assert(keep.quorum() == 2);
+        assert(keep.threshold(SIGN_KEY) == 2);
     }
 
     // function testCannotMintToUnsafeAddress() public payable {

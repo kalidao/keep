@@ -76,8 +76,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Emitted when Keep relays calls.
     event Multirelayed(Call[] calls);
 
-    /// @dev Emitted when `quorum` updates.
-    event QuorumSet(uint256 threshold);
+    /// @dev Emitted when `quorum` `threshold` updates.
+    event ThresholdSet(uint256 id, uint256 quorum);
 
     /// @dev Emitted when signature revoked.
     event SignatureRevoked(address indexed user, bytes32 hash);
@@ -105,11 +105,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// @dev Record of states verifying `execute()`.
     uint120 public nonce;
 
-    /// @dev SIGN_KEY threshold to `execute()`.
-    uint120 public quorum;
-
     /// @dev Internal ID metadata mapping.
-    mapping(uint256 id => string meta) internal _uri;
+    mapping(uint256 id => string) internal _uri;
+
+    /// @dev Internal ID `threshold` mapping.
+    mapping(uint256 id => uint256) public threshold;
 
     /// @dev Contract signature hash revocation status.
     mapping(address user => mapping(bytes32 hash => bool)) public revoked;
@@ -192,27 +192,26 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     constructor(Keep _validator) payable {
         validator = _validator;
         // Deploy as singleton.
-        quorum = 1;
+        threshold[SIGN_KEY] = 1;
     }
 
     /// @notice Initialize Keep configuration.
     /// @param calls Initial Keep operations.
     /// @param signers Initial signer set.
-    /// @param threshold Initial quorum.
+    /// @param quorum Initial quorum.
     function initialize(
         Call[] calldata calls,
         address[] calldata signers,
-        uint256 threshold
+        uint256 quorum
     ) public payable virtual {
-        if (quorum != 0) revert AlreadyInit();
+        if (threshold[SIGN_KEY] != 0) revert AlreadyInit();
 
-        if (threshold == 0) revert InvalidThreshold();
+        if (quorum == 0) revert InvalidThreshold();
 
-        if (threshold > signers.length) revert InvalidThreshold();
+        if (quorum > signers.length) revert InvalidThreshold();
 
-        uint256 i;
         if (calls.length != 0) {
-            for (i; i < calls.length; ) {
+            for (uint256 i; i < calls.length; ) {
                 // An array can't have a total length
                 // larger than the max uint256 value.
                 unchecked {
@@ -232,7 +231,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address signer;
         uint256 supply;
 
-        for (i; i < signers.length; ) {
+        for (uint256 i; i < signers.length; ) {
             signer = signers[i];
 
             // Prevent zero and duplicate signers.
@@ -252,7 +251,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         totalSupply[SIGN_KEY] = supply;
-        quorum = uint120(threshold);
+        threshold[SIGN_KEY] = quorum;
     }
 
     /// -----------------------------------------------------------------------
@@ -302,13 +301,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Memo zero `user` in loop for ascending order.
         address previous;
         // Memo `quorum` `threshold` for loop length.
-        uint256 threshold = quorum;
+        uint256 quorum = threshold[SIGN_KEY];
         // Memo `sig` outside loop for gas optimization.
         Signature calldata sig;
 
-        // Check enough valid `sigs` to pass `threshold`.
+        // Check enough valid `sigs` to pass `quorum`.
         uint256 i;
-        for (i; i < threshold; ) {
+        for (i; i < quorum; ) {
             // Load `user` details.
             sig = sigs[i];
             address user = sig.user;
@@ -504,11 +503,11 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             userOpHash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
 
+        uint32 key = uint32(userOp.nonce >> 64);
+
         // Shift `userOp.nonce` to branch between `validator` & signature check.
-        if (
-            userOp.nonce >> 64 != uint256(uint32(this.validateUserOp.selector))
-        ) {
-            validationData = _validate(userOpHash, userOp.signature, SIGN_KEY);
+        if (key != uint32(this.validateUserOp.selector)) {
+            validationData = _validate(userOpHash, userOp.signature, key);
         } else {
             validationData = validator.validateUserOp(
                 userOp,
@@ -541,10 +540,12 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         uint256 id
     ) internal view virtual returns (uint256 validationData) {
         address user;
-        uint256 threshold = quorum;
+        uint256 quorum = threshold[id];
+
+        if (quorum == 0) return 1;
 
         // Early check for single `sig`.
-        if (threshold == 1) {
+        if (quorum == 1) {
             (user, validationData) = _validateSig(hash, sig);
 
             if (validationData == 1) return 1;
@@ -559,9 +560,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Memo zero `user` in loop for ascending order.
         address previous;
 
-        // Check enough valid `sigs` to pass `threshold`.
+        // Check enough valid `sigs` to pass `quorum`.
         uint256 i;
-        for (i; i < threshold; ) {
+        for (i; i < quorum; ) {
             (user, validationData) = _validateSig(hash, sigs[i]);
 
             if (validationData == 1) return 1;
@@ -743,24 +744,26 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         _burn(from, id, amount);
 
         if (id == SIGN_KEY)
-            if (quorum > totalSupply[SIGN_KEY]) revert InvalidThreshold();
+            if (threshold[SIGN_KEY] > totalSupply[SIGN_KEY])
+                revert InvalidThreshold();
     }
 
     /// -----------------------------------------------------------------------
     /// Threshold Setting Logic
     /// -----------------------------------------------------------------------
 
-    /// @notice Update Keep quorum threshold.
-    /// @param threshold Signature threshold for `execute()`.
-    function setQuorum(uint256 threshold) public payable virtual {
+    /// @notice Update Keep ID threshold.
+    /// @param id ID key to set threshold for.
+    /// @param quorum Signature threshold for operations.
+    function setThreshold(uint256 id, uint256 quorum) public payable virtual {
         _authorized();
 
-        if (threshold == 0) revert InvalidThreshold();
-        if (threshold > totalSupply[SIGN_KEY]) revert InvalidThreshold();
+        if (quorum == 0) revert InvalidThreshold();
+        if (quorum > totalSupply[id]) revert InvalidThreshold();
 
-        quorum = uint120(threshold);
+        threshold[SIGN_KEY] = uint120(quorum);
 
-        emit QuorumSet(threshold);
+        emit ThresholdSet(id, quorum);
     }
 
     /// -----------------------------------------------------------------------
