@@ -503,21 +503,22 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             userOpHash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
 
-        uint32 key = uint32(userOp.nonce >> 64);
+        // Shift `userOp.nonce` to get ID key.
+        uint32 id = uint32(userOp.nonce >> 64);
 
-        // Shift `userOp.nonce` to branch between `validator` & signature check.
-        if (key != uint32(this.validateUserOp.selector)) {
-            validationData = _validate(userOpHash, userOp.signature, key);
-        } else {
+        // Check signature `threshold` is met and validate users.
+        validationData = _validate(userOpHash, userOp.signature, id);
+
+        // If `permissioned` ID key, send `userOp` for `validator` check.
+        if (permissioned[id])
             validationData = validator.validateUserOp(
                 userOp,
                 userOpHash,
                 missingAccountFunds
             );
-        }
 
         // Send any missing funds to `entrypoint()` (msg.sender).
-        if (missingAccountFunds != 0) {
+        if (missingAccountFunds != 0)
             assembly {
                 pop(
                     call(
@@ -531,7 +532,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     )
                 )
             }
-        }
     }
 
     function _validate(
