@@ -14,17 +14,19 @@ import {MockERC721} from "@solady/test/utils/mocks/MockERC721.sol";
 import {MockERC1155} from "@solady/test/utils/mocks/MockERC1155.sol";
 import {MockERC1271Wallet} from "@solady/test/utils/mocks/MockERC1271Wallet.sol";
 import {MockUnsafeERC1155Receiver} from "./utils/mocks/MockUnsafeERC1155Receiver.sol";
-import {mockName, TestHelpers} from "./utils/helpers.sol";
 
 /// @dev Test framework.
 import "@std/Test.sol";
 
-contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
+contract KeepTest is Keep(Keep(address(0))), Test {
     /// -----------------------------------------------------------------------
     /// Keep Storage/Logic
     /// -----------------------------------------------------------------------
 
     using stdStorage for StdStorage;
+
+    bytes32 internal constant name1 = keccak256("TEST1");
+    bytes32 internal constant name2 = keccak256("TEST2");
 
     address internal keepAddr;
     address internal keepAddrRepeat;
@@ -231,10 +233,10 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
 
         // Initialize Keep from factory.
         // The factory is fully tested in KeepFactory.t.sol.
-        (keepAddr, ) = factory.determineKeep(getName());
+        (keepAddr, ) = factory.determineKeep(name1);
         keep = Keep(keepAddr);
 
-        factory.deployKeep(getName(), calls, setupSigners, 2);
+        factory.deployKeep(name1, calls, setupSigners, 2);
 
         // Mint mock smart wallet a signer ID key.
         vm.prank(address(keep));
@@ -366,9 +368,9 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     function testCannotRepeatKeepSetup() public payable {
         keepRepeat = new Keep(Keep(mockUriValidator));
 
-        (keepAddrRepeat, ) = factory.determineKeep(mockName);
+        (keepAddrRepeat, ) = factory.determineKeep(name2);
         keepRepeat = Keep(keepAddrRepeat);
-        factory.deployKeep(mockName, calls, signers, 2);
+        factory.deployKeep(name2, calls, signers, 2);
 
         vm.expectRevert(AlreadyInit.selector);
         keepRepeat.initialize(calls, signers, 2);
@@ -376,12 +378,12 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
 
     function testCannotSetupWithZeroQuorum() public payable {
         vm.expectRevert(InvalidThreshold.selector);
-        factory.deployKeep(mockName, calls, signers, 0);
+        factory.deployKeep(name2, calls, signers, 0);
     }
 
     function testCannotSetupWithExcessiveQuorum() public payable {
         vm.expectRevert(InvalidThreshold.selector);
-        factory.deployKeep(mockName, calls, signers, 3);
+        factory.deployKeep(name2, calls, signers, 3);
     }
 
     function testCannotSetupWithOutOfOrderSigners() public payable {
@@ -389,8 +391,8 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         outOfOrderSigners[0] = alice > bob ? alice : bob;
         outOfOrderSigners[1] = alice > bob ? bob : alice;
 
-        vm.expectRevert(Unauthorized.selector);
-        factory.deployKeep(mockName, calls, outOfOrderSigners, 2);
+        vm.expectRevert(InvalidArray.selector);
+        factory.deployKeep(name2, calls, outOfOrderSigners, 2);
     }
 
     /// -----------------------------------------------------------------------
@@ -398,7 +400,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     /// -----------------------------------------------------------------------
 
     function testName() public {
-        assertEq(keep.name(), string(abi.encodePacked(getName())));
+        assertEq(keep.name(), string(abi.encodePacked(name1)));
     }
 
     // function testKeepNonce() public view {
@@ -410,12 +412,12 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
     // }
 
     function testQuorum() public payable {
-        assert(keep.threshold(SIGN_KEY) == 2);
+        assert(keep.quorum(SIGN_KEY) == 2);
 
         vm.prank(address(keep));
-        keep.setThreshold(SIGN_KEY, 3);
+        keep.setQuorum(SIGN_KEY, 3);
 
-        assert(keep.threshold(SIGN_KEY) == 3);
+        assert(keep.quorum(SIGN_KEY) == 3);
     }
 
     function testBalanceOf() public {
@@ -469,7 +471,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         ids[0] = 0;
 
         uint256[] memory balances = new uint256[](2);
-        vm.expectRevert(LengthMismatch.selector);
+        vm.expectRevert(InvalidArray.selector);
         balances = keep.balanceOfBatch(owners, ids);
     }
 
@@ -503,9 +505,8 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         assert(
             keep.multirelay.selector != keep.mint.selector &&
                 keep.mint.selector != keep.burn.selector &&
-                keep.burn.selector != keep.setThreshold.selector &&
-                keep.setThreshold.selector !=
-                keep.setTransferability.selector &&
+                keep.burn.selector != keep.setQuorum.selector &&
+                keep.setQuorum.selector != keep.setTransferability.selector &&
                 keep.setTransferability.selector !=
                 keep.setPermission.selector &&
                 keep.setPermission.selector !=
@@ -1012,7 +1013,7 @@ contract KeepTest is Keep(Keep(address(0))), Test, TestHelpers {
         assert(keep.totalSupply(SIGNER_KEY) == 3);
         assert(keep.totalSupply(1) == 0);
 
-        assert(keep.threshold(SIGN_KEY) == 2);
+        assert(keep.quorum(SIGN_KEY) == 2);
     }
 
     // function testCannotMintToUnsafeAddress() public payable {

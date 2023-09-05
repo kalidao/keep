@@ -66,7 +66,7 @@ abstract contract KeepToken {
     /// -----------------------------------------------------------------------
 
     error InvalidSignature();
-    error LengthMismatch();
+    error InvalidArray();
     error Unauthorized();
     error NonTransferable();
     error NotPermitted();
@@ -251,7 +251,7 @@ abstract contract KeepToken {
         address[] calldata owners,
         uint256[] calldata ids
     ) public view virtual returns (uint256[] memory balances) {
-        if (owners.length != ids.length) revert LengthMismatch();
+        if (owners.length != ids.length) revert InvalidArray();
 
         balances = new uint256[](owners.length);
 
@@ -328,7 +328,7 @@ abstract contract KeepToken {
         uint256[] calldata amounts,
         bytes calldata data
     ) public payable virtual {
-        if (ids.length != amounts.length) revert LengthMismatch();
+        if (ids.length != amounts.length) revert InvalidArray();
 
         if (msg.sender != from)
             if (!isApprovedForAll[from][msg.sender]) revert Unauthorized();

@@ -3,11 +3,12 @@ pragma solidity ^0.8.19;
 
 import {Call, Keep} from "../src/Keep.sol";
 import {KeepFactory} from "../src/KeepFactory.sol";
-import {mockName, TestHelpers} from "./utils/helpers.sol";
 import "@std/Test.sol";
 
-contract KeepFactoryTest is Test, TestHelpers {
+contract KeepFactoryTest is Test {
     KeepFactory immutable factory = new KeepFactory();
+
+    bytes32 internal constant mockName = keccak256("TEST1");
 
     /// @dev Users.
 
