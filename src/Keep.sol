@@ -191,6 +191,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     constructor(Keep _validator) payable {
         // Set as immutable.
         validator = _validator;
+
         // Deploy as singleton.
         quorum[EXEC_KEY] = 999;
     }
@@ -239,12 +240,17 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            emit TransferSingle(tx.origin, address(0), signer, EXEC_KEY, 1);
+            emit TransferSingle(
+                tx.origin,
+                address(0),
+                signer,
+                EXEC_KEY,
+                balanceOf[signer][EXEC_KEY] = 1
+            );
 
             // An array can't have a total length
             // larger than the max uint256 value.
             unchecked {
-                ++balanceOf[signer][EXEC_KEY];
                 ++supply;
                 ++i;
             }
