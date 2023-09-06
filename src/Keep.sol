@@ -757,7 +757,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         if (threshold > totalSupply[id]) revert InvalidThreshold();
 
-        quorum[id] = uint120(threshold);
+        quorum[id] = threshold;
 
         emit QuorumSet(id, threshold);
     }
@@ -765,7 +765,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// -----------------------------------------------------------------------
     /// ID Setting Logic
     /// -----------------------------------------------------------------------
-    // todo: rephrase for recognizability
 
     /// @notice ID transferability setting.
     /// @param id ID to set transferability for.
