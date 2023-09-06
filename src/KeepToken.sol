@@ -193,7 +193,7 @@ abstract contract KeepToken {
     /// ID Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant SIGN_KEY = uint32(0x6c4b5546); // `execute()`
+    uint256 internal constant EXEC_KEY = uint32(0x6c4b5546); // `execute()`.
 
     mapping(uint256 => uint256) public totalSupply;
 
@@ -292,9 +292,9 @@ abstract contract KeepToken {
             if (!userPermissioned[to][id] || !userPermissioned[from][id])
                 revert NotPermitted();
 
-        // If not transferring SIGN_KEY, update delegation balance.
-        // Otherwise, prevent transfer to SIGN_KEY holder.
-        if (id != SIGN_KEY)
+        // If not transferring EXEC_KEY, update delegation balance.
+        // Otherwise, prevent transfer to EXEC_KEY holder.
+        if (id != EXEC_KEY)
             _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
         else if (balanceOf[to][id] != 0) revert Overflow();
 
@@ -348,9 +348,9 @@ abstract contract KeepToken {
                 if (!userPermissioned[to][id] || !userPermissioned[from][id])
                     revert NotPermitted();
 
-            // If not transferring SIGN_KEY, update delegation balance.
-            // Otherwise, prevent transfer to SIGN_KEY holder.
-            if (id != SIGN_KEY)
+            // If not transferring EXEC_KEY, update delegation balance.
+            // Otherwise, prevent transfer to EXEC_KEY holder.
+            if (id != EXEC_KEY)
                 _moveDelegates(
                     delegates(from, id),
                     delegates(to, id),
@@ -694,9 +694,9 @@ abstract contract KeepToken {
     ) internal virtual {
         _safeCastTo216(totalSupply[id] += amount);
 
-        // If not minting SIGN_KEY, update delegation balance.
-        // Otherwise, prevent minting to SIGN_KEY holder.
-        if (id != SIGN_KEY)
+        // If not minting EXEC_KEY, update delegation balance.
+        // Otherwise, prevent minting to EXEC_KEY holder.
+        if (id != EXEC_KEY)
             _moveDelegates(address(0), delegates(to, id), id, amount);
         else if (balanceOf[to][id] != 0) revert Overflow();
 
@@ -732,8 +732,8 @@ abstract contract KeepToken {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
-        // If not burning SIGN_KEY, update delegation balance.
-        if (id != SIGN_KEY)
+        // If not burning EXEC_KEY, update delegation balance.
+        if (id != EXEC_KEY)
             _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 

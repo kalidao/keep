@@ -48,8 +48,6 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     uint256 internal chainId;
 
-    uint256 internal immutable EXEC_KEY = uint32(keep.execute.selector);
-
     bytes32 internal constant PERMIT_TYPEHASH =
         keccak256(
             "Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)"

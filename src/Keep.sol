@@ -61,7 +61,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     /// Events
     /// -----------------------------------------------------------------------
 
-    /// @dev Emitted when Keep executes SIGN_KEY op.
+    /// @dev Emitted when Keep executes EXEC_KEY op.
     event Executed(
         uint256 indexed nonce,
         Operation op,
@@ -192,7 +192,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Set as immutable.
         validator = _validator;
         // Deploy as singleton.
-        quorum[SIGN_KEY] = 999;
+        quorum[EXEC_KEY] = 999;
     }
 
     /// @notice Initialize Keep configuration.
@@ -204,7 +204,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         address[] calldata signers,
         uint256 threshold
     ) public payable virtual {
-        if (quorum[SIGN_KEY] != 0) revert AlreadyInit();
+        if (quorum[EXEC_KEY] != 0) revert AlreadyInit();
 
         if (threshold == 0) revert InvalidThreshold();
 
@@ -239,19 +239,19 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
             previous = signer;
 
-            emit TransferSingle(tx.origin, address(0), signer, SIGN_KEY, 1);
+            emit TransferSingle(tx.origin, address(0), signer, EXEC_KEY, 1);
 
             // An array can't have a total length
             // larger than the max uint256 value.
             unchecked {
-                ++balanceOf[signer][SIGN_KEY];
+                ++balanceOf[signer][EXEC_KEY];
                 ++supply;
                 ++i;
             }
         }
 
-        totalSupply[SIGN_KEY] = supply;
-        quorum[SIGN_KEY] = threshold;
+        totalSupply[EXEC_KEY] = supply;
+        quorum[EXEC_KEY] = threshold;
     }
 
     /// -----------------------------------------------------------------------
@@ -301,7 +301,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Memo zero `user` for ascending order.
         address previous;
         // Memo `quorum` threshold for loop length.
-        uint256 threshold = quorum[SIGN_KEY];
+        uint256 threshold = quorum[EXEC_KEY];
         // Memo signature outside loop for optimization.
         Signature calldata sig;
 
@@ -312,9 +312,9 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
             sig = sigs[i];
             address user = sig.user;
 
-            // Check SIGN_KEY balance.
+            // Check EXEC_KEY balance.
             // This also confirms non-zero `user`.
-            if (balanceOf[user][SIGN_KEY] == 0) revert Unauthorized();
+            if (balanceOf[user][EXEC_KEY] == 0) revert Unauthorized();
 
             // Check `user` `sig` recovery for `hash`.
             _checkSig(user, hash, sig.v, sig.r, sig.s);
@@ -456,8 +456,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 hash,
         bytes calldata sig
     ) public view virtual returns (bytes4) {
-        // Check `SIGN_KEY` as this denotes Keep ownership.
-        if (_validate(hash, sig, SIGN_KEY) == 0) return 0x1626ba7e;
+        // Check `EXEC_KEY` as this denotes Keep ownership.
+        if (_validate(hash, sig, EXEC_KEY) == 0) return 0x1626ba7e;
         else return 0xffffffff;
     }
 
@@ -733,8 +733,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
 
         _burn(from, id, amount);
 
-        if (id == SIGN_KEY)
-            if (quorum[SIGN_KEY] > totalSupply[SIGN_KEY])
+        if (id == EXEC_KEY)
+            if (quorum[EXEC_KEY] > totalSupply[EXEC_KEY])
                 revert InvalidThreshold();
     }
 
