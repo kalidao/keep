@@ -168,7 +168,7 @@ contract KeepFactory is Multicallable, Ownable(tx.origin) {
             keep := keccak256(0x00, 0x55)
             deployed := extcodesize(keep)
             // Restore the part of the free memory pointer that has been overwritten.
-            mstore(0x35, 0)
+            mstore(0x35, 0x00)
 
             // Restore the overwritten memory surrounding `data`.
             mstore(dataEnd, mAfter1)

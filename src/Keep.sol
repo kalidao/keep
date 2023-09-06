@@ -371,7 +371,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes memory data
     ) internal virtual {
         if (op == Operation.call) {
-            // todo: gas() thing
             assembly {
                 let success := call(
                     gas(),
@@ -380,13 +379,13 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     add(data, 0x20),
                     mload(data),
                     gas(),
-                    0
+                    0x00
                 )
-                returndatacopy(0, 0, returndatasize())
+                returndatacopy(0x00, 0x00, returndatasize())
                 if iszero(success) {
-                    revert(0, returndatasize())
+                    revert(0x00, returndatasize())
                 }
-                return(0, returndatasize())
+                return(0x00, returndatasize())
             }
         } else if (op == Operation.delegatecall) {
             assembly {
@@ -396,22 +395,22 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     add(data, 0x20),
                     mload(data),
                     gas(),
-                    0
+                    0x00
                 )
-                returndatacopy(0, 0, returndatasize())
+                returndatacopy(0x00, 0x00, returndatasize())
                 if iszero(success) {
-                    revert(0, returndatasize())
+                    revert(0x00, returndatasize())
                 }
-                return(0, returndatasize())
+                return(0x00, returndatasize())
             }
         } else if (op == Operation.create) {
             assembly {
                 let created := create(value, add(data, 0x20), mload(data))
                 if iszero(created) {
-                    revert(0, 0)
+                    revert(0x00, 0x00)
                 }
-                mstore(0, created)
-                return(0, 0x20)
+                mstore(0x00, created)
+                return(0x00, 0x20)
             }
         } else {
             assembly {
@@ -422,10 +421,10 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     mload(add(data, 0x20))
                 )
                 if iszero(created) {
-                    revert(0, 0)
+                    revert(0x00, 0x00)
                 }
-                mstore(0, created)
-                return(0, 0x20)
+                mstore(0x00, created)
+                return(0x00, 0x20)
             }
         }
     }
@@ -589,7 +588,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         assembly ("memory-safe") {
             r := mload(add(sig, 0x20))
             s := mload(add(sig, 0x40))
-            v := byte(0, mload(add(sig, 0x60)))
+            v := byte(0x00, mload(add(sig, 0x60)))
         }
 
         // Check `v` to branch ecrecover or ERC1271.
@@ -610,7 +609,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                         0x20 // Size of output.
                     )
                 )
-                mstore(0x60, 0) // Restore the zero slot.
+                mstore(0x60, 0x00) // Restore the zero slot.
                 mstore(0x40, m) // Restore the free memory pointer.
             }
         } else {
@@ -658,7 +657,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // todo: check memsafe
         assembly {
             // Check if `sig.length % 65 == 0`.
-            if iszero(eq(mod(mload(sig), 65), 0)) {
+            if iszero(eq(mod(mload(sig), 65), 0x00)) {
                 // If not, revert with InvalidSignature.
                 mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
                 revert(0x1c, 0x04)

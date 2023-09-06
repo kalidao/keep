@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.19;
 
-/// @notice ERC1155 token with Governor-style checkpointing, delegation and transfer restriction scheme.
-/// @author Modified from ERC1155V (https://github.com/kalidao/ERC1155V/blob/main/src/ERC1155V.sol)
+/// @notice ERC1155 token with checkpointing, delegation and transfer controls.
 abstract contract KeepToken {
     /// -----------------------------------------------------------------------
     /// Events
@@ -147,7 +146,7 @@ abstract contract KeepToken {
                 )
                 // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
                 if iszero(or(iszero(returndatasize()), xor(user, mload(t)))) {
-                    mstore(0x60, 0) // Restore the zero slot.
+                    mstore(0x60, 0x00) // Restore the zero slot.
                     mstore(0x40, m) // Restore the free memory pointer.
                     break
                 }
@@ -225,8 +224,7 @@ abstract contract KeepToken {
 
     function name() public pure virtual returns (string memory) {
         uint256 n;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             n := calldataload(
                 add(
                     sub(
