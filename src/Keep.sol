@@ -586,7 +586,6 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes32 s;
         uint8 v;
 
-        // todo: doublecheck memsafety
         assembly ("memory-safe") {
             r := mload(add(sig, 0x20))
             s := mload(add(sig, 0x40))
