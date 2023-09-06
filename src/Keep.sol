@@ -103,7 +103,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
     Keep internal immutable validator;
 
     /// @dev Record of states verifying `execute()`.
-    uint120 public nonce;
+    uint256 public nonce;
 
     /// @dev Internal ID metadata mapping.
     mapping(uint256 id => string) internal _uri;
@@ -277,7 +277,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         bytes calldata data,
         Signature[] calldata sigs
     ) public payable virtual {
-        uint120 txNonce;
+        uint256 txNonce;
         // Unchecked because the only math done is incrementing
         // Keep `nonce` which cannot realistically overflow.
         unchecked {
@@ -292,7 +292,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                 keccak256(
                     abi.encode(
                         keccak256(
-                            "Execute(uint8 op,address to,uint256 value,bytes data,uint120 nonce)"
+                            "Execute(uint8 op,address to,uint256 value,bytes data,uint256 nonce)"
                         ),
                         op,
                         to,

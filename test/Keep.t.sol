@@ -106,7 +106,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         address to,
         uint256 value,
         bytes memory data,
-        uint120 nonce,
+        uint256 nonce,
         bytes32 domainSeparator
     ) internal pure returns (bytes32) {
         return
@@ -117,7 +117,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
                     keccak256(
                         abi.encode(
                             keccak256(
-                                "Execute(uint8 op,address to,uint256 value,bytes data,uint120 nonce)"
+                                "Execute(uint8 op,address to,uint256 value,bytes data,uint256 nonce)"
                             ),
                             op,
                             to,
