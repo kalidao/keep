@@ -379,7 +379,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     value,
                     add(data, 0x20),
                     mload(data),
-                    0,
+                    gas(),
                     0
                 )
                 returndatacopy(0, 0, returndatasize())
@@ -395,7 +395,7 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
                     to,
                     add(data, 0x20),
                     mload(data),
-                    0,
+                    gas(),
                     0
                 )
                 returndatacopy(0, 0, returndatasize())
