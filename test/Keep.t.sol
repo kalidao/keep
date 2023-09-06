@@ -48,7 +48,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     uint256 internal chainId;
 
-    uint256 internal immutable SIGNER_KEY = uint32(keep.execute.selector);
+    uint256 internal immutable EXEC_KEY = uint32(keep.execute.selector);
 
     bytes32 internal constant PERMIT_TYPEHASH =
         keccak256(
@@ -240,7 +240,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         // Mint mock smart wallet a signer ID key.
         vm.prank(address(keep));
-        keep.mint(address(mockERC1271Wallet), SIGNER_KEY, 1, "");
+        keep.mint(address(mockERC1271Wallet), EXEC_KEY, 1, "");
 
         // Store chainId.
         chainId = block.chainid;
@@ -351,15 +351,15 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     // function testSignerSetup() public payable {
     //     // Check users.
-    //     assert(keep.balanceOf(alice, SIGNER_KEY) == 1);
-    //     assert(keep.balanceOf(bob, SIGNER_KEY) == 1);
-    //     assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
+    //     assert(keep.balanceOf(alice, EXEC_KEY) == 1);
+    //     assert(keep.balanceOf(bob, EXEC_KEY) == 1);
+    //     assert(keep.balanceOf(charlie, EXEC_KEY) == 0);
 
     //     // Also check smart wallet.
-    //     assert(keep.balanceOf(address(mockERC1271Wallet), SIGNER_KEY) == 1);
+    //     assert(keep.balanceOf(address(mockERC1271Wallet), EXEC_KEY) == 1);
 
     //     // Check supply.
-    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
+    //     assert(keep.totalSupply(EXEC_KEY) == 3);
     //     assert(keep.totalSupply(42069) == 0);
     // }
 
@@ -412,12 +412,12 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     // }
 
     function testQuorum() public payable {
-        assert(keep.quorum(SIGN_KEY) == 2);
+        assert(keep.quorum(EXEC_KEY) == 2);
 
         vm.prank(address(keep));
-        keep.setQuorum(SIGN_KEY, 3);
+        keep.setQuorum(EXEC_KEY, 3);
 
-        assert(keep.quorum(SIGN_KEY) == 3);
+        assert(keep.quorum(EXEC_KEY) == 3);
     }
 
     function testBalanceOf() public {
@@ -430,12 +430,12 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     }
 
     function testBalanceOfSigner() public {
-        assert(keep.balanceOf(charlie, SIGNER_KEY) == 0);
+        assert(keep.balanceOf(charlie, EXEC_KEY) == 0);
 
         vm.prank(address(keep));
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+        keep.mint(charlie, EXEC_KEY, 1, "");
 
-        assert(keep.balanceOf(charlie, SIGNER_KEY) == 1);
+        assert(keep.balanceOf(charlie, EXEC_KEY) == 1);
     }
 
     function testBalanceOfBatch() public {
@@ -445,7 +445,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         uint256[] memory ids = new uint256[](2);
         ids[0] = 0;
-        ids[1] = SIGNER_KEY;
+        ids[1] = EXEC_KEY;
 
         uint256[] memory balances = new uint256[](2);
         balances = keep.balanceOfBatch(owners, ids);
@@ -485,12 +485,12 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     // }
 
     // function testTotalSignerSupply() public {f
-    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
+    //     assert(keep.totalSupply(EXEC_KEY) == 3);
 
     //     vm.prank(address(keep));
-    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, EXEC_KEY, 1, "");
 
-    //     assert(keep.totalSupply(SIGNER_KEY) == 4);
+    //     assert(keep.totalSupply(EXEC_KEY) == 4);
     // }
 
     // function testSupportsInterface() public {
@@ -953,7 +953,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     //     uint256 amount,
     //     bytes calldata data
     // ) public payable {
-    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != EXEC_KEY);
     //     vm.assume(id != uint32(type(KeepToken).interfaceId)); // CORE_KEY
     //     vm.assume(keep.totalSupply(uint32(type(KeepToken).interfaceId)) == 0);
     //     amount = bound(amount, 0, type(uint216).max);
@@ -969,15 +969,15 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     // }
 
     // function testMintExecuteIdKey() public payable {
-    //     uint256 executeTotalSupply = keep.totalSupply(SIGNER_KEY);
-    //     uint256 executeBalance = keep.balanceOf(charlie, SIGNER_KEY);
+    //     uint256 executeTotalSupply = keep.totalSupply(EXEC_KEY);
+    //     uint256 executeBalance = keep.balanceOf(charlie, EXEC_KEY);
     //     uint256 preQuorum = keep.quorum();
 
     //     vm.prank(address(keep));
-    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, EXEC_KEY, 1, "");
 
-    //     assert(keep.balanceOf(charlie, SIGNER_KEY) == executeBalance + 1);
-    //     assert(keep.totalSupply(SIGNER_KEY) == executeTotalSupply + 1);
+    //     assert(keep.balanceOf(charlie, EXEC_KEY) == executeBalance + 1);
+    //     assert(keep.totalSupply(EXEC_KEY) == executeTotalSupply + 1);
     //     assert(keep.quorum() == preQuorum);
     // }
 
@@ -999,33 +999,33 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     // }
 
     function testCannotMintToZeroAddress() public payable {
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
+        assert(keep.totalSupply(EXEC_KEY) == 3);
 
         startHoax(address(keep), address(keep), type(uint256).max);
         vm.expectRevert(InvalidRecipient.selector);
-        keep.mint(address(0), SIGNER_KEY, 1, "");
+        keep.mint(address(0), EXEC_KEY, 1, "");
         vm.expectRevert(InvalidRecipient.selector);
         keep.mint(address(0), 1, 1, "");
 
-        assert(keep.balanceOf(address(0), SIGNER_KEY) == 0);
+        assert(keep.balanceOf(address(0), EXEC_KEY) == 0);
         assert(keep.balanceOf(address(0), 1) == 0);
 
-        assert(keep.totalSupply(SIGNER_KEY) == 3);
+        assert(keep.totalSupply(EXEC_KEY) == 3);
         assert(keep.totalSupply(1) == 0);
 
-        assert(keep.quorum(SIGN_KEY) == 2);
+        assert(keep.quorum(EXEC_KEY) == 2);
     }
 
     // function testCannotMintToUnsafeAddress() public payable {
-    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
+    //     assert(keep.totalSupply(EXEC_KEY) == 3);
 
     //     startHoax(address(keep), address(keep), type(uint256).max);
 
     //     vm.expectRevert();
-    //     keep.mint(address(mockDai), SIGNER_KEY, 1, "");
+    //     keep.mint(address(mockDai), EXEC_KEY, 1, "");
 
     //     vm.expectRevert(UnsafeRecipient.selector);
-    //     keep.mint(address(mockUnsafeERC1155Receiver), SIGNER_KEY, 1, "");
+    //     keep.mint(address(mockUnsafeERC1155Receiver), EXEC_KEY, 1, "");
 
     //     vm.expectRevert();
     //     keep.mint(address(mockDai), 1, 1, "");
@@ -1033,10 +1033,10 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     //     vm.expectRevert(UnsafeRecipient.selector);
     //     keep.mint(address(mockUnsafeERC1155Receiver), 1, 1, "");
 
-    //     assert(keep.balanceOf(address(0), SIGNER_KEY) == 0);
+    //     assert(keep.balanceOf(address(0), EXEC_KEY) == 0);
     //     assert(keep.balanceOf(address(0), 1) == 0);
 
-    //     assert(keep.totalSupply(SIGNER_KEY) == 3);
+    //     assert(keep.totalSupply(EXEC_KEY) == 3);
     //     assert(keep.totalSupply(1) == 0);
 
     //     assert(keep.quorum() == 2);
@@ -1064,17 +1064,17 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     // function testCannotMintOverflowExecuteID() public payable {
     //     startHoax(address(keep), address(keep), type(uint256).max);
 
-    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, EXEC_KEY, 1, "");
 
     //     vm.expectRevert(Overflow.selector);
-    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, EXEC_KEY, 1, "");
 
-    //     keep.burn(charlie, SIGNER_KEY, 1);
+    //     keep.burn(charlie, EXEC_KEY, 1);
 
-    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, EXEC_KEY, 1, "");
 
     //     vm.expectRevert(Overflow.selector);
-    //     keep.mint(charlie, SIGNER_KEY, 1, "");
+    //     keep.mint(charlie, EXEC_KEY, 1, "");
     // }
 
     // function testBurn() public payable {
@@ -1088,10 +1088,10 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
     // function testBurnSigner() public payable {
     //     vm.prank(address(keep));
-    //     keep.burn(alice, SIGNER_KEY, 1);
+    //     keep.burn(alice, EXEC_KEY, 1);
 
-    //     assert(keep.balanceOf(alice, SIGNER_KEY) == 0);
-    //     assert(keep.totalSupply(SIGNER_KEY) == 2);
+    //     assert(keep.balanceOf(alice, EXEC_KEY) == 0);
+    //     assert(keep.totalSupply(EXEC_KEY) == 2);
     // }
 
     // function testCannotBurnUnderflow() public payable {
@@ -1195,7 +1195,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         amount = bound(amount, 0, type(uint216).max);
         if (
-            id == SIGNER_KEY &&
+            id == EXEC_KEY &&
             (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
         ) {
             amount = amount - 1;
@@ -1231,7 +1231,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         amount = bound(amount, 0, type(uint216).max);
         if (
-            id == SIGNER_KEY &&
+            id == EXEC_KEY &&
             (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
         ) {
             amount = amount - 1;
@@ -1270,7 +1270,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         amount = bound(amount, 0, type(uint216).max);
         if (
-            id == SIGNER_KEY &&
+            id == EXEC_KEY &&
             (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
         ) {
             amount = amount - 1;
@@ -1365,7 +1365,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         vm.assume(userA.code.length == 0);
         vm.assume(userB.code.length == 0);
         vm.assume(userC.code.length == 0);
-        vm.assume(id != SIGNER_KEY);
+        vm.assume(id != EXEC_KEY);
         vm.assume(id != CORE_KEY);
 
         amount = bound(amount, 0, type(uint216).max);
@@ -1441,27 +1441,27 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     /*
     function testCannotTransferExecuteOverflow() public payable {
         startHoax(address(keep), address(keep), type(uint256).max);
-        keep.setTransferability(SIGNER_KEY, true);
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+        keep.setTransferability(EXEC_KEY, true);
+        keep.mint(charlie, EXEC_KEY, 1, "");
 
         vm.prank(charlie);
-        keep.safeTransferFrom(charlie, address(0xBeef), SIGNER_KEY, 1, "");
+        keep.safeTransferFrom(charlie, address(0xBeef), EXEC_KEY, 1, "");
 
         startHoax(address(keep), address(keep), type(uint256).max);
-        keep.mint(charlie, SIGNER_KEY, 1, "");
+        keep.mint(charlie, EXEC_KEY, 1, "");
 
         vm.prank(charlie);
         vm.expectRevert(Overflow.selector);
-        keep.safeTransferFrom(charlie, address(0xBeef), SIGNER_KEY, 1, "");
+        keep.safeTransferFrom(charlie, address(0xBeef), EXEC_KEY, 1, "");
 
         startHoax(address(keep), address(keep), type(uint256).max);
-        keep.burn(address(0xBeef), SIGNER_KEY, 1);
+        keep.burn(address(0xBeef), EXEC_KEY, 1);
     }*/
     /*
     function testCannotTransferKeepTokenNonTransferable(
         uint256 id
     ) public payable {
-        vm.assume(id != SIGNER_KEY);
+        vm.assume(id != EXEC_KEY);
 
         vm.prank(address(keep));
         keep.mint(charlie, id, 1, "");
@@ -1519,7 +1519,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
         uint256 id
     ) public payable {
         vm.assume(id != 1816876358);
-        vm.assume(id != SIGNER_KEY);
+        vm.assume(id != EXEC_KEY);
 
         vm.prank(address(keep));
         keep.setTransferability(id, true);
@@ -1552,7 +1552,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
 
         amount = bound(amount, 0, type(uint216).max);
         if (
-            id == SIGNER_KEY &&
+            id == EXEC_KEY &&
             (keep.balanceOf(userA, id) != 0 || keep.balanceOf(userB, id) != 0)
         ) {
             amount = amount - 1;
@@ -1681,7 +1681,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     // ) public payable {
     //     vm.assume(user != address(0));
     //     vm.assume(user.code.length == 0);
-    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != EXEC_KEY);
 
     //     amount = bound(amount, 0, type(uint216).max);
 
@@ -1712,7 +1712,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     //     vm.assume(userA != userB);
     //     vm.assume(userA.code.length == 0);
     //     vm.assume(userB.code.length == 0);
-    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != EXEC_KEY);
 
     //     vm.warp(1665378008);
 
@@ -1769,7 +1769,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     //     vm.assume(userA != userB);
     //     vm.assume(userA.code.length == 0);
     //     vm.assume(userB.code.length == 0);
-    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != EXEC_KEY);
     //     vm.assume(id != CORE_KEY);
 
     //     vm.warp(1665378008);
@@ -1901,7 +1901,7 @@ contract KeepTest is Keep(Keep(address(0))), Test {
     //     amount = bound(amount, 0, type(uint216).max);
     //     vm.assume(userB != address(0));
     //     vm.assume(userB.code.length == 0);
-    //     vm.assume(id != SIGNER_KEY);
+    //     vm.assume(id != EXEC_KEY);
 
     //     uint256 privateKey = 0xBEEF;
     //     address userA = vm.addr(0xBEEF);
