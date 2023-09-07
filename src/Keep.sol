@@ -5,7 +5,8 @@ import {ERC1155TokenReceiver, KeepToken} from "./KeepToken.sol";
 import {Multicallable} from "./utils/Multicallable.sol";
 
 /// @title Keep
-/// @notice Tokenized multisig wallet.
+/// @notice Multitoken signature auth system.
+/// @dev Optimized for multisig operations.
 /// @author z0r0z.eth
 /// @custom:coauthor @ControlCplusControlV
 /// @custom:coauthor boredretard.eth
@@ -507,8 +508,8 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         // Check signature `quorum` is met and validate auth.
         validationData = _validate(userOpHash, userOp.signature, id);
 
-        // If permissioned ID key (4337-10000), send `userOp` for `validator` check.
-        if (id > 4336 && id < 10001)
+        // Extract 'validator flag' in 33rd bit. If set, `validator` check `userOp` with `id`.
+        if (userOp.nonce & (1 << 32) != 0) 
             validationData = validator.validateUserOp(userOp, userOpHash, id);
 
         // Send any missing funds to `entrypoint()` (msg.sender).
