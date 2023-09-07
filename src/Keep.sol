@@ -503,13 +503,14 @@ contract Keep is ERC1155TokenReceiver, KeepToken, Multicallable {
         }
 
         // Shift `userOp.nonce` to get ID key.
-        uint32 id = uint32(userOp.nonce >> 64);
+        uint256 key = (userOp.nonce >> 64);
+        uint256 id = key >> 191;
 
         // Check signature `quorum` is met and validate auth.
         validationData = _validate(userOpHash, userOp.signature, id);
 
-        // Extract 'validator flag' in 33rd bit. If set, `validator` check `userOp` with `id`.
-        if (userOp.nonce & (1 << 32) != 0) 
+        // Extract 'validator flag' in 192rd bit. If set, `validator` check `userOp` with `id`.
+        if ((key & (1 << 191)) != 0)
             validationData = validator.validateUserOp(userOp, userOpHash, id);
 
         // Send any missing funds to `entrypoint()` (msg.sender).
