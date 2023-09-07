@@ -1,18 +1,17 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity ^0.8.19;
 
-import {KeepTokenManager} from "../utils/KeepTokenManager.sol";
 import {Multicallable} from "../../utils/Multicallable.sol";
+import {IKeep} from "../../utils/interfaces/IKeep.sol";
 
 /// @title Mint Manager
 /// @notice ERC1155 token ID mint permission manager.
-/// @author z0r0z.eth
 contract MintManager is Multicallable {
-    event Approved(
-        address indexed source,
-        address indexed manager,
-        uint256 id,
-        bool approve
+    event Authorized(
+        address indexed src,
+        address indexed usr,
+        uint256 indexed id,
+        bool on
     );
 
     error Unauthorized();
@@ -20,25 +19,25 @@ contract MintManager is Multicallable {
     mapping(address => mapping(address => mapping(uint256 => bool)))
         public approved;
 
-    function approve(
-        address manager,
+    function authorize(
+        address usr,
         uint256 id,
         bool on
     ) public payable virtual {
-        approved[msg.sender][manager][id] = on;
+        approved[msg.sender][usr][id] = on;
 
-        emit Approved(msg.sender, manager, id, on);
+        emit Authorized(msg.sender, usr, id, on);
     }
 
     function mint(
-        address source,
+        address src,
         address to,
         uint256 id,
         uint256 amount,
         bytes calldata data
     ) public payable virtual {
-        if (!approved[source][msg.sender][id]) revert Unauthorized();
+        if (!approved[src][msg.sender][id]) revert Unauthorized();
 
-        KeepTokenManager(source).mint(to, id, amount, data);
+        IKeep(src).mint(to, id, amount, data);
     }
 }

@@ -1,13 +1,13 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity ^0.8.19;
 
 /// @notice Remote metadata fetcher for ERC1155.
-contract URIRemoteFetcherV2 {
+contract URIRemoteFetcher {
     uint256 internal immutable chainId = block.chainid;
 
     constructor() payable {}
 
-    function fetchURI(
+    function uri(
         address origin,
         uint256 id
     ) public view virtual returns (string memory) {
@@ -76,7 +76,7 @@ contract URIRemoteFetcherV2 {
     /// https://eips.ethereum.org/EIPS/eip-55
     function toHexStringChecksummed(
         address value
-    ) internal pure virtual returns (string memory str) {
+    ) internal pure returns (string memory str) {
         str = toHexString(value);
         /// @solidity memory-safe-assembly
         assembly {
@@ -111,7 +111,7 @@ contract URIRemoteFetcherV2 {
     /// The output is prefixed with "0x" and encoded using 2 hexadecimal digits per byte.
     function toHexString(
         address value
-    ) internal pure virtual returns (string memory str) {
+    ) internal pure returns (string memory str) {
         str = toHexStringNoPrefix(value);
         /// @solidity memory-safe-assembly
         assembly {
@@ -126,7 +126,7 @@ contract URIRemoteFetcherV2 {
     /// The output is encoded using 2 hexadecimal digits per byte.
     function toHexStringNoPrefix(
         address value
-    ) internal pure virtual returns (string memory str) {
+    ) internal pure returns (string memory str) {
         /// @solidity memory-safe-assembly
         assembly {
             str := mload(0x40)

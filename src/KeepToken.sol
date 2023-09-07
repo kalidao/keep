@@ -1,33 +1,7 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity ^0.8.19;
 
-/// @notice ERC1155 interface to receive tokens.
-/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/tokens/ERC1155/ERC1155.sol)
-abstract contract ERC1155TokenReceiver {
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes calldata
-    ) public payable virtual returns (bytes4) {
-        return this.onERC1155Received.selector;
-    }
-
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] calldata,
-        uint256[] calldata,
-        bytes calldata
-    ) public payable virtual returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
-    }
-}
-
-/// @notice Modern, minimalist, and gas-optimized ERC1155 implementation with Compound-style voting and flexible permissioning scheme.
-/// @author Modified from ERC1155V (https://github.com/kalidao/ERC1155V/blob/main/src/ERC1155V.sol)
-/// @author Modified from Compound (https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol)
+/// @notice ERC1155 token with checkpointing, delegation and transfer controls.
 abstract contract KeepToken {
     /// -----------------------------------------------------------------------
     /// Events
@@ -90,24 +64,15 @@ abstract contract KeepToken {
     /// Custom Errors
     /// -----------------------------------------------------------------------
 
-    error InvalidSig();
-
-    error LengthMismatch();
-
+    error InvalidSignature();
+    error InvalidArray();
     error Unauthorized();
-
     error NonTransferable();
-
     error NotPermitted();
-
     error UnsafeRecipient();
-
     error InvalidRecipient();
-
     error ExpiredSig();
-
     error Undetermined();
-
     error Overflow();
 
     /// -----------------------------------------------------------------------
@@ -122,117 +87,112 @@ abstract contract KeepToken {
     /// EIP-712 Storage/Logic
     /// -----------------------------------------------------------------------
 
-    bytes32 internal constant MALLEABILITY_THRESHOLD =
-        0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
-
     mapping(address => uint256) public nonces;
 
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    // `keccak256(
-                    //     "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    // )`
-                    0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f,
-                    // `keccak256(bytes("Keep"))`
-                    0x21d66785fec14e4da3d76f3866cf99a28f4da49ec8782c3cab7cf79c1b6fa66b,
-                    // `keccak256("1")`
-                    0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6,
-                    block.chainid,
-                    address(this)
-                )
-            );
+    function DOMAIN_SEPARATOR()
+        public
+        view
+        virtual
+        returns (bytes32 separator)
+    {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let m := mload(0x40) // Load the free memory pointer.
+            mstore(
+                m,
+                0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f
+            )
+            mstore(
+                add(m, 0x20),
+                0x21d66785fec14e4da3d76f3866cf99a28f4da49ec8782c3cab7cf79c1b6fa66b
+            )
+            mstore(
+                add(m, 0x40),
+                0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6
+            )
+            mstore(add(m, 0x60), chainid())
+            mstore(add(m, 0x80), address())
+            separator := keccak256(m, 0xa0)
+        }
     }
 
-    function _recoverSig(
+    function _checkSig(
+        address user,
         bytes32 hash,
-        address signer,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) internal view virtual {
-        bool isValid;
-
         /// @solidity memory-safe-assembly
         assembly {
-            // Clean the upper 96 bits of `signer` in case they are dirty.
+            // Clean the upper 96 bits of `user` in case they are dirty.
             for {
-                signer := shr(96, shl(96, signer))
-            } signer {
+                user := shr(96, shl(96, user))
+            } user {
 
             } {
-                // Load the free memory pointer.
-                // Simply using the free memory usually costs less if many slots are needed.
                 let m := mload(0x40)
-
-                // Clean the excess bits of `v` in case they are dirty.
-                v := and(v, 0xff)
-                // If `s` in lower half order, such that the signature is not malleable.
-                if iszero(gt(s, MALLEABILITY_THRESHOLD)) {
-                    mstore(m, hash)
-                    mstore(add(m, 0x20), v)
-                    mstore(add(m, 0x40), r)
-                    mstore(add(m, 0x60), s)
-                    pop(
-                        staticcall(
-                            gas(), // Amount of gas left for the transaction.
-                            0x01, // Address of `ecrecover`.
-                            m, // Start of input.
-                            0x80, // Size of input.
-                            m, // Start of output.
-                            0x20 // Size of output.
-                        )
-                    )
-                    // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
-                    if mul(eq(mload(m), signer), returndatasize()) {
-                        isValid := 1
-                        break
-                    }
+                mstore(0x00, hash)
+                mstore(0x20, and(v, 0xff)) // `v`.
+                mstore(0x40, r) // `r`.
+                mstore(0x60, s) // `s`.
+                let t := staticcall(
+                    gas(), // Amount of gas left for the transaction.
+                    1, // Address of `ecrecover`.
+                    0x00, // Start of input.
+                    0x80, // Size of input.
+                    0x01, // Start of output.
+                    0x20 // Size of output.
+                )
+                // `returndatasize()` will be `0x20` upon success, and `0x00` otherwise.
+                if iszero(or(iszero(returndatasize()), xor(user, mload(t)))) {
+                    mstore(0x60, 0x00) // Restore the zero slot.
+                    mstore(0x40, m) // Restore the free memory pointer.
+                    break
                 }
 
-                // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
                 let f := shl(224, 0x1626ba7e)
-                // Write the abi-encoded calldata into memory, beginning with the function selector.
                 mstore(m, f) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
                 mstore(add(m, 0x04), hash)
-                mstore(add(m, 0x24), 0x40) // The offset of the `signature` in the calldata.
-                mstore(add(m, 0x44), 65) // Store the length of the signature.
-                mstore(add(m, 0x64), r) // Store `r` of the signature.
-                mstore(add(m, 0x84), s) // Store `s` of the signature.
-                mstore8(add(m, 0xa4), v) // Store `v` of the signature.
+                let d := add(m, 0x24)
+                mstore(d, 0x40) // The offset of the `signature` in the calldata.
+                mstore(add(m, 0x44), 65) // Length of the `signature`.
+                mstore(add(m, 0x64), r) // `r`.
+                mstore(add(m, 0x84), s) // `s`.
+                mstore8(add(m, 0xa4), v) // `v`.
 
-                isValid := and(
+                if iszero(
                     and(
                         // Whether the returndata is the magic value `0x1626ba7e` (left-aligned).
-                        eq(mload(0x00), f),
-                        // Whether the returndata is exactly 0x20 bytes (1 word) long.
-                        eq(returndatasize(), 0x20)
-                    ),
-                    // Whether the staticcall does not revert.
-                    // This must be placed at the end of the `and` clause,
-                    // as the arguments are evaluated from right to left.
-                    staticcall(
-                        gas(), // Remaining gas.
-                        signer, // The `signer` address.
-                        m, // Offset of calldata in memory.
-                        0xa5, // Length of calldata in memory.
-                        0x00, // Offset of returndata.
-                        0x20 // Length of returndata to write.
+                        eq(mload(d), f),
+                        // Whether the staticcall does not revert.
+                        // This must be placed at the end of the `and` clause,
+                        // as the arguments are evaluated from right to left.
+                        staticcall(
+                            gas(), // Remaining gas.
+                            user, // The `user` address.
+                            m, // Offset of calldata in memory.
+                            0xa5, // Length of calldata in memory.
+                            d, // Offset of returndata.
+                            0x20 // Length of returndata to write.
+                        )
                     )
-                )
+                ) {
+                    mstore(0x00, 0x8baa579f) // `InvalidSignature()`.
+                    revert(0x1c, 0x04)
+                }
+                mstore(0x60, 0) // Restore the zero slot.
+                mstore(0x40, m) // Restore the free memory pointer.
                 break
             }
         }
-
-        if (!isValid) revert InvalidSig();
     }
 
     /// -----------------------------------------------------------------------
     /// ID Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant SIGN_KEY = uint32(0x6c4b5546); // `execute()`
+    uint256 internal constant EXEC_KEY = uint32(0x6c4b5546); // `execute()`.
 
     mapping(uint256 => uint256) public totalSupply;
 
@@ -263,33 +223,23 @@ abstract contract KeepToken {
     /// -----------------------------------------------------------------------
 
     function name() public pure virtual returns (string memory) {
-        uint256 placeholder;
-
-        assembly {
-            placeholder := sub(
-                calldatasize(),
-                add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+        uint256 n;
+        assembly ("memory-safe") {
+            n := calldataload(
+                add(
+                    sub(
+                        calldatasize(),
+                        add(shr(240, calldataload(sub(calldatasize(), 2))), 2)
+                    ),
+                    2
+                )
             )
-
-            placeholder := calldataload(add(placeholder, 2))
         }
 
-        return string(abi.encodePacked(placeholder));
+        return string(abi.encodePacked(n));
     }
 
-    /// -----------------------------------------------------------------------
-    /// ERC165 Logic
-    /// -----------------------------------------------------------------------
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual returns (bool) {
-        return
-            // ERC165 interface ID for ERC165.
-            interfaceId == this.supportsInterface.selector ||
-            // ERC165 interface ID for ERC1155.
-            interfaceId == 0xd9b67a26;
-    }
+    string public constant symbol = "KEEP";
 
     /// -----------------------------------------------------------------------
     /// ERC1155 Logic
@@ -299,11 +249,12 @@ abstract contract KeepToken {
         address[] calldata owners,
         uint256[] calldata ids
     ) public view virtual returns (uint256[] memory balances) {
-        if (owners.length != ids.length) revert LengthMismatch();
+        if (owners.length != ids.length) revert InvalidArray();
 
         balances = new uint256[](owners.length);
 
-        for (uint256 i; i < owners.length; ) {
+        uint256 i;
+        for (i; i < owners.length; ) {
             balances[i] = balanceOf[owners[i]][ids[i]];
 
             // Unchecked because the only math done is incrementing
@@ -339,9 +290,9 @@ abstract contract KeepToken {
             if (!userPermissioned[to][id] || !userPermissioned[from][id])
                 revert NotPermitted();
 
-        // If not transferring SIGN_KEY, update delegation balance.
-        // Otherwise, prevent transfer to SIGN_KEY holder.
-        if (id != SIGN_KEY)
+        // If not transferring EXEC_KEY, update delegation balance.
+        // Otherwise, prevent transfer to EXEC_KEY holder.
+        if (id != EXEC_KEY)
             _moveDelegates(delegates(from, id), delegates(to, id), id, amount);
         else if (balanceOf[to][id] != 0) revert Overflow();
 
@@ -375,7 +326,7 @@ abstract contract KeepToken {
         uint256[] calldata amounts,
         bytes calldata data
     ) public payable virtual {
-        if (ids.length != amounts.length) revert LengthMismatch();
+        if (ids.length != amounts.length) revert InvalidArray();
 
         if (msg.sender != from)
             if (!isApprovedForAll[from][msg.sender]) revert Unauthorized();
@@ -383,8 +334,9 @@ abstract contract KeepToken {
         // Storing these outside the loop saves ~15 gas per iteration.
         uint256 id;
         uint256 amount;
+        uint256 i;
 
-        for (uint256 i; i < ids.length; ) {
+        for (i; i < ids.length; ) {
             id = ids[i];
             amount = amounts[i];
 
@@ -394,9 +346,9 @@ abstract contract KeepToken {
                 if (!userPermissioned[to][id] || !userPermissioned[from][id])
                     revert NotPermitted();
 
-            // If not transferring SIGN_KEY, update delegation balance.
-            // Otherwise, prevent transfer to SIGN_KEY holder.
-            if (id != SIGN_KEY)
+            // If not transferring EXEC_KEY, update delegation balance.
+            // Otherwise, prevent transfer to EXEC_KEY holder.
+            if (id != EXEC_KEY)
                 _moveDelegates(
                     delegates(from, id),
                     delegates(to, id),
@@ -448,7 +400,7 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) public payable virtual {
-        if (owner == address(0)) revert InvalidSig();
+        if (owner == address(0)) revert InvalidSignature();
 
         if (block.timestamp > deadline) revert ExpiredSig();
 
@@ -474,7 +426,7 @@ abstract contract KeepToken {
                 )
             );
 
-            _recoverSig(hash, owner, v, r, s);
+            _checkSig(owner, hash, v, r, s);
         }
 
         isApprovedForAll[owner][operator] = approved;
@@ -487,13 +439,6 @@ abstract contract KeepToken {
     /// -----------------------------------------------------------------------
 
     function getVotes(
-        address account,
-        uint256 id
-    ) public view virtual returns (uint256) {
-        return getCurrentVotes(account, id);
-    }
-
-    function getCurrentVotes(
         address account,
         uint256 id
     ) public view virtual returns (uint256) {
@@ -511,14 +456,6 @@ abstract contract KeepToken {
     }
 
     function getPastVotes(
-        address account,
-        uint256 id,
-        uint256 timestamp
-    ) public view virtual returns (uint256) {
-        return getPriorVotes(account, id, timestamp);
-    }
-
-    function getPriorVotes(
         address account,
         uint256 id,
         uint256 timestamp
@@ -590,7 +527,7 @@ abstract contract KeepToken {
         bytes32 r,
         bytes32 s
     ) public payable virtual {
-        if (delegator == address(0)) revert InvalidSig();
+        if (delegator == address(0)) revert InvalidSignature();
 
         if (block.timestamp > deadline) revert ExpiredSig();
 
@@ -616,7 +553,7 @@ abstract contract KeepToken {
                 )
             );
 
-            _recoverSig(hash, delegator, v, r, s);
+            _checkSig(delegator, hash, v, r, s);
         }
 
         _delegate(delegator, delegatee, id);
@@ -755,9 +692,9 @@ abstract contract KeepToken {
     ) internal virtual {
         _safeCastTo216(totalSupply[id] += amount);
 
-        // If not minting SIGN_KEY, update delegation balance.
-        // Otherwise, prevent minting to SIGN_KEY holder.
-        if (id != SIGN_KEY)
+        // If not minting EXEC_KEY, update delegation balance.
+        // Otherwise, prevent minting to EXEC_KEY holder.
+        if (id != EXEC_KEY)
             _moveDelegates(address(0), delegates(to, id), id, amount);
         else if (balanceOf[to][id] != 0) revert Overflow();
 
@@ -793,8 +730,8 @@ abstract contract KeepToken {
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
 
-        // If not burning SIGN_KEY, update delegation balance.
-        if (id != SIGN_KEY)
+        // If not burning EXEC_KEY, update delegation balance.
+        if (id != EXEC_KEY)
             _moveDelegates(delegates(from, id), address(0), id, amount);
     }
 
@@ -822,5 +759,28 @@ abstract contract KeepToken {
         userPermissioned[to][id] = on;
 
         emit UserPermissionSet(msg.sender, to, id, on);
+    }
+}
+
+/// @notice ERC1155 interface to receive tokens.
+abstract contract ERC1155TokenReceiver {
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
+    ) public payable virtual returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }

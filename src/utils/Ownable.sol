@@ -1,14 +1,13 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity ^0.8.19;
 
 /// @notice Simple single owner authorization mixin that implements ERC173.
-/// @author Modified from Solbase (https://github.com/Sol-DAO/solbase/blob/main/src/auth/Owned.sol)
-abstract contract Owned {
+abstract contract Ownable {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event OwnershipTransferred(address indexed owner, address indexed newOwner);
+    event OwnershipTransferred(address indexed owner, address indexed _owner);
 
     /// -----------------------------------------------------------------------
     /// Custom Errors
@@ -43,11 +42,11 @@ abstract contract Owned {
     /// -----------------------------------------------------------------------
 
     function transferOwnership(
-        address newOwner
+        address _owner
     ) public payable virtual onlyOwner {
-        owner = newOwner;
+        owner = _owner;
 
-        emit OwnershipTransferred(msg.sender, newOwner);
+        emit OwnershipTransferred(msg.sender, _owner);
     }
 
     /// -----------------------------------------------------------------------
